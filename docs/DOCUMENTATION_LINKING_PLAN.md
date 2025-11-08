@@ -183,7 +183,7 @@ docker-compose up -d → [docker-compose.yml](../docker-compose.yml)
 ├── [README.md](../README.md)                  # Main documentation
 ├── [CLAUDE.md](../CLAUDE.md)                  # Claude instructions
 ├── [SESSION_NOTES.md](../SESSION_NOTES.md)           # Development history
-└── [TEST_SUITE_SUMMARY.md](../TEST_SUITE_SUMMARY.md)      # Testing documentation
+└── [TEST_SUITE_SUMMARY.md](./TEST_SUITE_SUMMARY.md)      # Testing documentation
 
 # Line 430
 ./scripts/test-all.sh → [test-all.sh](../scripts/test-all.sh)
@@ -279,7 +279,7 @@ For detailed information, see: [TESTING_GUIDE.md](./docs/TESTING_GUIDE.md)
 
 ./scripts/test-all.sh → [test-all.sh](../scripts/test-all.sh)
 
-For quick reference, see [TEST_SUITE_SUMMARY.md](../TEST_SUITE_SUMMARY.md)
+For quick reference, see [TEST_SUITE_SUMMARY.md](./TEST_SUITE_SUMMARY.md)
 ```
 
 ---
