@@ -341,7 +341,7 @@ Comprehensive test suite with 24 automated checks:
 ./scripts/test-integration.sh
 ```
 
-See [TEST_SUITE_SUMMARY.md](./TEST_SUITE_SUMMARY.md) for detailed test documentation.
+See [TEST_SUITE_SUMMARY.md](./docs/TEST_SUITE_SUMMARY.md) for detailed test documentation.
 
 ---
 
@@ -508,8 +508,7 @@ SYNAPSE_ENGINE/
 ├── .env.example               # Environment template
 ├── README.md                  # Main documentation
 ├── CLAUDE.md                  # Claude instructions
-├── SESSION_NOTES.md           # Development history
-└── TEST_SUITE_SUMMARY.md      # Testing documentation
+└── SESSION_NOTES.md           # Development history
 ```
 
 **Key Files:**
@@ -518,7 +517,7 @@ SYNAPSE_ENGINE/
 - [README.md](./README.md) - Comprehensive project documentation
 - [CLAUDE.md](./CLAUDE.md) - Development instructions for Claude Code
 - [SESSION_NOTES.md](./SESSION_NOTES.md) - Chronological development history
-- [TEST_SUITE_SUMMARY.md](./TEST_SUITE_SUMMARY.md) - Testing quick reference
+- [TEST_SUITE_SUMMARY.md](./docs/TEST_SUITE_SUMMARY.md) - Testing quick reference
 
 ### Key Directories
 

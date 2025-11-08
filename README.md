@@ -647,7 +647,7 @@ S.Y.N.A.P.S.E. ENGINE includes a comprehensive test suite with **24 automated te
 - ✅ Automated health checks for all services
 - ✅ Integration tests ensure cross service compatibility
 
-For detailed test documentation, see [TEST_SUITE_SUMMARY.md](TEST_SUITE_SUMMARY.md).
+For detailed test documentation, see [TEST_SUITE_SUMMARY.md](./docs/TEST_SUITE_SUMMARY.md).
 
 ## Troubleshooting
 
