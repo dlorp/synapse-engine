@@ -1,0 +1,20 @@
+profile:
+  name: "Fast Only"
+  description: "Maximum speed with single small model"
+
+enabled_models:
+  - qwen3_4p0b_q4km_fast
+
+tier_config:
+  - name: "fast"
+    max_score: .inf
+    expected_time_seconds: 2
+    description: "Speed optimized"
+
+two_stage:
+  enabled: false
+
+load_balancing:
+  enabled: false
+  strategy: "round_robin"
+  health_check_interval: 30

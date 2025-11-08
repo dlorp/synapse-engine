@@ -1,0 +1,493 @@
+# =============================================================================
+# S.Y.N.A.P.S.E. ENGINE - Docker Compose Configuration
+# =============================================================================
+# Scalable Yoked Network for Adaptive Praxial System Emergence
+#
+# Canonical service naming:
+#   synapse_core      - CORE:PRAXIS (FastAPI orchestrator)
+#   synapse_frontend  - CORE:INTERFACE (React terminal UI)
+#   synapse_host_api  - NODE:NEURAL (Metal server manager)
+#   synapse_recall    - NODE:RECALL (CGRAG + SearXNG)
+#   synapse_redis     - CORE:MEMEX (Cache and session store)
+#
+# Usage:
+#   docker-compose up -d                  # Start all services
+#   docker-compose logs -f synapse_core   # Follow orchestrator logs
+#   docker-compose ps                     # Check service status
+#   docker-compose down                   # Stop all services
+#   docker-compose down -v                # Stop and remove volumes
+#
+# Development:
+#   docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+# =============================================================================
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+  synapse_net:
+    driver: bridge
+    name: synapse_network
+
+# =============================================================================
+# Volumes
+# =============================================================================
+volumes:
+  # Named volume for Redis data persistence
+  # Marked as external to use existing volume without metadata conflicts
+  redis_data:
+    name: synapse_redis_data
+    external: true
+
+# =============================================================================
+# Services
+# =============================================================================
+services:
+  # ---------------------------------------------------------------------------
+  # Redis - Caching & Session Storage
+  # ---------------------------------------------------------------------------
+  synapse_redis:
+    image: redis:7-alpine
+    container_name: synapse_redis
+    restart: unless-stopped
+
+    # Command with authentication and persistence
+    command: >
+      redis-server
+      --requirepass ${MEMEX_PASSWORD:-change_this_secure_redis_password}
+      --appendonly yes
+      --appendfsync everysec
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+
+    # Port mapping
+    ports:
+      - "6379:6379"
+
+    # Volume for data persistence
+    volumes:
+      - redis_data:/data
+
+    # Health check - verify Redis is responding
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+    networks:
+      - synapse_net
+
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ---------------------------------------------------------------------------
+  # SearXNG - Privacy-Respecting Metasearch Engine
+  # ---------------------------------------------------------------------------
+  synapse_recall:
+    image: searxng/searxng:latest
+    container_name: synapse_recall
+    restart: unless-stopped
+
+    # Port mapping
+    # 8888: SearXNG web interface
+    ports:
+      - "8888:8080"
+
+    # Environment variables
+    environment:
+      # Base URL for SearXNG instance
+      - SEARXNG_BASE_URL=http://localhost:8888/
+      # Instance name
+      - SEARXNG_INSTANCE_NAME=S.Y.N.A.P.S.E. Recall
+      # Enable JSON format for API responses
+      - SEARXNG_JSON_ENABLED=true
+      # Disable logging of search queries for privacy
+      - SEARXNG_LOG_QUERIES=false
+
+    # Volume for custom settings (optional)
+    # volumes:
+      # If you want to customize SearXNG settings, uncomment and create:
+      # - ./config/searxng:/etc/searxng:ro
+
+    # Health check - verify SearXNG is responding
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+    networks:
+      - synapse_net
+
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ---------------------------------------------------------------------------
+  # Host API - Metal Server Management
+  # ---------------------------------------------------------------------------
+  synapse_host_api:
+    build:
+      context: ./host-api
+      dockerfile: Dockerfile
+    container_name: synapse_host_api
+    restart: unless-stopped
+
+    # Port mapping
+    # 9090: Host API for Metal server management
+    ports:
+      - "9090:9090"
+
+    # Mount scripts directory for executing start/stop commands
+    volumes:
+      - ./scripts:/scripts:ro
+
+    # Health check - verify Host API is responding
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9090/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+
+    networks:
+      - synapse_net
+
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ---------------------------------------------------------------------------
+  # Backend - FastAPI Application with Model Management
+  # ---------------------------------------------------------------------------
+  synapse_core:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        - PYTHON_VERSION=3.11
+
+    container_name: synapse_core
+    restart: unless-stopped
+
+    # Override command to enable hot reload (development default)
+    command: >
+      uvicorn app.main:app
+      --host 0.0.0.0
+      --port 8000
+      --reload
+      --log-level debug
+
+    # Port mapping
+    # 8000: FastAPI backend
+    # 8080-8099: llama.cpp model servers (bound to localhost, access via reverse proxy)
+    ports:
+      - "8000:8000"
+      # Port range 8080-8099 NOT exposed for security (models bound to 127.0.0.1)
+      # Access model servers via reverse proxy: POST /api/proxy/{model_id}/v1/chat/completions
+
+    # Environment variables
+    environment:
+      # General
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - LOG_LEVEL=${LOG_LEVEL:-DEBUG}
+      - PRAXIS_HOST=${PRAXIS_HOST:-0.0.0.0}
+      - PRAXIS_PORT=${PRAXIS_PORT:-8000}
+
+      # Model Management Configuration
+      - PRAXIS_PROFILE=${PRAXIS_PROFILE:-development}
+      - PRAXIS_MODEL_PATH=/models
+      - PRAXIS_LLAMA_SERVER_PATH=/usr/local/bin/llama-server
+      - PRAXIS_REGISTRY_PATH=data/model_registry.json
+      - PRAXIS_PORT_RANGE_START=${PRAXIS_PORT_RANGE_START:-8080}
+      - PRAXIS_PORT_RANGE_END=${PRAXIS_PORT_RANGE_END:-8099}
+      - PRAXIS_MAX_STARTUP_TIME=${PRAXIS_MAX_STARTUP_TIME:-120}
+      - PRAXIS_CONCURRENT_STARTS=${PRAXIS_CONCURRENT_STARTS:-true}
+
+      # Metal Acceleration (Apple Silicon)
+      # Set to 'true' to connect to native Metal-accelerated llama-servers
+      # running on macOS host instead of launching subprocess
+      - NEURAL_USE_EXTERNAL=${NEURAL_USE_EXTERNAL:-true}
+      # Host API URL for managing Metal servers
+      - NEURAL_ORCH_URL=${NEURAL_ORCH_URL:-http://synapse_host_api:9090}
+
+      # MEMEX (Redis) configuration
+      - MEMEX_HOST=synapse_redis
+      - MEMEX_PORT=6379
+      - MEMEX_PASSWORD=${MEMEX_PASSWORD:-change_this_secure_redis_password}
+      - MEMEX_DB=${MEMEX_DB:-0}
+      - MEMEX_TTL=${MEMEX_TTL:-3600}
+
+      # RECALL (CGRAG) configuration
+      - CGRAG_ENABLED=${CGRAG_ENABLED:-true}
+      - RECALL_INDEX_PATH=data/faiss_indexes
+      - RECALL_FAISS_DEFAULT=${RECALL_FAISS_DEFAULT:-/app/data/faiss_indexes/default}
+      - RECALL_EMBEDDING_MODEL=${RECALL_EMBEDDING_MODEL:-all-MiniLM-L6-v2}
+      - RECALL_EMBEDDING_CACHE=${RECALL_EMBEDDING_CACHE:-true}
+      - RECALL_TOKEN_BUDGET=${RECALL_TOKEN_BUDGET:-8000}
+      - RECALL_MIN_RELEVANCE=${RECALL_MIN_RELEVANCE:-0.7}
+      - RECALL_MAX_SHARDS=${RECALL_MAX_SHARDS:-10}
+
+      # Web Search (SearXNG) configuration
+      - WEBSEARCH_ENABLED=${WEBSEARCH_ENABLED:-true}
+      - SEARXNG_URL=http://synapse_recall:8080
+      - WEBSEARCH_MAX_RESULTS=${WEBSEARCH_MAX_RESULTS:-5}
+      - WEBSEARCH_TIMEOUT=${WEBSEARCH_TIMEOUT:-10}
+      - WEBSEARCH_LANGUAGE=${WEBSEARCH_LANGUAGE:-en}
+
+      # Security
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:5173,http://localhost:3000}
+
+    # Volume mounts for model discovery and data persistence
+    volumes:
+      # Source code mount for hot reload (NEW)
+      - ./backend:/app
+
+      # Mount HUB directory for model discovery (read-only)
+      # This contains all GGUF model files that can be discovered
+      - /Users/dperez/Documents/LLM/llm-models/HUB/:/models:ro
+
+      # NOTE: llama-server binary built into Docker image (Stage 2 of Dockerfile)
+      # This solves the macOS/Linux binary incompatibility issue
+      # Binary is compiled from source during Docker build and placed at /usr/local/bin/llama-server
+
+      # Data persistence - model registry and FAISS indexes
+      - ./backend/data:/app/data:rw
+
+      # Configuration files (read-only)
+      # Includes profile YAML files (development.yaml, production.yaml, etc.)
+      - ./config:/app/config:ro
+
+      # Logs directory for persistent logging
+      - ./backend/logs:/app/logs:rw
+
+    # Depends on Redis, SearXNG, and Host API being healthy before starting
+    depends_on:
+      synapse_redis:
+        condition: service_healthy
+      synapse_recall:
+        condition: service_healthy
+      synapse_host_api:
+        condition: service_healthy
+
+    # Health check - verify FastAPI is responding
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health/healthz"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 40s
+
+    # Resource limits
+    # Increased limits to accommodate model loading
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 8G
+        reservations:
+          cpus: '2.0'
+          memory: 4G
+
+    networks:
+      - synapse_net
+
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  # ---------------------------------------------------------------------------
+  # Frontend - Vite Development Server with HMR
+  # ---------------------------------------------------------------------------
+  synapse_frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+      args:
+        - NODE_VERSION=20
+
+    container_name: synapse_frontend
+    restart: unless-stopped
+
+    # Override command for Vite dev server
+    command: npm run dev -- --host 0.0.0.0
+
+    # Port mapping
+    # 5173: Vite dev server
+    ports:
+      - "5173:5173"
+
+    # Runtime environment
+    environment:
+      - NODE_ENV=development
+      - IFACE_API_BASE_URL=/api
+      - IFACE_WS_URL=/ws
+
+    # Mount source code for HMR (Hot Module Replacement)
+    volumes:
+      # Source code (read-write for HMR)
+      - ./frontend/src:/app/src:rw
+      - ./frontend/public:/app/public:ro
+      - ./frontend/index.html:/app/index.html:ro
+      - ./frontend/vite.config.ts:/app/vite.config.ts:ro
+      - ./frontend/tsconfig.json:/app/tsconfig.json:ro
+      - ./frontend/package.json:/app/package.json:ro
+
+      # Prevent node_modules from being overwritten by host
+      - /app/node_modules
+
+    # Depends on backend being healthy before starting
+    depends_on:
+      synapse_core:
+        condition: service_healthy
+
+    # Health check - verify Vite dev server is responding
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5173"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+    networks:
+      - synapse_net
+
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+# =============================================================================
+# Notes:
+# =============================================================================
+# 1. Development Mode (NEW - Default):
+#    - Hot reload enabled by default for both backend and frontend
+#    - Backend: uvicorn --reload watches for Python file changes
+#    - Frontend: Vite HMR provides instant updates in browser
+#    - Source code mounted as volumes for real-time updates
+#    - No need to rebuild images during development
+#
+# 2. Model Management:
+#    - Models are discovered from /Users/dperez/Documents/LLM/llm-models/HUB/
+#    - llama-server binary: Built from source in Docker image (Stage 2 of Dockerfile)
+#    - Model servers launched on ports 8080-8099 (configurable)
+#    - Active profile: development (change via PRAXIS_PROFILE env var)
+#
+# 2a. Metal Acceleration (Apple Silicon - DEFAULT):
+#     - NEURAL_USE_EXTERNAL=true (default for maximum performance)
+#     - Backend connects to native Metal-accelerated servers on macOS host
+#     - 2-3x faster inference using Apple GPU vs CPU-only
+#     - Start servers: ./scripts/start-host-llama-servers.sh
+#     - Stop servers: ./scripts/stop-host-llama-servers.sh
+#     - Verify Metal: ./scripts/setup_metal.sh
+#     - Set NEURAL_USE_EXTERNAL=false to use Docker Linux binary (slower)
+#
+# 3. Data Persistence:
+#    - Redis data: Named volume (redis_data)
+#    - Model registry: ./backend/data/model_registry.json
+#    - FAISS indexes: ./backend/data/faiss_indexes/
+#    - Logs: ./backend/logs/
+#
+# 4. Profile Selection:
+#    - Set PRAXIS_PROFILE=development|production|fast-only
+#    - Profiles defined in ./config/*.yaml
+#
+# 5. First-Time Setup:
+#    - Run model discovery: docker-compose run --rm synapse_core python -m app.cli.discover_models
+#    - Start services: docker-compose up -d
+#    - View logs: docker-compose logs -f synapse_core
+#
+# 6. Security:
+#    - Change MEMEX_PASSWORD in production
+#    - Model files mounted read-only
+#    - Non-root users in containers
+#
+# 7. Resource Allocation:
+#    - Backend: Up to 8GB RAM, 4 CPUs (for model loading)
+#    - Redis: Up to 512MB RAM, 0.5 CPUs
+#    - Frontend: Up to 1GB RAM, 1 CPU (increased for Vite)
+#
+# 8. Health Checks:
+#    - All services have health checks
+#    - Backend starts only after Redis is healthy
+#    - Frontend starts only after Backend is healthy
+#
+# 9. Troubleshooting:
+#    - Check HUB path exists: ls -la /Users/dperez/Documents/LLM/llm-models/HUB/
+#    - llama-server binary: Built into image at /usr/local/bin/llama-server
+#    - View backend logs: docker-compose logs -f synapse_core
+#    - View frontend logs: docker-compose logs -f synapse_frontend
+#    - Check service health: docker-compose ps
+#
+# 10. Frontend Configuration:
+#     - Uses Vite dev server for HMR (Hot Module Replacement)
+#     - Environment variables passed at runtime (not build time for dev)
+#     - IFACE_API_BASE_URL: /api (relative URL for nginx proxy)
+#     - IFACE_WS_URL: /ws (relative URL for nginx proxy)
+#     - Changes to src/ automatically trigger HMR
+#     - node_modules preserved in container (anonymous volume)
+#
+# 11. Production Deployment:
+#     - For production, override ENVIRONMENT=production
+#     - Consider using production Dockerfile for frontend (nginx-based)
+#     - Disable hot reload by overriding command for backend
+#     - Set LOG_LEVEL=INFO or WARNING
+# =============================================================================

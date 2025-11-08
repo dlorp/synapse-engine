@@ -1,0 +1,21 @@
+profile:
+  name: "Production"
+  description: "High-quality responses with best models and load balancing"
+
+enabled_models:
+  - deepseek_r10528qwen3_8p0b_q4km_powerful
+  - qwen2_coder_p5_14p0b_q4km_powerful
+
+tier_config:
+  - name: "powerful"
+    max_score: .inf
+    expected_time_seconds: 15
+    description: "Production quality with reasoning models"
+
+two_stage:
+  enabled: false
+
+load_balancing:
+  enabled: true
+  strategy: "round_robin"
+  health_check_interval: 30

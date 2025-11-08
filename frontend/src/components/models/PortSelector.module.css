@@ -1,0 +1,133 @@
+/* PortSelector - Terminal aesthetic port dropdown with conflict detection */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  width: 100%;
+}
+
+.select {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--bg-panel);
+  border: 2px solid var(--border-primary);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: var(--text-md);
+  font-weight: var(--font-semibold);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  outline: none;
+}
+
+.select:hover:not(:disabled) {
+  border-color: var(--cyan);
+  box-shadow: var(--glow-sm);
+}
+
+.select:focus {
+  border-color: var(--cyan);
+  box-shadow: var(--glow-md);
+}
+
+.select:disabled {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+  border-color: var(--border-neutral);
+}
+
+.select.conflict {
+  border-color: var(--border-error);
+  color: var(--text-error);
+  animation: conflictPulse 1.5s ease-in-out infinite;
+}
+
+.select.disabled {
+  background: var(--bg-input);
+  color: var(--text-tertiary);
+}
+
+/* Option styling */
+.select option {
+  background: var(--bg-panel);
+  color: var(--text-primary);
+  padding: 8px;
+}
+
+.select option:disabled {
+  color: var(--text-tertiary);
+  font-style: italic;
+}
+
+.occupiedOption {
+  color: var(--text-tertiary) !important;
+}
+
+/* Status row */
+.statusRow {
+  display: flex;
+  align-items: center;
+  min-height: 20px;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.warningText {
+  color: var(--text-warning);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  animation: warningPulse 2s ease-in-out infinite;
+}
+
+.conflictText {
+  color: var(--text-error);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  animation: conflictPulse 1.5s ease-in-out infinite;
+}
+
+.infoText {
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Animations */
+@keyframes conflictPulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes warningPulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .select {
+    font-size: var(--text-sm);
+    padding: 8px 10px;
+  }
+
+  .statusRow {
+    font-size: 9px;
+  }
+}

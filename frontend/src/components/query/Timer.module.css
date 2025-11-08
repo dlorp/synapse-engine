@@ -1,0 +1,91 @@
+/**
+ * Timer Component Styles
+ * Terminal-aesthetic elapsed time display
+ */
+
+.timerContainer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.pulsingDot {
+  color: var(--cyan, #00ffff);
+  font-size: 16px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    text-shadow: 0 0 8px currentColor;
+  }
+  50% {
+    opacity: 0.4;
+    text-shadow: 0 0 2px currentColor;
+  }
+}
+
+.label {
+  color: var(--cyan, #00ffff);
+  text-transform: uppercase;
+}
+
+.timer {
+  font-size: 16px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums; /* Fixed-width numbers */
+  text-shadow: 0 0 10px currentColor;
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+/* Color states based on elapsed time */
+.normal {
+  color: var(--phosphor-green, #ff9500);
+}
+
+.moderate {
+  color: var(--cyan, #00ffff);
+}
+
+.long {
+  color: var(--amber, #ff9500);
+  animation: urgent-pulse 1s ease-in-out infinite;
+}
+
+@keyframes urgent-pulse {
+  0%, 100% {
+    text-shadow: 0 0 10px currentColor;
+  }
+  50% {
+    text-shadow: 0 0 20px currentColor;
+  }
+}
+
+.expected {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  margin-left: auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .timerContainer {
+    font-size: 12px;
+    gap: 8px;
+  }
+
+  .timer {
+    font-size: 14px;
+  }
+
+  .expected {
+    display: none; /* Hide expected time on small screens */
+  }
+}
