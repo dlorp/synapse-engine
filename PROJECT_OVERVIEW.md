@@ -14,15 +14,15 @@ S.Y.N.A.P.S.E. ENGINE is a **distributed orchestration platform for local langua
 
 S.Y.N.A.P.S.E. ENGINE addresses the challenge of effectively utilizing multiple local LLM instances by:
 - **Intelligent Query Routing** - Automatically routes queries to appropriate model tiers based on complexity assessment
-- **Dynamic Model Management** - Start/stop models on-demand without Docker restarts (5-second startup)
+- **Dynamic Model Management** - Start/stop models on demand without Docker restarts (5-second startup)
 - **Context Enhancement** - CGRAG retrieval provides relevant documentation context in <100ms
-- **Multi-Stage Processing** - Two-stage refinement improves response quality while maintaining speed
+- **Multi-Stage Processing** - Two stage refinement improves response quality while maintaining speed
 - **Metal Acceleration** - Native GPU support on Apple Silicon for 2-3x faster inference
 - **Resource Optimization** - Smart allocation across Q2/Q3/Q4 quantizations based on query needs
 
 ### Core Value Proposition
 
-Unlike traditional single-model deployments, S.Y.N.A.P.S.E. ENGINE treats your local LLMs as a distributed computing resource, intelligently orchestrating them for optimal performance, quality, and resource utilization through a sophisticated WebUI control plane governed by the NEURAL SUBSTRATE ORCHESTRATOR.
+Unlike traditional single model deployments, S.Y.N.A.P.S.E. ENGINE treats your local LLMs as a distributed computing resource, intelligently orchestrating them for optimal performance, quality, and resource utilization through a sophisticated WebUI control plane governed by the NEURAL SUBSTRATE ORCHESTRATOR.
 
 ---
 
@@ -30,31 +30,31 @@ Unlike traditional single-model deployments, S.Y.N.A.P.S.E. ENGINE treats your l
 
 ### Current State (v4.0)
 - ✅ **Production-Ready Infrastructure** - Docker Compose with health checks and monitoring
-- ✅ **Full Model Management** - Auto-discovery, dynamic enable/disable, real-time health monitoring
-- ✅ **CGRAG System** - FAISS-based retrieval with token budget management (35+ docs indexed)
-- ✅ **Query Processing** - Simple and Two-Stage modes with complexity-based routing
-- ✅ **Council Modes** - Consensus and Debate modes for multi-model collaboration
-- ✅ **Benchmark Mode** - Side-by-side comparison across all enabled models
-- ✅ **Host API** - Automatic Metal-accelerated llama-server management on macOS
+- ✅ **Full Model Management** - Auto discovery, dynamic enable/disable, real time health monitoring
+- ✅ **CGRAG System** - FAISS based retrieval with token budget management (35+ docs indexed)
+- ✅ **Query Processing** - Simple and Two Stage modes with complexity based routing
+- ✅ **Council Modes** - Consensus and Debate modes for multi model collaboration
+- ✅ **Benchmark Mode** - Side by side comparison across all enabled models
+- ✅ **Host API** - Automatic Metal accelerated llama-server management on macOS
 - ✅ **Terminal UI** - Dense information displays with 60fps animations
-- ✅ **WebSocket Updates** - Real-time model status and processing events
+- ✅ **WebSocket Updates** - Real time model status and processing events
 - ✅ **Comprehensive Testing** - 24 automated tests across backend/frontend/integration
 
 ### What's Working
-- Complete end-to-end query processing pipeline
-- Model auto-discovery from HuggingFace cache
+- Complete end to end query processing pipeline
+- Model auto discovery from HuggingFace cache
 - Dynamic model start/stop without Docker restart
 - CGRAG retrieval with <100ms latency
-- Two-stage query refinement with complexity routing
+- Two stage query refinement with complexity routing
 - Council consensus and debate modes
-- Real-time logs and resource monitoring
+- Real time logs and resource monitoring
 - Metal GPU acceleration on Apple Silicon
 
 ### What's In Progress
 - Code Chat mode with file editing capabilities
 - Advanced visualization features (React Flow pipeline graphs)
 - Performance optimization for >100k document indexes
-- Multi-chat conversational mode
+- Multi chat conversational mode
 
 ---
 
@@ -66,7 +66,7 @@ Unlike traditional single-model deployments, S.Y.N.A.P.S.E. ENGINE treats your l
 ┌──────────────────────────────────────────────────┐
 │        Browser (CORE:INTERFACE)                  │
 │  ┌────────────────────────────────────────────┐  │
-│  │  Terminal UI + Real-time Visualizations    │  │
+│  │  Terminal UI + Real time Visualizations    │  │
 │  │  - Query Interface & Response Display      │  │
 │  │  - Model Management Dashboard              │  │
 │  │  - System Logs & Resource Monitoring       │  │
@@ -114,8 +114,8 @@ Unlike traditional single-model deployments, S.Y.N.A.P.S.E. ENGINE treats your l
 ### Key Components
 
 1. **Frontend (React + TypeScript)**
-   - Terminal-aesthetic UI with phosphor orange (#ff9500) color scheme
-   - Real-time WebSocket updates for live model status
+   - Terminal aesthetic UI with phosphor orange (#ff9500) color scheme
+   - Real time WebSocket updates for live model status
    - Model management interface with auto-discovery
    - Query interface with mode selection
    - System monitoring dashboards
@@ -126,20 +126,20 @@ Unlike traditional single-model deployments, S.Y.N.A.P.S.E. ENGINE treats your l
    - Model lifecycle management
    - CGRAG retrieval pipeline
    - Redis caching layer
-   - Profile-based configuration
+   - Profile based configuration
 
 3. **Host API (Python)**
    - Native llama-server process management
    - Metal GPU acceleration on Apple Silicon
-   - Health monitoring and auto-recovery
+   - Health monitoring and auto recovery
    - Resource allocation and tracking
 
 4. **Infrastructure**
    - Docker Compose orchestration
    - Redis for caching and session storage
-   - SearXNG for privacy-respecting web search
+   - SearXNG for privacy respecting web search
    - FAISS for vector similarity search
-   - Profile-based configuration system
+   - Profile based configuration system
 
 ---
 
@@ -149,16 +149,16 @@ Unlike traditional single-model deployments, S.Y.N.A.P.S.E. ENGINE treats your l
 - **Python 3.11+** - Core backend language
 - **FastAPI** - Async web framework with automatic API documentation
 - **FAISS** - Facebook's vector similarity search library
-- **sentence-transformers** - State-of-the-art embedding models
+- **sentence-transformers** - State of the art embedding models
 - **Redis** - Caching and session storage
-- **WebSockets** - Real-time bidirectional communication
+- **WebSockets** - Real time bidirectional communication
 - **Pydantic** - Data validation and settings management
 - **uvicorn** - ASGI server with hot reload
 
 ### Frontend Technologies
 - **React 19** - Latest React with concurrent features
-- **TypeScript** - Type-safe JavaScript (strict mode)
-- **Vite** - Lightning-fast build tool with HMR
+- **TypeScript** - Type safe JavaScript (strict mode)
+- **Vite** - Lightning fast build tool with HMR
 - **TanStack Query** - Powerful data synchronization
 - **Chart.js** - Performance visualizations
 - **React Flow** - Pipeline graph visualization (planned)
@@ -166,9 +166,9 @@ Unlike traditional single-model deployments, S.Y.N.A.P.S.E. ENGINE treats your l
 
 ### Infrastructure Technologies
 - **Docker & Docker Compose** - Container orchestration
-- **llama.cpp** - High-performance local LLM inference
+- **llama.cpp** - High performance local LLM inference
 - **nginx** - Reverse proxy and static file serving
-- **SearXNG** - Privacy-respecting metasearch engine
+- **SearXNG** - Privacy respecting metasearch engine
 - **GitHub Actions** - CI/CD pipeline (planned)
 
 ### Model Technologies
@@ -186,7 +186,7 @@ Unlike traditional single-model deployments, S.Y.N.A.P.S.E. ENGINE treats your l
 #### 1. Dynamic Model Management
 - **Auto-Discovery**: Scans HuggingFace cache for GGUF models
 - **One-Click Enable**: Start models without Docker restart
-- **Health Monitoring**: Real-time health checks and status updates
+- **Health Monitoring**: Real time health checks and status updates
 - **Resource Tracking**: VRAM usage, query count, cache hit rates
 - **Metal Acceleration**: Automatic GPU support on Apple Silicon
 
@@ -216,14 +216,14 @@ For implementation details, see [docs/features/DYNAMIC_CONTROL.md](./docs/featur
 - Synthesis of different perspectives
 
 **✅ Benchmark Mode**
-- Side-by-side comparison across all models
+- Side by side comparison across all models
 - Performance metrics and timing data
 - Quality assessment tools
 
 For detailed mode documentation, see [docs/features/MODES.md](./docs/features/MODES.md) and [docs/features/BENCHMARK_MODE.md](./docs/features/BENCHMARK_MODE.md).
 
 #### 3. CGRAG System
-- **Sub-100ms Retrieval**: Lightning-fast context retrieval
+- **Sub-100ms Retrieval**: Lightning fast context retrieval
 - **Token Budget Management**: Smart allocation within context windows
 - **FAISS Indexing**: Efficient similarity search
 - **Document Chunking**: Intelligent text segmentation
@@ -241,7 +241,7 @@ For detailed mode documentation, see [docs/features/MODES.md](./docs/features/MO
 - **Dense Information Display**: Maximum data density
 - **60fps Animations**: Smooth transitions and updates
 - **Technical Aesthetic**: Inspired by NERV panels
-- **Keyboard Navigation**: Terminal-style shortcuts
+- **Keyboard Navigation**: Terminal style shortcuts
 
 ---
 
@@ -249,7 +249,7 @@ For detailed mode documentation, see [docs/features/MODES.md](./docs/features/MO
 
 ### Specialized Claude Code Agents
 
-The project has **14 specialized agents** organized into project-specific and user-level categories:
+The project has **14 specialized agents** organized into project specific and user-level categories:
 
 #### Project Agents (.claude/agents/)
 1. **Backend Architect** - FastAPI, async Python, WebSockets, model orchestration
@@ -263,11 +263,11 @@ The project has **14 specialized agents** organized into project-specific and us
 9. **Security Specialist** - Authentication, authorization, security hardening
 10. **Terminal UI Specialist** - Terminal aesthetics, dense displays, animations
 11. **Testing Specialist** - Test automation, coverage, quality assurance
-12. **WebSocket Realtime Specialist** - Real-time communication, event streaming
+12. **WebSocket Realtime Specialist** - Real time communication, event streaming
 
 #### User Agents (~/.claude/agents/)
 1. **Record Keeper** - Historical context, session tracking, knowledge management
-2. **Strategic Planning Architect** - Project planning, multi-agent coordination
+2. **Strategic Planning Architect** - Project planning, multi agent coordination
 
 ### Agent Collaboration Patterns
 
@@ -282,7 +282,7 @@ Agents work together on complex features:
 
 ## Development Workflow
 
-### Docker-Only Development (MANDATORY)
+### Docker Only Development (MANDATORY)
 
 ⚠️ **CRITICAL: ALL development MUST be done in Docker containers**
 
@@ -305,7 +305,7 @@ docker-compose up -d
 ./scripts/test-all.sh
 ```
 
-**Why Docker-Only?**
+**Why Docker Only?**
 - Ensures environment parity
 - Prevents "works on my machine" issues
 - Vite environment variables embedded at build time
@@ -537,14 +537,14 @@ SYNAPSE_ENGINE/
 
 ## Summary
 
-S.Y.N.A.P.S.E. ENGINE is a sophisticated, production-ready platform for orchestrating multiple local LLM instances with intelligent routing, context enhancement, and a beautiful terminal-inspired interface. The system is built with modern technologies, follows best practices, and is designed for both performance and maintainability.
+S.Y.N.A.P.S.E. ENGINE is a sophisticated, production ready platform for orchestrating multiple local LLM instances with intelligent routing, context enhancement, and a beautiful terminal inspired interface. The system is built with modern technologies, follows best practices, and is designed for both performance and maintainability.
 
 **Key Achievements:**
-- ✅ Complete multi-model orchestration with dynamic control via NEURAL SUBSTRATE ORCHESTRATOR
+- ✅ Complete multi model orchestration with dynamic control via NEURAL SUBSTRATE ORCHESTRATOR
 - ✅ Sub-100ms CGRAG retrieval with token budget management
-- ✅ Multiple query modes including two-stage refinement and council modes
+- ✅ Multiple query modes including two stage refinement and council modes
 - ✅ Metal GPU acceleration for Apple Silicon
-- ✅ Dense terminal UI with real-time updates
+- ✅ Dense terminal UI with real time updates
 - ✅ Comprehensive test coverage (24 automated tests)
 - ✅ Production-ready Docker infrastructure with canonical service naming
 - ✅ 14 specialized AI agents for development support
