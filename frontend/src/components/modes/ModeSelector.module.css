@@ -1,0 +1,309 @@
+.modeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.modeButton {
+  background: var(--bg-panel);
+  border: 2px solid var(--border-neutral);
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  position: relative;
+  font-family: var(--font-mono);
+}
+
+.modeButton:hover:not(:disabled) {
+  border-color: var(--border-primary);
+  background: var(--bg-hover);
+}
+
+.modeButton.active {
+  border-color: var(--border-accent);
+  background: var(--bg-active);
+}
+
+.modeButton.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.modeLabel {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.05em;
+}
+
+.modeDescription {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin-bottom: 0.5rem;
+}
+
+.comingSoon {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  font-size: 0.625rem;
+  color: var(--text-warning);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+
+.activeIndicator {
+  font-size: 0.75rem;
+  color: var(--text-accent);
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+.councilConfig,
+.benchmarkConfig {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: var(--bg-panel);
+  border: 2px solid var(--border-accent);
+  border-radius: 4px;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.configHeader {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-accent);
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-neutral);
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.checkboxLabel:hover {
+  background: var(--bg-hover);
+}
+
+.adversarialCheckbox,
+.serialCheckbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--text-accent);
+}
+
+.configDescription {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  padding: 0.75rem;
+  background: var(--bg-secondary);
+  border-left: 3px solid var(--border-accent);
+}
+
+.configDescription strong {
+  color: var(--text-primary);
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.vramHint {
+  margin-top: 0.75rem;
+  padding: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-warning);
+  background: rgba(255, 149, 0, 0.1);
+  border-radius: 4px;
+  text-align: center;
+}
+
+/* Multi-Chat Dialogue Configuration Styles */
+.configOption {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.configLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 0.05em;
+}
+
+.slider {
+  width: 100%;
+  height: 6px;
+  background: var(--bg-secondary);
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+  accent-color: var(--text-accent);
+}
+
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: var(--text-accent);
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid var(--border-accent);
+}
+
+.slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: var(--text-accent);
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid var(--border-accent);
+}
+
+.sliderHint {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  text-align: right;
+  font-style: italic;
+}
+
+.hint {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.configSection {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-neutral);
+}
+
+.sectionTitle {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-accent);
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+}
+
+.select {
+  width: 100%;
+  padding: 0.5rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-neutral);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.select:hover {
+  border-color: var(--border-accent);
+}
+
+.select:focus {
+  outline: none;
+  border-color: var(--text-accent);
+}
+
+.input {
+  width: 100%;
+  padding: 0.5rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-neutral);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  transition: border-color 0.2s;
+}
+
+.input:hover {
+  border-color: var(--border-accent);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--text-accent);
+}
+
+.input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+/* Moderator Options Styles */
+.moderatorToggles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.moderatorHint {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  padding: 0.75rem;
+  background: rgba(255, 149, 0, 0.05);
+  border: 1px solid var(--border-neutral);
+  border-radius: 4px;
+  line-height: 1.6;
+  font-style: italic;
+}
+
+/* Model Selection Styles */
+.modelSelectionGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.modelHint {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  padding: 0.5rem;
+  background: rgba(0, 255, 255, 0.05);
+  border: 1px solid var(--border-neutral);
+  border-radius: 4px;
+  text-align: center;
+  font-style: italic;
+}
+
+/* Responsive for Moderator Options */
+@media (max-width: 768px) {
+  .modelSelectionGrid {
+    grid-template-columns: 1fr;
+  }
+}

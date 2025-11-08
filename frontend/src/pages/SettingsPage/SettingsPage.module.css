@@ -1,0 +1,812 @@
+/**
+ * SettingsPage Styles
+ * Terminal-aesthetic settings configuration interface
+ */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  animation: fade-in var(--transition-base);
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.title {
+  font-family: var(--font-display, 'JetBrains Mono', monospace);
+  font-size: 24px;
+  color: var(--phosphor-green, #00ff41);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  text-align: center;
+  text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+  margin: 0 0 16px 0;
+  padding: 16px;
+  background: var(--bg-panel, #0a0a0a);
+  border: 2px solid var(--border-primary, #00ff41);
+  border-bottom: 4px solid var(--border-primary, #00ff41);
+}
+
+/* Loading State */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 16px;
+  color: var(--cyan, #00ffff);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Restart Required Banner */
+.restartBanner {
+  padding: 16px 24px;
+  background: rgba(255, 149, 0, 0.1);
+  border: 2px solid var(--amber, #ff9500);
+  border-left: 6px solid var(--amber, #ff9500);
+  box-shadow: 0 0 20px rgba(255, 149, 0, 0.2);
+  animation: border-pulse 2s ease-in-out infinite;
+  margin-bottom: var(--space-lg, 16px);
+}
+
+.restartContent {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg, 16px);
+}
+
+.restartIcon {
+  font-size: 24px;
+  color: var(--amber, #ff9500);
+  font-weight: bold;
+  text-shadow: 0 0 8px rgba(255, 149, 0, 0.8);
+}
+
+.restartText {
+  flex: 1;
+}
+
+.restartTitle {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--amber, #ff9500);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-xs, 4px);
+}
+
+.restartMessage {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 12px;
+  color: var(--text-secondary, #ff950099);
+}
+
+.restartButton {
+  padding: var(--space-sm, 8px) var(--space-lg, 16px);
+  background: var(--bg-active, #1a1a1a);
+  border: 1px solid var(--border-warning, #ff9500);
+  color: var(--text-warning, #ff9500);
+  cursor: pointer;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all var(--transition-fast, 150ms);
+  white-space: nowrap;
+}
+
+.restartButton:hover:not(:disabled) {
+  background: var(--border-warning, #ff9500);
+  color: var(--bg-primary, #000000);
+  box-shadow: 0 0 12px rgba(255, 149, 0, 0.5);
+}
+
+.restartButton:disabled {
+  opacity: var(--opacity-disabled, 0.5);
+  cursor: not-allowed;
+}
+
+@keyframes border-pulse {
+  0%, 100% {
+    border-color: var(--amber, #ff9500);
+    box-shadow: 0 0 20px rgba(255, 149, 0, 0.2);
+  }
+  50% {
+    border-color: var(--status-error, #ff0000);
+    box-shadow: 0 0 30px rgba(255, 0, 0, 0.3);
+  }
+}
+
+/* Restart Confirmation Modal */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal, 500);
+  backdrop-filter: blur(4px);
+}
+
+.modal {
+  background: var(--bg-panel, #0a0a0a);
+  border: 2px solid var(--border-warning, #ff9500);
+  padding: var(--space-xl, 24px);
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 0 40px rgba(255, 149, 0, 0.3);
+}
+
+.modalHeader {
+  font-size: var(--text-xl, 20px);
+  font-weight: var(--font-bold, 700);
+  color: var(--text-warning, #ff9500);
+  margin-bottom: var(--space-lg, 16px);
+  border-bottom: 1px solid var(--border-warning, #ff9500);
+  padding-bottom: var(--space-sm, 8px);
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.modalBody {
+  color: var(--text-primary, #ff9500);
+  margin-bottom: var(--space-xl, 24px);
+  line-height: var(--leading-relaxed, 1.75);
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 14px;
+}
+
+.modalActions {
+  display: flex;
+  gap: var(--space-md, 12px);
+  justify-content: flex-end;
+}
+
+.modalCancel,
+.modalConfirm {
+  padding: var(--space-sm, 8px) var(--space-lg, 16px);
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  border: 1px solid;
+  transition: all var(--transition-fast, 150ms);
+}
+
+.modalCancel {
+  background: var(--bg-active, #1a1a1a);
+  border-color: var(--border-neutral, #333333);
+  color: var(--text-primary, #ff9500);
+}
+
+.modalCancel:hover {
+  background: var(--bg-hover, #151515);
+  border-color: var(--text-primary, #ff9500);
+}
+
+.modalConfirm {
+  background: var(--bg-active, #1a1a1a);
+  border-color: var(--border-warning, #ff9500);
+  color: var(--text-warning, #ff9500);
+}
+
+.modalConfirm:hover:not(:disabled) {
+  background: var(--border-warning, #ff9500);
+  color: var(--bg-primary, #000000);
+  box-shadow: 0 0 12px rgba(255, 149, 0, 0.5);
+}
+
+.modalConfirm:disabled {
+  opacity: var(--opacity-disabled, 0.5);
+  cursor: not-allowed;
+}
+
+/* Tooltip Toggle */
+.tooltipToggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  background: rgba(0, 255, 255, 0.05);
+  border: 2px solid rgba(0, 255, 255, 0.3);
+  border-left: 4px solid var(--cyan, #00ffff);
+  margin-bottom: 16px;
+  transition: all 0.2s ease;
+}
+
+.tooltipToggle:hover {
+  background: rgba(0, 255, 255, 0.1);
+  border-color: var(--cyan, #00ffff);
+}
+
+/* Pending Changes Badge */
+.pendingBadge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  background: rgba(0, 255, 255, 0.1);
+  border: 2px solid var(--cyan, #00ffff);
+  border-left: 6px solid var(--cyan, #00ffff);
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+}
+
+.pendingCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  background: var(--cyan, #00ffff);
+  color: var(--bg-primary, #000000);
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: 2px;
+}
+
+.pendingText {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--cyan, #00ffff);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* VRAM Estimate Display */
+.vramEstimate {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  margin-bottom: 24px;
+  background: rgba(0, 255, 65, 0.05);
+  border: 2px solid var(--phosphor-green, #00ff41);
+  border-left: 6px solid var(--phosphor-green, #00ff41);
+}
+
+.vramLabel {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--phosphor-green, #00ff41);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.vramValue {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--phosphor-green, #00ff41);
+  text-shadow: 0 0 8px rgba(0, 255, 65, 0.6);
+}
+
+.vramDetails {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 11px;
+  color: rgba(0, 255, 65, 0.7);
+  letter-spacing: 0.05em;
+}
+
+/* Section Container */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Section Type Distinctions */
+.section.systemConfig {
+  border-left: 4px solid var(--cyan, #00ffff);
+  padding-left: 16px;
+}
+
+.section.globalDefaults {
+  border-left: 4px solid var(--amber, #ff9500);
+  padding-left: 16px;
+}
+
+.section.serviceConfig {
+  border-left: 4px solid var(--phosphor-green, #00ff41);
+  padding-left: 16px;
+}
+
+/* Section Description */
+.sectionDescription {
+  color: #999;
+  font-size: 14px;
+  margin-bottom: 16px;
+  line-height: 1.6;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+}
+
+/* Info Box */
+.infoBox {
+  background: rgba(0, 255, 65, 0.1);
+  border: 1px solid var(--phosphor-green, #00ff41);
+  border-left: 4px solid var(--phosphor-green, #00ff41);
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: var(--phosphor-green, #00ff41);
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  line-height: 1.5;
+}
+
+/* Warning Box */
+.warningBox {
+  background: rgba(255, 149, 0, 0.1);
+  border: 1px solid var(--amber, #ff9500);
+  border-left: 4px solid var(--amber, #ff9500);
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: var(--amber, #ff9500);
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  line-height: 1.5;
+}
+
+/* Port Summary */
+.portSummary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(0, 255, 65, 0.05);
+  border: 1px solid rgba(0, 255, 65, 0.3);
+  margin-top: 12px;
+  font-size: 13px;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+}
+
+.portLabel {
+  color: #666;
+  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.portValue {
+  color: var(--phosphor-green, #00ff41);
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-weight: 600;
+}
+
+/* Hint Text */
+.hint {
+  display: block;
+  font-size: 11px;
+  color: #666;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  margin-top: 4px;
+}
+
+/* Field Styles */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fieldHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.label {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--phosphor-green, #00ff41);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tooltip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background: rgba(0, 255, 255, 0.2);
+  border: 1px solid var(--cyan, #00ffff);
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--cyan, #00ffff);
+  cursor: help;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.tooltip:hover {
+  background: rgba(0, 255, 255, 0.4);
+  transform: scale(1.1);
+}
+
+/* Custom tooltip - appears faster than native browser tooltips */
+.tooltip::before {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: rgba(0, 20, 20, 0.98);
+  color: var(--cyan, #00ffff);
+  padding: 8px 12px;
+  border: 1px solid var(--cyan, #00ffff);
+  border-radius: 4px;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.4;
+  white-space: normal;
+  max-width: 280px;
+  min-width: 200px;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 12px rgba(0, 255, 255, 0.3);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+  transition-delay: 0.1s;
+  pointer-events: none;
+  z-index: 10000; /* High z-index to appear above all panels and dialogs */
+}
+
+/* Tooltip arrow */
+.tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: calc(100% + 2px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  border: 6px solid transparent;
+  border-top-color: var(--cyan, #00ffff);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+  transition-delay: 0.1s;
+  pointer-events: none;
+  z-index: 10001; /* Higher than tooltip body */
+}
+
+.tooltip:hover::before,
+.tooltip:hover::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.currentValue {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--cyan, #00ffff);
+  letter-spacing: 0.05em;
+}
+
+/* Slider Group */
+.sliderGroup {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.slider {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  outline: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  background: var(--phosphor-green, #00ff41);
+  border: 2px solid var(--bg-primary, #000000);
+  box-shadow: 0 0 8px rgba(0, 255, 65, 0.6);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 12px rgba(0, 255, 65, 0.8);
+}
+
+.slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  background: var(--phosphor-green, #00ff41);
+  border: 2px solid var(--bg-primary, #000000);
+  box-shadow: 0 0 8px rgba(0, 255, 65, 0.6);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.slider::-moz-range-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 12px rgba(0, 255, 65, 0.8);
+}
+
+.sliderValue {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--cyan, #00ffff);
+  min-width: 80px;
+  text-align: right;
+  letter-spacing: 0.05em;
+}
+
+.numericInput {
+  max-width: 120px;
+}
+
+/* Select Dropdown */
+.select {
+  padding: 10px 14px;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 13px;
+  color: var(--phosphor-green, #00ff41);
+  background: var(--bg-panel, #0a0a0a);
+  border: 2px solid rgba(0, 255, 65, 0.3);
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.select:hover {
+  border-color: var(--phosphor-green, #00ff41);
+  box-shadow: 0 0 8px rgba(0, 255, 65, 0.3);
+}
+
+.select:focus {
+  border-color: var(--cyan, #00ffff);
+  box-shadow: 0 0 12px rgba(0, 255, 255, 0.4);
+}
+
+.select option {
+  background: var(--bg-panel, #0a0a0a);
+  color: var(--phosphor-green, #00ff41);
+  padding: 8px;
+}
+
+/* Checkbox Field */
+.checkboxField {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(0, 255, 65, 0.03);
+  border: 1px solid rgba(0, 255, 65, 0.2);
+  transition: all 0.2s ease;
+}
+
+.checkboxField:hover {
+  background: rgba(0, 255, 65, 0.06);
+  border-color: rgba(0, 255, 65, 0.4);
+}
+
+.checkbox {
+  width: 20px;
+  height: 20px;
+  background: var(--bg-panel, #0a0a0a);
+  border: 2px solid var(--phosphor-green, #00ff41);
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  -webkit-appearance: none;
+  appearance: none;
+  position: relative;
+}
+
+.checkbox:checked {
+  background: var(--phosphor-green, #00ff41);
+  box-shadow: 0 0 8px rgba(0, 255, 65, 0.6);
+}
+
+.checkbox:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--bg-primary, #000000);
+}
+
+.checkboxLabel {
+  flex: 1;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 13px;
+  color: var(--phosphor-green, #00ff41);
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Path Input */
+.pathInput {
+  margin-top: 8px;
+}
+
+/* Warning Message */
+.warning {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  margin-top: 4px;
+  background: rgba(255, 149, 0, 0.1);
+  border: 1px solid var(--amber, #ff9500);
+  border-left: 4px solid var(--amber, #ff9500);
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--amber, #ff9500);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Preset Button */
+.presetButton {
+  white-space: nowrap;
+}
+
+/* Actions Panel */
+.actions {
+  display: flex;
+  gap: 16px;
+  padding: 24px 0;
+  border-top: 2px solid rgba(255, 255, 255, 0.1);
+  margin-top: 16px;
+}
+
+/* Reset Confirmation Dialog */
+.dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  animation: fade-in 0.2s ease;
+}
+
+.dialogContent {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.dialogText {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--phosphor-green, #00ff41);
+  margin: 0;
+}
+
+.dialogActions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+/* Animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Responsive Styles */
+@media (max-width: 1024px) {
+  .page {
+    padding: 16px;
+  }
+
+  .title {
+    font-size: 18px;
+    padding: 12px;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .fieldHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .presetButton {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: 12px;
+  }
+
+  .title {
+    font-size: 14px;
+    letter-spacing: 0.1em;
+  }
+
+  .restartBanner,
+  .pendingBadge,
+  .vramEstimate {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .sliderGroup {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .sliderValue {
+    text-align: left;
+  }
+
+  .numericInput {
+    max-width: 100%;
+  }
+
+  .dialogActions {
+    flex-direction: column;
+  }
+}

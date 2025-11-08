@@ -1,0 +1,62 @@
+/**
+ * QuickActions Component Styles
+ * Terminal-aesthetic quick action buttons
+ */
+
+.actions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-md, 12px);
+}
+
+.action {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md, 12px);
+  padding: var(--space-md, 12px);
+  background: var(--bg-primary, #000000);
+  border: var(--border-width, 1px) var(--border-style, solid) var(--border-secondary, #ff950066);
+  color: var(--text-primary, #ff9500);
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: var(--text-sm, 12px);
+  font-weight: var(--font-medium, 500);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all var(--transition-fast, 150ms);
+  text-align: left;
+}
+
+.action:hover:not(:disabled) {
+  border-color: var(--border-primary, #ff9500);
+  background: var(--bg-hover, #151515);
+  box-shadow: 0 0 12px rgba(255, 149, 0, 0.3);
+}
+
+.action:active:not(:disabled) {
+  background: var(--bg-active, #1a1a1a);
+  transform: translateY(1px);
+}
+
+.action:disabled {
+  opacity: var(--opacity-disabled, 0.5);
+  cursor: not-allowed;
+}
+
+.icon {
+  font-size: var(--text-lg, 16px);
+  min-width: 20px;
+  text-align: center;
+}
+
+.label {
+  flex: 1;
+  white-space: nowrap;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .actions {
+    grid-template-columns: 1fr;
+  }
+}

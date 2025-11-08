@@ -1,0 +1,155 @@
+/* Design System Tokens */
+
+:root {
+  /* ===== Colors ===== */
+
+  /* Backgrounds */
+  --bg-primary: #000000;
+  --bg-panel: #0a0a0a;
+  --bg-hover: #151515;
+  --bg-active: #1a1a1a;
+  --bg-input: #050505;
+
+  /* Borders */
+  --border-primary: #ff9500;
+  --border-secondary: #ff950066;
+  --border-accent: #00ffff;
+  --border-warning: #ff9500;
+  --border-error: #ff0000;
+  --border-neutral: #333333;
+
+  /* Text */
+  --text-primary: #ff9500;
+  --text-secondary: #ff950099;
+  --text-tertiary: #ff950066;
+  --text-accent: #00ffff;
+  --text-warning: #ff9500;
+  --text-error: #ff0000;
+  --text-neutral: #999999;
+  --text-dim: #666666;
+
+  /* Status Colors */
+  --status-active: #ff9500;
+  --status-idle: #ff950066;
+  --status-processing: #00ffff;
+  --status-error: #ff0000;
+  --status-offline: #666666;
+  --status-warning: #ff9500;
+
+  /* Special */
+  --phosphor-orange: #ff9500;
+  --cyan: #00ffff;
+  --amber: #ff9500;
+  --red: #ff0000;
+
+  /* ===== Typography ===== */
+
+  --font-mono: 'JetBrains Mono', 'IBM Plex Mono', 'Fira Code', monospace;
+  --font-display: 'Share Tech Mono', monospace;
+
+  /* Font Sizes */
+  --text-xs: 10px;
+  --text-sm: 12px;
+  --text-md: 14px;
+  --text-lg: 16px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --text-3xl: 32px;
+
+  /* Font Weights */
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+
+  /* Line Heights */
+  --leading-tight: 1.2;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.75;
+
+  /* ===== Spacing ===== */
+
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+  --space-2xl: 32px;
+  --space-3xl: 48px;
+
+  /* ===== Layout ===== */
+
+  --header-height: 60px;
+  --sidebar-width: 240px;
+  --sidebar-collapsed-width: 60px;
+
+  /* ===== Borders ===== */
+
+  --border-width: 1px;
+  --border-width-thick: 2px;
+  --border-radius: 0px;
+  --border-style: solid;
+
+  /* ===== Shadows ===== */
+
+  --glow-sm: 0 0 4px currentColor;
+  --glow-md: 0 0 8px currentColor;
+  --glow-lg: 0 0 12px currentColor;
+
+  /* ===== Transitions ===== */
+
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ===== Z-Index Layers ===== */
+
+  --z-base: 0;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-fixed: 300;
+  --z-overlay: 400;
+  --z-modal: 500;
+  --z-toast: 600;
+
+  /* ===== Opacity ===== */
+
+  --opacity-disabled: 0.5;
+  --opacity-hover: 0.8;
+  --opacity-subtle: 0.4;
+}
+
+/* Global Styles Using Tokens */
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: var(--text-md);
+  line-height: var(--leading-normal);
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-secondary);
+  border: 1px solid var(--border-primary);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-primary);
+}
+
+/* Selection */
+::selection {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+}

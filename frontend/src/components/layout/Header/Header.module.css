@@ -1,0 +1,106 @@
+.header {
+  height: var(--header-height);
+  background-color: var(--bg-primary);
+  border-bottom: var(--border-width-thick) var(--border-style) var(--border-primary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-lg);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-fixed);
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xl);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  text-decoration: none;
+}
+
+.logoIcon {
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--border-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+  text-shadow: var(--glow-sm);
+}
+
+.logoTextContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.logoText {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.logoSubtext {
+  font-size: 0.5rem;
+  color: var(--color-accent);
+  letter-spacing: 0.2em;
+  display: block;
+  margin-top: -0.25rem;
+  font-family: var(--font-mono);
+}
+
+.nav {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.navLink {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: var(--space-xs) var(--space-md);
+  border: var(--border-width) var(--border-style) transparent;
+  transition: all var(--transition-fast);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.navLink:hover {
+  color: var(--text-primary);
+  border-color: var(--border-secondary);
+}
+
+.navLink.active {
+  color: var(--text-primary);
+  border-color: var(--border-primary);
+  box-shadow: var(--glow-sm);
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+}
+
+.time {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
