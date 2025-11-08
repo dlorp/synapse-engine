@@ -189,8 +189,8 @@ The frontend has TypeScript compilation errors that existed BEFORE this migratio
 
 ## Related Documents
 - [SYSTEM_IDENTITY.md](./SYSTEM_IDENTITY.md) - Canonical naming and service tags
-- [SESSION_NOTES.md](./SESSION_NOTES.md) - Development history
-- [CLAUDE.md](./CLAUDE.md) - Project context and workflows
+- [SESSION_NOTES.md](../SESSION_NOTES.md) - Development history
+- [CLAUDE.md](../CLAUDE.md) - Project context and workflows
 
 ---
 
