@@ -1,0 +1,135 @@
+/**
+ * HomePage Styles
+ * Terminal-aesthetic layout for query interface
+ */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  animation: fade-in var(--transition-base);
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  background: var(--bg-panel, #0a0a0a);
+  border: 2px solid var(--border-primary, #ff9500);
+  border-bottom: 4px solid var(--border-primary, #ff9500);
+}
+
+.title {
+  font-family: var(--font-display, 'JetBrains Mono', monospace);
+  font-size: 24px;
+  color: var(--phosphor-green, #ff9500);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  text-align: center;
+  text-shadow: 0 0 10px rgba(255, 149, 0, 0.5);
+  margin: 0;
+}
+
+.systemStatus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-secondary, #333);
+}
+
+.content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+.inputSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.warningMessage {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(255, 0, 0, 0.1);
+  border: 1px solid rgba(255, 0, 0, 0.3);
+  color: var(--status-error, #ff0000);
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.responseSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.loadingIndicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  background: var(--bg-panel, #0a0a0a);
+  border: 2px solid var(--cyan, #00ffff);
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+  animation: border-pulse 2s ease-in-out infinite;
+}
+
+@keyframes border-pulse {
+  0%, 100% {
+    border-color: var(--cyan, #00ffff);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+  }
+  50% {
+    border-color: var(--phosphor-green, #ff9500);
+    box-shadow: 0 0 30px rgba(255, 149, 0, 0.3);
+  }
+}
+
+.errorMessage {
+  color: var(--status-error, #ff0000);
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+@media (max-width: 1024px) {
+  .page {
+    padding: 16px;
+  }
+
+  .header {
+    padding: 16px;
+  }
+
+  .title {
+    font-size: 18px;
+  }
+
+  .systemStatus {
+    flex-direction: column;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: 12px;
+  }
+
+  .title {
+    font-size: 14px;
+    letter-spacing: 0.1em;
+  }
+}

@@ -1,0 +1,28 @@
+profile:
+  name: "Development"
+  description: "Fast iteration with small models and two-stage processing"
+
+enabled_models:
+  - qwen3_4p0b_q4km_fast
+  - deepseek_r10528qwen3_8p0b_q4km_powerful
+
+tier_config:
+  - name: "fast"
+    max_score: 5.0
+    expected_time_seconds: 2
+    description: "Fast processing for simple queries"
+  - name: "powerful"
+    max_score: .inf
+    expected_time_seconds: 10
+    description: "Reasoning model for complex queries"
+
+two_stage:
+  enabled: true
+  stage1_tier: "fast"
+  stage2_tier: "powerful"
+  stage1_max_tokens: 500
+
+load_balancing:
+  enabled: false
+  strategy: "round_robin"
+  health_check_interval: 30

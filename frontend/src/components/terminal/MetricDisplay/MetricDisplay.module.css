@@ -1,0 +1,84 @@
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  font-family: var(--font-mono);
+}
+
+.label {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: var(--font-medium);
+}
+
+.valueRow {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+}
+
+.value {
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.value.active {
+  color: var(--status-active);
+}
+
+.value.processing {
+  color: var(--status-processing);
+}
+
+.value.error {
+  color: var(--status-error);
+}
+
+.value.warning {
+  color: var(--status-warning);
+}
+
+.unit {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  font-weight: var(--font-normal);
+}
+
+.trend {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+}
+
+.trend.up {
+  color: var(--status-active);
+}
+
+.trend.up::before {
+  content: '▲';
+  margin-right: var(--space-xs);
+}
+
+.trend.down {
+  color: var(--status-error);
+}
+
+.trend.down::before {
+  content: '▼';
+  margin-right: var(--space-xs);
+}
+
+.trend.neutral {
+  color: var(--text-secondary);
+}
+
+.trend.neutral::before {
+  content: '━';
+  margin-right: var(--space-xs);
+}
