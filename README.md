@@ -841,7 +841,7 @@ For complete agent documentation, collaboration patterns, and usage guidelines, 
 
 ## License
 
-[Your License]
+GPLv3
 
 ---
 
