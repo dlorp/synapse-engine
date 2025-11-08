@@ -5,13 +5,13 @@
 
 > Interlinked cognition — thought in motion.
 
-**Status:** Production Ready ✅ | Metal Acceleration ✅ | CGRAG Operational ✅ | Multi-Mode Workflows ✅
+**Status:** Ready for Prod ✅ | Metal Acceleration ✅ | CGRAG Operational ✅ | Multi Mode Workflows ✅
 
 > **New to S.Y.N.A.P.S.E. ENGINE?** Start with [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md) for a high-level understanding of the project, team structure, and development context.
 
 ## Overview
 
-S.Y.N.A.P.S.E. ENGINE is a distributed orchestration platform for local language models. It coordinates multiple quantized models across performance tiers (FAST/BALANCED/POWERFUL), performs sub-100ms contextual retrieval (CGRAG), and runs multi-stage refinement, consensus, and debate workflows.
+S.Y.N.A.P.S.E. ENGINE is a distributed orchestration platform for local language models. It coordinates multiple quantized models across performance tiers (FAST/BALANCED/POWERFUL), performs sub 100ms contextual retrieval (CGRAG), and runs multi stage refinement, consensus, and debate workflows.
 
 All runtime messages traverse the **NEURAL SUBSTRATE ORCHESTRATOR** — the message bus and governance layer that enforces routing, health checks, and contextual budgeting.
 
@@ -20,8 +20,8 @@ All runtime messages traverse the **NEURAL SUBSTRATE ORCHESTRATOR** — the mess
 🎨 **WebUI-First** - All control happens in the browser, no YAML editing
 ⚡ **Fast Startup** - Launches in ~5 seconds with no models loaded (default: NO models enabled)
 🔄 **Dynamic Control** - Start/stop models without Docker restart
-🚀 **One-Click Metal Servers** - Automatic Metal-accelerated llama-server management via Host API
-🎯 **Multiple Modes** - Two-Stage, Simple, Council (Consensus/Debate), Benchmark, Code Chat (planned)
+🚀 **One-Click Metal Servers** - Automatic Metal accelerated llama-server management via Host API
+🎯 **Multiple Modes** - Two Stage, Simple, Council (Consensus/Debate), Benchmark, Code Chat (planned)
 📚 **CGRAG Integration** - Automatic context retrieval with FAISS (<100ms)
 📊 **Real-Time Monitoring** - Live server logs, resource tracking (VRAM, queries, cache hit rate)
 🔍 **Auto-Discovery** - Finds GGUF models in your Hugging Face cache
@@ -32,7 +32,7 @@ All runtime messages traverse the **NEURAL SUBSTRATE ORCHESTRATOR** — the mess
 - ✅ **Two-Stage** - FAST tier + CGRAG → BALANCED/POWERFUL refinement (complexity-based)
 - ✅ **Council (Consensus)** - Multiple models collaborate to reach consensus
 - ✅ **Council (Debate)** - Models argue opposing viewpoints with synthesis
-- ✅ **Benchmark** - Compare responses across all enabled models side-by-side
+- ✅ **Benchmark** - Compare responses across all enabled models side by side
 - 🚧 **Code Chat** - Code Q&A + File Create/Edit with CGRAG (In Development)
 
 ## Quick Start
@@ -84,14 +84,14 @@ All runtime messages traverse the **NEURAL SUBSTRATE ORCHESTRATOR** — the mess
    - Wait for models to load (3-5s per model with Metal acceleration, 10-15s with CPU)
    - Each enabled model launches its own llama-server instance
 
-4. **Go to Home** → Select query mode (Two-Stage recommended)
+4. **Go to Home** → Select query mode (Two Stage recommended)
 
 5. **Submit a query** → Watch S.Y.N.A.P.S.E. ENGINE process with CGRAG + multi-stage refinement!
 
 6. **Monitor Resources**
    - View VRAM usage across all models
    - Track query count and cache hit rate
-   - Observe real-time processing metrics
+   - Observe real time processing metrics
 
 ## Metal Acceleration (Apple Silicon) 🚀
 
@@ -101,7 +101,7 @@ All runtime messages traverse the **NEURAL SUBSTRATE ORCHESTRATOR** — the mess
 
 By default, S.Y.N.A.P.S.E. ENGINE runs llama-server inside Docker containers, which can't access your Mac's Metal GPU framework. **Metal acceleration mode** runs llama-server processes natively on your macOS host with full GPU access.
 
-**NEW in v4.0:** The **Host API service** automatically manages Metal-accelerated llama-servers for you. No more manual terminal windows!
+**NEW in v4.0:** The **Host API service** automatically manages Metal accelerated llama-servers for you. No more manual terminal windows!
 
 **Performance Comparison:**
 - CPU-only (Docker): ~15-30 seconds per model startup, slower inference
@@ -109,7 +109,7 @@ By default, S.Y.N.A.P.S.E. ENGINE runs llama-server inside Docker containers, wh
 
 ### Automatic Metal Server Management (v4.0)
 
-**One-Click Startup** - The Host API service automatically launches Metal-accelerated llama-servers when you click "START ALL ENABLED" in the WebUI.
+**One Click Startup** - The Host API service automatically launches Metal accelerated llama-servers when you click "START ALL ENABLED" in the WebUI.
 
 **How It Works:**
 1. Host API service runs in Docker with SSH access to your Mac
@@ -117,7 +117,7 @@ By default, S.Y.N.A.P.S.E. ENGINE runs llama-server inside Docker containers, wh
    - Backend calls Host API: `POST /api/servers/start`
    - Host API executes [start-host-llama-servers.sh](./scripts/start-host-llama-servers.sh) via SSH
    - Script reads `model_registry.json` and launches enabled models
-   - Each model launches as a native Metal-accelerated llama-server process
+   - Each model launches as a native Metal accelerated llama-server process
 3. Backend connects to running servers via `host.docker.internal:<port>`
 4. When you stop models or shutdown Docker:
    - Host API automatically stops all Metal servers
@@ -181,7 +181,7 @@ docker-compose up -d
 - Navigate to **Model Management**
 - Check boxes next to models you want to enable
 - Click **"START ALL ENABLED"**
-- Watch **System Logs** panel for real-time startup progress
+- Watch **System Logs** panel for real time startup progress
 - Models launch with Metal GPU acceleration automatically!
 
 **That's it!** No manual llama-server commands needed.
@@ -201,7 +201,7 @@ docker-compose up -d
 │  │ GPU: Apple M4 Pro (Metal) - 2-3x Performance   │      │
 │  └────────────────────────────────────────────────┘      │
 │                    ▲                                       │
-│                    │ SSH (command-restricted)              │
+│                    │ SSH (command restricted)              │
 │  ┌─────────────────┼────────────────────────────┐         │
 │  │ Docker Services │                             │         │
 │  │                                                │         │
@@ -252,7 +252,7 @@ docker-compose up -d
 
 **Security Model:**
 
-- SSH uses Ed25519 key-only authentication (no password)
+- SSH uses Ed25519 key only authentication (no password)
 - `authorized_keys` restricts SSH to only execute [ssh-wrapper.sh](./scripts/ssh-wrapper.sh)
 - [ssh-wrapper.sh](./scripts/ssh-wrapper.sh) only allows two commands: `start-metal-servers`, `stop-metal-servers`
 - Any other command is rejected
@@ -263,22 +263,22 @@ docker-compose up -d
 **Advantages:**
 - ✅ 2-3x faster inference (Metal GPU vs CPU)
 - ✅ **Automatic server management** via Host API (no manual commands!)
-- ✅ One-click startup from WebUI
+- ✅ One click startup from WebUI
 - ✅ Graceful shutdown when Docker stops
 - ✅ Full access to unified memory architecture
 - ✅ BF16 precision support on modern Apple GPUs
-- ✅ Real-time logs in WebUI
+- ✅ Real time logs in WebUI
 
 **Considerations:**
 - macOS/Apple Silicon only (not portable to Linux)
-- Requires SSH configuration (one-time setup)
+- Requires SSH configuration (one time setup)
 - Ports managed via model registry
 
 **When to Use:**
 - ✅ You're developing on an Apple Silicon Mac
 - ✅ You want maximum inference performance
 - ✅ You want automated server management
-- ✅ You value real-time monitoring
+- ✅ You value real time monitoring
 
 **Alternative (CPU-Only Mode):**
 - Set `USE_EXTERNAL_SERVERS=false` in [docker-compose.yml](./docker-compose.yml)
@@ -305,7 +305,7 @@ The Host API automatically launches multiple models simultaneously when you enab
 }
 ```
 
-**System Logs** show startup progress in real-time!
+**System Logs** show startup progress in real time!
 
 ### Troubleshooting
 
@@ -390,10 +390,10 @@ Servers launch dynamically (user sees progress)
 Models ready for queries (can stop/restart anytime)
 ```
 
-### Two-Stage Workflow (Corrected)
+### Two Stage Workflow (Corrected)
 
 ```
-User selects Two-Stage mode → Submits query
+User selects Two Stage mode → Submits query
   ↓
 STAGE 1: FAST tier (2B-7B models)
   - CGRAG retrieves relevant documentation (<100ms)
@@ -423,13 +423,13 @@ Final refined response with metadata (both stages visible in UI)
 - Scans HuggingFace cache for GGUF models
 - Parses filenames (handles multiple naming conventions)
 - Extracts metadata: family, size, quantization, capabilities
-- Auto-assigns tier:
+- Auto assigns tier:
   - **FAST** - 2B-7B models for quick responses
   - **BALANCED** - 8B-14B models for moderate complexity
-  - **POWERFUL** - >14B models or thinking-enabled models for complex queries
+  - **POWERFUL** - >14B models or thinking enabled models for complex queries
 - Saves to `model_registry.json`
 
-**2. CONFIGURATION (WebUI-Driven)**
+**2. CONFIGURATION (WebUI Driven)**
 - User enables specific models via checkboxes
 - User selects query mode
 - User configures tier overrides (optional)
@@ -469,9 +469,9 @@ S.Y.N.A.P.S.E. ENGINE uses a **hybrid Docker + host resources** approach:
 
 ### CGRAG System
 
-**Already Production-Ready (2,351 lines of code)**
+**Already Prod Ready (2,351 lines of code)**
 
-- Document indexing with smart chunking (512 words, 50-word overlap)
+- Document indexing with smart chunking (512 words, 50 word overlap)
 - Batched embedding generation (sentence-transformers)
 - FAISS vector search (<100ms retrieval)
 - Token budget management (8000 token default)
@@ -530,7 +530,7 @@ Response includes two-stage metadata:
 
 **GET `/api/models/registry`** - All discovered models
 **GET `/api/models/servers`** - Running server status
-**POST `/api/models/rescan`** - Re-scan for new models
+**POST `/api/models/rescan`** - Re scan for new models
 **PUT `/api/models/{model_id}/enabled`** - Enable/disable (auto-starts/stops server)
 
 Full API docs: http://localhost:8000/docs
@@ -636,16 +636,16 @@ S.Y.N.A.P.S.E. ENGINE includes a comprehensive test suite with **24 automated te
 **Integration Tests (6):**
 - Docker service communication
 - WebSocket connections
-- Backend-Frontend integration
+- Backend Frontend integration
 - Model server connectivity
-- End-to-end query workflows
+- End to end query workflows
 
 ### Testing Strategy
 
 - ✅ All tests run in Docker environment (no local dependencies)
 - ✅ Tests validate both development and production builds
 - ✅ Automated health checks for all services
-- ✅ Integration tests ensure cross-service compatibility
+- ✅ Integration tests ensure cross service compatibility
 
 For detailed test documentation, see [TEST_SUITE_SUMMARY.md](TEST_SUITE_SUMMARY.md).
 
@@ -672,12 +672,12 @@ For detailed test documentation, see [TEST_SUITE_SUMMARY.md](TEST_SUITE_SUMMARY.
 ## Future Roadmap
 
 ### Code Chat Mode (In Development)
-- Code Q&A with CGRAG-powered context retrieval
+- Code Q&A with CGRAG powered context retrieval
 - File creation and editing within workspace
 - Secure sandboxed file operations
 - Syntax highlighting and validation
 
-### Multi-Chat Mode (Planned)
+### Multi Chat Mode (Planned)
 - Conversational mode with message history
 - Multiple models engage in extended dialogue
 - Different personas/perspectives
@@ -705,7 +705,7 @@ For detailed test documentation, see [TEST_SUITE_SUMMARY.md](TEST_SUITE_SUMMARY.
 
 ### Security Features
 
-✅ **Localhost-Only Binding**
+✅ **Localhost Only Binding**
 - Model servers (llama.cpp) bind to `127.0.0.1` (localhost)
 - NOT directly accessible from outside the Docker container
 - Ports 8080-8099 are NOT exposed to host machine
@@ -809,14 +809,14 @@ S.Y.N.A.P.S.E. ENGINE is supported by **14 specialized Claude Code agents** acro
 
 **Core Development:**
 - **Backend Architect** - FastAPI, async Python, WebSockets, model orchestration
-- **Frontend Engineer** - React, TypeScript, terminal UI, real-time visualizations
+- **Frontend Engineer** - React, TypeScript, terminal UI, real time visualizations
 - **CGRAG Specialist** - Vector search, FAISS, embeddings, retrieval optimization
 - **DevOps Engineer** - Docker, deployment, CI/CD, infrastructure automation
 
 **Specialized Domains:**
 - **Model Lifecycle Manager** - Model discovery, health checks, resource allocation
 - **Query Mode Specialist** - Query routing, mode implementation, complexity assessment
-- **WebSocket Realtime Specialist** - Real-time communication, event streaming
+- **WebSocket Realtime Specialist** - Real time communication, event streaming
 - **Terminal UI Specialist** - Terminal aesthetics, dense displays, 60fps animations
 - **Performance Optimizer** - System optimization, profiling, bottleneck analysis
 - **Security Specialist** - Authentication, authorization, security hardening
@@ -825,7 +825,7 @@ S.Y.N.A.P.S.E. ENGINE is supported by **14 specialized Claude Code agents** acro
 
 **Project Management:**
 - **Record Keeper** - Historical context, session tracking, knowledge management
-- **Strategic Planning Architect** - Project planning, multi-agent coordination
+- **Strategic Planning Architect** - Project planning, multi agent coordination
 
 For complete agent documentation, collaboration patterns, and usage guidelines, see [PROJECT_OVERVIEW.md#team-structure](PROJECT_OVERVIEW.md#team-structure).
 
@@ -835,7 +835,7 @@ For complete agent documentation, collaboration patterns, and usage guidelines, 
 2. Test changes in Docker environment ([./scripts/test-all.sh](./scripts/test-all.sh))
 3. Update documentation with changes
 4. Check [SESSION_NOTES.md](./SESSION_NOTES.md) for recent context
-5. Use specialized agents for domain-specific tasks
+5. Use specialized agents for domain specific tasks
 6. Test CGRAG retrieval after doc changes
 7. Validate query modes if modifying routing
 
@@ -849,8 +849,8 @@ For complete agent documentation, collaboration patterns, and usage guidelines, 
 **Version:** 5.0 (S.Y.N.A.P.S.E. ENGINE Migration Complete)
 **Project Name:** S.Y.N.A.P.S.E. ENGINE (Scalable Yoked Network for Adaptive Praxial System Emergence) ✅
 **Host API:** Automatic Metal Server Management ✅
-**CGRAG Status:** Production-Ready ✅
+**CGRAG Status:** Prod Ready ✅
 **Two-Stage Workflow:** FAST → BALANCED/POWERFUL ✅
-**Query Modes:** Simple, Two-Stage, Council (Consensus/Debate), Benchmark ✅
+**Query Modes:** Simple, Two Stage, Council (Consensus/Debate), Benchmark ✅
 **Real-Time Monitoring:** System Logs + Resource Tracking ✅
 **Security:** Localhost-Only + Reverse Proxy + SSH Command Restriction ✅
