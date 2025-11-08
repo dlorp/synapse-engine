@@ -630,7 +630,7 @@ Implemented comprehensive documentation cross-linking system, adding 450+ hyperl
 - No mention of comprehensive testing infrastructure
 - Unclear development workflow
 
-#### 3. Documentation Linking Plan ([DOCUMENTATION_LINKING_PLAN.md](./DOCUMENTATION_LINKING_PLAN.md), NEW FILE)
+#### 3. Documentation Linking Plan ([DOCUMENTATION_LINKING_PLAN.md](./docs/DOCUMENTATION_LINKING_PLAN.md), NEW FILE)
 
 **Created by:** strategic-planning-architect agent
 
@@ -664,7 +664,7 @@ Implemented comprehensive documentation cross-linking system, adding 450+ hyperl
 - **[PROJECT_OVERVIEW.md](./PROJECT_OVERVIEW.md):** 42 links (comprehensive linking throughout all sections)
 
 **Phase 2 - Testing Docs (17 links):**
-- **[TEST_SUITE_SUMMARY.md](./TEST_SUITE_SUMMARY.md):** 9 links
+- **[TEST_SUITE_SUMMARY.md](./docs/TEST_SUITE_SUMMARY.md):** 9 links
 - **[docs/TESTING_GUIDE.md](./docs/TESTING_GUIDE.md):** 8 links
 
 **Phase 3 - Session/Development Docs (102 links):**
@@ -761,7 +761,7 @@ Implemented comprehensive documentation cross-linking system, adding 450+ hyperl
 
 #### New Files Created
 - ➕ [PROJECT_OVERVIEW.md](./PROJECT_OVERVIEW.md) (517 lines) - Central project reference
-- ➕ [DOCUMENTATION_LINKING_PLAN.md](./DOCUMENTATION_LINKING_PLAN.md) - 6-phase linking implementation plan
+- ➕ [DOCUMENTATION_LINKING_PLAN.md](./docs/DOCUMENTATION_LINKING_PLAN.md) - 6-phase linking implementation plan
 
 #### Documentation Updated (33 files, 450+ links added)
 
@@ -771,7 +771,7 @@ Implemented comprehensive documentation cross-linking system, adding 450+ hyperl
 - ✏️ [PROJECT_OVERVIEW.md](./PROJECT_OVERVIEW.md) (42 links throughout)
 
 **Testing Documentation:**
-- ✏️ [TEST_SUITE_SUMMARY.md](./TEST_SUITE_SUMMARY.md) (9 links)
+- ✏️ [TEST_SUITE_SUMMARY.md](./docs/TEST_SUITE_SUMMARY.md) (9 links)
 - ✏️ [docs/TESTING_GUIDE.md](./docs/TESTING_GUIDE.md) (8 links)
 
 **Session/Development:**
@@ -818,7 +818,7 @@ Implemented comprehensive documentation cross-linking system, adding 450+ hyperl
 1. **Phase 1:** strategic-planning-architect created [PROJECT_OVERVIEW.md](./PROJECT_OVERVIEW.md) after discovering 14 agents and reading all docs
 2. **Phase 2:** strategic-planning-architect compared [README.md](./README.md) vs [PROJECT_OVERVIEW.md](./PROJECT_OVERVIEW.md), identified inconsistencies
 3. **Phase 3:** Manual [README.md](./README.md) updates (testing section, agent listings, status fixes)
-4. **Phase 4:** strategic-planning-architect analyzed 54 markdown files, created [DOCUMENTATION_LINKING_PLAN.md](./DOCUMENTATION_LINKING_PLAN.md)
+4. **Phase 4:** strategic-planning-architect analyzed 54 markdown files, created [DOCUMENTATION_LINKING_PLAN.md](./docs/DOCUMENTATION_LINKING_PLAN.md)
 5. **Phase 5:** 6 general-purpose agents executed in parallel, adding 450+ links across 33 files
 6. **Phase 6:** Manual updates to [CLAUDE.md](./CLAUDE.md) and [strategic-planning-architect agent](./.claude/agents/strategic-planning-architect.md) with linking standards
 

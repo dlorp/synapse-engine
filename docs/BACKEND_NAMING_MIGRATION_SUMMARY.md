@@ -6,7 +6,7 @@
 
 ## Executive Summary
 
-Completed systematic replacement of all "MAGI" references in backend Python code with S.Y.N.A.P.S.E. ENGINE canonical naming per [SYSTEM_IDENTITY.md](./docs/SYSTEM_IDENTITY.md) specification.
+Completed systematic replacement of all "MAGI" references in backend Python code with S.Y.N.A.P.S.E. ENGINE canonical naming per [SYSTEM_IDENTITY.md](./SYSTEM_IDENTITY.md) specification.
 
 ## Files Modified
 
@@ -99,7 +99,7 @@ grep -ri "magi" --include="*.py" app/
 
 ## Alignment with System Identity
 
-All changes align with [SYSTEM_IDENTITY.md](./docs/SYSTEM_IDENTITY.md):
+All changes align with [SYSTEM_IDENTITY.md](./SYSTEM_IDENTITY.md):
 - ✅ **CORE:PRAXIS** service identity preserved
 - ✅ **prx:** log tag unchanged (already compliant)
 - ✅ **prx_*** metrics prefix unchanged (already compliant)
