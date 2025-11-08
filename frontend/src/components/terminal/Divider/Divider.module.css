@@ -1,0 +1,56 @@
+.divider {
+  border: none;
+}
+
+.horizontal {
+  width: 100%;
+  height: var(--border-width);
+  border-top: var(--border-width) var(--border-style);
+}
+
+.vertical {
+  width: var(--border-width);
+  height: 100%;
+  border-left: var(--border-width) var(--border-style);
+}
+
+.default {
+  border-color: var(--border-secondary);
+}
+
+.primary {
+  border-color: var(--border-primary);
+}
+
+.accent {
+  border-color: var(--border-accent);
+}
+
+.neutral {
+  border-color: var(--border-neutral);
+}
+
+/* Spacing variants */
+.sm {
+  margin: var(--space-sm) 0;
+}
+
+.md {
+  margin: var(--space-md) 0;
+}
+
+.lg {
+  margin: var(--space-lg) 0;
+}
+
+.vertical.sm {
+  margin: 0 var(--space-sm);
+}
+
+.vertical.md {
+  margin: 0 var(--space-md);
+}
+
+.vertical.lg {
+  margin: 0 var(--space-lg);
+}

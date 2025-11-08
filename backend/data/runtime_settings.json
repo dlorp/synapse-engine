@@ -1,0 +1,26 @@
+{
+  "n_gpu_layers": 99,
+  "ctx_size": 16384,
+  "threads": 8,
+  "batch_size": 512,
+  "ubatch_size": 256,
+  "flash_attn": true,
+  "no_mmap": true,
+  "embedding_model_name": "all-MiniLM-L6-v2",
+  "embedding_model_cache_path": null,
+  "embedding_dimension": 384,
+  "cgrag_token_budget": 8000,
+  "cgrag_min_relevance": 0.7,
+  "cgrag_chunk_size": 512,
+  "cgrag_chunk_overlap": 50,
+  "cgrag_max_results": 20,
+  "cgrag_index_directory": "data/faiss_indexes",
+  "benchmark_default_max_tokens": 1024,
+  "benchmark_parallel_max_models": 5,
+  "websearch_max_results": 5,
+  "websearch_timeout_seconds": 10,
+  "_metadata": {
+    "last_modified": "2025-11-07T08:51:38.633243Z",
+    "version": "1.0"
+  }
+}

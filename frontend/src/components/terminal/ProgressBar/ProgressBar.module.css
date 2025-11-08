@@ -1,0 +1,69 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  font-family: var(--font-mono);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.label {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: var(--font-medium);
+}
+
+.values {
+  font-size: var(--text-xs);
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.track {
+  width: 100%;
+  height: 8px;
+  background-color: var(--bg-input);
+  border: var(--border-width) var(--border-style) var(--border-secondary);
+  position: relative;
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  transition: width var(--transition-base);
+  position: relative;
+}
+
+.fill.default {
+  background-color: var(--border-primary);
+  box-shadow: 0 0 4px var(--border-primary);
+}
+
+.fill.accent {
+  background-color: var(--border-accent);
+  box-shadow: 0 0 4px var(--border-accent);
+}
+
+.fill.warning {
+  background-color: var(--border-warning);
+  box-shadow: 0 0 4px var(--border-warning);
+}
+
+.fill.error {
+  background-color: var(--border-error);
+  box-shadow: 0 0 4px var(--border-error);
+}
+
+.percentage {
+  font-size: var(--text-xs);
+  color: var(--text-primary);
+  font-weight: var(--font-semibold);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}

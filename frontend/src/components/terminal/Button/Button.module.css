@@ -1,0 +1,129 @@
+.button {
+  font-family: var(--font-mono);
+  font-weight: var(--font-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: var(--border-width-thick) var(--border-style);
+  position: relative;
+  user-select: none;
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--border-accent);
+  outline-offset: 2px;
+}
+
+/* Sizes */
+.sm {
+  padding: var(--space-xs) var(--space-md);
+  font-size: var(--text-xs);
+  min-height: 28px;
+}
+
+.md {
+  padding: var(--space-sm) var(--space-lg);
+  font-size: var(--text-sm);
+  min-height: 36px;
+}
+
+.lg {
+  padding: var(--space-md) var(--space-xl);
+  font-size: var(--text-md);
+  min-height: 44px;
+}
+
+/* Variants */
+.primary {
+  background-color: var(--bg-primary);
+  border-color: var(--border-primary);
+  color: var(--text-primary);
+}
+
+.primary:hover:not(:disabled) {
+  background-color: var(--bg-hover);
+  box-shadow: var(--glow-sm);
+}
+
+.primary:active:not(:disabled) {
+  background-color: var(--bg-active);
+  transform: translateY(1px);
+}
+
+.secondary {
+  background-color: transparent;
+  border-color: var(--border-secondary);
+  color: var(--text-secondary);
+}
+
+.secondary:hover:not(:disabled) {
+  border-color: var(--border-primary);
+  color: var(--text-primary);
+}
+
+.secondary:active:not(:disabled) {
+  background-color: var(--bg-hover);
+  transform: translateY(1px);
+}
+
+.danger {
+  background-color: var(--bg-primary);
+  border-color: var(--border-error);
+  color: var(--text-error);
+}
+
+.danger:hover:not(:disabled) {
+  background-color: rgba(255, 0, 0, 0.1);
+  box-shadow: 0 0 8px var(--border-error);
+}
+
+.danger:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.ghost {
+  background-color: transparent;
+  border-color: transparent;
+  color: var(--text-primary);
+}
+
+.ghost:hover:not(:disabled) {
+  background-color: var(--bg-hover);
+}
+
+.ghost:active:not(:disabled) {
+  background-color: var(--bg-active);
+  transform: translateY(1px);
+}
+
+/* States */
+.button:disabled {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+}
+
+.loading {
+  position: relative;
+  pointer-events: none;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+}

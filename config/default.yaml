@@ -1,0 +1,91 @@
+# =============================================================================
+# S.Y.N.A.P.S.E. ENGINE - Default Configuration
+# =============================================================================
+# This file contains sensible defaults for all configuration.
+# Override with environment-specific config files or environment variables.
+
+# Application settings
+app:
+  name: "S.Y.N.A.P.S.E. ENGINE Core"
+  version: "0.1.0"
+  debug: false
+  host: "0.0.0.0"
+  port: 8000
+
+# Model Management (NEW - replaces hardcoded models)
+model_management:
+  scan_path: "/models"  # Docker mount point for model files
+  registry_path: "data/model_registry.json"
+  llama_server_path: "/usr/local/bin/llama-server"
+  port_range: [8080, 8099]
+  max_startup_time: 120
+  readiness_check_interval: 2
+  concurrent_starts: true
+
+# Legacy model configurations have been removed in favor of dynamic model management.
+# The system now uses:
+# 1. Model discovery (scans for GGUF files)
+# 2. Profile-based configuration (enabled_models, tier_config)
+# 3. Dynamic server startup via WebUI
+
+# Query routing configuration
+routing:
+  complexity_thresholds:
+    simple_max: 3.0
+    moderate_max: 7.0
+
+  scoring:
+    token_count_weight: 0.1
+    multiple_parts_weight: 2.0
+    comparison_weight: 3.0
+    analysis_weight: 4.0
+    reasoning_weight: 2.0
+
+  load_balancing:
+    strategy: "round_robin"
+    health_check_interval: 30
+
+# CGRAG configuration
+cgrag:
+  indexing:
+    chunk_size: 512
+    chunk_overlap: 50
+    embedding_model: "${EMBEDDING_MODEL}"
+    embedding_dimension: 384
+
+  retrieval:
+    token_budget: "${CGRAG_TOKEN_BUDGET}"
+    min_relevance: "${CGRAG_MIN_RELEVANCE}"
+    max_artifacts: 5
+    cache_ttl: 3600
+
+  faiss:
+    index_type: "IVF"
+    nlist: 100
+    nprobe: 10
+
+# Caching configuration
+cache:
+  redis:
+    enabled: true
+    ttl:
+      embeddings: 86400
+      model_responses: 3600
+      cgrag_results: 1800
+    max_memory: "512mb"
+    eviction_policy: "allkeys-lru"
+
+# Logging configuration
+logging:
+  level: "${LOG_LEVEL}"
+  format: "json"
+  handlers:
+    console:
+      enabled: true
+      level: "DEBUG"
+    file:
+      enabled: true
+      level: "INFO"
+      path: "/app/logs/app.log"
+      max_bytes: 10485760
+      backup_count: 5
