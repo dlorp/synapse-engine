@@ -1,0 +1,146 @@
+/**
+ * MorphingText.module.css
+ *
+ * Text morphing animation with character-by-character transformation
+ * Supports fade, slide, and scramble morph styles
+ */
+
+.morphingText {
+  display: inline-block;
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', 'Fira Code', monospace;
+  white-space: pre;
+  letter-spacing: 0.05em;
+
+  /* GPU acceleration */
+  transform: translateZ(0);
+  will-change: transform, opacity;
+}
+
+.char {
+  display: inline-block;
+  transition: all var(--morph-duration, 800ms);
+}
+
+/* Phosphor glow effect */
+.glow {
+  text-shadow:
+    0 0 5px currentColor,
+    0 0 10px currentColor,
+    0 0 15px rgba(255, 149, 0, 0.5);
+}
+
+/* Morph style: Fade */
+.morphFade .char {
+  animation: fadeInOut var(--morph-duration, 800ms);
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Morph style: Slide */
+.morphSlide .char {
+  animation: slideInOut var(--morph-duration, 800ms);
+}
+
+@keyframes slideInOut {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Morph style: Scramble (handled in JS, but add flicker effect) */
+.morphScramble .char {
+  animation: charFlicker calc(var(--morph-duration, 800ms) / 10) infinite;
+}
+
+@keyframes charFlicker {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* Easing functions */
+.easingLinear .char {
+  animation-timing-function: linear;
+}
+
+.easingEaseIn .char {
+  animation-timing-function: ease-in;
+}
+
+.easingEaseOut .char {
+  animation-timing-function: ease-out;
+}
+
+.easingEaseInOut .char {
+  animation-timing-function: ease-in-out;
+}
+
+/* Stagger animation for characters */
+.char:nth-child(1) { animation-delay: calc(var(--morph-duration, 800ms) * 0.00); }
+.char:nth-child(2) { animation-delay: calc(var(--morph-duration, 800ms) * 0.02); }
+.char:nth-child(3) { animation-delay: calc(var(--morph-duration, 800ms) * 0.04); }
+.char:nth-child(4) { animation-delay: calc(var(--morph-duration, 800ms) * 0.06); }
+.char:nth-child(5) { animation-delay: calc(var(--morph-duration, 800ms) * 0.08); }
+.char:nth-child(6) { animation-delay: calc(var(--morph-duration, 800ms) * 0.10); }
+.char:nth-child(7) { animation-delay: calc(var(--morph-duration, 800ms) * 0.12); }
+.char:nth-child(8) { animation-delay: calc(var(--morph-duration, 800ms) * 0.14); }
+.char:nth-child(9) { animation-delay: calc(var(--morph-duration, 800ms) * 0.16); }
+.char:nth-child(10) { animation-delay: calc(var(--morph-duration, 800ms) * 0.18); }
+
+/* For characters beyond 10, use generic delay */
+.char:nth-child(n+11) {
+  animation-delay: calc(var(--morph-duration, 800ms) * 0.20);
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .morphingText,
+  .char {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .glow {
+    text-shadow: none;
+  }
+}
+
+/* High contrast mode - simplify effects */
+@media (prefers-contrast: high) {
+  .glow {
+    text-shadow: none;
+  }
+
+  .char {
+    animation: none;
+    transition: color 0.3s ease;
+  }
+}
+
+/* Focus indicator for accessibility */
+.morphingText:focus-visible {
+  outline: 2px solid #00ffff;
+  outline-offset: 2px;
+}

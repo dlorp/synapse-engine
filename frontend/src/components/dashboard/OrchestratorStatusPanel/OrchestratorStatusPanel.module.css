@@ -1,0 +1,257 @@
+/**
+ * OrchestratorStatusPanel Styles
+ * Terminal aesthetic with phosphor orange theme (#ff9500)
+ */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+}
+
+/* ============================================
+   SECTION STYLING
+   ============================================ */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.sectionTitle {
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  color: var(--text-secondary);
+  letter-spacing: 0.1em;
+  border-bottom: 1px solid var(--border-secondary);
+  padding-bottom: var(--space-xs);
+}
+
+/* ============================================
+   TIER UTILIZATION
+   ============================================ */
+
+.utilizationGrid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.utilizationRow {
+  display: grid;
+  grid-template-columns: 130px 1fr 60px;
+  gap: var(--space-md);
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: var(--text-md);
+}
+
+.bar {
+  font-family: var(--font-mono);
+  letter-spacing: 0.05em;
+  color: var(--text-primary);
+}
+
+.percent {
+  text-align: right;
+  color: var(--text-primary);
+  font-weight: var(--font-semibold);
+}
+
+/* ============================================
+   TIER COLOR CODING
+   ============================================ */
+
+.tierQ2 {
+  color: var(--status-success); /* Green for fast tier */
+  font-weight: var(--font-semibold);
+}
+
+.tierQ3 {
+  color: var(--text-primary); /* Orange for balanced tier */
+  font-weight: var(--font-semibold);
+}
+
+.tierQ4 {
+  color: var(--status-processing); /* Cyan for deep tier */
+  font-weight: var(--font-semibold);
+}
+
+/* ============================================
+   ROUTING DECISIONS
+   ============================================ */
+
+.decisionsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.decisionRow {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: baseline;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+}
+
+.arrow {
+  color: var(--text-primary);
+  flex-shrink: 0;
+}
+
+.query {
+  color: var(--text-secondary);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ============================================
+   COMPLEXITY COLOR CODING
+   ============================================ */
+
+.complexitySimple {
+  color: var(--status-success); /* Green */
+  font-weight: var(--font-semibold);
+}
+
+.complexityModerate {
+  color: var(--status-warning); /* Amber/Orange */
+  font-weight: var(--font-semibold);
+}
+
+.complexityComplex {
+  color: var(--status-processing); /* Cyan */
+  font-weight: var(--font-semibold);
+}
+
+/* ============================================
+   COMPLEXITY DISTRIBUTION BAR
+   ============================================ */
+
+.distributionContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.distributionBar {
+  display: flex;
+  height: 24px;
+  border: 1px solid var(--border-secondary);
+  background: var(--bg-primary);
+  overflow: hidden;
+}
+
+.segment {
+  height: 100%;
+  transition: width 0.3s ease-in-out;
+  border-right: 1px solid var(--bg-primary);
+}
+
+.segment:last-child {
+  border-right: none;
+}
+
+/* Segment colors match complexity colors */
+.segment.complexitySimple {
+  background: var(--status-success);
+  opacity: 0.6;
+}
+
+.segment.complexityModerate {
+  background: var(--status-warning);
+  opacity: 0.6;
+}
+
+.segment.complexityComplex {
+  background: var(--status-processing);
+  opacity: 0.6;
+}
+
+.distributionLabels {
+  display: flex;
+  gap: var(--space-md);
+  justify-content: center;
+  font-size: var(--text-sm);
+  font-family: var(--font-mono);
+}
+
+.separator {
+  color: var(--text-secondary);
+}
+
+/* ============================================
+   FOOTER STATS
+   ============================================ */
+
+.footer {
+  display: flex;
+  gap: var(--space-md);
+  justify-content: center;
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border-secondary);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+/* ============================================
+   STATE STYLES (Loading, Error, No Data)
+   ============================================ */
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: var(--status-processing);
+  font-family: var(--font-mono);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: var(--status-error);
+  font-family: var(--font-mono);
+  font-weight: var(--font-semibold);
+  gap: var(--space-sm);
+}
+
+.errorDetail {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  font-weight: normal;
+}
+
+.noData {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}

@@ -1,0 +1,162 @@
+/**
+ * SystemStatusPanel Component Styles
+ *
+ * Dense system metrics display with terminal aesthetic
+ */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-sm) var(--spacing-md);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.gridEnhanced {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-sm) var(--spacing-md);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+@media (min-width: 1920px) {
+  .gridEnhanced {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.compactGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-xs);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.metricRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-xs);
+  background: rgba(0, 0, 0, 0.3);
+  border-left: 2px solid var(--border-primary);
+  transition: border-color var(--transition-fast);
+}
+
+.metricRow:hover {
+  border-left-color: var(--text-primary);
+  background: rgba(255, 149, 0, 0.05);
+}
+
+.label {
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.9em;
+  user-select: none;
+}
+
+.value {
+  color: var(--text-primary);
+  font-weight: 500;
+  text-align: right;
+  transition: color var(--transition-fast);
+}
+
+.breakdown {
+  font-size: 0.85em;
+  color: var(--text-secondary);
+  margin-left: var(--spacing-xs);
+}
+
+.processing {
+  font-size: 0.85em;
+  color: var(--text-accent);
+  margin-left: var(--spacing-xs);
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Responsive layout */
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-xs);
+  }
+
+  .metricRow {
+    font-size: 11px;
+  }
+}
+
+/* Single column on very narrow screens */
+@media (max-width: 480px) {
+  .compactGrid,
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .label {
+    font-size: 0.85em;
+  }
+
+  .value {
+    font-size: 0.95em;
+  }
+}
+
+/* Accessibility: High contrast mode */
+@media (prefers-contrast: high) {
+  .metricRow {
+    border-left-width: 3px;
+  }
+
+  .label {
+    font-weight: bold;
+  }
+}
+
+/* Reduced motion: disable processing pulse */
+@media (prefers-reduced-motion: reduce) {
+  .processing {
+    animation: none;
+  }
+}
+
+/* Value with sparkline layout */
+.valueWithSparkline {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: var(--text-primary);
+  font-weight: 500;
+  text-align: right;
+}
+
+.sparkline {
+  margin-left: auto;
+}
+
+/* Inline status indicator */
+.inlineStatus {
+  margin-left: var(--spacing-xs);
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+/* Responsive adjustments for enhanced grid */
+@media (max-width: 768px) {
+  .gridEnhanced {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-xs);
+  }
+
+  .valueWithSparkline {
+    flex-wrap: wrap;
+  }
+
+  .sparkline {
+    margin-left: 0;
+    margin-top: var(--spacing-xs);
+  }
+}

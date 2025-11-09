@@ -6,6 +6,13 @@ import { MetricsPage } from '@/pages/MetricsPage';
 import { SettingsPage } from '@/pages/SettingsPage';
 import { AdminPage } from '@/pages/AdminPage/AdminPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
+import WebTUITest from '@/examples/WebTUITest';
+import { CSSTestPage } from '@/pages/CSSTestPage';
+import { SpinnerTestPage } from '@/pages/SpinnerTestPage';
+import { DotMatrixTestPage } from '@/pages/DotMatrixTestPage';
+import CRTEffectsTestPage from '@/pages/CRTEffectsTestPage';
+import { OrchestratorTestPage } from '@/pages/OrchestratorTestPage';
+import LiveEventFeedTestPage from '@/pages/LiveEventFeedTestPage';
 
 export const router = createBrowserRouter([
   {
@@ -31,6 +38,34 @@ export const router = createBrowserRouter([
       {
         path: 'admin',
         element: <AdminPage />,
+      },
+      {
+        path: 'webtui-test',
+        element: <WebTUITest />,
+      },
+      {
+        path: 'css-test',
+        element: <CSSTestPage />,
+      },
+      {
+        path: 'spinner-test',
+        element: <SpinnerTestPage />,
+      },
+      {
+        path: 'dot-matrix-test',
+        element: <DotMatrixTestPage />,
+      },
+      {
+        path: 'crt-effects-test',
+        element: <CRTEffectsTestPage />,
+      },
+      {
+        path: 'orchestrator-test',
+        element: <OrchestratorTestPage />,
+      },
+      {
+        path: 'live-event-feed-test',
+        element: <LiveEventFeedTestPage />,
       },
       {
         path: '*',

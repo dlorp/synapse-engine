@@ -1,0 +1,87 @@
+/**
+ * GlitchEffect.module.css
+ *
+ * Glitch transition effect with RGB split, scan line distortion, and block shifting
+ */
+
+.glitchContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+
+  /* GPU acceleration */
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.glitchCanvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+
+  /* Pixel-perfect rendering */
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+
+  /* No selection */
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+
+  /* GPU acceleration */
+  transform: translateZ(0);
+
+  /* Blend mode for glitch effect */
+  mix-blend-mode: screen;
+}
+
+.glitchCanvas.active {
+  opacity: 1;
+}
+
+/* Additional glitch styling when active */
+.glitchContainer:has(.active) {
+  /* Subtle screen shake */
+  animation: screenShake 0.2s ease-in-out;
+}
+
+@keyframes screenShake {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translate(-2px, 1px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translate(2px, -1px);
+  }
+}
+
+/* Phosphor orange glow during glitch */
+.glitchCanvas.active {
+  filter: drop-shadow(0 0 5px rgba(255, 149, 0, 0.3));
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .glitchContainer:has(.active) {
+    animation: none;
+  }
+
+  .glitchCanvas {
+    transition: none;
+  }
+}
+
+/* High contrast mode - remove decorative effects */
+@media (prefers-contrast: high) {
+  .glitchCanvas {
+    mix-blend-mode: normal;
+    filter: none;
+  }
+}

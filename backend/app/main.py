@@ -27,11 +27,12 @@ from app.core.logging import (
     get_logger,
     ServiceTag
 )
-from app.routers import health, models, query, admin, settings, proxy
+from app.routers import health, models, query, admin, settings, proxy, events, orchestrator
 from app.services.llama_server_manager import LlamaServerManager
 from app.services.model_discovery import ModelDiscoveryService
 from app.services.profile_manager import ProfileManager
 from app.services.websocket_manager import WebSocketManager
+from app.services.event_bus import init_event_bus, get_event_bus
 from app.models.discovered_model import ModelRegistry
 
 # Track application start time
@@ -131,6 +132,11 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         # Initialize WebSocket manager for log streaming
         websocket_manager = WebSocketManager(buffer_size=500)
         logger.info("WebSocket manager initialized")
+
+        # Initialize event bus for system event streaming
+        event_bus = init_event_bus(history_size=100, max_queue_size=1000)
+        await event_bus.start()
+        logger.info("Event bus initialized and started")
 
         server_manager = LlamaServerManager(
             llama_server_path=config.model_management.llama_server_path,
@@ -241,6 +247,14 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
     # Shutdown
     logger.info("S.Y.N.A.P.S.E. Core (PRAXIS) shutting down...")
+
+    # Stop event bus
+    try:
+        event_bus = get_event_bus()
+        await event_bus.stop()
+        logger.info("Event bus stopped")
+    except Exception as e:
+        logger.warning(f"Error stopping event bus: {e}")
 
     # Shutdown PRAXIS model management - stop all running servers
     if server_manager:
@@ -419,6 +433,8 @@ app.include_router(query.router, tags=["queries"])
 app.include_router(admin.router, tags=["admin"])
 app.include_router(settings.router, tags=["settings"])
 app.include_router(proxy.router, tags=["proxy"])
+app.include_router(events.router, tags=["events"])
+app.include_router(orchestrator.router, tags=["orchestrator"])
 
 
 # Root endpoint

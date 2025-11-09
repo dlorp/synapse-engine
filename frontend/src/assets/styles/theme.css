@@ -1,0 +1,160 @@
+/**
+ * S.Y.N.A.P.S.E. ENGINE - Phosphor Orange Theme
+ * Customizes WebTUI CSS variables for brand identity
+ * Primary color: #ff9500 (phosphor orange, NOT green)
+ *
+ * Design Philosophy:
+ * - High contrast black background (#000000)
+ * - Phosphor orange for primary UI elements
+ * - Cyan for accents and processing states
+ * - Red for errors, green for success
+ * - Glow effects for visual feedback
+ */
+
+:root {
+  /* ============================================
+     PRIMARY BRAND COLORS
+     ============================================ */
+  --webtui-primary: #ff9500;        /* Phosphor orange - PRIMARY BRAND COLOR */
+  --webtui-background: #000000;     /* Pure black background */
+  --webtui-accent: #00ffff;         /* Cyan for highlights */
+  --webtui-text: #ff9500;           /* Primary text color (orange) */
+  --webtui-text-secondary: #ff9500; /* Secondary text (same as primary) */
+  --webtui-border: #ff9500;         /* Panel borders (orange) */
+
+  /* ============================================
+     STATE COLORS
+     ============================================ */
+  --webtui-success: #00ff00;        /* Success green */
+  --webtui-warning: #ff9500;        /* Warning amber (same as primary) */
+  --webtui-error: #ff0000;          /* Error red */
+  --webtui-processing: #00ffff;     /* Processing cyan */
+  --webtui-info: #00ffff;           /* Info cyan */
+
+  /* ============================================
+     TYPOGRAPHY
+     ============================================ */
+  --webtui-font-family: 'JetBrains Mono', 'IBM Plex Mono', 'Fira Code', 'Courier New', monospace;
+  --webtui-font-size-base: 14px;
+  --webtui-font-size-small: 12px;
+  --webtui-font-size-large: 16px;
+  --webtui-font-size-xlarge: 20px;
+  --webtui-line-height: 1.5;
+  --webtui-letter-spacing: 0.02em;
+
+  /* ============================================
+     SPACING SYSTEM
+     ============================================ */
+  --webtui-spacing-xs: 4px;
+  --webtui-spacing-sm: 8px;
+  --webtui-spacing-md: 16px;
+  --webtui-spacing-lg: 24px;
+  --webtui-spacing-xl: 32px;
+
+  /* ============================================
+     BORDER STYLES
+     ============================================ */
+  --webtui-border-width: 1px;
+  --webtui-border-radius: 0;        /* Sharp corners for terminal aesthetic */
+  --webtui-border-style: solid;
+
+  /* ============================================
+     PHOSPHOR GLOW EFFECT
+     Custom effect for S.Y.N.A.P.S.E. ENGINE
+     ============================================ */
+  --phosphor-glow:
+    0 0 10px rgba(255, 149, 0, 0.8),
+    0 0 20px rgba(255, 149, 0, 0.4),
+    0 0 30px rgba(255, 149, 0, 0.2);
+
+  --phosphor-glow-intense:
+    0 0 10px rgba(255, 149, 0, 1.0),
+    0 0 20px rgba(255, 149, 0, 0.6),
+    0 0 30px rgba(255, 149, 0, 0.4),
+    0 0 40px rgba(255, 149, 0, 0.2);
+}
+
+/* ============================================
+   PHOSPHOR GLOW ANIMATIONS
+   ============================================ */
+
+@keyframes phosphor-pulse {
+  0%, 100% {
+    text-shadow: var(--phosphor-glow);
+    opacity: 1;
+  }
+  50% {
+    text-shadow: 0 0 5px rgba(255, 149, 0, 0.6);
+    opacity: 0.9;
+  }
+}
+
+@keyframes phosphor-pulse-intense {
+  0%, 100% {
+    text-shadow: var(--phosphor-glow-intense);
+    opacity: 1;
+  }
+  50% {
+    text-shadow: var(--phosphor-glow);
+    opacity: 0.95;
+  }
+}
+
+/* ============================================
+   APPLY GLOW TO HEADINGS
+   ============================================ */
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--webtui-primary);
+  text-shadow: var(--phosphor-glow);
+  animation: phosphor-pulse 2s ease-in-out infinite;
+}
+
+/* ============================================
+   APPLY GLOW TO WEBTU PANELS
+   ============================================ */
+
+.webtui-panel,
+.webtui-box,
+.webtui-card {
+  background: var(--webtui-background);
+  border-color: var(--webtui-border);
+  box-shadow: var(--phosphor-glow);
+}
+
+/* ============================================
+   SCROLLBAR STYLING (Terminal Aesthetic)
+   ============================================ */
+
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--webtui-background);
+  border: 1px solid var(--webtui-border);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--webtui-primary);
+  border: 1px solid var(--webtui-background);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--webtui-accent);
+}
+
+/* ============================================
+   SELECTION HIGHLIGHTING
+   ============================================ */
+
+::selection {
+  background: var(--webtui-primary);
+  color: var(--webtui-background);
+}
+
+::-moz-selection {
+  background: var(--webtui-primary);
+  color: var(--webtui-background);
+}

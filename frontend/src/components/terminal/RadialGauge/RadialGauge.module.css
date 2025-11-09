@@ -1,0 +1,64 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--webtui-primary, #ff9500);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 5px rgba(255, 149, 0, 0.5);
+  text-align: center;
+}
+
+.canvasContainer {
+  position: relative;
+  display: inline-block;
+}
+
+.canvas {
+  display: block;
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
+}
+
+.unit {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--webtui-accent, #00ffff);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-align: center;
+}
+
+/* Compact variant */
+.container.compact {
+  gap: 4px;
+}
+
+.container.compact .label {
+  font-size: 10px;
+}
+
+.container.compact .unit {
+  font-size: 8px;
+}
+
+/* Inline variant - horizontal layout */
+.container.inline {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+}
+
+.container.inline .label {
+  order: -1;
+}
+
+.container.inline .unit {
+  order: 1;
+}

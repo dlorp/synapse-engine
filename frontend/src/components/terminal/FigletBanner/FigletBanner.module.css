@@ -1,0 +1,91 @@
+/**
+ * FigletBanner Component Styles
+ *
+ * Large ASCII art banner with phosphor glow
+ */
+
+.container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--spacing-md) 0;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.banner {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  line-height: 1;
+  color: var(--text-primary);
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  text-align: center;
+  letter-spacing: 0;
+  user-select: none;
+}
+
+/* Variant styles */
+.standard {
+  font-size: 8px;
+}
+
+.slant {
+  font-size: 10px;
+  font-style: italic;
+}
+
+.banner {
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+}
+
+.block {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* Responsive sizing */
+@media (max-width: 1200px) {
+  .banner {
+    font-size: 6px;
+  }
+
+  .standard {
+    font-size: 6px;
+  }
+
+  .block {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .banner {
+    font-size: 4px;
+  }
+
+  .standard {
+    font-size: 4px;
+  }
+
+  .block {
+    font-size: 8px;
+  }
+}
+
+/* Accessibility: High contrast mode */
+@media (prefers-contrast: high) {
+  .banner {
+    font-weight: bold;
+  }
+}
+
+/* Reduced motion: disable phosphor pulse */
+@media (prefers-reduced-motion: reduce) {
+  .banner {
+    animation: none;
+  }
+}
