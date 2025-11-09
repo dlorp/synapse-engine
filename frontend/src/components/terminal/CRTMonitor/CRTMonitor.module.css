@@ -1,0 +1,214 @@
+/**
+ * CRTMonitor Styles
+ *
+ * Implements CRT (cathode ray tube) monitor visual effects:
+ * - Phosphor glow (multi-layer box-shadow)
+ * - Screen curvature (border-radius)
+ * - Chromatic aberration (text-shadow)
+ * - Bloom effect (outer glow)
+ * - Vignette (darkened corners)
+ *
+ * Performance: GPU-accelerated, 60fps target
+ */
+
+/* ============================================
+   CONTAINER - Outer frame with phosphor glow
+   ============================================ */
+
+.crtContainer {
+  position: relative;
+  background: var(--webtui-background, #000000);
+  overflow: hidden;
+
+  /* GPU acceleration */
+  transform: translateZ(0);
+  will-change: auto;
+  backface-visibility: hidden;
+
+  /* Smooth transitions */
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.3s ease;
+}
+
+/* Curved screen variant - subtle 15° perspective */
+.crtContainer.curved {
+  border-radius: 8px;
+
+  /* Subtle screen curvature using perspective */
+  transform: perspective(1000px) rotateX(0deg);
+  transform-style: preserve-3d;
+}
+
+/* ============================================
+   INTENSITY VARIANTS - Phosphor glow levels
+   ============================================ */
+
+.crtContainer.subtle {
+  border: 1px solid rgba(255, 149, 0, 0.5);
+  box-shadow:
+    0 0 5px rgba(255, 149, 0, 0.6),
+    0 0 10px rgba(255, 149, 0, 0.3),
+    0 0 15px rgba(255, 149, 0, 0.1);
+}
+
+.crtContainer.medium {
+  border: 1px solid rgba(255, 149, 0, 0.8);
+  box-shadow:
+    0 0 10px rgba(255, 149, 0, 0.8),
+    0 0 20px rgba(255, 149, 0, 0.4),
+    0 0 30px rgba(255, 149, 0, 0.2);
+}
+
+.crtContainer.intense {
+  border: 1px solid rgba(255, 149, 0, 1.0);
+  box-shadow:
+    0 0 10px rgba(255, 149, 0, 1.0),
+    0 0 20px rgba(255, 149, 0, 0.6),
+    0 0 30px rgba(255, 149, 0, 0.4),
+    0 0 40px rgba(255, 149, 0, 0.2),
+    0 0 50px rgba(255, 149, 0, 0.1);
+}
+
+/* Hover state - enhance glow */
+.crtContainer:hover {
+  border-color: rgba(0, 255, 255, 0.8);
+  box-shadow:
+    0 0 15px rgba(0, 255, 255, 0.6),
+    0 0 25px rgba(0, 255, 255, 0.3),
+    0 0 35px rgba(0, 255, 255, 0.15);
+}
+
+/* ============================================
+   SCREEN - Inner content area
+   ============================================ */
+
+.crtScreen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+
+  /* Allow content to be interactive */
+  pointer-events: auto;
+
+  /* Slight inner curve for depth */
+  transform: perspective(500px) translateZ(-5px);
+}
+
+/* ============================================
+   CHROMATIC ABERRATION - RGB split effect
+   ============================================ */
+
+.chromaticAberration {
+  /* Applied to text content via text-shadow */
+  text-shadow:
+    -1px 0 0 rgba(255, 0, 0, 0.3),
+    1px 0 0 rgba(0, 255, 255, 0.3);
+}
+
+/* Stronger aberration for intense mode */
+.crtContainer.intense .chromaticAberration {
+  text-shadow:
+    -2px 0 0 rgba(255, 0, 0, 0.4),
+    2px 0 0 rgba(0, 255, 255, 0.4);
+}
+
+/* ============================================
+   VIGNETTE OVERLAY - Darkened corners
+   ============================================ */
+
+.vignetteOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5;
+
+  /* Radial gradient from transparent center to dark edges */
+  background: radial-gradient(
+    circle at center,
+    transparent 40%,
+    rgba(0, 0, 0, 0.3) 70%,
+    rgba(0, 0, 0, 0.6) 100%
+  );
+
+  /* GPU acceleration */
+  transform: translateZ(0);
+}
+
+/* Stronger vignette for intense mode */
+.crtContainer.intense .vignetteOverlay {
+  background: radial-gradient(
+    circle at center,
+    transparent 30%,
+    rgba(0, 0, 0, 0.4) 60%,
+    rgba(0, 0, 0, 0.7) 100%
+  );
+}
+
+/* ============================================
+   BLOOM LAYER - Content glow bleeding effect
+   ============================================ */
+
+.bloomLayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 1;
+
+  /* Screen blend mode for bright elements to glow */
+  mix-blend-mode: screen;
+  color: #ff9500;
+
+  /* GPU acceleration */
+  transform: translateZ(0);
+  will-change: opacity, filter;
+  backface-visibility: hidden;
+
+  /* Overflow to allow blur to extend beyond bounds */
+  overflow: visible;
+}
+
+/* ============================================
+   ACCESSIBILITY & PERFORMANCE
+   ============================================ */
+
+/* Reduced motion support - disable animations */
+@media (prefers-reduced-motion: reduce) {
+  .crtContainer {
+    transition: none;
+  }
+
+  .vignetteOverlay,
+  .bloomOverlay {
+    opacity: 0.2;
+  }
+}
+
+/* Focus indicator for keyboard navigation */
+.crtContainer:focus-visible {
+  outline: 2px solid var(--webtui-accent, #00ffff);
+  outline-offset: 4px;
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+
+/* Reduce effects on mobile for performance */
+@media (max-width: 768px) {
+  .bloomOverlay {
+    filter: blur(10px);
+    opacity: 0.2;
+  }
+
+  .vignetteOverlay {
+    opacity: 0.5;
+  }
+}

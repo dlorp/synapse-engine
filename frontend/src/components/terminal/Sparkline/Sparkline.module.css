@@ -1,0 +1,49 @@
+/**
+ * Sparkline Component Styles
+ *
+ * Inline ASCII sparkline with block characters
+ */
+
+.sparkline {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1;
+  white-space: nowrap;
+  letter-spacing: -0.05em; /* Tighten spacing for block characters */
+  user-select: none;
+  vertical-align: middle;
+}
+
+/* Color variants */
+.sparkline.primary {
+  color: var(--text-primary);
+}
+
+.sparkline.accent {
+  color: var(--text-accent);
+}
+
+.sparkline.success {
+  color: var(--text-success);
+}
+
+.sparkline.warning {
+  color: var(--text-warning);
+}
+
+.sparkline.error {
+  color: var(--text-error);
+}
+
+/* Smooth color transitions */
+.sparkline {
+  transition: color var(--transition-fast);
+}
+
+/* Accessibility: High contrast mode */
+@media (prefers-contrast: high) {
+  .sparkline {
+    font-weight: bold;
+  }
+}

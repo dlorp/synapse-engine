@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Glow Test</title>
+  <style>
+    body { 
+      background: #000; 
+      padding: 50px;
+      font-family: 'Arial', sans-serif;
+    }
+    
+    .test1 {
+      color: #ff9500;
+      font-size: 24px;
+      text-shadow:
+        0 0 8px rgba(255, 149, 0, 1.0),
+        0 0 12px rgba(255, 149, 0, 0.8),
+        0 0 16px rgba(255, 149, 0, 0.6),
+        0 0 20px rgba(255, 149, 0, 0.4);
+    }
+    
+    .test2 {
+      color: #ff9500;
+      font-size: 24px;
+      filter:
+        drop-shadow(0 0 8px rgba(255, 149, 0, 1.0))
+        drop-shadow(0 0 12px rgba(255, 149, 0, 0.8));
+    }
+    
+    .test3 {
+      color: #ff9500;
+      font-size: 24px;
+      text-shadow:
+        0 0 8px rgba(255, 149, 0, 1.0),
+        0 0 12px rgba(255, 149, 0, 0.8),
+        0 0 16px rgba(255, 149, 0, 0.6),
+        0 0 20px rgba(255, 149, 0, 0.4);
+      filter:
+        drop-shadow(0 0 8px rgba(255, 149, 0, 1.0))
+        drop-shadow(0 0 12px rgba(255, 149, 0, 0.8));
+    }
+  </style>
+</head>
+<body>
+  <h2 style="color: #ff9500;">Glow Effect Tests</h2>
+  <p style="color: #999;">Test 1: text-shadow only</p>
+  <div class="test1">⟲ RECONNECT</div>
+  <br>
+  <p style="color: #999;">Test 2: filter only</p>
+  <div class="test2">⟲ RECONNECT</div>
+  <br>
+  <p style="color: #999;">Test 3: both text-shadow + filter</p>
+  <div class="test3">⟲ RECONNECT</div>
+</body>
+</html>

@@ -235,3 +235,829 @@
 .transition-opacity {
   transition: opacity var(--transition-base);
 }
+
+/* =================================================================
+   DOT MATRIX EFFECTS
+   ================================================================= */
+
+/* Dot Matrix Grid Background Pattern */
+.dot-matrix-bg {
+  background-image: radial-gradient(
+    circle at center,
+    var(--text-primary) 0.5px,
+    transparent 0.5px
+  );
+  background-size: 4px 4px;
+  background-position: 0 0;
+  opacity: 0.15;
+}
+
+.dot-matrix-bg-dense {
+  background-image: radial-gradient(
+    circle at center,
+    var(--text-primary) 0.5px,
+    transparent 0.5px
+  );
+  background-size: 2px 2px;
+  background-position: 0 0;
+  opacity: 0.2;
+}
+
+.dot-matrix-bg-sparse {
+  background-image: radial-gradient(
+    circle at center,
+    var(--text-primary) 0.5px,
+    transparent 0.5px
+  );
+  background-size: 8px 8px;
+  background-position: 0 0;
+  opacity: 0.1;
+}
+
+/* Animated Dot Matrix Grid */
+@keyframes dot-matrix-pulse {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.25; }
+}
+
+.dot-matrix-bg-animated {
+  background-image: radial-gradient(
+    circle at center,
+    var(--text-primary) 0.5px,
+    transparent 0.5px
+  );
+  background-size: 4px 4px;
+  background-position: 0 0;
+  animation: dot-matrix-pulse 4s ease-in-out infinite;
+}
+
+/* Enhanced Scan Line Variants */
+.scan-line-fast {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--text-primary) 50%,
+    transparent
+  );
+  opacity: 0.15;
+  pointer-events: none;
+  animation: scan-line 4s linear infinite;
+}
+
+.scan-line-slow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--text-primary) 50%,
+    transparent
+  );
+  opacity: 0.2;
+  pointer-events: none;
+  animation: scan-line 12s linear infinite;
+}
+
+.scan-line-thick {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--text-primary) 30%,
+    var(--text-primary) 70%,
+    transparent
+  );
+  opacity: 0.25;
+  pointer-events: none;
+  animation: scan-line 8s linear infinite;
+}
+
+/* Horizontal Scan Lines (static) */
+.scan-lines-static {
+  position: relative;
+}
+
+.scan-lines-static::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 149, 0, 0.03) 2px,
+    rgba(255, 149, 0, 0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Phosphor Glow Presets */
+@keyframes phosphor-glow-orange {
+  0%, 100% {
+    text-shadow: 0 0 4px var(--text-primary), 0 0 8px var(--text-primary);
+  }
+  50% {
+    text-shadow: 0 0 8px var(--text-primary), 0 0 16px var(--text-primary),
+      0 0 24px var(--text-primary);
+  }
+}
+
+@keyframes phosphor-glow-cyan {
+  0%, 100% {
+    text-shadow: 0 0 4px var(--text-accent), 0 0 8px var(--text-accent);
+  }
+  50% {
+    text-shadow: 0 0 8px var(--text-accent), 0 0 16px var(--text-accent),
+      0 0 24px var(--text-accent);
+  }
+}
+
+@keyframes phosphor-glow-red {
+  0%, 100% {
+    text-shadow: 0 0 4px var(--text-error), 0 0 8px var(--text-error);
+  }
+  50% {
+    text-shadow: 0 0 8px var(--text-error), 0 0 16px var(--text-error),
+      0 0 24px var(--text-error);
+  }
+}
+
+.phosphor-glow-orange {
+  animation: phosphor-glow-orange 2s ease-in-out infinite;
+}
+
+.phosphor-glow-cyan {
+  animation: phosphor-glow-cyan 2s ease-in-out infinite;
+}
+
+.phosphor-glow-red {
+  animation: phosphor-glow-red 2s ease-in-out infinite;
+}
+
+/* Static Phosphor Glow (no animation) */
+.phosphor-glow-static-orange {
+  text-shadow: 0 0 4px var(--text-primary), 0 0 8px var(--text-primary);
+}
+
+.phosphor-glow-static-cyan {
+  text-shadow: 0 0 4px var(--text-accent), 0 0 8px var(--text-accent);
+}
+
+.phosphor-glow-static-red {
+  text-shadow: 0 0 4px var(--text-error), 0 0 8px var(--text-error);
+}
+
+/* CRT Screen Effects */
+.crt-screen {
+  position: relative;
+  overflow: hidden;
+}
+
+/* CRT Vignette Effect */
+.crt-screen::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 0%,
+    transparent 60%,
+    rgba(0, 0, 0, 0.3) 100%
+  );
+  pointer-events: none;
+  z-index: var(--z-overlay);
+}
+
+/* CRT Flicker */
+@keyframes crt-flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.98; }
+}
+
+.crt-flicker {
+  animation: crt-flicker 0.15s infinite;
+}
+
+/* Border Glow Variants */
+@keyframes border-glow-orange {
+  0%, 100% {
+    border-color: var(--border-primary);
+    box-shadow: 0 0 4px var(--text-primary);
+  }
+  50% {
+    border-color: var(--text-primary);
+    box-shadow: 0 0 12px var(--text-primary), 0 0 24px var(--text-primary);
+  }
+}
+
+@keyframes border-glow-cyan {
+  0%, 100% {
+    border-color: var(--border-primary);
+    box-shadow: 0 0 4px var(--text-accent);
+  }
+  50% {
+    border-color: var(--text-accent);
+    box-shadow: 0 0 12px var(--text-accent), 0 0 24px var(--text-accent);
+  }
+}
+
+@keyframes border-glow-red {
+  0%, 100% {
+    border-color: var(--border-primary);
+    box-shadow: 0 0 4px var(--text-error);
+  }
+  50% {
+    border-color: var(--text-error);
+    box-shadow: 0 0 12px var(--text-error), 0 0 24px var(--text-error);
+  }
+}
+
+.border-glow-orange {
+  animation: border-glow-orange 2s ease-in-out infinite;
+}
+
+.border-glow-cyan {
+  animation: border-glow-cyan 2s ease-in-out infinite;
+}
+
+.border-glow-red {
+  animation: border-glow-red 2s ease-in-out infinite;
+}
+
+/* Enhanced Flicker for Critical States */
+@keyframes flicker-intense {
+  0%, 100% { opacity: 1; }
+  10% { opacity: 0.1; }
+  20% { opacity: 1; }
+  30% { opacity: 0.3; }
+  40% { opacity: 1; }
+  50% { opacity: 0.2; }
+  60% { opacity: 1; }
+  70% { opacity: 0.4; }
+  80% { opacity: 1; }
+}
+
+.flicker-intense {
+  animation: flicker-intense 0.5s linear infinite;
+}
+
+/* Scan Line Sweep (for transitions) */
+@keyframes scan-sweep {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+.scan-sweep {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 20%;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--text-primary) 50%,
+    transparent
+  );
+  opacity: 0.3;
+  pointer-events: none;
+  animation: scan-sweep 1s ease-out;
+}
+
+/* Grid Expand Animation */
+@keyframes grid-expand {
+  0% {
+    background-size: 2px 2px;
+    opacity: 0.1;
+  }
+  100% {
+    background-size: 8px 8px;
+    opacity: 0.3;
+  }
+}
+
+.grid-expand {
+  background-image: radial-gradient(
+    circle at center,
+    var(--text-primary) 0.5px,
+    transparent 0.5px
+  );
+  animation: grid-expand 0.5s ease-out forwards;
+}
+
+/* Phosphor Trail Effect */
+@keyframes phosphor-trail {
+  0% {
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
+    opacity: 0;
+    filter: blur(4px);
+  }
+}
+
+.phosphor-trail {
+  animation: phosphor-trail 0.5s ease-out forwards;
+}
+
+/* Data Stream Effect */
+@keyframes data-stream {
+  0% {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+}
+
+.data-stream {
+  animation: data-stream 2s linear infinite;
+}
+
+/* =================================================================
+   ADVANCED TERMINAL EFFECTS
+   ================================================================= */
+
+/* Glitch Effects - Digital Corruption */
+@keyframes glitch-horizontal {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10% {
+    transform: translateX(-5px);
+  }
+  20% {
+    transform: translateX(5px);
+  }
+  30% {
+    transform: translateX(-3px);
+  }
+  40% {
+    transform: translateX(3px);
+  }
+  50% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes glitch-vertical {
+  0%, 100% {
+    clip-path: inset(0 0 0 0);
+  }
+  20% {
+    clip-path: inset(10% 0 85% 0);
+  }
+  40% {
+    clip-path: inset(60% 0 25% 0);
+  }
+  60% {
+    clip-path: inset(30% 0 50% 0);
+  }
+  80% {
+    clip-path: inset(80% 0 10% 0);
+  }
+}
+
+.glitch {
+  animation: glitch-horizontal 0.3s linear infinite;
+}
+
+.glitch-severe {
+  animation: glitch-horizontal 0.15s linear infinite,
+    glitch-vertical 0.2s linear infinite;
+}
+
+/* Chromatic Aberration - RGB Split */
+.chromatic-aberration {
+  position: relative;
+  color: var(--text-primary);
+}
+
+.chromatic-aberration::before,
+.chromatic-aberration::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  mix-blend-mode: screen;
+}
+
+.chromatic-aberration::before {
+  color: #ff0000;
+  transform: translateX(-2px);
+  opacity: 0.7;
+}
+
+.chromatic-aberration::after {
+  color: #00ffff;
+  transform: translateX(2px);
+  opacity: 0.7;
+}
+
+/* Screen Tearing Effect */
+@keyframes screen-tear {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10% {
+    transform: translateX(-10px);
+  }
+  20% {
+    transform: translateX(10px);
+  }
+  30% {
+    transform: translateX(-5px);
+  }
+  40% {
+    transform: translateX(5px);
+  }
+  50% {
+    transform: translateX(0);
+  }
+}
+
+.screen-tear {
+  position: relative;
+}
+
+.screen-tear::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--text-primary);
+  opacity: 0.3;
+  animation: screen-tear 0.2s linear infinite;
+}
+
+/* Interlacing Effect */
+.interlaced {
+  position: relative;
+}
+
+.interlaced::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 1px,
+    rgba(0, 0, 0, 0.3) 1px,
+    rgba(0, 0, 0, 0.3) 2px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Signal Interference - Static Noise */
+@keyframes static-noise {
+  0%, 100% {
+    background-position: 0 0;
+  }
+  10% {
+    background-position: -5% -10%;
+  }
+  20% {
+    background-position: -15% 5%;
+  }
+  30% {
+    background-position: 7% -25%;
+  }
+  40% {
+    background-position: 20% 25%;
+  }
+  50% {
+    background-position: -25% 10%;
+  }
+  60% {
+    background-position: 15% -20%;
+  }
+  70% {
+    background-position: -10% 15%;
+  }
+  80% {
+    background-position: 25% -5%;
+  }
+  90% {
+    background-position: -20% -15%;
+  }
+}
+
+.static-noise {
+  position: relative;
+}
+
+.static-noise::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=');
+  background-size: 100px 100px;
+  opacity: 0.1;
+  animation: static-noise 0.2s steps(10) infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Teletype/Typing Effect */
+@keyframes typing {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+.teletype {
+  overflow: hidden;
+  white-space: nowrap;
+  animation: typing 2s steps(40) 1s forwards;
+  width: 0;
+}
+
+.teletype-fast {
+  overflow: hidden;
+  white-space: nowrap;
+  animation: typing 1s steps(40) forwards;
+  width: 0;
+}
+
+.teletype-slow {
+  overflow: hidden;
+  white-space: nowrap;
+  animation: typing 4s steps(40) forwards;
+  width: 0;
+}
+
+/* Terminal Cursor Blink */
+.terminal-cursor {
+  position: relative;
+}
+
+.terminal-cursor::after {
+  content: '▊';
+  margin-left: 2px;
+  animation: blink 1s step-end infinite;
+  color: var(--text-primary);
+}
+
+/* Matrix Rain - Cascading Characters */
+@keyframes matrix-rain {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+}
+
+.matrix-rain {
+  position: fixed;
+  top: 0;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--text-accent);
+  text-shadow: 0 0 8px var(--text-accent);
+  animation: matrix-rain 3s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Boot Sequence Animation */
+@keyframes boot-sequence {
+  0% {
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+  }
+  95% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.boot-line {
+  opacity: 0;
+  animation: boot-sequence 0.5s ease-in-out forwards;
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+}
+
+/* Stagger boot lines */
+.boot-line:nth-child(1) { animation-delay: 0s; }
+.boot-line:nth-child(2) { animation-delay: 0.1s; }
+.boot-line:nth-child(3) { animation-delay: 0.2s; }
+.boot-line:nth-child(4) { animation-delay: 0.3s; }
+.boot-line:nth-child(5) { animation-delay: 0.4s; }
+
+/* EMP Wave - Electromagnetic Pulse Effect */
+@keyframes emp-wave {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.7;
+    filter: blur(2px);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+.emp-wave {
+  animation: emp-wave 0.3s ease-out;
+}
+
+/* VHS Tracking Error */
+@keyframes vhs-tracking {
+  0%, 100% {
+    transform: translateX(0);
+    filter: hue-rotate(0deg);
+  }
+  20% {
+    transform: translateX(-10px);
+    filter: hue-rotate(90deg);
+  }
+  40% {
+    transform: translateX(10px);
+    filter: hue-rotate(-90deg);
+  }
+  60% {
+    transform: translateX(-5px);
+    filter: hue-rotate(45deg);
+  }
+  80% {
+    transform: translateX(5px);
+    filter: hue-rotate(-45deg);
+  }
+}
+
+.vhs-tracking {
+  animation: vhs-tracking 0.5s ease-in-out;
+}
+
+/* Phosphor Burn-In (Ghost Image) */
+.phosphor-burn {
+  position: relative;
+}
+
+.phosphor-burn::before {
+  content: attr(data-text);
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  color: var(--text-primary);
+  opacity: 0.2;
+  filter: blur(1px);
+  pointer-events: none;
+}
+
+/* Data Corruption - Character Scramble */
+@keyframes char-scramble {
+  0%, 100% {
+    opacity: 1;
+  }
+  10%, 30%, 50%, 70%, 90% {
+    opacity: 0.3;
+  }
+  20%, 40%, 60%, 80% {
+    opacity: 1;
+  }
+}
+
+.data-corrupt {
+  animation: char-scramble 0.5s linear infinite;
+}
+
+/* Bit Shift Effect */
+@keyframes bit-shift {
+  0%, 100% {
+    transform: translateX(0) skew(0deg);
+  }
+  25% {
+    transform: translateX(-2px) skew(-2deg);
+  }
+  50% {
+    transform: translateX(2px) skew(2deg);
+  }
+  75% {
+    transform: translateX(-1px) skew(-1deg);
+  }
+}
+
+.bit-shift {
+  animation: bit-shift 0.2s linear infinite;
+}
+
+/* Hexadecimal Display Effect */
+.hex-display {
+  font-family: var(--font-mono);
+  color: var(--text-accent);
+  text-shadow: 0 0 4px var(--text-accent);
+  letter-spacing: 0.1em;
+}
+
+/* Binary Rain */
+.binary-rain {
+  font-family: var(--font-mono);
+  color: var(--text-accent);
+  text-shadow: 0 0 8px var(--text-accent);
+  animation: data-stream 2s linear infinite;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .dot-matrix-bg-animated,
+  .scan-line,
+  .scan-line-fast,
+  .scan-line-slow,
+  .scan-line-thick,
+  .scan-sweep,
+  .phosphor-glow-orange,
+  .phosphor-glow-cyan,
+  .phosphor-glow-red,
+  .border-glow-orange,
+  .border-glow-cyan,
+  .border-glow-red,
+  .crt-flicker,
+  .flicker-intense,
+  .grid-expand,
+  .phosphor-trail,
+  .data-stream,
+  .glitch,
+  .glitch-severe,
+  .screen-tear,
+  .static-noise,
+  .teletype,
+  .teletype-fast,
+  .teletype-slow,
+  .matrix-rain,
+  .boot-line,
+  .emp-wave,
+  .vhs-tracking,
+  .data-corrupt,
+  .bit-shift,
+  .binary-rain {
+    animation: none;
+  }
+
+  .chromatic-aberration::before,
+  .chromatic-aberration::after {
+    display: none;
+  }
+}
+
+/* =================================================================
+   END DOT MATRIX EFFECTS
+   ================================================================= */

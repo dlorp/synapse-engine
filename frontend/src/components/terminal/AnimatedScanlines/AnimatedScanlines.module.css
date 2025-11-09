@@ -1,0 +1,71 @@
+/**
+ * AnimatedScanlines Styles
+ *
+ * GPU-accelerated scanline animation using transforms and keyframes.
+ * Optimized for 60fps performance with minimal repaints.
+ * Uses compositor hints (will-change) for smooth 60fps animation.
+ */
+
+.scanlines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 200%;
+  pointer-events: none;
+  z-index: 10;
+
+  /* Scanline pattern using repeating linear gradient */
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0) 0px,
+    rgba(0, 0, 0, 0) 1px,
+    rgba(255, 149, 0, var(--scanline-opacity, 0.2)) 1px,
+    rgba(255, 149, 0, var(--scanline-opacity, 0.2)) 2px
+  );
+
+  /* GPU acceleration with compositor layer promotion */
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+  backface-visibility: hidden;
+
+  /* Force layer creation for performance */
+  isolation: isolate;
+
+  /* Default medium speed animation */
+  animation: scanline-scroll 4s linear infinite;
+
+  /* Smooth animation interpolation */
+  animation-timing-function: linear;
+}
+
+/* Speed variants */
+.slow {
+  animation-duration: 8s;
+}
+
+.medium {
+  animation-duration: 4s;
+}
+
+.fast {
+  animation-duration: 2s;
+}
+
+/* Scanline scroll animation - GPU accelerated with 3D transforms */
+@keyframes scanline-scroll {
+  0% {
+    transform: translate3d(0, -50%, 0);
+  }
+  100% {
+    transform: translate3d(0, 0%, 0);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .scanlines {
+    animation: none;
+    opacity: 0.1;
+  }
+}

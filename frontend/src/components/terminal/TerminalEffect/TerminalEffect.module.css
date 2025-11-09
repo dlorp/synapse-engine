@@ -1,0 +1,41 @@
+/* TerminalEffect Wrapper */
+.terminalEffectWrapper {
+  position: relative;
+  isolation: isolate;
+  display: contents;
+}
+
+.gridLayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: var(--effect-intensity, 1);
+}
+
+.componentLayer {
+  position: relative;
+  z-index: 1;
+}
+
+.scanLineLayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  pointer-events: none;
+  z-index: 2;
+  opacity: var(--effect-intensity, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scanLineLayer {
+    display: none;
+  }
+  .gridLayer {
+    animation: none;
+  }
+}

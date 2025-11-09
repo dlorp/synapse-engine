@@ -26,6 +26,7 @@ from datetime import datetime
 from app.models.discovered_model import DiscoveredModel
 from app.core.exceptions import SynapseException
 from app.services import runtime_settings as settings_service
+from app.services.event_emitter import emit_model_state_event, emit_error_event
 
 # Avoid circular import at runtime
 if TYPE_CHECKING:
@@ -305,6 +306,18 @@ class LlamaServerManager:
                 f"PID {process.pid} on port {model.port}"
             )
 
+            # Emit model state event: loading -> active
+            try:
+                asyncio.create_task(emit_model_state_event(
+                    model_id=model.model_id,
+                    previous_state="stopped",
+                    current_state="loading",
+                    reason=f"Server process started (PID: {process.pid})",
+                    port=model.port
+                ))
+            except Exception as e:
+                logger.debug(f"Failed to emit model state event: {e}")
+
             # Start log streaming thread (if WebSocket manager available)
             if self.websocket_manager:
                 log_thread = threading.Thread(
@@ -325,6 +338,18 @@ class LlamaServerManager:
                 f"Failed to start server for {model.model_id}: {e}",
                 exc_info=True
             )
+
+            # Emit error event
+            try:
+                asyncio.create_task(emit_error_event(
+                    error_type=type(e).__name__,
+                    error_message=f"Failed to start server: {str(e)}",
+                    component="LlamaServerManager",
+                    recovery_action="Check model file path and llama-server binary"
+                ))
+            except Exception as emit_err:
+                logger.debug(f"Failed to emit error event: {emit_err}")
+
             raise SynapseException(
                 f"Failed to launch llama.cpp server: {e}",
                 details={
@@ -515,6 +540,18 @@ class LlamaServerManager:
                                 f"✅ {server.model.model_id} is READY "
                                 f"(startup took {elapsed}s)"
                             )
+
+                            # Emit model state event: loading -> active
+                            try:
+                                asyncio.create_task(emit_model_state_event(
+                                    model_id=server.model.model_id,
+                                    previous_state="loading",
+                                    current_state="active",
+                                    reason=f"Server ready (startup took {elapsed}s)",
+                                    port=server.port
+                                ))
+                            except Exception as e:
+                                logger.debug(f"Failed to emit model state event: {e}")
                             return
 
                         # Check for critical errors
@@ -735,6 +772,18 @@ class LlamaServerManager:
             logger.error(f"Error stopping server {model_id}: {e}", exc_info=True)
 
         finally:
+            # Emit model state event: active -> stopped
+            try:
+                asyncio.create_task(emit_model_state_event(
+                    model_id=model_id,
+                    previous_state="active",
+                    current_state="stopped",
+                    reason="Server stopped by user request",
+                    port=server.port
+                ))
+            except Exception as e:
+                logger.debug(f"Failed to emit model state event: {e}")
+
             # Remove from tracking dictionary
             del self.servers[model_id]
 
