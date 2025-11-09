@@ -42,6 +42,13 @@ from app.models.discovered_model import ModelRegistry
 from app.services import runtime_settings as settings_service
 from app.services.model_selector import ModelSelector
 from app.services.llama_server_manager import LlamaServerManager
+from app.services.orchestrator_status import get_orchestrator_status_service
+from app.services.event_emitter import (
+    emit_query_route_event,
+    emit_cgrag_event,
+    emit_error_event,
+    emit_performance_event
+)
 from typing import Optional
 
 
@@ -1220,6 +1227,16 @@ async def process_query(
                             }
                         )
 
+                        # Emit CGRAG event for LiveEventFeed
+                        await emit_cgrag_event(
+                            query_id=query_id,
+                            chunks_retrieved=len(cgrag_artifacts),
+                            relevance_threshold=config.cgrag.retrieval.min_relevance,
+                            retrieval_time_ms=int(retrieval_time_ms),
+                            total_tokens=cgrag_result.tokens_used,
+                            cache_hit=cgrag_result.cache_hit
+                        )
+
                         # Build context prompt (CGRAG artifacts)
                         if cgrag_artifacts:
                             context_sections = []
@@ -1330,6 +1347,7 @@ async def process_query(
             stage2_start = time.time()
 
             # Assess query complexity to determine Stage 2 tier
+            complexity_assessment_start = time.perf_counter()
             try:
                 complexity = await assess_complexity(
                     query=request.query,
@@ -1340,6 +1358,27 @@ async def process_query(
                     stage2_tier = "powerful"
                 else:
                     stage2_tier = "balanced"
+
+                # Record routing decision for orchestrator telemetry
+                decision_time_ms = (time.perf_counter() - complexity_assessment_start) * 1000
+                orchestrator_service = get_orchestrator_status_service()
+                orchestrator_service.record_routing_decision(
+                    query=request.query,
+                    tier=stage2_tier,
+                    complexity_score=complexity.score,
+                    decision_time_ms=decision_time_ms
+                )
+
+                # Emit query routing event for LiveEventFeed
+                tier_mapping = {"fast": "Q2", "balanced": "Q3", "powerful": "Q4"}
+                estimated_latency_map = {"fast": 2000, "balanced": 5000, "powerful": 15000}
+                await emit_query_route_event(
+                    query_id=query_id,
+                    complexity_score=complexity.score,
+                    selected_tier=tier_mapping.get(stage2_tier, "Q3"),
+                    estimated_latency_ms=estimated_latency_map.get(stage2_tier, 5000),
+                    routing_reason=complexity.reasoning
+                )
 
                 logger.info(
                     f"Stage 2 tier selected based on complexity: {stage2_tier} (score: {complexity.score:.2f})",
@@ -1501,6 +1540,25 @@ Refined Response:"""
                 indicators={"forced": True, "mode": "simple"}
             )
 
+            # Record routing decision for orchestrator telemetry
+            orchestrator_service = get_orchestrator_status_service()
+            orchestrator_service.record_routing_decision(
+                query=request.query,
+                tier=tier,
+                complexity_score=complexity.score,
+                decision_time_ms=0.0  # Simple mode has no complexity assessment overhead
+            )
+
+            # Emit query routing event for LiveEventFeed
+            tier_mapping = {"fast": "Q2", "balanced": "Q3", "powerful": "Q4"}
+            await emit_query_route_event(
+                query_id=query_id,
+                complexity_score=complexity.score,
+                selected_tier=tier_mapping.get(tier, "Q2"),
+                estimated_latency_ms=2000,  # Fast tier target
+                routing_reason=complexity.reasoning
+            )
+
             logger.info(
                 f"Query {query_id} using simple mode",
                 extra={
@@ -1633,6 +1691,16 @@ Refined Response:"""
                                 "candidates_considered": cgrag_result.candidates_considered,
                                 "total_cgrag_overhead_ms": round((time.time() - cgrag_start_time) * 1000, 2)
                             }
+                        )
+
+                        # Emit CGRAG event for LiveEventFeed
+                        await emit_cgrag_event(
+                            query_id=query_id,
+                            chunks_retrieved=len(cgrag_artifacts),
+                            relevance_threshold=config.cgrag.retrieval.min_relevance,
+                            retrieval_time_ms=int(retrieval_time_ms),
+                            total_tokens=cgrag_result.tokens_used,
+                            cache_hit=cgrag_result.cache_hit
                         )
 
                         # Build context prompt (CGRAG artifacts)

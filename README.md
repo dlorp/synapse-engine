@@ -1,5 +1,8 @@
 
-# S.Y.N.A.P.S.E. ENGINE
+# S.Y.N.A.P.S.E. ENGINE 
+
+
+![til](docs/features/synapseEngine.gif)
 
 **Scalable Yoked Network for Adaptive Praxial System Emergence**
 
@@ -801,33 +804,6 @@ docker exec synapse_core netstat -tulpn | grep llama-server
 - Replace `http://localhost:8080` with `http://localhost:8000/api/proxy/{model_id}`
 - Ensure model is started before sending requests (check `/api/models/servers/status`)
 
-## Development Team & Agents
-
-S.Y.N.A.P.S.E. ENGINE is supported by **14 specialized Claude Code agents** across different technical domains.
-
-### Quick Agent Reference
-
-**Core Development:**
-- **Backend Architect** - FastAPI, async Python, WebSockets, model orchestration
-- **Frontend Engineer** - React, TypeScript, terminal UI, real time visualizations
-- **CGRAG Specialist** - Vector search, FAISS, embeddings, retrieval optimization
-- **DevOps Engineer** - Docker, deployment, CI/CD, infrastructure automation
-
-**Specialized Domains:**
-- **Model Lifecycle Manager** - Model discovery, health checks, resource allocation
-- **Query Mode Specialist** - Query routing, mode implementation, complexity assessment
-- **WebSocket Realtime Specialist** - Real time communication, event streaming
-- **Terminal UI Specialist** - Terminal aesthetics, dense displays, 60fps animations
-- **Performance Optimizer** - System optimization, profiling, bottleneck analysis
-- **Security Specialist** - Authentication, authorization, security hardening
-- **Testing Specialist** - Test automation, coverage, quality assurance
-- **Database Persistence Specialist** - Data persistence, migrations, backups
-
-**Project Management:**
-- **Record Keeper** - Historical context, session tracking, knowledge management
-- **Strategic Planning Architect** - Project planning, multi agent coordination
-
-For complete agent documentation, collaboration patterns, and usage guidelines, see [PROJECT_OVERVIEW.md#team-structure](PROJECT_OVERVIEW.md#team-structure).
 
 ## Contributing
 

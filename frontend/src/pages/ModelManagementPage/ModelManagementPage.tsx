@@ -5,6 +5,7 @@ import { StatusIndicator } from '@/components/terminal';
 import { ModelTable } from '@/components/models/ModelTable';
 import { ModelSettings } from '@/components/models/ModelSettings';
 import { LogViewer } from '@/components/logs/LogViewer';
+import { useSystemEventsContext } from '@/contexts/SystemEventsContext';
 import {
   useModelRegistry,
   useRescanModels,
@@ -33,6 +34,7 @@ import styles from './ModelManagementPage.module.css';
  * Terminal aesthetic with dense information display and real-time updates
  */
 export const ModelManagementPage: React.FC = () => {
+  const { ensureConnected } = useSystemEventsContext();
   const queryClient = useQueryClient();
   const { data: registry, isLoading, error, refetch } = useModelRegistry();
   const { data: serverStatus } = useServerStatus();
@@ -55,6 +57,8 @@ export const ModelManagementPage: React.FC = () => {
   const handleRescan = async () => {
     setIsRescanning(true);
     setOperationError(null);
+    // Ensure WebSocket is connected to receive discovery events
+    ensureConnected();
     try {
       await rescanModels.mutateAsync();
       await refetch();
@@ -73,6 +77,8 @@ export const ModelManagementPage: React.FC = () => {
     setIsStartingAll(true);
     setOperationError(null);
     setOperationSuccess(null);
+    // Ensure WebSocket is connected to receive model state events
+    ensureConnected();
     try {
       // Show initial progress message
       setOperationSuccess('🚀 Starting Metal-accelerated servers... (10-15 seconds)');
@@ -130,6 +136,8 @@ export const ModelManagementPage: React.FC = () => {
   const handleStopAll = async () => {
     setIsStoppingAll(true);
     setOperationError(null);
+    // Ensure WebSocket is connected to receive model state events
+    ensureConnected();
     try {
       const response = await fetch('/api/models/servers/stop-all', {
         method: 'POST',

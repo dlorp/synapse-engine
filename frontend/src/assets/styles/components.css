@@ -1,0 +1,265 @@
+/**
+ * S.Y.N.A.P.S.E. ENGINE - Component Styles
+ * Builds on WebTUI base with custom enhancements
+ *
+ * Naming Convention: BEM (Block__Element--Modifier)
+ * Prefix: synapse-*
+ */
+
+/* ============================================
+   PANEL ENHANCEMENTS
+   ============================================ */
+
+.synapse-panel {
+  background: var(--webtui-background);
+  border: var(--webtui-border-width) solid var(--webtui-border);
+  padding: var(--webtui-spacing-md);
+  box-shadow: var(--phosphor-glow);
+  font-family: var(--webtui-font-family);
+  margin-bottom: var(--webtui-spacing-md);
+}
+
+.synapse-panel__header {
+  color: var(--webtui-primary);
+  text-shadow: var(--phosphor-glow);
+  border-bottom: var(--webtui-border-width) solid var(--webtui-border);
+  margin-bottom: var(--webtui-spacing-md);
+  padding-bottom: var(--webtui-spacing-sm);
+  font-size: var(--webtui-font-size-large);
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.synapse-panel__content {
+  color: var(--webtui-text);
+}
+
+/* ============================================
+   STATUS INDICATORS
+   ============================================ */
+
+.synapse-status {
+  display: inline-block;
+  padding: var(--webtui-spacing-xs) var(--webtui-spacing-sm);
+  border: 1px solid currentColor;
+  text-transform: uppercase;
+  font-size: var(--webtui-font-size-small);
+  letter-spacing: 0.05em;
+  font-weight: bold;
+}
+
+.synapse-status--active {
+  color: var(--webtui-success);
+  animation: phosphor-pulse 2s ease-in-out infinite;
+}
+
+.synapse-status--processing {
+  color: var(--webtui-processing);
+  animation: phosphor-pulse 1s ease-in-out infinite;
+}
+
+.synapse-status--error {
+  color: var(--webtui-error);
+}
+
+.synapse-status--idle {
+  color: var(--webtui-text-secondary);
+  opacity: 0.7;
+}
+
+/* ============================================
+   ASCII CHART CONTAINERS
+   ============================================ */
+
+.synapse-chart {
+  font-family: var(--webtui-font-family);
+  color: var(--webtui-primary);
+  white-space: pre;
+  overflow-x: auto;
+  padding: var(--webtui-spacing-sm);
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--webtui-border);
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+
+.synapse-chart::-webkit-scrollbar {
+  height: 8px;
+}
+
+/* ============================================
+   SPARKLINE CONTAINERS
+   ============================================ */
+
+.synapse-sparkline {
+  display: inline-block;
+  font-family: var(--webtui-font-family);
+  color: var(--webtui-primary);
+  white-space: nowrap;
+  letter-spacing: -0.05em; /* Tighten spacing for block characters */
+  line-height: 1;
+}
+
+/* ============================================
+   METRIC DISPLAYS
+   ============================================ */
+
+.synapse-metric {
+  display: flex;
+  flex-direction: column;
+  gap: var(--webtui-spacing-xs);
+  padding: var(--webtui-spacing-sm);
+}
+
+.synapse-metric__label {
+  font-size: var(--webtui-font-size-small);
+  color: var(--webtui-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.8;
+}
+
+.synapse-metric__value {
+  font-size: var(--webtui-font-size-large);
+  color: var(--webtui-primary);
+  font-weight: bold;
+  text-shadow: var(--phosphor-glow);
+  font-family: var(--webtui-font-family);
+}
+
+.synapse-metric__unit {
+  font-size: var(--webtui-font-size-small);
+  color: var(--webtui-text-secondary);
+  margin-left: var(--webtui-spacing-xs);
+}
+
+/* ============================================
+   RESPONSIVE GRID LAYOUTS
+   ============================================ */
+
+.synapse-grid {
+  display: grid;
+  gap: var(--webtui-spacing-md);
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.synapse-grid--2col {
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+}
+
+.synapse-grid--3col {
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.synapse-grid--4col {
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+/* Responsive breakpoints */
+@media (min-width: 1920px) {
+  .synapse-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .synapse-grid--2col {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .synapse-grid--3col {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .synapse-grid--4col {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 1280px) {
+  .synapse-grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .synapse-grid,
+  .synapse-grid--2col,
+  .synapse-grid--3col,
+  .synapse-grid--4col {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================
+   LOADING INDICATORS
+   ============================================ */
+
+.synapse-loading {
+  color: var(--webtui-processing);
+  animation: phosphor-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes synapse-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.synapse-loading--spinner {
+  animation: synapse-spin 1s linear infinite;
+}
+
+/* ============================================
+   ASCII BANNER CONTAINERS
+   ============================================ */
+
+.synapse-banner {
+  font-family: var(--webtui-font-family);
+  color: var(--webtui-primary);
+  text-shadow: var(--phosphor-glow-intense);
+  white-space: pre;
+  line-height: 1;
+  text-align: center;
+  padding: var(--webtui-spacing-lg) 0;
+  animation: phosphor-pulse-intense 3s ease-in-out infinite;
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+.synapse-text-primary {
+  color: var(--webtui-primary);
+}
+
+.synapse-text-accent {
+  color: var(--webtui-accent);
+}
+
+.synapse-text-success {
+  color: var(--webtui-success);
+}
+
+.synapse-text-error {
+  color: var(--webtui-error);
+}
+
+.synapse-text-processing {
+  color: var(--webtui-processing);
+}
+
+.synapse-glow {
+  text-shadow: var(--phosphor-glow);
+}
+
+.synapse-glow-intense {
+  text-shadow: var(--phosphor-glow-intense);
+}
+
+.synapse-pulse {
+  animation: phosphor-pulse 2s ease-in-out infinite;
+}
+
+.synapse-pulse-fast {
+  animation: phosphor-pulse 1s ease-in-out infinite;
+}

@@ -1,0 +1,72 @@
+/**
+ * DotMatrixDisplay.module.css
+ *
+ * Scoped styles for LED dot matrix display component
+ * Maintains terminal aesthetic with phosphor orange borders
+ */
+
+.container {
+  position: relative;
+  display: inline-block;
+  background: #000000;
+  overflow: hidden;
+  box-sizing: border-box;
+
+  /* GPU acceleration */
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.canvas {
+  display: block;
+
+  /* Crisp pixel rendering for LED dots */
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+
+  /* Prevent antialiasing */
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: none;
+
+  /* No selection */
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+
+  /* GPU acceleration */
+  transform: translateZ(0);
+}
+
+/* Screen reader only text */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .container {
+    transition: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .container {
+    /* No border in high contrast mode */
+  }
+}
+
+/* Focus indicator for accessibility */
+.container:focus-within {
+  outline: 2px solid #00ffff;
+  outline-offset: 2px;
+}
