@@ -3,10 +3,8 @@ import ReactDOM from 'react-dom/client';
 import { App } from './App';
 import log from './utils/logger';
 
-// Import global styles
-import './assets/styles/reset.css';
-import './assets/styles/tokens.css';
-import './assets/styles/animations.css';
+// Import global styles (CSS layer system)
+import './assets/styles/main.css';
 
 const rootElement = document.getElementById('root');
 

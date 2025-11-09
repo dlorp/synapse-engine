@@ -1,0 +1,15 @@
+/**
+ * S.Y.N.A.P.S.E. ENGINE - Main Stylesheet
+ * CSS Layer System for Terminal UI
+ *
+ * IMPORTANT: @import must be at top level, not inside @layer blocks
+ * Layer assignment happens via @layer statements in imported files
+ */
+
+/* Import all stylesheets (they declare their own layers internally) */
+@import './reset.css';
+@import '@webtui/css';
+@import './tokens.css';
+@import './animations.css';
+@import './theme.css';
+@import './components.css';

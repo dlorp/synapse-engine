@@ -3,11 +3,33 @@
  *
  * CORE:INTERFACE - Main query interface with terminal aesthetic.
  * Integrates query input, response display, and system metrics.
+ *
+ * PHASE 1 ENHANCEMENTS (COMPLETE ✅):
+ * - Dot Matrix LED Display banner ✅
+ * - Enhanced System Status Panel (10 metrics + sparklines) ✅
+ * - OrchestratorStatusPanel (real-time routing visualization) ✅
+ * - LiveEventFeed (8-event rolling window with WebSocket) ✅
+ * - Enhanced CRT effects (bloom, curvature, scanlines) ✅
+ * - Terminal spinners for loading states ✅
+ *
+ * Backend Integration Complete:
+ * - /api/orchestrator/status endpoint providing real metrics
+ * - Event bus emitting system events via /ws/events WebSocket
  */
 
-import React, { useState } from 'react';
-import { Panel, MetricDisplay, StatusIndicator } from '@/components/terminal';
+import React, { useState, useMemo } from 'react';
+import {
+  Panel,
+  StatusIndicator,
+  CRTMonitor,
+  DotMatrixDisplay,
+  TerminalSpinner,
+  SystemStatusPanelEnhanced,
+} from '@/components/terminal';
+import { OrchestratorStatusPanel, LiveEventFeed } from '@/components/dashboard';
+import { useSystemEventsContext } from '@/contexts/SystemEventsContext';
 import { useModelStatus } from '@/hooks/useModelStatus';
+import { useMetricsHistory } from '@/hooks/useMetricsHistory';
 import { useQuerySubmit } from '@/hooks/useQuery';
 import { QueryInput, ResponseDisplay, Timer } from '@/components/query';
 import { QueryResponse, QueryMode } from '@/types/query';
@@ -16,11 +38,13 @@ import { ModeSelector, ModeConfig } from '@/components/modes/ModeSelector';
 import styles from './HomePage.module.css';
 
 export const HomePage: React.FC = () => {
+  const { ensureConnected } = useSystemEventsContext();
   const [latestResponse, setLatestResponse] = useState<QueryResponse | null>(null);
   const [currentQueryMode, setCurrentQueryMode] = useState<QueryMode>('two-stage');
   const [queryMode, setQueryMode] = useState<QueryMode>('two-stage');
   const [modeConfig, setModeConfig] = useState<ModeConfig>({});
   const { data: modelStatus } = useModelStatus();
+  const metricsHistory = useMetricsHistory();
   const queryMutation = useQuerySubmit();
 
   // Calculate number of available models (active, idle, or processing = ready to use)
@@ -28,9 +52,15 @@ export const HomePage: React.FC = () => {
     (m) => m.state === 'active' || m.state === 'idle' || m.state === 'processing'
   ).length ?? 0;
 
+  // Stable effects array to prevent animation restart on re-renders
+  const dotMatrixEffects = useMemo(() => ['pulsate' as const], []);
+
   const handleQuerySubmit = (query: string, options: any) => {
     // Track the query mode for timer expected time display
     setCurrentQueryMode(queryMode);
+
+    // Ensure WebSocket is connected to receive query events
+    ensureConnected();
 
     queryMutation.mutate(
       {
@@ -89,37 +119,68 @@ export const HomePage: React.FC = () => {
     console.log('Disabling all models...');
   };
 
-  return (
-    <div className={styles.page}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>
-          ▓▓▓▓ NEURAL SUBSTRATE ORCHESTRATOR ▓▓▓▓
-        </h1>
-        <div className={styles.systemStatus}>
-          {modelStatus && (
-            <>
-              <MetricDisplay
-                label="VRAM"
-                value={`${modelStatus.totalVramUsedGb.toFixed(1)}/${modelStatus.totalVramGb.toFixed(1)}`}
-                unit="GB"
-              />
-              <MetricDisplay
-                label="QUERIES"
-                value={modelStatus.activeQueries}
-                status={modelStatus.activeQueries > 0 ? 'processing' : 'default'}
-              />
-              <MetricDisplay
-                label="CACHE"
-                value={(modelStatus.cacheHitRate * 100).toFixed(1)}
-                unit="%"
-                status={modelStatus.cacheHitRate > 0.7 ? 'active' : 'default'}
-              />
-            </>
-          )}
-        </div>
-      </div>
+  // Memoize reactive object to prevent animation restarts on re-renders
+  const dotMatrixReactive = useMemo(
+    () => ({
+      enabled: true,
+      isProcessing: queryMutation.isPending,
+      hasError: queryMutation.isError,
+    }),
+    [queryMutation.isPending, queryMutation.isError]
+  );
 
-      <div className={styles.content}>
+  return (
+    <CRTMonitor bloomIntensity={0.3} scanlinesEnabled curvatureEnabled>
+      <div className={styles.page}>
+        {/* Dot Matrix LED Banner */}
+        <div className={styles.bannerContainer}>
+          <DotMatrixDisplay
+            text="SYNAPSE ENGINE"
+            revealSpeed={150}
+            loop={false}
+            width={600}
+            height={60}
+            pattern="wave"
+            effects={dotMatrixEffects}
+            reactive={dotMatrixReactive}
+          />
+        </div>
+
+        <div className={styles.header}>
+          <h1 className={styles.title}>
+            ▓▓▓▓ NEURAL SUBSTRATE ORCHESTRATOR ▓▓▓▓
+          </h1>
+        </div>
+
+        {/* Enhanced System Status Panel - Real Metrics */}
+        {modelStatus ? (
+          <div className={styles.statusPanelContainer}>
+            <SystemStatusPanelEnhanced
+              modelStatus={modelStatus}
+              metricsHistory={metricsHistory}
+              title="SYSTEM STATUS"
+            />
+          </div>
+        ) : (
+          <div className={styles.statusPanelContainer}>
+            <Panel title="SYSTEM STATUS">
+              <div style={{ padding: '40px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+                <TerminalSpinner style="arc" size={24} />
+                <div style={{ color: 'var(--phosphor-green, #ff9500)', fontFamily: 'var(--font-mono)' }}>
+                  Loading system status...
+                </div>
+              </div>
+            </Panel>
+          </div>
+        )}
+
+        {/* Orchestrator Status & Live Events - 2 Column Grid */}
+        <div className={styles.dashboardGrid}>
+          <OrchestratorStatusPanel />
+          <LiveEventFeed maxEvents={8} />
+        </div>
+
+        <div className={styles.content}>
         <div className={styles.inputSection}>
           <ModeSelector
             currentMode={queryMode}
@@ -141,6 +202,7 @@ export const HomePage: React.FC = () => {
         <div className={styles.responseSection}>
           {queryMutation.isPending && (
             <div className={styles.loadingIndicator}>
+              <TerminalSpinner style="arc" size={24} />
               <Timer mode={currentQueryMode} />
             </div>
           )}
@@ -155,14 +217,15 @@ export const HomePage: React.FC = () => {
 
           <ResponseDisplay response={latestResponse} />
         </div>
-      </div>
+        </div>
 
-      <QuickActions
-        onRescan={handleRescan}
-        onEnableAll={handleEnableAll}
-        onDisableAll={handleDisableAll}
-        isLoading={queryMutation.isPending}
-      />
-    </div>
+        <QuickActions
+          onRescan={handleRescan}
+          onEnableAll={handleEnableAll}
+          onDisableAll={handleDisableAll}
+          isLoading={queryMutation.isPending}
+        />
+      </div>
+    </CRTMonitor>
   );
 };

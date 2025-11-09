@@ -1,0 +1,319 @@
+/**
+ * LiveEventFeed Component Styles
+ * Terminal-aesthetic event stream with color-coded event types
+ */
+
+/* ============================================
+   PANEL CONTAINER
+   ============================================ */
+
+.panel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ============================================
+   CONNECTION STATUS INDICATORS
+   ============================================ */
+
+.statusConnected {
+  color: var(--webtui-success);
+  font-size: var(--webtui-font-size-small);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  animation: phosphor-pulse 2s ease-in-out infinite;
+}
+
+.statusConnecting,
+.statusReconnecting {
+  color: var(--webtui-warning);
+  font-size: var(--webtui-font-size-small);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  animation: phosphor-pulse 1s ease-in-out infinite;
+}
+
+.statusDisconnected {
+  color: var(--webtui-error);
+  font-size: var(--webtui-font-size-small);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* ============================================
+   ERROR STATE
+   ============================================ */
+
+.error {
+  color: var(--webtui-error);
+  padding: var(--webtui-spacing-md);
+  background: rgba(255, 0, 0, 0.1);
+  border: 1px solid var(--webtui-error);
+  border-radius: var(--webtui-border-radius);
+  margin-bottom: var(--webtui-spacing-md);
+  font-family: var(--webtui-font-family);
+  font-size: var(--webtui-font-size-base);
+}
+
+.errorIcon {
+  margin-right: var(--webtui-spacing-sm);
+}
+
+/* ============================================
+   INLINE RECONNECT BUTTON
+   ============================================ */
+
+.reconnectButtonInline {
+  margin-left: 4px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  font-family: var(--webtui-font-family);
+  font-size: inherit;
+  cursor: pointer;
+  vertical-align: baseline;
+  line-height: 1;
+}
+
+/* Glow icon wrapper - moderate phosphor glow */
+.glowIcon {
+  display: inline-block;
+  position: relative;
+  color: var(--webtui-primary);
+
+  /* Moderate phosphor glow - visible but not extreme */
+  text-shadow:
+    0 0 5px rgba(255, 149, 0, 0.8),
+    0 0 10px rgba(255, 149, 0, 0.5),
+    0 0 15px rgba(255, 149, 0, 0.3);
+
+  /* Pulse animation */
+  animation: phosphor-pulse-reconnect 2s ease-in-out infinite;
+}
+
+.reconnectButtonInline:hover .glowIcon {
+  /* Stronger glow on hover */
+  text-shadow:
+    0 0 5px rgba(255, 149, 0, 1.0),
+    0 0 10px rgba(255, 149, 0, 0.7),
+    0 0 15px rgba(255, 149, 0, 0.5),
+    0 0 20px rgba(255, 149, 0, 0.3);
+
+  /* Speed up pulse on hover */
+  animation: phosphor-pulse-reconnect 1.5s ease-in-out infinite;
+}
+
+/* Phosphor pulse animation for reconnect button */
+@keyframes phosphor-pulse-reconnect {
+  0%, 100% {
+    text-shadow:
+      0 0 5px rgba(255, 149, 0, 0.8),
+      0 0 10px rgba(255, 149, 0, 0.5),
+      0 0 15px rgba(255, 149, 0, 0.3);
+  }
+  50% {
+    text-shadow:
+      0 0 8px rgba(255, 149, 0, 1.0),
+      0 0 15px rgba(255, 149, 0, 0.7),
+      0 0 20px rgba(255, 149, 0, 0.4);
+  }
+}
+
+.reconnectButtonInline:active {
+  transform: scale(0.95);
+}
+
+.reconnectButtonInline:focus {
+  outline: 1px solid var(--webtui-primary);
+  outline-offset: 1px;
+}
+
+/* ============================================
+   EVENT LIST CONTAINER
+   ============================================ */
+
+.content {
+  font-family: var(--webtui-font-family);
+  font-size: var(--webtui-font-size-base);
+  line-height: var(--webtui-line-height);
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 300px; /* ~8 events at 14px font + 8px padding */
+  padding: var(--webtui-spacing-sm);
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--webtui-border);
+
+  /* Smooth scrolling */
+  scroll-behavior: smooth;
+
+  /* Custom scrollbar (terminal aesthetic) */
+  scrollbar-width: thin;
+  scrollbar-color: var(--webtui-primary) var(--webtui-background);
+}
+
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+
+.empty {
+  color: var(--webtui-text-secondary);
+  text-align: center;
+  padding: var(--webtui-spacing-lg);
+  font-style: italic;
+  opacity: 0.6;
+}
+
+/* ============================================
+   EVENT ITEM
+   ============================================ */
+
+.event {
+  display: flex;
+  gap: var(--webtui-spacing-sm);
+  padding: var(--webtui-spacing-xs) 0;
+  font-family: var(--webtui-font-family);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  /* Smooth fade-in animation */
+  animation: eventFadeIn 0.3s ease-in-out;
+}
+
+@keyframes eventFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   EVENT COMPONENTS (TIMESTAMP, TYPE, MESSAGE)
+   ============================================ */
+
+.timestamp {
+  color: var(--webtui-text-secondary);
+  font-size: var(--webtui-font-size-small);
+  flex-shrink: 0;
+  min-width: 95px; /* [HH:MM:SS.mmm] */
+  font-variant-numeric: tabular-nums; /* Monospace numbers */
+}
+
+.type {
+  flex-shrink: 0;
+  min-width: 60px; /* [ROUTE] etc. */
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.message {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============================================
+   COLOR-CODED EVENT TYPES
+   ============================================ */
+
+/* Query routing decisions - Cyan */
+.query-route .type {
+  color: var(--webtui-processing);
+}
+
+.query-route .message {
+  color: var(--webtui-processing);
+}
+
+/* Model state changes - Green (success) / Red (error) */
+.model-success .type,
+.model-success .message {
+  color: var(--webtui-success);
+}
+
+.model-error .type,
+.model-error .message {
+  color: var(--webtui-error);
+}
+
+.model-state .type {
+  color: var(--webtui-success);
+}
+
+.model-state .message {
+  color: var(--webtui-success);
+}
+
+/* CGRAG retrievals - Orange */
+.cgrag .type {
+  color: var(--webtui-primary);
+}
+
+.cgrag .message {
+  color: var(--webtui-primary);
+}
+
+/* Cache operations - Blue */
+.cache .type {
+  color: #0080ff;
+}
+
+.cache .message {
+  color: #0080ff;
+}
+
+/* Error events - Red */
+.error .type,
+.error .message {
+  color: var(--webtui-error);
+}
+
+/* Performance alerts - Amber (primary orange) */
+.performance .type {
+  color: var(--webtui-warning);
+}
+
+.performance .message {
+  color: var(--webtui-warning);
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 768px) {
+  .content {
+    font-size: var(--webtui-font-size-small);
+    max-height: 200px; /* Smaller on mobile */
+  }
+
+  .timestamp {
+    min-width: 80px;
+    font-size: 10px;
+  }
+
+  .type {
+    min-width: 50px;
+  }
+}
+
+/* ============================================
+   HIGH CONTRAST MODE (Accessibility)
+   ============================================ */
+
+@media (prefers-contrast: high) {
+  .event {
+    border-bottom: 1px solid rgba(255, 149, 0, 0.2);
+  }
+
+  .timestamp,
+  .type,
+  .message {
+    font-weight: bold;
+  }
+}
