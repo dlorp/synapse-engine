@@ -151,6 +151,98 @@ class LlamaCppClient:
                 'error': str(e)
             }
 
+    async def get_stats(self) -> Dict[str, Any]:
+        """Get performance statistics from the llama.cpp server.
+
+        Calls the /stats endpoint to retrieve current performance metrics
+        including tokens per second and memory usage.
+
+        Returns:
+            Dictionary with performance statistics:
+                - tokens_per_second: Current token generation rate (float)
+                - memory_used_gb: Memory usage in gigabytes (float)
+                - error: Optional error message if stats retrieval failed
+
+        Example:
+            >>> client = LlamaCppClient("http://localhost:8080")
+            >>> stats = await client.get_stats()
+            >>> print(f"Tokens/sec: {stats['tokens_per_second']}")
+            'Tokens/sec: 12.5'
+        """
+        try:
+            response = await self._client.get(
+                f"{self.base_url}/stats",
+                timeout=3.0  # Short timeout for stats
+            )
+
+            if response.status_code == 200:
+                data = response.json()
+
+                # Extract tokens per second (may be in different fields)
+                tokens_per_second = data.get('tokens_per_second', 0.0)
+                if tokens_per_second == 0.0:
+                    # Try alternative field names from llama.cpp
+                    tokens_per_second = data.get('n_tokens_predicted_per_second', 0.0)
+
+                # Extract memory usage (convert from bytes to GB if needed)
+                memory_used_gb = data.get('memory_used_gb', 0.0)
+                if memory_used_gb == 0.0:
+                    # Try to get memory in bytes and convert
+                    memory_bytes = data.get('kv_cache_used_cells', 0) * 1024  # Approximate
+                    memory_used_gb = memory_bytes / (1024 ** 3)
+
+                return {
+                    'tokens_per_second': float(tokens_per_second),
+                    'memory_used_gb': float(memory_used_gb),
+                    'error': None
+                }
+            else:
+                self._logger.debug(
+                    f"Stats endpoint returned non-200 status",
+                    extra={
+                        'base_url': self.base_url,
+                        'status_code': response.status_code
+                    }
+                )
+                return {
+                    'tokens_per_second': 0.0,
+                    'memory_used_gb': 0.0,
+                    'error': f"HTTP {response.status_code}"
+                }
+
+        except httpx.TimeoutException:
+            self._logger.debug(
+                f"Stats request timeout",
+                extra={'base_url': self.base_url}
+            )
+            return {
+                'tokens_per_second': 0.0,
+                'memory_used_gb': 0.0,
+                'error': 'Timeout'
+            }
+
+        except httpx.ConnectError as e:
+            self._logger.debug(
+                f"Stats request connection failed",
+                extra={'base_url': self.base_url, 'error': str(e)}
+            )
+            return {
+                'tokens_per_second': 0.0,
+                'memory_used_gb': 0.0,
+                'error': f'Connection failed: {str(e)}'
+            }
+
+        except Exception as e:
+            self._logger.debug(
+                f"Stats request unexpected error",
+                extra={'base_url': self.base_url, 'error': str(e)}
+            )
+            return {
+                'tokens_per_second': 0.0,
+                'memory_used_gb': 0.0,
+                'error': str(e)
+            }
+
     async def generate_completion(
         self,
         prompt: str,
