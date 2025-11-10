@@ -1,0 +1,201 @@
+/**
+ * SystemHealthOverview Component Styles
+ * Dense row layout with ASCII sparklines (breathing bars aesthetic)
+ */
+
+.loading,
+.error,
+.noData {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--webtui-spacing-md);
+  padding: var(--webtui-spacing-xl);
+  color: var(--webtui-text);
+  font-family: var(--webtui-font-family);
+}
+
+.error {
+  color: var(--webtui-error);
+}
+
+.errorIcon {
+  font-size: 24px;
+}
+
+.errorMessage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--webtui-spacing-xs);
+}
+
+.errorTitle {
+  font-weight: bold;
+  font-size: var(--webtui-font-size-base);
+}
+
+.errorDetail {
+  font-size: var(--webtui-font-size-small);
+  opacity: 0.8;
+}
+
+.subtitle {
+  font-size: var(--webtui-font-size-small);
+  color: var(--webtui-text-muted);
+  font-weight: normal;
+  margin-top: 4px;
+}
+
+/* Awaiting models state */
+.awaitingModels {
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  gap: 0.5rem;
+  font-family: var(--webtui-font-family);
+}
+
+.emptyMetricsTable {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.emptyMetricRow {
+  display: grid;
+  grid-template-columns: 120px 100px 1fr;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.375rem 0;
+}
+
+.emptyMetricLabel {
+  font-weight: bold;
+  color: var(--webtui-text-secondary);
+  text-align: right;
+  font-size: 0.8rem;
+}
+
+.emptyMetricValue {
+  color: rgba(255, 149, 0, 0.5);
+  font-weight: bold;
+  text-align: left;
+}
+
+.emptySparkline {
+  font-family: var(--webtui-font-family);
+  letter-spacing: -1px;
+  font-size: 14px;
+  color: rgba(255, 149, 0, 0.3);
+  line-height: 1;
+  animation: breath-pulse 2s ease-in-out infinite;
+}
+
+.emptyHint {
+  font-size: 0.8rem;
+  color: var(--webtui-text-secondary);
+  opacity: 0.7;
+  margin-top: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 149, 0, 0.2);
+}
+
+/* Breathing animation */
+@keyframes breath-pulse {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.content {
+  padding: var(--webtui-spacing-lg);
+}
+
+/* Dense table layout (similar to breathing bars) */
+.metricsTable {
+  font-family: var(--webtui-font-family);
+  font-size: var(--webtui-font-size-base);
+  display: flex;
+  flex-direction: column;
+  gap: var(--webtui-spacing-sm);
+}
+
+/* Each metric row */
+.metricRow {
+  display: grid;
+  grid-template-columns: 120px 100px 1fr 50px;
+  gap: var(--webtui-spacing-md);
+  align-items: center;
+  padding: var(--webtui-spacing-xs) 0;
+  border-bottom: 1px solid rgba(255, 149, 0, 0.1);
+}
+
+.metricRow:last-child {
+  border-bottom: none;
+}
+
+/* Metric label */
+.metricLabel {
+  font-weight: bold;
+  color: var(--webtui-text-muted);
+  text-align: right;
+  font-size: var(--webtui-font-size-small);
+}
+
+/* Current value */
+.metricValue {
+  color: var(--webtui-primary);
+  font-weight: bold;
+  text-align: left;
+  font-size: var(--webtui-font-size-base);
+}
+
+/* ASCII sparkline */
+.sparkline {
+  font-family: var(--webtui-font-family);
+  letter-spacing: -1px; /* Tighten characters like breathing bars */
+  font-size: 16px;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* Timeframe label */
+.metricTimeframe {
+  color: var(--webtui-text-muted);
+  font-size: var(--webtui-font-size-small);
+  text-align: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .metricRow {
+    grid-template-columns: 100px 80px 1fr 40px;
+    gap: var(--webtui-spacing-xs);
+  }
+
+  .metricLabel {
+    font-size: 11px;
+  }
+
+  .metricValue {
+    font-size: var(--webtui-font-size-small);
+  }
+
+  .sparkline {
+    font-size: 14px;
+  }
+
+  .metricTimeframe {
+    font-size: 10px;
+  }
+
+  .content {
+    padding: var(--webtui-spacing-md);
+  }
+}

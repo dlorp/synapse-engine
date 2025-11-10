@@ -1,11 +1,11 @@
 {
   "n_gpu_layers": 99,
-  "ctx_size": 16384,
+  "ctx_size": 32768,
   "threads": 8,
   "batch_size": 512,
   "ubatch_size": 256,
   "flash_attn": true,
-  "no_mmap": true,
+  "no_mmap": false,
   "embedding_model_name": "all-MiniLM-L6-v2",
   "embedding_model_cache_path": null,
   "embedding_dimension": 384,
@@ -20,7 +20,7 @@
   "websearch_max_results": 5,
   "websearch_timeout_seconds": 10,
   "_metadata": {
-    "last_modified": "2025-11-07T08:51:38.633243Z",
+    "last_modified": "2025-11-10T03:09:39.022606Z",
     "version": "1.0"
   }
 }

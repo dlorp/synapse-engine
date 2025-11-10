@@ -1,155 +1,265 @@
-/* Admin Page - Terminal Aesthetic Styling */
+/**
+ * AdminPage - Terminal Aesthetic Styling
+ * Matches MetricsPage styling with webtui variables, breathing animations, and phosphor glow
+ * Enhanced with elaborate ASCII borders and NERV-inspired aesthetics
+ */
 
 .adminPage {
   width: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 20px;
-  font-family: var(--font-mono);
+  /* Removed max-width to allow ASCII borders to extend to browser edges */
+  margin: 0;
+  padding: var(--webtui-spacing-lg);
+  font-family: var(--webtui-font-family);
+  display: flex;
+  flex-direction: column;
+  gap: var(--webtui-spacing-xl);
 }
 
 .header {
-  margin-bottom: 24px;
-  border-bottom: 2px solid var(--border-primary);
-  padding-bottom: 16px;
+  margin-bottom: var(--webtui-spacing-xl);
+  border-bottom: 2px solid var(--webtui-primary);
+  padding-bottom: var(--webtui-spacing-md);
 }
 
 .title {
   font-size: 24px;
   font-weight: 700;
-  color: var(--text-primary);
-  margin: 0 0 8px 0;
-  letter-spacing: 2px;
-  text-shadow: 0 0 10px var(--phosphor-green);
+  color: var(--webtui-primary);
+  margin: 0 0 var(--webtui-spacing-xs) 0;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-shadow: 0 0 10px var(--webtui-primary);
+  animation: phosphor-glow 1.8s ease-in-out infinite;
+}
+
+@keyframes phosphor-glow {
+  0%, 100% {
+    text-shadow: 0 0 10px var(--webtui-primary);
+    opacity: 1;
+  }
+  50% {
+    text-shadow: 0 0 20px var(--webtui-primary), 0 0 30px var(--webtui-primary);
+    opacity: 0.9;
+  }
 }
 
 .subtitle {
-  font-size: 12px;
-  color: var(--text-secondary);
+  font-size: var(--webtui-font-size-small);
+  color: var(--webtui-text-muted);
   margin: 0;
-  letter-spacing: 1px;
+  letter-spacing: 0.08em;
+}
+
+/* ASCII Panel Structure - Elaborate Terminal Aesthetics */
+.asciiPanel {
+  display: flex;
+  flex-direction: column;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--webtui-primary);
+  position: relative;
+  animation: panel-breathe 2s ease-in-out infinite;
+  font-family: var(--webtui-font-family);
+  /* Prevent layout thrashing */
+  contain: layout style paint;
+  will-change: auto;
+  /* Removed max-width and centering to allow ASCII borders to extend edge-to-edge */
+  margin-bottom: var(--webtui-spacing-lg);
+}
+
+.asciiPanelBody {
+  width: 100%;
+  overflow: hidden;
+}
+
+@keyframes panel-breathe {
+  0%, 100% {
+    border-color: var(--webtui-primary);
+    box-shadow: 0 0 0 rgba(255, 149, 0, 0);
+  }
+  50% {
+    border-color: rgba(255, 149, 0, 0.8);
+    box-shadow: 0 0 15px rgba(255, 149, 0, 0.2);
+  }
+}
+
+/* ASCII Section (subsections within panels) */
+.asciiSection {
+  margin-top: var(--webtui-spacing-md);
+  display: flex;
+  flex-direction: column;
+}
+
+.asciiSection:first-child {
+  margin-top: 0;
+}
+
+.asciiSectionHeader {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--webtui-accent);
+  padding: var(--webtui-spacing-xs) 0;
+  letter-spacing: 0; /* Consistent monospace spacing for box-drawing chars */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  animation: section-pulse 2s ease-in-out infinite;
+  line-height: 1.2;
+  font-feature-settings: "liga" 0, "calt" 0; /* Disable ligatures for consistent char width */
+  font-kerning: none; /* Disable kerning for perfect monospace alignment */
+  -webkit-font-smoothing: antialiased; /* Consistent rendering across browsers */
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: geometricPrecision; /* Precise character positioning */
+}
+
+@keyframes section-pulse {
+  0%, 100% {
+    color: var(--webtui-accent);
+    text-shadow: 0 0 3px var(--webtui-accent);
+  }
+  50% {
+    color: rgba(0, 255, 255, 0.8);
+    text-shadow: 0 0 6px var(--webtui-accent);
+  }
+}
+
+.asciiSectionBody {
+  padding: var(--webtui-spacing-sm) 0;
 }
 
 /* Health Section */
 .healthContainer {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: var(--webtui-spacing-md);
 }
 
 .healthHeader {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 12px;
-  background: rgba(255, 149, 0, 0.05);
-  border: 1px solid var(--border-primary);
-  border-left: 4px solid var(--border-primary);
+  gap: var(--webtui-spacing-md);
+  padding: var(--webtui-spacing-md);
+  background: rgba(255, 149, 0, 0.08);
+  border: 1px solid rgba(255, 149, 0, 0.4);
+  border-left: 3px solid var(--webtui-primary);
+  animation: breath-pulse 1.8s ease-in-out infinite;
+  margin-bottom: var(--webtui-spacing-sm);
+}
+
+@keyframes breath-pulse {
+  0%, 100% {
+    border-color: var(--webtui-primary);
+    box-shadow: inset 0 0 0 rgba(255, 149, 0, 0);
+  }
+  50% {
+    border-color: var(--webtui-primary);
+    box-shadow: inset 0 0 8px rgba(255, 149, 0, 0.2);
+  }
 }
 
 .healthLabel {
-  font-size: 14px;
+  font-size: var(--webtui-font-size-base);
   font-weight: 700;
-  color: var(--text-secondary);
+  color: var(--webtui-text-muted);
+  letter-spacing: 0.08em;
 }
 
 .healthStatus {
   font-size: 16px;
   font-weight: 700;
-  padding: 4px 12px;
+  padding: 4px var(--webtui-spacing-sm);
   border: 1px solid;
-  letter-spacing: 1px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .healthTime {
   margin-left: auto;
-  font-size: 12px;
-  color: var(--text-secondary);
-}
-
-.componentsGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 16px;
+  font-size: var(--webtui-font-size-small);
+  color: var(--webtui-text-muted);
+  font-family: var(--webtui-font-family);
 }
 
 .component {
-  padding: 16px;
-  background: rgba(255, 149, 0, 0.03);
-  border: 1px solid rgba(255, 149, 0, 0.3);
+  padding: var(--webtui-spacing-md);
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 149, 0, 0.2);
+  border-left: 2px solid var(--webtui-accent);
   transition: all 0.2s ease;
 }
 
 .component:hover {
   background: rgba(255, 149, 0, 0.05);
-  border-color: var(--border-primary);
+  border-left-color: var(--webtui-primary);
+  box-shadow: inset 0 0 8px rgba(255, 149, 0, 0.1);
 }
 
 .componentHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
-  padding-bottom: 8px;
+  margin-bottom: var(--webtui-spacing-sm);
+  padding-bottom: var(--webtui-spacing-xs);
   border-bottom: 1px solid rgba(255, 149, 0, 0.2);
 }
 
 .componentName {
   font-size: 13px;
   font-weight: 700;
-  color: var(--text-primary);
-  letter-spacing: 1px;
+  color: var(--webtui-primary);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .componentStatus {
   font-size: 11px;
   font-weight: 700;
-  padding: 2px 8px;
+  padding: 2px var(--webtui-spacing-xs);
   border: 1px solid;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .componentMessage {
-  font-size: 12px;
-  color: var(--text-secondary);
-  margin-bottom: 8px;
+  font-size: var(--webtui-font-size-small);
+  color: var(--webtui-text-muted);
+  margin-bottom: var(--webtui-spacing-xs);
   font-style: italic;
 }
 
 .componentDetails {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  font-size: 12px;
-  color: var(--text-primary);
+  gap: var(--webtui-spacing-xs);
+  font-size: var(--webtui-font-size-small);
+  color: var(--webtui-text);
 }
 
 .lastScan {
   font-size: 11px;
-  color: var(--text-secondary);
-  margin-top: 4px;
+  color: var(--webtui-text-muted);
+  margin-top: var(--webtui-spacing-xs);
 }
 
 .scanPath {
   font-size: 11px;
-  color: var(--text-accent);
-  font-family: monospace;
+  color: var(--webtui-accent);
+  font-family: var(--webtui-font-family);
 }
 
-/* Status Colors */
+/* Status Colors - using webtui variables */
 .statusHealthy {
-  color: var(--status-active);
-  border-color: var(--status-active);
+  color: var(--webtui-success);
+  border-color: var(--webtui-success);
 }
 
 .statusWarning {
-  color: var(--status-warning);
-  border-color: var(--status-warning);
+  color: var(--webtui-warning);
+  border-color: var(--webtui-warning);
 }
 
 .statusError {
-  color: var(--status-error);
-  border-color: var(--status-error);
+  color: var(--webtui-error);
+  border-color: var(--webtui-error);
 }
 
 /* Discovery Section */
@@ -158,29 +268,30 @@
 .serverSection {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--webtui-spacing-md);
 }
 
 .sectionDesc {
   font-size: 13px;
-  color: var(--text-secondary);
+  color: var(--webtui-text-muted);
   margin: 0;
   line-height: 1.6;
-  padding: 12px;
+  padding: var(--webtui-spacing-sm);
   background: rgba(255, 149, 0, 0.03);
-  border-left: 3px solid var(--border-accent);
+  border-left: 3px solid var(--webtui-accent);
+  font-family: var(--webtui-font-family);
 }
 
-/* Buttons */
+/* Buttons - Terminal aesthetic with webtui variables */
 .actionButton {
-  padding: 12px 24px;
-  font-family: inherit;
+  padding: var(--webtui-spacing-sm) var(--webtui-spacing-lg);
+  font-family: var(--webtui-font-family);
   font-size: 13px;
   font-weight: 700;
-  letter-spacing: 1px;
-  color: var(--text-primary);
+  letter-spacing: 0.1em;
+  color: var(--webtui-primary);
   background: transparent;
-  border: 2px solid var(--border-primary);
+  border: 2px solid var(--webtui-primary);
   cursor: pointer;
   transition: all 0.2s ease;
   text-transform: uppercase;
@@ -189,9 +300,14 @@
 }
 
 .actionButton:hover:not(:disabled) {
-  background: var(--text-primary);
+  background: var(--webtui-primary);
   color: #000;
   box-shadow: 0 0 20px rgba(255, 149, 0, 0.5);
+  transform: translateY(-1px);
+}
+
+.actionButton:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .actionButton:disabled {
@@ -200,50 +316,51 @@
 }
 
 .primaryButton {
-  border-color: var(--border-accent);
-  color: var(--text-accent);
+  border-color: var(--webtui-accent);
+  color: var(--webtui-accent);
 }
 
 .primaryButton:hover:not(:disabled) {
-  background: var(--text-accent);
+  background: var(--webtui-accent);
   color: #000;
   box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
 }
 
 .warningButton {
-  border-color: var(--border-warning);
-  color: var(--text-warning);
+  border-color: var(--webtui-warning);
+  color: var(--webtui-warning);
 }
 
 .warningButton:hover:not(:disabled) {
-  background: var(--text-warning);
+  background: var(--webtui-warning);
   color: #000;
   box-shadow: 0 0 20px rgba(255, 149, 0, 0.5);
 }
 
 .dangerButton {
-  border-color: var(--border-error);
-  color: var(--text-error);
+  border-color: var(--webtui-error);
+  color: var(--webtui-error);
 }
 
 .dangerButton:hover:not(:disabled) {
-  background: var(--text-error);
+  background: var(--webtui-error);
   color: #000;
   box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
 }
 
 .serverButtons {
   display: flex;
-  gap: 16px;
+  gap: var(--webtui-spacing-md);
   flex-wrap: wrap;
 }
 
-/* Result Box */
+/* Result Box - Terminal aesthetic */
 .resultBox {
-  padding: 16px;
-  border: 1px solid;
+  padding: var(--webtui-spacing-md);
+  border: 1px solid var(--webtui-primary);
   background: rgba(0, 0, 0, 0.3);
   animation: slideIn 0.3s ease;
+  font-family: var(--webtui-font-family);
 }
 
 @keyframes slideIn {
@@ -258,82 +375,86 @@
 }
 
 .resultSuccess {
-  font-size: 14px;
+  font-size: var(--webtui-font-size-base);
   font-weight: 700;
-  color: var(--status-active);
-  margin-bottom: 12px;
+  color: var(--webtui-success);
+  margin-bottom: var(--webtui-spacing-sm);
+  letter-spacing: 0.05em;
 }
 
 .resultError {
-  font-size: 14px;
+  font-size: var(--webtui-font-size-base);
   font-weight: 700;
-  color: var(--status-error);
+  color: var(--webtui-error);
+  letter-spacing: 0.05em;
 }
 
 .resultDetails {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-top: 12px;
-  padding-top: 12px;
+  gap: var(--webtui-spacing-xs);
+  margin-top: var(--webtui-spacing-sm);
+  padding-top: var(--webtui-spacing-sm);
   border-top: 1px solid rgba(255, 149, 0, 0.2);
 }
 
 .resultRow {
   display: flex;
   justify-content: space-between;
-  font-size: 12px;
+  font-size: var(--webtui-font-size-small);
 }
 
 .resultLabel {
-  color: var(--text-secondary);
+  color: var(--webtui-text-muted);
 }
 
 .resultValue {
-  color: var(--text-primary);
+  color: var(--webtui-text);
   font-weight: 600;
 }
 
-/* Test Results */
+/* Test Results - Terminal aesthetic */
 .testResults {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--webtui-spacing-md);
 }
 
 .testSummary {
   display: flex;
-  gap: 24px;
-  padding: 12px;
+  gap: var(--webtui-spacing-lg);
+  padding: var(--webtui-spacing-sm);
   background: rgba(255, 149, 0, 0.05);
-  border: 1px solid var(--border-primary);
-  font-size: 14px;
+  border: 1px solid var(--webtui-primary);
+  font-size: var(--webtui-font-size-base);
   font-weight: 700;
+  font-family: var(--webtui-font-family);
+  letter-spacing: 0.08em;
 }
 
 .testTotal {
-  color: var(--text-primary);
+  color: var(--webtui-primary);
 }
 
 .testPassed {
-  color: var(--status-active);
+  color: var(--webtui-success);
 }
 
 .testFailed {
-  color: var(--status-error);
+  color: var(--webtui-error);
 }
 
 .testList {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--webtui-spacing-xs);
 }
 
 .testItem {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  padding: 12px;
+  gap: var(--webtui-spacing-sm);
+  padding: var(--webtui-spacing-sm);
   background: rgba(255, 149, 0, 0.03);
   border: 1px solid rgba(255, 149, 0, 0.2);
   transition: all 0.2s ease;
@@ -341,7 +462,8 @@
 
 .testItem:hover {
   background: rgba(255, 149, 0, 0.05);
-  border-color: var(--border-primary);
+  border-color: var(--webtui-primary);
+  box-shadow: 0 0 8px rgba(255, 149, 0, 0.15);
 }
 
 .testIcon {
@@ -353,107 +475,144 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--webtui-spacing-xs);
 }
 
 .testEndpoint {
   font-size: 13px;
   font-weight: 700;
-  color: var(--text-accent);
-  font-family: monospace;
+  color: var(--webtui-accent);
+  font-family: var(--webtui-font-family);
+  letter-spacing: 0.05em;
 }
 
 .testMessage {
-  font-size: 12px;
-  color: var(--text-secondary);
+  font-size: var(--webtui-font-size-small);
+  color: var(--webtui-text-muted);
+  font-family: var(--webtui-font-family);
 }
 
-/* System Info */
+/* System Info - Terminal aesthetic */
 .systemInfo {
   display: flex;
   flex-direction: column;
-  gap: 24px;
-}
-
-.infoSection {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.infoTitle {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text-primary);
-  letter-spacing: 1px;
-  margin: 0;
-  padding-bottom: 8px;
-  border-bottom: 1px solid rgba(255, 149, 0, 0.3);
+  gap: var(--webtui-spacing-md);
 }
 
 .infoGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 12px;
+  gap: var(--webtui-spacing-sm);
 }
 
 .infoItem {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 12px;
+  padding: var(--webtui-spacing-xs) var(--webtui-spacing-sm);
   background: rgba(255, 149, 0, 0.03);
-  border-left: 2px solid var(--border-accent);
-  font-size: 12px;
+  border-left: 2px solid var(--webtui-accent);
+  font-size: var(--webtui-font-size-small);
+  font-family: var(--webtui-font-family);
+  transition: all 0.2s ease;
+}
+
+.infoItem:hover {
+  background: rgba(255, 149, 0, 0.05);
+  border-left-color: var(--webtui-primary);
 }
 
 .infoLabel {
-  color: var(--text-secondary);
+  color: var(--webtui-text-muted);
   font-weight: 600;
+  letter-spacing: 0.05em;
 }
 
 .infoValue {
-  color: var(--text-primary);
-  font-family: monospace;
+  color: var(--webtui-text);
+  font-family: var(--webtui-font-family);
   word-break: break-all;
   text-align: right;
   max-width: 60%;
 }
 
-/* Loading and Error States */
-.loading {
-  padding: 40px;
-  text-align: center;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text-accent);
-  letter-spacing: 2px;
-  animation: pulse 1.5s ease-in-out infinite;
+/* ASCII Frame - Unified frame styling (replaces nested structure) */
+.asciiFrame {
+  font-family: var(--webtui-font-family);
+  font-size: 12px;
+  line-height: 1.2;
+  letter-spacing: 0;
+  color: var(--webtui-primary);
+  white-space: pre;
+  overflow: hidden;
+  text-overflow: clip;
+  width: 100%;
+  text-shadow: 0 0 8px rgba(255, 149, 0, 0.6);
+  animation: frame-glow 2s ease-in-out infinite;
+  margin: var(--webtui-spacing-md) 0;
+  font-kerning: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: geometricPrecision;
+  font-feature-settings: "liga" 0, "calt" 0;
+  padding: 0;
+  background: transparent;
+  box-sizing: border-box;
 }
 
-@keyframes pulse {
+@keyframes frame-glow {
+  0%, 100% {
+    text-shadow: 0 0 8px rgba(255, 149, 0, 0.6),
+                 0 0 12px rgba(255, 149, 0, 0.3);
+  }
+  50% {
+    text-shadow: 0 0 12px rgba(255, 149, 0, 0.8),
+                 0 0 16px rgba(255, 149, 0, 0.4),
+                 0 0 20px rgba(255, 149, 0, 0.2);
+  }
+}
+
+/* Loading and Error States - Terminal aesthetic */
+.loading {
+  padding: var(--webtui-spacing-xl);
+  text-align: center;
+  font-size: var(--webtui-font-size-base);
+  font-weight: 700;
+  color: var(--webtui-accent);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-family: var(--webtui-font-family);
+  animation: loading-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes loading-pulse {
   0%, 100% {
     opacity: 1;
+    text-shadow: 0 0 10px var(--webtui-accent);
   }
   50% {
     opacity: 0.5;
+    text-shadow: 0 0 20px var(--webtui-accent);
   }
 }
 
 .error {
-  padding: 20px;
+  padding: var(--webtui-spacing-lg);
   text-align: center;
-  font-size: 14px;
+  font-size: var(--webtui-font-size-base);
   font-weight: 700;
-  color: var(--text-error);
-  border: 2px solid var(--border-error);
+  color: var(--webtui-error);
+  border: 2px solid var(--webtui-error);
   background: rgba(255, 0, 0, 0.1);
+  font-family: var(--webtui-font-family);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
   .adminPage {
-    padding: 12px;
+    padding: var(--webtui-spacing-sm);
   }
 
   .componentsGrid {
@@ -474,6 +633,14 @@
 
   .testSummary {
     flex-direction: column;
-    gap: 8px;
+    gap: var(--webtui-spacing-xs);
+  }
+
+  .header {
+    margin-bottom: var(--webtui-spacing-md);
+  }
+
+  .title {
+    font-size: 20px;
   }
 }

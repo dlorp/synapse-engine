@@ -77,7 +77,7 @@
       "assigned_tier": "fast",
       "tier_override": null,
       "port": 8083,
-      "enabled": true,
+      "enabled": false,
       "n_gpu_layers": null,
       "ctx_size": null,
       "n_threads": null,
@@ -98,7 +98,7 @@
       "assigned_tier": "fast",
       "tier_override": null,
       "port": 8084,
-      "enabled": true,
+      "enabled": false,
       "n_gpu_layers": null,
       "ctx_size": null,
       "n_threads": null,
@@ -107,7 +107,7 @@
     }
   },
   "scan_path": "/models",
-  "last_scan": "2025-11-07T09:23:59.024932",
+  "last_scan": "2025-11-10T04:54:06.121844",
   "port_range": [
     8080,
     8099

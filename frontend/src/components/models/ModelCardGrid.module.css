@@ -1,0 +1,54 @@
+/**
+ * ModelCardGrid Styles
+ * Responsive CSS Grid with explicit column counts at breakpoints
+ *
+ * Layout:
+ * - Wide screens (>1400px): 3 columns
+ * - Medium screens (900-1399px): 2 columns
+ * - Narrow screens (<900px): 1 column
+ */
+
+.gridContainer {
+  display: grid;
+  gap: 1.5rem;
+  padding: 1rem 0;
+  width: 100%;
+}
+
+/* Wide screens: 3 columns */
+@media (min-width: 1400px) {
+  .gridContainer {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Medium screens: 2 columns */
+@media (min-width: 900px) and (max-width: 1399px) {
+  .gridContainer {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Narrow screens: 1 column */
+@media (max-width: 899px) {
+  .gridContainer {
+    grid-template-columns: 1fr;
+    gap: 1rem; /* Tighter gap on mobile */
+  }
+}
+
+/* Empty State - Centered message when no models */
+.emptyState {
+  grid-column: 1 / -1; /* Span all columns */
+  padding: 3rem;
+  text-align: center;
+  color: rgba(255, 149, 0, 0.6);
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', monospace;
+  font-size: 0.875rem;
+  border: 1px dashed rgba(255, 149, 0, 0.3);
+  background: rgba(255, 149, 0, 0.05);
+}
+
+.emptyState p {
+  margin: 0;
+}

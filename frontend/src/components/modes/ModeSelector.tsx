@@ -145,9 +145,6 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
             {!mode.available && (
               <div className={styles.comingSoon}>COMING SOON</div>
             )}
-            {currentMode === mode.id && (
-              <div className={styles.activeIndicator}>● ACTIVE</div>
-            )}
           </button>
         ))}
       </div>

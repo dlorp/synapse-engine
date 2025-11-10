@@ -1,0 +1,71 @@
+/**
+ * ASCII Line Chart Styles
+ * Terminal aesthetic with phosphor orange glow
+ */
+
+.chart {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.title {
+  font-family: var(--webtui-font-family);
+  font-size: var(--webtui-font-size-small);
+  color: var(--webtui-primary);
+  text-shadow: var(--phosphor-glow);
+  margin-bottom: var(--webtui-spacing-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.chartContainer {
+  background: transparent; /* Transparent - ASCII art provides the frame */
+  border: none; /* No CSS border - ASCII box-drawing chars are the frame */
+  padding: 0; /* No padding - ASCII frame provides visual boundary */
+  overflow: hidden; /* No scrollbars - ASCII frame is static container */
+  box-shadow: none; /* No shadow - clean ASCII aesthetic */
+}
+
+.chartContent {
+  font-family: var(--webtui-font-family);
+  font-size: var(--webtui-font-size-small);
+  line-height: 1.2;
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  color: inherit;
+  text-shadow: var(--phosphor-glow);
+}
+
+.labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--webtui-spacing-xs);
+  font-family: var(--webtui-font-family);
+  font-size: var(--webtui-font-size-small);
+  color: var(--webtui-primary);
+}
+
+.yLabel,
+.xLabel {
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stats {
+  display: flex;
+  justify-content: space-around;
+  margin-top: var(--webtui-spacing-sm);
+  padding-top: var(--webtui-spacing-sm);
+  border-top: 1px solid var(--webtui-border);
+  font-family: var(--webtui-font-family);
+  font-size: var(--webtui-font-size-small);
+}
+
+.stat {
+  color: var(--webtui-primary);
+  text-shadow: var(--phosphor-glow);
+  letter-spacing: 0.05em;
+}
