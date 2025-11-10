@@ -1,247 +1,370 @@
-/* ModelSettings - Terminal aesthetic expandable settings panel */
+/**
+ * ModelSettings - Terminal Aesthetic Configuration Panel
+ * Dense information display with ASCII borders and phosphor orange branding
+ * Matches HomePage/MetricsPage/ModelManagement visual language
+ */
+
+/* ============================================
+   CONTAINER & PANEL
+   ============================================ */
 
 .container {
   width: 100%;
   padding: 0;
   margin: 0;
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', monospace;
 }
 
 .panel {
-  background: var(--bg-panel);
-  border: 2px solid var(--border-primary);
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 149, 0, 0.3);
   border-top: none;
-  padding: var(--space-xl);
+  padding: 1rem;
   display: flex;
   flex-direction: column;
-  gap: var(--space-xl);
+  gap: 1rem;
 }
 
-/* Header */
+/* ============================================
+   HEADER WITH ASCII BORDERS
+   ============================================ */
+
 .header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.headerBorder {
+  color: #ff9500;
+  font-size: 0.75rem;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  opacity: 0.7;
+  user-select: none;
+}
+
+.headerContent {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: var(--space-md);
-  border-bottom: 1px solid var(--border-secondary);
+  padding: 0.5rem 1rem;
+  gap: 1rem;
 }
 
-.title {
-  font-family: var(--font-mono);
-  font-size: var(--text-lg);
-  font-weight: var(--font-bold);
-  color: var(--text-primary);
+.modelInfo {
+  color: #ff9500;
+  font-size: 0.9rem;
+  font-weight: bold;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  margin: 0;
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 5px rgba(255, 149, 0, 0.5);
 }
 
 .warning {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
   background: rgba(255, 149, 0, 0.15);
-  border: 1px solid var(--border-warning);
-  color: var(--text-warning);
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  font-weight: var(--font-bold);
-  letter-spacing: 0.5px;
+  border: 1px solid rgba(255, 149, 0, 0.5);
+  color: #ff9500;
+  font-size: 0.65rem;
+  font-weight: bold;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  animation: warningPulse 2s ease-in-out infinite;
+  animation: breathePulse 1.8s ease-in-out infinite;
 }
 
-/* Settings Grid */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--space-xl);
+.warningIcon {
+  font-size: 0.8rem;
+  animation: breathePulse 1.8s ease-in-out infinite;
 }
+
+/* ============================================
+   SECTIONS WITH ASCII BORDERS
+   ============================================ */
 
 .section {
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
+  gap: 0.25rem;
+  margin-top: 0.5rem;
 }
 
-.sectionLabel {
+.sectionBorder {
+  color: #ff9500;
+  font-size: 0.75rem;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  opacity: 0.6;
+  user-select: none;
+}
+
+.sectionContent {
+  padding: 0.75rem 1rem;
+}
+
+/* ============================================
+   PORT ASSIGNMENT
+   ============================================ */
+
+.portRow {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
-  font-weight: var(--font-bold);
-  color: var(--text-primary);
+  gap: 1rem;
+}
+
+.portLabel {
+  color: #ff9500;
+  font-size: 0.7rem;
+  font-weight: bold;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 4px;
+  letter-spacing: 0.05em;
+  min-width: 120px;
+}
+
+/* ============================================
+   RUNTIME SETTINGS GRID
+   ============================================ */
+
+.runtimeGrid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr 1fr auto 1fr;
+  gap: 1rem;
+  padding: 1rem;
+  align-items: start;
+}
+
+.runtimeField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.fieldHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.fieldLabel {
+  color: #ff9500;
+  font-size: 0.65rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .overrideBadge {
-  display: inline-block;
-  padding: 2px 6px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1rem 0.4rem;
   background: rgba(0, 255, 255, 0.2);
-  border: 1px solid var(--cyan);
-  color: var(--cyan);
-  font-size: var(--text-xs);
-  font-weight: var(--font-bold);
-  letter-spacing: 0.5px;
+  border: 1px solid rgba(0, 255, 255, 0.5);
+  color: #00ffff;
+  font-size: 0.6rem;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  animation: breathePulse 1.8s ease-in-out infinite;
 }
 
-/* Field Group (slider + input) */
-.fieldGroup {
+.verticalSeparator {
+  color: rgba(255, 149, 0, 0.3);
+  font-size: 1.2rem;
+  align-self: stretch;
   display: flex;
   align-items: center;
-  gap: var(--space-md);
+  justify-content: center;
+  user-select: none;
 }
 
-/* Input Fields */
+/* ============================================
+   INPUT FIELDS
+   ============================================ */
+
 .input,
 .numberInput {
   width: 100%;
-  padding: 10px 12px;
-  background: var(--bg-input);
-  border: 2px solid var(--border-primary);
-  color: var(--text-primary);
-  font-family: var(--font-mono);
-  font-size: var(--text-md);
-  font-weight: var(--font-semibold);
-  transition: all var(--transition-fast);
+  padding: 0.5rem 0.75rem;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 149, 0, 0.3);
+  color: #ff9500;
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: bold;
+  transition: all 0.2s ease;
   outline: none;
+  text-align: center;
 }
 
 .numberInput {
-  width: 80px;
+  width: 70px;
   flex-shrink: 0;
 }
 
 .input:hover,
 .numberInput:hover {
-  border-color: var(--cyan);
+  border-color: rgba(255, 149, 0, 0.6);
+  box-shadow: 0 0 8px rgba(255, 149, 0, 0.3);
 }
 
 .input:focus,
 .numberInput:focus {
-  border-color: var(--cyan);
-  box-shadow: var(--glow-md);
+  border-color: #00ffff;
+  box-shadow: 0 0 12px rgba(0, 255, 255, 0.4);
+  color: #00ffff;
 }
 
-/* Slider */
+/* ============================================
+   SLIDER (GPU LAYERS)
+   ============================================ */
+
+.fieldGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 .slider {
   flex: 1;
-  height: 8px;
-  background: var(--bg-input);
-  border: 2px solid var(--border-primary);
+  height: 6px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 149, 0, 0.3);
   outline: none;
   -webkit-appearance: none;
   appearance: none;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all 0.2s ease;
+  border-radius: 0;
 }
 
 .slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 20px;
-  height: 20px;
-  background: var(--text-primary);
-  border: 2px solid var(--text-primary);
+  width: 16px;
+  height: 16px;
+  background: #ff9500;
+  border: 1px solid #ff9500;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all 0.2s ease;
+  border-radius: 0;
+  box-shadow: 0 0 8px rgba(255, 149, 0, 0.5);
 }
 
 .slider::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
-  background: var(--text-primary);
-  border: 2px solid var(--text-primary);
+  width: 16px;
+  height: 16px;
+  background: #ff9500;
+  border: 1px solid #ff9500;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all 0.2s ease;
+  border-radius: 0;
+  box-shadow: 0 0 8px rgba(255, 149, 0, 0.5);
 }
 
 .slider:hover {
-  border-color: var(--cyan);
+  border-color: rgba(255, 149, 0, 0.6);
 }
 
 .slider:hover::-webkit-slider-thumb {
-  background: var(--cyan);
-  border-color: var(--cyan);
-  box-shadow: var(--glow-sm);
+  background: #00ffff;
+  border-color: #00ffff;
+  box-shadow: 0 0 12px rgba(0, 255, 255, 0.6);
 }
 
 .slider:hover::-moz-range-thumb {
-  background: var(--cyan);
-  border-color: var(--cyan);
-  box-shadow: var(--glow-sm);
+  background: #00ffff;
+  border-color: #00ffff;
+  box-shadow: 0 0 12px rgba(0, 255, 255, 0.6);
 }
 
-/* Field Hints */
+/* ============================================
+   FIELD HINTS
+   ============================================ */
+
 .fieldHint {
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  font-weight: var(--font-semibold);
-  letter-spacing: 0.5px;
-  margin-top: 4px;
+  font-size: 0.65rem;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-top: 0.25rem;
 }
 
 .overrideText {
-  color: var(--cyan);
-  text-transform: uppercase;
+  color: #00ffff;
+  text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
 }
 
 .defaultText {
-  color: var(--text-secondary);
-  text-transform: uppercase;
+  color: rgba(255, 149, 0, 0.5);
 }
 
-/* Action Buttons */
+/* ============================================
+   ACTION BUTTONS
+   ============================================ */
+
 .actions {
   display: flex;
-  gap: var(--space-md);
-  padding-top: var(--space-md);
-  border-top: 1px solid var(--border-secondary);
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 149, 0, 0.2);
 }
 
 .button {
-  padding: 12px 24px;
-  background: var(--bg-panel);
-  border: 2px solid var(--border-primary);
-  color: var(--text-primary);
-  font-family: var(--font-mono);
-  font-size: var(--text-md);
-  font-weight: var(--font-bold);
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 149, 0, 0.3);
+  color: #ff9500;
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: bold;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.05em;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all 0.2s ease;
   outline: none;
 }
 
+.buttonIcon {
+  font-size: 0.6rem;
+}
+
 .button:hover:not(:disabled) {
-  border-color: var(--cyan);
-  color: var(--cyan);
-  box-shadow: var(--glow-sm);
+  border-color: #00ffff;
+  color: #00ffff;
+  box-shadow: 0 0 12px rgba(0, 255, 255, 0.3);
+  transform: translateY(-1px);
 }
 
 .button:active:not(:disabled) {
-  transform: translateY(1px);
+  transform: translateY(0);
+  box-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
 }
 
 .button:disabled {
-  opacity: var(--opacity-disabled);
+  opacity: 0.4;
   cursor: not-allowed;
-  border-color: var(--border-neutral);
-  color: var(--text-tertiary);
-}
-
-.saveButton {
-  flex: 1;
+  border-color: rgba(255, 149, 0, 0.2);
+  color: rgba(255, 149, 0, 0.4);
 }
 
 .saveButton:not(:disabled):hover {
   background: rgba(0, 255, 255, 0.1);
-  border-color: var(--cyan);
-  color: var(--cyan);
+  border-color: #00ffff;
+  color: #00ffff;
+}
+
+.saveButton:not(:disabled):hover .buttonIcon {
+  animation: breathePulse 1.8s ease-in-out infinite;
 }
 
 .resetButton {
@@ -251,31 +374,57 @@
 
 .resetButton:not(:disabled):hover {
   background: rgba(255, 149, 0, 0.1);
-  border-color: var(--text-primary);
-  color: var(--text-primary);
+  border-color: #ff9500;
+  color: #ff9500;
 }
 
-/* Animations */
-@keyframes warningPulse {
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes breathePulse {
   0%,
   100% {
-    opacity: 1;
+    opacity: 0.3;
   }
   50% {
-    opacity: 0.7;
+    opacity: 0.6;
   }
 }
 
-/* Responsive */
+/* ============================================
+   RESPONSIVE LAYOUT
+   ============================================ */
+
+@media (max-width: 1400px) {
+  .runtimeGrid {
+    grid-template-columns: 1fr auto 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  .runtimeGrid > :nth-child(4) {
+    display: none; /* Hide second separator on smaller screens */
+  }
+
+  .runtimeGrid > :nth-child(5),
+  .runtimeGrid > :nth-child(6) {
+    grid-column: 1 / -1; /* Threads and Batch Size full width */
+  }
+}
+
 @media (max-width: 1024px) {
-  .grid {
+  .runtimeGrid {
     grid-template-columns: 1fr;
   }
 
-  .header {
+  .verticalSeparator {
+    display: none;
+  }
+
+  .headerContent {
     flex-direction: column;
     align-items: flex-start;
-    gap: var(--space-md);
+    gap: 0.5rem;
   }
 
   .actions {
@@ -289,15 +438,27 @@
 
 @media (max-width: 768px) {
   .panel {
-    padding: var(--space-lg);
+    padding: 0.75rem;
   }
 
-  .title {
-    font-size: var(--text-md);
+  .headerContent {
+    padding: 0.5rem 0.5rem;
+  }
+
+  .sectionContent {
+    padding: 0.5rem 0.5rem;
+  }
+
+  .runtimeGrid {
+    padding: 0.5rem;
+  }
+
+  .modelInfo {
+    font-size: 0.8rem;
   }
 
   .button {
-    padding: 10px 16px;
-    font-size: var(--text-sm);
+    padding: 0.6rem 1rem;
+    font-size: 0.7rem;
   }
 }

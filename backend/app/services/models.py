@@ -6,7 +6,7 @@ balancing across model tiers.
 """
 
 import asyncio
-from collections import defaultdict
+from collections import defaultdict, deque
 from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
@@ -76,7 +76,13 @@ class ModelManager:
                 'error_count': 0,
                 'total_response_time_ms': 0.0,
                 'uptime_seconds': 0,
-                'start_time': datetime.now(timezone.utc)
+                'start_time': datetime.now(timezone.utc),
+                # Time-series metrics (20 datapoints each for sparklines)
+                'tokens_per_second_history': deque(maxlen=20),
+                'memory_gb_history': deque(maxlen=20),
+                'latency_ms_history': deque(maxlen=20),
+                'last_tokens_per_second': 0.0,
+                'last_memory_gb': 0.0
             }
 
         self._logger.info(
@@ -212,11 +218,43 @@ class ModelManager:
             else:
                 state['state'] = ModelState.IDLE
 
+            # Collect time-series metrics from healthy model
+            try:
+                stats = await client.get_stats()
+
+                # Update tokens per second metrics
+                tokens_per_second = stats.get('tokens_per_second', 0.0)
+                state['last_tokens_per_second'] = tokens_per_second
+                state['tokens_per_second_history'].append(tokens_per_second)
+
+                # Update memory usage metrics
+                memory_gb = stats.get('memory_used_gb', 0.0)
+                state['last_memory_gb'] = memory_gb
+                state['memory_gb_history'].append(memory_gb)
+
+                # Add latency to history
+                state['latency_ms_history'].append(health_result['latency_ms'])
+
+            except Exception as e:
+                # Stats collection failed, append zeros to maintain buffer size
+                self._logger.debug(
+                    f"Failed to collect stats for {model_id}: {e}",
+                    extra={'model_id': model_id, 'error': str(e)}
+                )
+                state['tokens_per_second_history'].append(0.0)
+                state['memory_gb_history'].append(0.0)
+                state['latency_ms_history'].append(0.0)
+
         elif server_status == 'loading_model':
             # Model is starting up
             state['is_healthy'] = False
             state['state'] = ModelState.PROCESSING
             state['error_message'] = 'Model is loading'
+
+            # Append zeros for loading models
+            state['tokens_per_second_history'].append(0.0)
+            state['memory_gb_history'].append(0.0)
+            state['latency_ms_history'].append(0.0)
 
         else:
             # Model is unhealthy or unreachable
@@ -228,6 +266,11 @@ class ModelManager:
                 state['state'] = ModelState.OFFLINE
             else:
                 state['state'] = ModelState.ERROR
+
+            # Append zeros for unhealthy models to maintain buffer size
+            state['tokens_per_second_history'].append(0.0)
+            state['memory_gb_history'].append(0.0)
+            state['latency_ms_history'].append(0.0)
 
         # Calculate uptime
         state['uptime_seconds'] = int((now - state['start_time']).total_seconds())

@@ -1,0 +1,268 @@
+/**
+ * RoutingAnalyticsPanel Component Styles
+ * Terminal aesthetic with phosphor glow
+ */
+
+.content {
+  padding: var(--webtui-spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--webtui-spacing-lg);
+}
+
+/* ============================================
+   LOADING & ERROR STATES
+   ============================================ */
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--webtui-spacing-xl);
+  gap: var(--webtui-spacing-md);
+  color: var(--webtui-text);
+  font-family: var(--webtui-font-family);
+}
+
+.error {
+  display: flex;
+  align-items: center;
+  gap: var(--webtui-spacing-md);
+  padding: var(--webtui-spacing-lg);
+  color: var(--webtui-error);
+  font-family: var(--webtui-font-family);
+  border: 1px solid var(--webtui-error);
+  background: rgba(255, 0, 0, 0.05);
+}
+
+.errorIcon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.errorMessage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--webtui-spacing-xs);
+}
+
+.errorTitle {
+  font-weight: bold;
+  font-size: var(--webtui-font-size-base);
+}
+
+.errorDetail {
+  font-size: var(--webtui-font-size-small);
+  opacity: 0.8;
+}
+
+.noData {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--webtui-spacing-xl);
+  color: var(--webtui-text-secondary);
+  font-family: var(--webtui-font-family);
+  opacity: 0.5;
+}
+
+.awaitingModels {
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 1.5rem;
+  gap: 0.75rem;
+  font-family: var(--webtui-font-family);
+}
+
+.emptyHeader {
+  font-size: 0.875rem;
+  color: var(--webtui-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
+  opacity: 0.8;
+}
+
+.tierStructure {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  border: 1px solid rgba(255, 149, 0, 0.2);
+  background: rgba(0, 0, 0, 0.3);
+  font-family: var(--webtui-font-family);
+  font-size: 0.875rem;
+}
+
+.tierRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.tierLabel {
+  color: var(--webtui-primary);
+  font-weight: bold;
+  min-width: 30px;
+}
+
+.emptyBar {
+  flex: 1;
+  color: rgba(255, 149, 0, 0.3);
+  letter-spacing: -1px;
+  font-size: 14px;
+  animation: breath-pulse 1.8s ease-in-out infinite;
+}
+
+.tierStatus {
+  color: var(--webtui-text-secondary);
+  font-size: 0.75rem;
+  opacity: 0.6;
+  min-width: 80px;
+  text-align: right;
+}
+
+.emptyHint {
+  font-size: 0.8rem;
+  color: var(--webtui-text-secondary);
+  opacity: 0.7;
+  margin-top: 0.5rem;
+  padding-left: 0.5rem;
+  border-left: 2px solid rgba(255, 149, 0, 0.3);
+}
+
+/* Breathing animation for empty bars */
+@keyframes breath-pulse {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* ============================================
+   SUMMARY STATS
+   ============================================ */
+
+.summaryStats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--webtui-spacing-md);
+  padding-bottom: var(--webtui-spacing-md);
+  border-bottom: 1px solid var(--webtui-border);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--webtui-spacing-xs);
+}
+
+.statLabel {
+  font-size: var(--webtui-font-size-small);
+  color: var(--webtui-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.statValue {
+  font-size: var(--webtui-font-size-xlarge);
+  font-weight: bold;
+  color: var(--webtui-primary);
+  text-shadow: var(--phosphor-glow);
+  font-family: var(--webtui-font-family);
+}
+
+.statValue.warning {
+  color: var(--webtui-warning);
+  animation: phosphor-pulse-intense 1.5s ease-in-out infinite;
+}
+
+.statUnit {
+  font-size: var(--webtui-font-size-small);
+  margin-left: 4px;
+  opacity: 0.7;
+}
+
+/* ============================================
+   SECTIONS
+   ============================================ */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--webtui-spacing-md);
+}
+
+.sectionHeader {
+  display: flex;
+  flex-direction: column;
+  gap: var(--webtui-spacing-xs);
+}
+
+.sectionHeader h3 {
+  font-size: var(--webtui-font-size-base);
+  font-weight: bold;
+  color: var(--webtui-primary);
+  text-shadow: var(--phosphor-glow);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--webtui-border);
+  padding-bottom: var(--webtui-spacing-xs);
+}
+
+.sectionSubtitle {
+  font-size: var(--webtui-font-size-small);
+  color: var(--webtui-text-secondary);
+  opacity: 0.6;
+  font-style: italic;
+}
+
+.sectionContent {
+  padding: var(--webtui-spacing-md);
+  border: 1px solid var(--webtui-border);
+  border-radius: 2px;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 768px) {
+  .content {
+    padding: var(--webtui-spacing-sm);
+    gap: var(--webtui-spacing-md);
+  }
+
+  .summaryStats {
+    grid-template-columns: 1fr;
+    gap: var(--webtui-spacing-sm);
+  }
+
+  .sectionContent {
+    padding: var(--webtui-spacing-sm);
+  }
+
+  .statValue {
+    font-size: var(--webtui-font-size-large);
+  }
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes phosphor-pulse-intense {
+  0%, 100% {
+    text-shadow: var(--phosphor-glow-intense);
+    opacity: 1;
+  }
+  50% {
+    text-shadow: var(--phosphor-glow);
+    opacity: 0.9;
+  }
+}

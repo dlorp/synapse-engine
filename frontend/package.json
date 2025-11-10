@@ -13,6 +13,7 @@
   "dependencies": {
     "@tanstack/react-query": "^5.56.2",
     "@webtui/css": "^0.1.5",
+    "asciichart": "^1.5.25",
     "axios": "^1.7.7",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
@@ -22,6 +23,8 @@
     "zustand": "^4.5.5"
   },
   "devDependencies": {
+    "@playwright/test": "^1.56.1",
+    "@types/asciichart": "^1.5.8",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^8.5.0",
