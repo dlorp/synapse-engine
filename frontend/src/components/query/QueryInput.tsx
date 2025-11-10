@@ -59,9 +59,8 @@ export const QueryInput: React.FC<QueryInputProps> = ({
 
   return (
     <div className={styles.queryInput}>
-      <div className={styles.header}>
-        <span className={styles.prompt}>$</span>
-        <span className={styles.title}>QUERY TERMINAL</span>
+      {/* Header removed - title handled by wrapping Panel component */}
+      <div className={styles.charCounter}>
         <span className={styles.charCount}>{query.length} chars</span>
       </div>
 

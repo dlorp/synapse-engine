@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Historical Metrics Panel - Test Page</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Global styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #000000;
+      color: #ff9500;
+      font-family: 'JetBrains Mono', 'IBM Plex Mono', 'Fira Code', monospace;
+      padding: 40px;
+      min-height: 100vh;
+    }
+
+    h1 {
+      font-size: 24px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-align: center;
+      margin-bottom: 40px;
+      color: #ff9500;
+      text-shadow: 0 0 15px rgba(255, 149, 0, 0.6);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .test-controls {
+      background: rgba(255, 149, 0, 0.05);
+      border: 1px solid #ff9500;
+      padding: 20px;
+      margin-bottom: 30px;
+      border-radius: 0;
+    }
+
+    .test-controls h2 {
+      font-size: 14px;
+      letter-spacing: 1px;
+      margin-bottom: 15px;
+      color: #00ffff;
+      text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      background: rgba(255, 149, 0, 0.1);
+      border: 1px solid #ff9500;
+      color: #ff9500;
+      padding: 8px 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    button:hover {
+      background: rgba(255, 149, 0, 0.2);
+      box-shadow: 0 0 10px rgba(255, 149, 0, 0.3);
+    }
+
+    button:active {
+      background: rgba(255, 149, 0, 0.3);
+    }
+
+    .divider {
+      height: 30px;
+    }
+
+    /* Panel styles (matching HistoricalMetricsPanel.module.css) */
+    .panel {
+      background: #000000;
+      border: 2px solid #ff9500;
+      box-shadow: 0 0 10px rgba(255, 149, 0, 0.2);
+      font-family: 'JetBrains Mono', 'IBM Plex Mono', 'Fira Code', monospace;
+      color: #ff9500;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      transform: translateZ(0);
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      background: rgba(255, 149, 0, 0.05);
+      border-bottom: 1px solid #ff9500;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .header:hover {
+      background: rgba(255, 149, 0, 0.1);
+      box-shadow: inset 0 0 15px rgba(255, 149, 0, 0.15);
+    }
+
+    .title {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #ff9500;
+      text-shadow: 0 0 8px rgba(255, 149, 0, 0.5);
+    }
+
+    .toggleIcon {
+      font-size: 16px;
+      color: #ff9500;
+      transition: transform 0.3s ease;
+      display: inline-block;
+    }
+
+    .toggleIcon.expanded {
+      transform: rotate(180deg);
+    }
+
+    .content {
+      overflow: hidden;
+      transition: max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
+      transform: translateZ(0);
+    }
+
+    .content.collapsed {
+      max-height: 0;
+      opacity: 0;
+      padding: 0;
+    }
+
+    .content.expanded {
+      max-height: 1000px;
+      opacity: 1;
+      padding: 16px;
+    }
+
+    .sectionTitle {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: #00ffff;
+      margin-bottom: 12px;
+      text-shadow: 0 0 6px rgba(0, 255, 255, 0.4);
+    }
+
+    .metricsGrid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      border: 1px solid rgba(255, 149, 0, 0.3);
+      padding: 12px;
+      background: rgba(10, 14, 20, 0.4);
+    }
+
+    .metricRow {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 16px;
+      align-items: center;
+      padding: 6px 8px;
+      border-bottom: 1px solid rgba(255, 149, 0, 0.1);
+      transition: background-color 0.15s ease;
+    }
+
+    .metricRow:last-child {
+      border-bottom: none;
+    }
+
+    .metricRow:hover {
+      background: rgba(255, 149, 0, 0.05);
+    }
+
+    .metricLabel {
+      font-size: 12px;
+      color: rgba(255, 149, 0, 0.7);
+      white-space: nowrap;
+      letter-spacing: 0.3px;
+    }
+
+    .metricValue {
+      font-size: 14px;
+      font-weight: 600;
+      color: #ff9500;
+      text-align: right;
+      text-shadow: 0 0 8px rgba(255, 149, 0, 0.4);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.5px;
+    }
+
+    /* Responsive */
+    @media (min-width: 768px) {
+      .metricsGrid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .metricRow {
+        padding: 8px 12px;
+      }
+    }
+
+    /* State indicators */
+    .state-indicator {
+      display: inline-block;
+      padding: 4px 8px;
+      font-size: 11px;
+      border-radius: 2px;
+      margin-left: 10px;
+      background: rgba(0, 255, 255, 0.1);
+      border: 1px solid #00ffff;
+      color: #00ffff;
+    }
+
+    .loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 24px;
+    }
+
+    .spinner {
+      font-size: 20px;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { content: '◜'; }
+      25% { content: '◝'; }
+      50% { content: '◞'; }
+      75% { content: '◟'; }
+      100% { content: '◜'; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Historical Metrics Panel - Test Page</h1>
+
+    <!-- Test Controls -->
+    <div class="test-controls">
+      <h2>Test Controls</h2>
+      <div class="button-group">
+        <button onclick="togglePanel()">Toggle Panel</button>
+        <button onclick="simulateLoading()">Simulate Loading</button>
+        <button onclick="simulateError()">Simulate Error</button>
+        <button onclick="simulateNoData()">Simulate No Data</button>
+        <button onclick="simulateNormalData()">Simulate Normal Data</button>
+        <button onclick="changeErrorRate('low')">Low Error Rate (Green)</button>
+        <button onclick="changeErrorRate('medium')">Medium Error Rate (Amber)</button>
+        <button onclick="changeErrorRate('high')">High Error Rate (Red)</button>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Historical Metrics Panel -->
+    <div class="panel" id="panel">
+      <div class="header" onclick="togglePanel()">
+        <span class="title">HISTORICAL METRICS <span class="state-indicator" id="stateIndicator">NORMAL</span></span>
+        <span class="toggleIcon" id="toggleIcon">▼</span>
+      </div>
+      <div class="content collapsed" id="content">
+        <div class="sectionTitle">LIFETIME STATISTICS</div>
+        <div class="metricsGrid" id="metricsGrid">
+          <!-- Metrics will be injected here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State management
+    let isExpanded = false;
+    let currentState = 'normal'; // 'loading', 'error', 'nodata', 'normal'
+    let errorRate = 0.1; // Default: 0.1%
+
+    // Toggle panel expand/collapse
+    function togglePanel() {
+      isExpanded = !isExpanded;
+      const content = document.getElementById('content');
+      const icon = document.getElementById('toggleIcon');
+
+      if (isExpanded) {
+        content.classList.remove('collapsed');
+        content.classList.add('expanded');
+        icon.textContent = '▲';
+        icon.classList.add('expanded');
+      } else {
+        content.classList.remove('expanded');
+        content.classList.add('collapsed');
+        icon.textContent = '▼';
+        icon.classList.remove('expanded');
+      }
+    }
+
+    // Get error rate color
+    function getErrorRateColor(rate) {
+      if (rate < 1) return '#00ff00';   // Green
+      if (rate < 5) return '#ff9500';   // Amber
+      return '#ff0000';                  // Red
+    }
+
+    // Render normal metrics
+    function renderNormalMetrics() {
+      const totalRequests = 1234567;
+      const totalErrors = Math.floor(totalRequests * (errorRate / 100));
+      const cacheHits = Math.floor(totalRequests * 0.889);
+      const cacheMisses = totalRequests - cacheHits;
+      const cacheHitRate = (cacheHits / totalRequests) * 100;
+
+      const metrics = [
+        { label: 'Total Requests:', value: totalRequests.toLocaleString() },
+        { label: 'Total Errors:', value: totalErrors.toLocaleString() },
+        { label: 'Error Rate:', value: `${errorRate.toFixed(2)}%`, color: getErrorRateColor(errorRate) },
+        { label: 'Avg Latency (All-Time):', value: '125ms' },
+        { label: 'P95 Latency:', value: '450ms' },
+        { label: 'P99 Latency:', value: '1,200ms' },
+        { label: 'Total Uptime:', value: '45d 12h' },
+        { label: 'Total Cache Hits:', value: cacheHits.toLocaleString() },
+        { label: 'Total Cache Misses:', value: cacheMisses.toLocaleString() },
+        { label: 'Cache Hit Rate:', value: `${cacheHitRate.toFixed(1)}%` },
+      ];
+
+      const grid = document.getElementById('metricsGrid');
+      grid.innerHTML = metrics.map(m => `
+        <div class="metricRow">
+          <span class="metricLabel">${m.label}</span>
+          <span class="metricValue" style="${m.color ? `color: ${m.color}` : ''}">${m.value}</span>
+        </div>
+      `).join('');
+    }
+
+    // Simulate loading state
+    function simulateLoading() {
+      currentState = 'loading';
+      updateStateIndicator();
+      const grid = document.getElementById('metricsGrid');
+      grid.innerHTML = `
+        <div class="loading">
+          <span class="spinner">◜</span>
+          <span style="font-size: 12px; color: rgba(255, 149, 0, 0.7);">LOADING HISTORICAL DATA...</span>
+        </div>
+      `;
+      if (!isExpanded) togglePanel();
+
+      // Animate spinner
+      let frame = 0;
+      const frames = ['◜', '◝', '◞', '◟'];
+      const interval = setInterval(() => {
+        const spinner = document.querySelector('.spinner');
+        if (spinner) {
+          spinner.textContent = frames[frame % frames.length];
+          frame++;
+        } else {
+          clearInterval(interval);
+        }
+      }, 200);
+
+      setTimeout(() => {
+        clearInterval(interval);
+        simulateNormalData();
+      }, 2000);
+    }
+
+    // Simulate error state
+    function simulateError() {
+      currentState = 'error';
+      updateStateIndicator();
+      const grid = document.getElementById('metricsGrid');
+      grid.innerHTML = `
+        <div class="loading">
+          <span style="font-size: 24px; color: #ff0000; text-shadow: 0 0 10px rgba(255, 0, 0, 0.6);">✗</span>
+          <span style="font-size: 14px; font-weight: 700; color: #ff0000; letter-spacing: 1px;">ERROR LOADING HISTORICAL DATA</span>
+          <span style="font-size: 11px; color: rgba(255, 0, 0, 0.7); font-style: italic;">Failed to fetch /api/metrics/historical</span>
+        </div>
+      `;
+      if (!isExpanded) togglePanel();
+    }
+
+    // Simulate no data state
+    function simulateNoData() {
+      currentState = 'nodata';
+      updateStateIndicator();
+      const grid = document.getElementById('metricsGrid');
+      grid.innerHTML = `
+        <div class="loading">
+          <span style="font-size: 24px; color: rgba(255, 149, 0, 0.5); text-shadow: 0 0 8px rgba(255, 149, 0, 0.3);">◇</span>
+          <span style="font-size: 14px; font-weight: 700; color: rgba(255, 149, 0, 0.7); letter-spacing: 1px;">NO HISTORICAL DATA AVAILABLE</span>
+          <span style="font-size: 11px; color: rgba(255, 149, 0, 0.5); font-style: italic;">Process queries to generate historical metrics</span>
+        </div>
+      `;
+      if (!isExpanded) togglePanel();
+    }
+
+    // Simulate normal data
+    function simulateNormalData() {
+      currentState = 'normal';
+      updateStateIndicator();
+      renderNormalMetrics();
+      if (!isExpanded) togglePanel();
+    }
+
+    // Change error rate
+    function changeErrorRate(level) {
+      switch (level) {
+        case 'low':
+          errorRate = 0.1; // Green
+          break;
+        case 'medium':
+          errorRate = 3.5; // Amber
+          break;
+        case 'high':
+          errorRate = 7.2; // Red
+          break;
+      }
+      if (currentState === 'normal') {
+        renderNormalMetrics();
+      }
+    }
+
+    // Update state indicator
+    function updateStateIndicator() {
+      const indicator = document.getElementById('stateIndicator');
+      const states = {
+        loading: 'LOADING',
+        error: 'ERROR',
+        nodata: 'NO DATA',
+        normal: 'NORMAL'
+      };
+      indicator.textContent = states[currentState];
+    }
+
+    // Initialize with normal data
+    simulateNormalData();
+  </script>
+</body>
+</html>

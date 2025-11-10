@@ -100,165 +100,196 @@ export const ModelSettings: React.FC<ModelSettingsProps> = ({
       <div className={styles.panel}>
         {/* Header */}
         <div className={styles.header}>
-          <h3 className={styles.title}>
-            MODEL CONFIGURATION: {model.family.toUpperCase()} {model.sizeParams}B
-          </h3>
-          {isServerRunning && (
-            <div className={styles.warning}>
-              ⚠ SERVER RUNNING - CHANGES REQUIRE RESTART
-            </div>
-          )}
+          <div className={styles.headerBorder}>
+            ┌─ MODEL CONFIGURATION ──────────────────────────────────────────────────┐
+          </div>
+          <div className={styles.headerContent}>
+            <span className={styles.modelInfo}>
+              {model.family.toUpperCase()} {model.sizeParams}B
+            </span>
+            {isServerRunning && (
+              <div className={styles.warning}>
+                <span className={styles.warningIcon}>⚠</span>
+                <span>SERVER ACTIVE - RESTART REQUIRED</span>
+              </div>
+            )}
+          </div>
+          <div className={styles.headerBorder}>
+            └────────────────────────────────────────────────────────────────────────┘
+          </div>
         </div>
 
-        {/* Settings Grid */}
-        <div className={styles.grid}>
-          {/* Port Selector */}
-          <div className={styles.section}>
-            <label className={styles.sectionLabel}>
-              PORT ASSIGNMENT
+        {/* Port Assignment Section */}
+        <div className={styles.section}>
+          <div className={styles.sectionBorder}>
+            ┌─ PORT ASSIGNMENT ──────────────────────────────────────────────────────┐
+          </div>
+          <div className={styles.sectionContent}>
+            <div className={styles.portRow}>
+              <span className={styles.portLabel}>ASSIGNED PORT:</span>
+              <PortSelector
+                model={model}
+                allModels={allModels}
+                portRange={portRange}
+                isServerRunning={isServerRunning}
+                onPortChange={onPortChange}
+              />
               {model.port !== null && (
                 <span className={styles.overrideBadge}>OVERRIDE</span>
               )}
-            </label>
-            <PortSelector
-              model={model}
-              allModels={allModels}
-              portRange={portRange}
-              isServerRunning={isServerRunning}
-              onPortChange={onPortChange}
-            />
+            </div>
           </div>
+          <div className={styles.sectionBorder}>
+            └────────────────────────────────────────────────────────────────────────┘
+          </div>
+        </div>
 
-          {/* GPU Layers */}
-          <div className={styles.section}>
-            <label className={styles.sectionLabel}>
-              GPU LAYERS
-              {isOverride(gpuLayers) && (
-                <span className={styles.overrideBadge}>OVERRIDE</span>
-              )}
-            </label>
-            <div className={styles.fieldGroup}>
-              <input
-                type="range"
-                min="0"
-                max="99"
-                value={getEffectiveValue(gpuLayers, globalDefaults.nGpuLayers)}
-                onChange={(e) => setGpuLayers(parseInt(e.target.value, 10))}
-                className={styles.slider}
-                aria-label="GPU Layers"
-              />
+        {/* Runtime Settings Grid */}
+        <div className={styles.section}>
+          <div className={styles.sectionBorder}>
+            ┌─ RUNTIME SETTINGS ─────────────────────────────────────────────────────┐
+          </div>
+          <div className={styles.runtimeGrid}>
+            {/* GPU Layers */}
+            <div className={styles.runtimeField}>
+              <div className={styles.fieldHeader}>
+                <span className={styles.fieldLabel}>GPU LAYERS</span>
+                {isOverride(gpuLayers) && (
+                  <span className={styles.overrideBadge}>⚡</span>
+                )}
+              </div>
+              <div className={styles.fieldGroup}>
+                <input
+                  type="range"
+                  min="0"
+                  max="99"
+                  value={getEffectiveValue(gpuLayers, globalDefaults.nGpuLayers)}
+                  onChange={(e) => setGpuLayers(parseInt(e.target.value, 10))}
+                  className={styles.slider}
+                  aria-label="GPU Layers"
+                />
+                <input
+                  type="number"
+                  min="0"
+                  max="99"
+                  value={getEffectiveValue(gpuLayers, globalDefaults.nGpuLayers)}
+                  onChange={(e) => setGpuLayers(parseInt(e.target.value, 10) || 0)}
+                  className={styles.numberInput}
+                  aria-label="GPU Layers Value"
+                />
+              </div>
+              <div className={styles.fieldHint}>
+                {isOverride(gpuLayers) ? (
+                  <span className={styles.overrideText}>
+                    OVERRIDE → {getEffectiveValue(gpuLayers, globalDefaults.nGpuLayers)}
+                  </span>
+                ) : (
+                  <span className={styles.defaultText}>
+                    DEFAULT → {globalDefaults.nGpuLayers}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Vertical Separator */}
+            <div className={styles.verticalSeparator}>│</div>
+
+            {/* Context Size */}
+            <div className={styles.runtimeField}>
+              <div className={styles.fieldHeader}>
+                <span className={styles.fieldLabel}>CTX SIZE</span>
+                {isOverride(ctxSize) && (
+                  <span className={styles.overrideBadge}>⚡</span>
+                )}
+              </div>
               <input
                 type="number"
-                min="0"
-                max="99"
-                value={getEffectiveValue(gpuLayers, globalDefaults.nGpuLayers)}
-                onChange={(e) => setGpuLayers(parseInt(e.target.value, 10) || 0)}
-                className={styles.numberInput}
-                aria-label="GPU Layers Value"
+                min="512"
+                max="131072"
+                step="512"
+                value={getEffectiveValue(ctxSize, globalDefaults.ctxSize)}
+                onChange={(e) => setCtxSize(parseInt(e.target.value, 10) || 512)}
+                className={styles.input}
+                aria-label="Context Size"
               />
+              <div className={styles.fieldHint}>
+                {isOverride(ctxSize) ? (
+                  <span className={styles.overrideText}>
+                    OVERRIDE → {getEffectiveValue(ctxSize, globalDefaults.ctxSize)}
+                  </span>
+                ) : (
+                  <span className={styles.defaultText}>
+                    DEFAULT → {globalDefaults.ctxSize}
+                  </span>
+                )}
+              </div>
             </div>
-            <div className={styles.fieldHint}>
-              {isOverride(gpuLayers) ? (
-                <span className={styles.overrideText}>
-                  [{getEffectiveValue(gpuLayers, globalDefaults.nGpuLayers)}] (override)
-                </span>
-              ) : (
-                <span className={styles.defaultText}>
-                  [{globalDefaults.nGpuLayers}] (global default)
-                </span>
-              )}
+
+            {/* Threads */}
+            <div className={styles.runtimeField}>
+              <div className={styles.fieldHeader}>
+                <span className={styles.fieldLabel}>THREADS</span>
+                {isOverride(threads) && (
+                  <span className={styles.overrideBadge}>⚡</span>
+                )}
+              </div>
+              <input
+                type="number"
+                min="1"
+                max="128"
+                value={getEffectiveValue(threads, globalDefaults.nThreads)}
+                onChange={(e) => setThreads(parseInt(e.target.value, 10) || 1)}
+                className={styles.input}
+                aria-label="Threads"
+              />
+              <div className={styles.fieldHint}>
+                {isOverride(threads) ? (
+                  <span className={styles.overrideText}>
+                    OVERRIDE → {getEffectiveValue(threads, globalDefaults.nThreads)}
+                  </span>
+                ) : (
+                  <span className={styles.defaultText}>
+                    DEFAULT → {globalDefaults.nThreads}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Vertical Separator */}
+            <div className={styles.verticalSeparator}>│</div>
+
+            {/* Batch Size */}
+            <div className={styles.runtimeField}>
+              <div className={styles.fieldHeader}>
+                <span className={styles.fieldLabel}>BATCH SIZE</span>
+                {isOverride(batchSize) && (
+                  <span className={styles.overrideBadge}>⚡</span>
+                )}
+              </div>
+              <input
+                type="number"
+                min="1"
+                max="4096"
+                value={getEffectiveValue(batchSize, globalDefaults.batchSize)}
+                onChange={(e) => setBatchSize(parseInt(e.target.value, 10) || 1)}
+                className={styles.input}
+                aria-label="Batch Size"
+              />
+              <div className={styles.fieldHint}>
+                {isOverride(batchSize) ? (
+                  <span className={styles.overrideText}>
+                    OVERRIDE → {getEffectiveValue(batchSize, globalDefaults.batchSize)}
+                  </span>
+                ) : (
+                  <span className={styles.defaultText}>
+                    DEFAULT → {globalDefaults.batchSize}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
-
-          {/* Context Size */}
-          <div className={styles.section}>
-            <label className={styles.sectionLabel}>
-              CONTEXT SIZE
-              {isOverride(ctxSize) && (
-                <span className={styles.overrideBadge}>OVERRIDE</span>
-              )}
-            </label>
-            <input
-              type="number"
-              min="512"
-              max="131072"
-              step="512"
-              value={getEffectiveValue(ctxSize, globalDefaults.ctxSize)}
-              onChange={(e) => setCtxSize(parseInt(e.target.value, 10) || 512)}
-              className={styles.input}
-              aria-label="Context Size"
-            />
-            <div className={styles.fieldHint}>
-              {isOverride(ctxSize) ? (
-                <span className={styles.overrideText}>
-                  [{getEffectiveValue(ctxSize, globalDefaults.ctxSize)}] (override)
-                </span>
-              ) : (
-                <span className={styles.defaultText}>
-                  [{globalDefaults.ctxSize}] (global default)
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Threads */}
-          <div className={styles.section}>
-            <label className={styles.sectionLabel}>
-              THREADS
-              {isOverride(threads) && (
-                <span className={styles.overrideBadge}>OVERRIDE</span>
-              )}
-            </label>
-            <input
-              type="number"
-              min="1"
-              max="128"
-              value={getEffectiveValue(threads, globalDefaults.nThreads)}
-              onChange={(e) => setThreads(parseInt(e.target.value, 10) || 1)}
-              className={styles.input}
-              aria-label="Threads"
-            />
-            <div className={styles.fieldHint}>
-              {isOverride(threads) ? (
-                <span className={styles.overrideText}>
-                  [{getEffectiveValue(threads, globalDefaults.nThreads)}] (override)
-                </span>
-              ) : (
-                <span className={styles.defaultText}>
-                  [{globalDefaults.nThreads}] (global default)
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Batch Size */}
-          <div className={styles.section}>
-            <label className={styles.sectionLabel}>
-              BATCH SIZE
-              {isOverride(batchSize) && (
-                <span className={styles.overrideBadge}>OVERRIDE</span>
-              )}
-            </label>
-            <input
-              type="number"
-              min="1"
-              max="4096"
-              value={getEffectiveValue(batchSize, globalDefaults.batchSize)}
-              onChange={(e) => setBatchSize(parseInt(e.target.value, 10) || 1)}
-              className={styles.input}
-              aria-label="Batch Size"
-            />
-            <div className={styles.fieldHint}>
-              {isOverride(batchSize) ? (
-                <span className={styles.overrideText}>
-                  [{getEffectiveValue(batchSize, globalDefaults.batchSize)}] (override)
-                </span>
-              ) : (
-                <span className={styles.defaultText}>
-                  [{globalDefaults.batchSize}] (global default)
-                </span>
-              )}
-            </div>
+          <div className={styles.sectionBorder}>
+            └────────────────────────────────────────────────────────────────────────┘
           </div>
         </div>
 
@@ -270,6 +301,7 @@ export const ModelSettings: React.FC<ModelSettingsProps> = ({
             className={`${styles.button} ${styles.saveButton}`}
             aria-label="Apply Changes"
           >
+            <span className={styles.buttonIcon}>●</span>
             {isSaving ? 'APPLYING...' : 'APPLY CHANGES'}
           </button>
           <button
@@ -278,6 +310,7 @@ export const ModelSettings: React.FC<ModelSettingsProps> = ({
             className={`${styles.button} ${styles.resetButton}`}
             aria-label="Reset to Defaults"
           >
+            <span className={styles.buttonIcon}>○</span>
             RESET TO DEFAULTS
           </button>
         </div>
