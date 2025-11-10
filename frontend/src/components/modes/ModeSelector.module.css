@@ -8,12 +8,20 @@
 .modeButton {
   background: var(--bg-panel);
   border: 2px solid var(--border-neutral);
-  padding: 1rem;
+  padding: 1.3rem 1.1rem; /* Reduced by another 15% */
   cursor: pointer;
   transition: all 0.2s ease;
-  text-align: left;
+  text-align: center; /* Center text horizontally */
   position: relative;
   font-family: var(--font-mono);
+  text-decoration: none; /* Remove underlines */
+
+  /* Flexbox for vertical centering */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Center vertically */
+  align-items: center;     /* Center horizontally (redundant with text-align but ensures all elements center) */
+  min-height: 90px; /* Reduced by another 15% */
 }
 
 .modeButton:hover:not(:disabled) {
@@ -21,8 +29,19 @@
   background: var(--bg-hover);
 }
 
+/* Breathing glow animation for active button */
+@keyframes breathe {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(0, 255, 255, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(0, 255, 255, 0.8);
+  }
+}
+
 .modeButton.active {
-  border-color: var(--border-accent);
+  border-color: #00ffff; /* Cyan border for active state */
+  animation: breathe 2s ease-in-out infinite; /* Breathing glow effect */
   background: var(--bg-active);
 }
 
@@ -32,18 +51,21 @@
 }
 
 .modeLabel {
-  font-size: 1rem;
+  font-size: 0.85rem; /* Smaller to fit better without cramping */
   font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 0.5rem;
-  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem; /* Spacing to description */
+  letter-spacing: 0.15em; /* More letter spacing to reduce cramping */
+  line-height: 1.4; /* Better line height */
+  text-decoration: none; /* No underlines */
 }
 
 .modeDescription {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: var(--text-secondary);
-  line-height: 1.4;
-  margin-bottom: 0.5rem;
+  line-height: 1.6; /* More breathing room */
+  margin: 0; /* Remove margin for perfect centering */
+  text-decoration: none; /* No underlines */
 }
 
 .comingSoon {
@@ -54,13 +76,6 @@
   color: var(--text-warning);
   font-weight: 600;
   letter-spacing: 0.1em;
-}
-
-.activeIndicator {
-  font-size: 0.75rem;
-  color: var(--text-accent);
-  font-weight: 600;
-  margin-top: 0.5rem;
 }
 
 .councilConfig,

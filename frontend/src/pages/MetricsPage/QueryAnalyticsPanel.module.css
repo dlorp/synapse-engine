@@ -1,0 +1,177 @@
+/**
+ * Query Analytics Panel Styles
+ * Terminal aesthetic with phosphor orange glow
+ */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--webtui-spacing-lg);
+  font-family: var(--webtui-font-family);
+}
+
+/* Summary Statistics */
+.summary {
+  display: flex;
+  gap: var(--webtui-spacing-xl);
+  padding: var(--webtui-spacing-md);
+  background: rgba(255, 149, 0, 0.05);
+  border: 1px solid var(--webtui-border);
+}
+
+.stat {
+  display: flex;
+  gap: var(--webtui-spacing-sm);
+  align-items: baseline;
+}
+
+.statLabel {
+  font-size: var(--webtui-font-size-base);
+  color: var(--webtui-primary);
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.statValue {
+  font-size: var(--webtui-font-size-large);
+  font-weight: bold;
+  color: var(--webtui-primary);
+  text-shadow: var(--phosphor-glow);
+}
+
+/* Chart Sections */
+.section {
+  padding: 0;
+}
+
+.sectionTitle {
+  font-size: var(--webtui-font-size-base);
+  color: var(--webtui-primary);
+  text-shadow: var(--phosphor-glow);
+  margin-bottom: var(--webtui-spacing-md);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: bold;
+}
+
+/* Loading State */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--webtui-spacing-md);
+  padding: var(--webtui-spacing-xl);
+  min-height: 200px;
+}
+
+.loadingText {
+  font-size: var(--webtui-font-size-base);
+  color: var(--webtui-primary);
+  text-shadow: var(--phosphor-glow);
+  animation: phosphor-pulse 2s ease-in-out infinite;
+}
+
+/* Error State */
+.error {
+  padding: var(--webtui-spacing-lg);
+  background: rgba(255, 0, 0, 0.1);
+  border: 1px solid var(--webtui-error);
+}
+
+.errorTitle {
+  font-size: var(--webtui-font-size-base);
+  font-weight: bold;
+  color: var(--webtui-error);
+  text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+  margin-bottom: var(--webtui-spacing-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.errorMessage {
+  font-size: var(--webtui-font-size-small);
+  color: var(--webtui-error);
+  font-family: var(--webtui-font-family);
+}
+
+/* Empty State */
+.empty {
+  padding: var(--webtui-spacing-xl);
+  text-align: center;
+  font-size: var(--webtui-font-size-base);
+  color: var(--webtui-primary);
+  opacity: 0.6;
+  font-style: italic;
+}
+
+/* Awaiting models state */
+.awaitingModels {
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  gap: 1rem;
+  font-family: var(--webtui-font-family);
+}
+
+.emptyChartContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+  border: 1px solid rgba(255, 149, 0, 0.2);
+  background: rgba(0, 0, 0, 0.3);
+  gap: 0.75rem;
+}
+
+.emptyChartArt {
+  display: flex;
+  flex-direction: column;
+  font-size: 1.2rem;
+  color: rgba(255, 149, 0, 0.3);
+  line-height: 1.3;
+  font-family: var(--webtui-font-family);
+  text-align: center;
+  animation: breath-pulse 2s ease-in-out infinite;
+}
+
+.emptyChartMessage {
+  font-size: 0.875rem;
+  color: var(--webtui-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.emptyHint {
+  font-size: 0.8rem;
+  color: var(--webtui-text-secondary);
+  opacity: 0.7;
+  text-align: center;
+}
+
+/* Breathing animation */
+@keyframes breath-pulse {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .summary {
+    flex-direction: column;
+    gap: var(--webtui-spacing-md);
+  }
+
+  .stat {
+    justify-content: space-between;
+  }
+
+  .container {
+    gap: var(--webtui-spacing-md);
+  }
+}

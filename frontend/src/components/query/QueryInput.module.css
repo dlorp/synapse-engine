@@ -4,39 +4,23 @@
  */
 
 .queryInput {
-  background: var(--bg-panel, #0a0a0a);
-  border: 2px solid var(--border-primary, #ff9500);
-  padding: 16px;
+  /* No border/padding - handled by wrapping Panel component */
   font-family: var(--font-mono, 'JetBrains Mono', monospace);
 }
 
-.header {
+.charCounter {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border-secondary, #333);
-}
-
-.prompt {
-  color: var(--phosphor-green, #ff9500);
-  font-size: 18px;
-  font-weight: bold;
-}
-
-.title {
-  color: var(--phosphor-green, #ff9500);
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 1px;
-  flex: 1;
+  justify-content: flex-end;
+  margin-bottom: 8px;
 }
 
 .charCount {
   color: var(--text-secondary, #666);
   font-size: 12px;
-  margin-left: auto;
+  padding: 4px 8px;
+  border: 1px solid rgba(255, 149, 0, 0.3);
+  background: rgba(255, 149, 0, 0.05);
+  letter-spacing: 0.5px;
 }
 
 .textarea {
@@ -44,7 +28,7 @@
   min-height: 100px;
   background: #000000;
   border: 1px solid var(--border-secondary, #333);
-  color: var(--phosphor-green, #ff9500);
+  color: var(--phosphor-orange, #ff9500);
   font-family: var(--font-mono, 'JetBrains Mono', monospace);
   font-size: 14px;
   padding: 12px;
@@ -54,7 +38,7 @@
 }
 
 .textarea:focus {
-  border-color: var(--phosphor-green, #ff9500);
+  border-color: var(--phosphor-orange, #ff9500);
 }
 
 .textarea:disabled {
@@ -91,7 +75,7 @@
 .select {
   background: #000000;
   border: 1px solid var(--border-secondary, #333);
-  color: var(--phosphor-green, #ff9500);
+  color: var(--phosphor-orange, #ff9500);
   font-family: var(--font-mono, 'JetBrains Mono', monospace);
   font-size: 12px;
   padding: 6px 12px;
@@ -101,11 +85,11 @@
 }
 
 .select:hover:not(:disabled) {
-  border-color: var(--phosphor-green, #ff9500);
+  border-color: var(--phosphor-orange, #ff9500);
 }
 
 .select:focus {
-  border-color: var(--phosphor-green, #ff9500);
+  border-color: var(--phosphor-orange, #ff9500);
 }
 
 .select:disabled {
@@ -116,32 +100,38 @@
 .toggleGroup {
   display: flex;
   align-items: center;
+  gap: 20px; /* Increased spacing between checkboxes */
 }
 
 .checkbox {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px; /* Increased gap between checkbox and label */
   color: var(--text-primary, #ff9500);
-  font-size: 12px;
+  font-size: 13px; /* Slightly larger text */
   cursor: pointer;
   user-select: none;
+  letter-spacing: 0.5px;
 }
 
 .checkbox input[type="checkbox"] {
   appearance: none;
-  width: 16px;
-  height: 16px;
+  width: 18px; /* Slightly larger checkbox */
+  height: 18px;
   background: #000000;
-  border: 1px solid var(--border-secondary, #333);
+  border: 2px solid var(--phosphor-orange, #ff9500); /* Phosphor orange border */
   cursor: pointer;
   position: relative;
   transition: all 0.2s ease;
 }
 
+.checkbox input[type="checkbox"]:hover:not(:disabled) {
+  box-shadow: 0 0 8px rgba(255, 149, 0, 0.5); /* Phosphor orange glow */
+}
+
 .checkbox input[type="checkbox"]:checked {
-  background: var(--phosphor-green, #ff9500);
-  border-color: var(--phosphor-green, #ff9500);
+  background: var(--phosphor-orange, #ff9500);
+  border-color: var(--phosphor-orange, #ff9500);
 }
 
 .checkbox input[type="checkbox"]:checked::after {
@@ -162,19 +152,20 @@
 
 .advancedToggle {
   background: transparent;
-  border: 1px solid var(--border-secondary, #333);
+  border: 2px solid var(--phosphor-orange, #ff9500); /* Phosphor orange border */
   color: var(--text-primary, #ff9500);
   font-family: var(--font-mono, 'JetBrains Mono', monospace);
-  font-size: 12px;
-  padding: 6px 12px;
+  font-size: 13px;
+  padding: 8px 16px; /* More padding for better spacing */
   cursor: pointer;
   transition: all 0.2s ease;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px; /* More letter spacing */
+  font-weight: 600;
 }
 
 .advancedToggle:hover:not(:disabled) {
-  border-color: var(--phosphor-green, #ff9500);
-  background: rgba(255, 149, 0, 0.1);
+  box-shadow: 0 0 12px rgba(255, 149, 0, 0.6); /* Phosphor orange glow */
+  background: rgba(255, 149, 0, 0.15);
 }
 
 .advancedToggle:disabled {
@@ -229,7 +220,7 @@
   appearance: none;
   width: 16px;
   height: 16px;
-  background: var(--phosphor-green, #ff9500);
+  background: var(--phosphor-orange, #ff9500);
   border: 2px solid #000000;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -243,7 +234,7 @@
 .slider::-moz-range-thumb {
   width: 16px;
   height: 16px;
-  background: var(--phosphor-green, #ff9500);
+  background: var(--phosphor-orange, #ff9500);
   border: 2px solid #000000;
   cursor: pointer;
   transition: all 0.2s ease;

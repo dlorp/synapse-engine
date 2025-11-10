@@ -106,28 +106,88 @@ Based on [SESSION_NOTES.md](./SESSION_NOTES.md):
 
 ## Library Integration Strategy
 
+**Integration Approach:** The S.Y.N.A.P.S.E. ENGINE uses a layered approach where ASCII content libraries generate visualizations, and our custom ASCII frame pattern (established in Phase 0.5) wraps them for consistent terminal aesthetics.
+
+### Architecture Layers
+
+1. **WebTUI CSS** - Base terminal styling (colors, typography, layouts)
+2. **Custom ASCII Frame Pattern** - Edge-to-edge borders with responsive design (Phase 0.5)
+3. **ASCII Content Libraries** - Generate charts, banners, diagrams (below)
+4. **React Components** - Wrap libraries with TypeScript types and state management
+
 ### Core ASCII Libraries to Integrate
 
+**For detailed research and code examples, see:**
+- [ASCII_LIBRARIES_QUICK_REFERENCE.md](./docs/research/ASCII_LIBRARIES_QUICK_REFERENCE.md) - Quick reference with installation commands and snippets
+- [ASCII_LIBRARIES_RESEARCH.md](./docs/research/ASCII_LIBRARIES_RESEARCH.md) - Full research with comparisons and best practices
+
+**Priority 1 (Essential - Install Immediately):**
+
 1. **simple-ascii-chart** (TypeScript-native)
-   - Primary chart library for bar/line/sparklines
+   - Primary chart library for bar/line charts
    - Native TypeScript support
    - ANSI color support for phosphor orange theme
+   - Size: 50KB
+   - Use case: MetricsPage charts, resource utilization graphs
 
 2. **figlet.js** (ASCII Banners)
-   - System headers and section dividers
+   - System headers and page titles
    - 400+ font options for variety
+   - Size: 200KB
+   - Use case: HomePage banner, section dividers
+
+**Priority 2 (Advanced - Install When Needed):**
 
 3. **text-graph.js** (Multi-series Charts)
-   - Complex dashboard layouts
+   - Complex dashboard layouts with multiple data series
    - Real-time updating support
+   - Size: 30KB
+   - Use case: NEURAL SUBSTRATE DASHBOARD multi-query visualization
 
-4. **Custom Box Drawing Utilities**
-   - Build reusable box/panel components
-   - Use Unicode box-drawing characters
-
-5. **asciichart** (Sparklines)
-   - Lightweight performance sparklines
+4. **asciichart** (Sparklines)
+   - Lightweight inline sparklines
    - Per-model performance tracking
+   - Size: 15KB
+   - Use case: Model cards, inline metrics
+
+5. **Custom Box Drawing Utilities** (Built In-House)
+   - **STATUS:** ✅ COMPLETE (Phase 0.5)
+   - Reusable ASCII frame pattern with edge-to-edge borders
+   - Unicode box-drawing characters (─ for borders)
+   - No external dependencies
+   - Use case: ALL pages - wraps content from other libraries
+
+### Integration Pattern
+
+**Example: Wrapping simple-ascii-chart content in our frame pattern**
+
+```typescript
+import { plot } from 'simple-ascii-chart';
+
+// Generate chart content with library
+const chartData = [[1, 5], [2, 8], [3, 6]];
+const chartContent = plot(chartData, {
+  mode: 'bar',
+  width: 65, // Fits within 70-char content area
+  height: 10,
+  color: 'ansiCyan',
+});
+
+// Wrap in our custom ASCII frame pattern
+<pre className={styles.asciiFrame}>
+{(() => {
+  const FRAME_WIDTH = 70;
+  const header = '─ QUERY RATE ';
+  return `${header}${'─'.repeat(150)}
+${padLine('', FRAME_WIDTH)}
+${chartContent.split('\n').map(line => padLine(line, FRAME_WIDTH)).join('\n')}
+${padLine('', FRAME_WIDTH)}
+${'─'.repeat(150)}`;
+})()}
+</pre>
+```
+
+**Result:** Library-generated chart content displayed within edge-to-edge S.Y.N.A.P.S.E. ENGINE frame
 
 ---
 
@@ -1064,6 +1124,437 @@ animation: phosphor-pulse 2s ease-in-out infinite;
 - Share WEBTUI_INTEGRATION_GUIDE.md with all developers
 - Conduct code review using WEBTUI_STYLE_GUIDE.md checklist
 - Emphasize: "WebTUI first, custom CSS only when necessary"
+
+---
+
+## Phase 0.5: ASCII Frame Pattern Standardization
+
+**Date Completed:** 2025-11-09
+**Status:** ✅ COMPLETE
+**Duration:** 4 hours
+**Lead Agent:** @terminal-ui-specialist
+**Priority:** Critical (MANDATORY for all ASCII visualizations)
+
+### Overview
+
+After implementing Phase 0 (WebTUI Foundation), we perfected the ASCII frame pattern on AdminPage and established it as the standard for ALL ASCII visualizations across the S.Y.N.A.P.S.E. ENGINE codebase. This pattern ensures consistent terminal aesthetics with edge-to-edge borders that adapt to any screen width.
+
+### The Problem We Solved
+
+**Initial Implementation Issues:**
+1. **Scrollable boxes** - ASCII modules appeared in containers with `overflow-x: auto`, creating scrollbars
+2. **Double frames** - CSS borders + ASCII borders created nested frame effect
+3. **Fixed-width limitations** - Corner characters (┌┐└┘) broke visual illusion on window resize
+4. **Max-width constraints** - Frames were centered with empty space on wide screens instead of extending edge-to-edge
+
+### The Perfected Pattern
+
+**Key Characteristics:**
+1. **Full Browser Width Borders** - Horizontal lines (`─`) extend to left and right edges of viewport
+2. **No Width Constraints** - Removed `max-width` from containers
+3. **Left-Aligned Content** - Content (70 chars) is left-aligned, borders extend full width
+4. **No Corner Characters** - Clean horizontal lines only, no ┌┐└┘
+5. **Overflow Pattern** - Generate 150 chars of `─`, let CSS clip with `overflow: hidden`
+
+### Implementation Pattern
+
+#### TypeScript/TSX Pattern
+
+```typescript
+// Utility function for consistent line padding
+const padLine = (content: string, width: number): string => {
+  if (content.length > width) {
+    return content.substring(0, width);
+  }
+  return content.padEnd(width, ' ');
+};
+
+// Frame generation pattern (NO corner characters)
+<pre className={styles.asciiFrame}>
+{(() => {
+  const FRAME_WIDTH = 70; // Content width (left-aligned)
+  const header = '─ SECTION TITLE ';
+  const headerLine = `${header}${'─'.repeat(150)}`; // 150 chars = full-width
+  const bottomLine = '─'.repeat(150);
+
+  return `${headerLine}
+${padLine('', FRAME_WIDTH)}
+${padLine('CONTENT LINE 1', FRAME_WIDTH)}
+${padLine('CONTENT LINE 2', FRAME_WIDTH)}
+${padLine('Dynamic content: ' + dynamicValue, FRAME_WIDTH)}
+${padLine('', FRAME_WIDTH)}
+${bottomLine}`;
+})()}
+</pre>
+```
+
+#### CSS Pattern
+
+```css
+/* Page Container - NO max-width */
+.pageContainer {
+  width: 100%;
+  margin: 0; /* NOT margin: 0 auto - no centering */
+  padding: var(--webtui-spacing-lg);
+  font-family: var(--webtui-font-family);
+  display: flex;
+  flex-direction: column;
+  gap: var(--webtui-spacing-xl);
+}
+
+/* ASCII Panel - NO max-width */
+.asciiPanel {
+  display: flex;
+  flex-direction: column;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--webtui-primary);
+  position: relative;
+  animation: panel-breathe 2s ease-in-out infinite;
+  font-family: var(--webtui-font-family);
+  /* NO max-width property here */
+  margin-bottom: var(--webtui-spacing-lg);
+}
+
+/* ASCII Frame - Full width with overflow clipping */
+.asciiFrame {
+  font-family: var(--webtui-font-family);
+  font-size: 12px;
+  line-height: 1.2;
+  letter-spacing: 0;
+  color: var(--webtui-primary);
+  white-space: pre;
+  overflow: hidden; /* CRITICAL: Clips excess border characters */
+  width: 100%; /* Full container width */
+  text-overflow: clip;
+  box-sizing: border-box;
+  text-shadow: 0 0 8px rgba(255, 149, 0, 0.6);
+  animation: frame-glow 2s ease-in-out infinite;
+  margin: var(--webtui-spacing-md) 0;
+
+  /* Font rendering optimizations for monospace alignment */
+  font-kerning: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: geometricPrecision;
+  font-feature-settings: "liga" 0, "calt" 0;
+
+  padding: 0;
+  background: transparent;
+}
+
+@keyframes frame-glow {
+  0%, 100% {
+    text-shadow: 0 0 8px rgba(255, 149, 0, 0.6),
+                 0 0 12px rgba(255, 149, 0, 0.3);
+  }
+  50% {
+    text-shadow: 0 0 12px rgba(255, 149, 0, 0.8),
+                 0 0 20px rgba(255, 149, 0, 0.4);
+  }
+}
+```
+
+### Visual Result
+
+```
+Browser left edge → ─ SYSTEM HEALTH ──────────────────────────────── ← Browser right edge
+
+                    TOPOLOGY:
+                    [FASTAPI]──[ORCHESTRATOR]──[NEURAL SUBSTRATE]
+
+                    STATUS: OPERATIONAL
+
+                    ──────────────────────────────────────────────────
+```
+
+The horizontal lines touch the edges of the browser viewport at any width, while content remains properly formatted at 70 characters (left-aligned).
+
+### Key Principles
+
+1. **NO Corner Characters** - Never use ┌┐└┘, they break on window resize
+2. **NO Max-Width** - Page containers and panels must not constrain width
+3. **150-Char Borders** - Always generate 150 chars of `─` for headers/footers
+4. **Overflow Hidden** - Let CSS clip excess with `overflow: hidden`
+5. **70-Char Content** - Content lines padded to 70 chars (left-aligned)
+6. **IIFE Pattern** - Wrap frame generation in `{(() => { })()}` for clean code
+7. **Monospace Font** - JetBrains Mono with ligatures/kerning disabled
+8. **No Padding** - ASCII frame provides visual boundary, no CSS padding needed
+9. **Transparent Background** - ASCII art provides the frame, not CSS
+10. **No Scrollbars** - `overflow: hidden` prevents scrollbars
+
+### Common Patterns
+
+#### Basic Frame with Header/Footer
+```typescript
+<pre className={styles.asciiFrame}>
+{(() => {
+  const FRAME_WIDTH = 70;
+  const header = '─ TITLE ';
+  return `${header}${'─'.repeat(150)}
+${padLine('Content here', FRAME_WIDTH)}
+${'─'.repeat(150)}`;
+})()}
+</pre>
+```
+
+#### Frame with Dynamic Content
+```typescript
+<pre className={styles.asciiFrame}>
+{(() => {
+  const FRAME_WIDTH = 70;
+  const statusText = health.status.toUpperCase();
+  const modelsCount = models.length;
+
+  return `${'─ METRICS '}${'─'.repeat(150)}
+${padLine('', FRAME_WIDTH)}
+${padLine(`STATUS: ${statusText}`, FRAME_WIDTH)}
+${padLine(`MODELS: ${modelsCount} active`, FRAME_WIDTH)}
+${padLine('', FRAME_WIDTH)}
+${'─'.repeat(150)}`;
+})()}
+</pre>
+```
+
+#### Frame with ASCII Art Diagram
+```typescript
+<pre className={styles.asciiFrame}>
+{(() => {
+  const FRAME_WIDTH = 70;
+  return `${'─ TOPOLOGY '}${'─'.repeat(150)}
+${padLine('', FRAME_WIDTH)}
+${padLine('[FASTAPI]──[ORCHESTRATOR]──[SUBSTRATE]', FRAME_WIDTH)}
+${padLine('    │             │              │', FRAME_WIDTH)}
+${padLine('    │             ├──[Q2]────────┼───', FRAME_WIDTH)}
+${padLine('', FRAME_WIDTH)}
+${'─'.repeat(150)}`;
+})()}
+</pre>
+```
+
+### Implementation Evolution
+
+#### Iteration 1: Scrollable Boxes (WRONG)
+```css
+/* ❌ BAD: Creates scrollbars */
+.asciiDiagram {
+  overflow-x: auto; /* Causes horizontal scrollbar */
+}
+```
+
+#### Iteration 2: Double Frames (WRONG)
+```tsx
+/* ❌ BAD: CSS border + ASCII border = double frame */
+<div className={styles.asciiPanel}> {/* Has CSS border */}
+  <pre className={styles.asciiArt}>
+    ┌─ TITLE ─┐  {/* ASCII border inside CSS border */}
+    │ Content │
+    └─────────┘
+  </pre>
+</div>
+```
+
+#### Iteration 3: Fixed Width with Corners (WRONG)
+```typescript
+/* ❌ BAD: Corner characters break on resize */
+const FRAME_WIDTH = 70;
+return `┌${header}${'─'.repeat(FRAME_WIDTH - header.length - 2)}┐
+│${padLine('content', FRAME_WIDTH - 2)}│
+└${'─'.repeat(FRAME_WIDTH - 2)}┘`;
+```
+
+#### Iteration 4: Perfected Pattern (CORRECT) ✅
+```typescript
+/* ✅ GOOD: Responsive, edge-to-edge, no corners */
+const FRAME_WIDTH = 70;
+const headerLine = `${'─ TITLE '}${'─'.repeat(150)}`;
+return `${headerLine}
+${padLine('content', FRAME_WIDTH)}
+${'─'.repeat(150)}`;
+```
+
+```css
+/* ✅ GOOD: Clips excess, no constraints */
+.asciiFrame {
+  width: 100%;
+  overflow: hidden;
+}
+```
+
+### Files Modified
+
+#### AdminPage (Reference Implementation)
+- ✏️ `frontend/src/pages/AdminPage/AdminPage.tsx` (lines 112-117, 260-600)
+  - Added `padLine()` utility function
+  - Updated 8 ASCII frames to use 150-char border pattern
+  - Removed corner characters from all sections
+  - Removed left/right vertical borders (│)
+
+- ✏️ `frontend/src/pages/AdminPage/AdminPage.module.css` (lines 7-16, 54-67, 543-564)
+  - Removed `max-width: 1400px` from `.adminPage`
+  - Changed `margin: 0 auto` to `margin: 0`
+  - Removed `max-width: 1200px` from `.asciiPanel`
+  - Removed `margin-left: auto` and `margin-right: auto`
+  - Kept `.asciiFrame` with `width: 100%` and `overflow: hidden`
+
+#### Global CSS
+- ✏️ `frontend/src/assets/styles/components.css` (lines 75-87)
+  - Updated `.synapse-chart` with `overflow: hidden`
+  - Removed padding (ASCII frame provides boundary)
+  - Made background transparent
+  - Removed CSS border (ASCII box-drawing chars are the frame)
+
+- ✏️ `frontend/src/components/charts/AsciiLineChart.module.css` (lines 22-28)
+  - Updated `.chartContainer` with `overflow: hidden`
+  - Removed padding, border, box-shadow
+
+- ✏️ `frontend/src/components/charts/AsciiSparkline.module.css` (line 38)
+  - Updated `.chart` with `overflow: hidden`
+
+### Troubleshooting Guide
+
+#### Issue: Borders don't extend to edges
+**Symptom:** ASCII borders stop before reaching left/right edges of browser
+**Cause:** Max-width constraints on parent containers
+**Solution:**
+```css
+/* Find and remove/comment out */
+max-width: 1400px; /* ❌ Remove this */
+margin: 0 auto; /* ❌ Change to margin: 0 */
+```
+
+#### Issue: Right side of frames misaligned
+**Symptom:** Right border jagged or inconsistent
+**Cause:** Variable-length dynamic content without padding
+**Solution:**
+```typescript
+// ❌ BAD: No padding
+`STATUS: ${statusText}`
+
+// ✅ GOOD: Use padLine
+`${padLine(`STATUS: ${statusText}`, FRAME_WIDTH)}`
+```
+
+#### Issue: Scrollbars appearing on ASCII frames
+**Symptom:** Horizontal scrollbar below ASCII visualization
+**Cause:** Missing `overflow: hidden` on `.asciiFrame`
+**Solution:**
+```css
+.asciiFrame {
+  overflow: hidden; /* CRITICAL */
+}
+```
+
+#### Issue: Corner characters breaking layout
+**Symptom:** Corners (┌┐└┘) appear misaligned when window resizes
+**Cause:** Fixed-width corner positioning
+**Solution:**
+```typescript
+// ❌ BAD: Corner characters
+return `┌${'─'.repeat(70)}┐
+...
+└${'─'.repeat(70)}┘`;
+
+// ✅ GOOD: No corners, overflow pattern
+return `${'─'.repeat(150)}
+...
+${'─'.repeat(150)}`;
+```
+
+#### Issue: Double borders visible
+**Symptom:** Two overlapping frames around ASCII content
+**Cause:** CSS border + ASCII border
+**Solution:**
+```css
+/* Remove CSS border */
+.asciiPanel {
+  border: none; /* Or use for subtle outer glow only */
+}
+```
+
+### Migration Checklist
+
+When converting existing components to this pattern:
+
+**Step 1: Update CSS**
+- [ ] Find all `max-width` declarations in page/panel containers
+- [ ] Remove or comment out `max-width` properties
+- [ ] Change `margin: 0 auto` to `margin: 0`
+- [ ] Verify `.asciiFrame` has `overflow: hidden` and `width: 100%`
+- [ ] Remove any CSS borders that conflict with ASCII borders
+- [ ] Set `padding: 0` on ASCII frame containers
+
+**Step 2: Update TypeScript/TSX**
+- [ ] Add `padLine()` utility function to component (if not present)
+- [ ] Find all ASCII frame generation code
+- [ ] Remove corner characters (┌┐└┘) from all frames
+- [ ] Remove left/right vertical borders (│) from content lines
+- [ ] Change border generation to `${'─'.repeat(150)}`
+- [ ] Wrap all content lines in `padLine(content, FRAME_WIDTH)`
+- [ ] Ensure FRAME_WIDTH = 70 for content (consistent across codebase)
+
+**Step 3: Test**
+- [ ] Test at narrow width (mobile: 375px)
+- [ ] Test at medium width (tablet: 768px)
+- [ ] Test at desktop width (1920px)
+- [ ] Test at wide width (4K: 3840px)
+- [ ] Verify borders touch left edge of viewport
+- [ ] Verify borders touch right edge of viewport
+- [ ] Verify content remains properly formatted (70 chars)
+- [ ] Verify no horizontal scrollbars appear
+- [ ] Verify phosphor glow effects animate
+- [ ] Check browser DevTools console for errors
+
+### Success Criteria
+
+Phase 0.5 is complete when:
+
+- [x] ASCII frame pattern perfected on AdminPage
+- [x] Pattern documented in SYNAPSE_ASCII_UI_IMPLEMENTATION_PLAN.md (Phase 0.5 section with complete implementation guide)
+- [x] ASCII library research referenced in plan (links to ASCII_LIBRARIES_QUICK_REFERENCE.md)
+- [ ] Pattern applied to MetricsPage components
+- [ ] Pattern applied to HomePage components
+- [ ] Pattern applied to ModelManagementPage components
+- [ ] Pattern applied to all chart components (AsciiLineChart, AsciiSparkline)
+- [ ] Global CSS (components.css) updated
+- [ ] All ASCII frames extend edge-to-edge at any screen width
+- [ ] No max-width constraints remain in ASCII-related components
+- [ ] All frames use 150-char border pattern with overflow clipping
+- [ ] Frontend rebuilt and tested in Docker
+- [ ] No console errors or warnings
+- [ ] Visual regression tests pass
+
+### Next Actions
+
+1. **Apply to MetricsPage** (est. 2-3 hours)
+   - Update QueryAnalyticsPanel, TierComparisonPanel, ResourceUtilizationPanel, RoutingAnalyticsPanel
+   - Remove max-width constraints
+   - Update all ASCII frames to use this pattern
+
+2. **Apply to HomePage** (est. 1-2 hours)
+   - Update main query interface panels
+   - Update system status displays
+   - Ensure consistency with AdminPage
+
+3. **Apply to ModelManagementPage** (est. 1-2 hours)
+   - Update model cards/panels
+   - Update status displays
+   - Apply to any ASCII visualizations
+
+4. **Verify Chart Components** (est. 0.5 hour)
+   - Check AsciiLineChart.tsx
+   - Check AsciiSparkline.tsx
+   - Ensure they follow the pattern
+
+5. **Final Testing** (est. 0.5 hour)
+   - Rebuild frontend: `docker-compose build --no-cache synapse_frontend`
+   - Test all pages at multiple screen widths
+   - Verify edge-to-edge borders across entire application
+
+### Related Documentation
+
+- [Phase 0: WebTUI Foundation Setup](#phase-0-webtui-foundation-setup-mandatory-prerequisite) - Base CSS framework
+- [Session Notes](./SESSION_NOTES.md) - Development history of this pattern
+- [AdminPage.tsx](./frontend/src/pages/AdminPage/AdminPage.tsx) - Reference implementation
 
 ---
 

@@ -1,30 +1,24 @@
 /**
- * OrchestratorStatusPanel - Real-time NEURAL SUBSTRATE ORCHESTRATOR visualization
+ * OrchestratorStatusPanel - Real-time NEURAL SUBSTRATE ORCHESTRATOR status
+ *
+ * MISSION CONTROL VIEW (HomePage) - Shows CURRENT routing state only
  *
  * Displays:
- * - Tier utilization with ASCII bar charts
- * - Recent routing decisions with complexity reasoning
- * - Query complexity distribution
- * - Real-time decision flow
+ * - Current routing status (IDLE vs ROUTING)
+ * - Last routing decision (single most recent)
+ * - Decision latency
+ *
+ * Analytics (tier utilization, decision history, complexity distribution)
+ * are available on MetricsPage → RoutingAnalyticsPanel
  *
  * Updates every 1 second for live visualization.
  */
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Panel } from '@/components/terminal/Panel';
 import { useOrchestratorStatus } from '@/hooks/useOrchestratorStatus';
-import type { ModelTierLabel, ComplexityLevel, TierUtilization } from '@/types/orchestrator';
+import type { ModelTierLabel, ComplexityLevel } from '@/types/orchestrator';
 import styles from './OrchestratorStatusPanel.module.css';
-
-/**
- * Generate ASCII bar chart using block characters
- * Returns string like: "████████░░" (80%)
- */
-const generateAsciiBar = (percent: number, width: number = 10): string => {
-  const filled = Math.round((percent / 100) * width);
-  const empty = width - filled;
-  return '█'.repeat(filled) + '░'.repeat(empty);
-};
 
 /**
  * Get color class for model tier
@@ -55,113 +49,18 @@ const getComplexityColorClass = (complexity: ComplexityLevel): string => {
  */
 const formatTierName = (tier: ModelTierLabel): string => {
   const names = {
-    Q2: 'Q2 FAST    ',
+    Q2: 'Q2 FAST',
     Q3: 'Q3 BALANCED',
-    Q4: 'Q4 DEEP    ',
+    Q4: 'Q4 DEEP',
   };
   return names[tier];
 };
 
 /**
- * Truncate query text to fit display
- */
-const truncateQuery = (query: string, maxLength: number = 35): string => {
-  if (query.length <= maxLength) return query;
-  return query.slice(0, maxLength - 3) + '...';
-};
-
-/**
- * TierUtilizationRow - Single tier utilization bar
- */
-interface TierUtilizationRowProps {
-  tier: TierUtilization;
-}
-
-const TierUtilizationRow: React.FC<TierUtilizationRowProps> = ({ tier }) => {
-  const bar = useMemo(() => generateAsciiBar(tier.utilizationPercent), [tier.utilizationPercent]);
-  const colorClass = getTierColorClass(tier.tier);
-
-  return (
-    <div className={styles.utilizationRow}>
-      <span className={colorClass}>{formatTierName(tier.tier)}</span>
-      <span className={styles.bar}>{bar}</span>
-      <span className={styles.percent}>{tier.utilizationPercent}%</span>
-    </div>
-  );
-};
-
-/**
- * RoutingDecisionRow - Single routing decision entry
- */
-interface RoutingDecisionRowProps {
-  decision: {
-    tier: ModelTierLabel;
-    query: string;
-    complexity: ComplexityLevel;
-  };
-}
-
-const RoutingDecisionRow: React.FC<RoutingDecisionRowProps> = ({ decision }) => {
-  const tierColor = getTierColorClass(decision.tier);
-  const complexityColor = getComplexityColorClass(decision.complexity);
-  const truncated = truncateQuery(decision.query);
-
-  return (
-    <div className={styles.decisionRow}>
-      <span className={styles.arrow}>→</span>
-      <span className={tierColor}>{decision.tier}:</span>
-      <span className={styles.query}>"{truncated}"</span>
-      <span className={complexityColor}>[{decision.complexity}]</span>
-    </div>
-  );
-};
-
-/**
- * ComplexityDistributionBar - Horizontal stacked bar chart
- */
-interface ComplexityDistributionBarProps {
-  simple: number;
-  moderate: number;
-  complex: number;
-}
-
-const ComplexityDistributionBar: React.FC<ComplexityDistributionBarProps> = ({
-  simple,
-  moderate,
-  complex,
-}) => {
-  return (
-    <div className={styles.distributionContainer}>
-      <div className={styles.distributionBar}>
-        <div
-          className={`${styles.segment} ${styles.complexitySimple}`}
-          style={{ width: `${simple}%` }}
-          title={`Simple: ${simple}%`}
-        />
-        <div
-          className={`${styles.segment} ${styles.complexityModerate}`}
-          style={{ width: `${moderate}%` }}
-          title={`Moderate: ${moderate}%`}
-        />
-        <div
-          className={`${styles.segment} ${styles.complexityComplex}`}
-          style={{ width: `${complex}%` }}
-          title={`Complex: ${complex}%`}
-        />
-      </div>
-      <div className={styles.distributionLabels}>
-        <span className={styles.complexitySimple}>Simple: {simple}%</span>
-        <span className={styles.separator}>|</span>
-        <span className={styles.complexityModerate}>Moderate: {moderate}%</span>
-        <span className={styles.separator}>|</span>
-        <span className={styles.complexityComplex}>Complex: {complex}%</span>
-      </div>
-    </div>
-  );
-};
-
-/**
  * Main OrchestratorStatusPanel component
+ *
+ * SIMPLIFIED FOR MISSION CONTROL (HomePage)
+ * Shows ONLY current routing state - no analytics
  */
 export const OrchestratorStatusPanel: React.FC = () => {
   const { data: status, error, isLoading } = useOrchestratorStatus();
@@ -193,49 +92,108 @@ export const OrchestratorStatusPanel: React.FC = () => {
     );
   }
 
+  // Get most recent decision (if any)
+  const lastDecision = status.recentDecisions.length > 0 ? status.recentDecisions[0] : null;
+
+  // Determine current routing status
+  const isRouting = status.avgDecisionTimeMs < 100; // Simplified heuristic
+  const routingStatus = isRouting ? 'ROUTING' : 'IDLE';
+  const statusClass = isRouting ? styles.statusRouting : styles.statusIdle;
+
+  // Enhanced empty state when no decisions have been made yet
+  if (!lastDecision || status.recentDecisions.length === 0) {
+    return (
+      <Panel
+        title="NEURAL SUBSTRATE ORCHESTRATOR"
+        titleRight={
+          <span className={styles.statusIdle}>
+            STATUS: IDLE
+          </span>
+        }
+      >
+        <div className={styles.emptyOrchestrator}>
+          <div className={styles.flowDiagram}>
+            Query → [ ? ] → Complexity → [ ? ] → Tier → [ ? ] → Model
+          </div>
+          <div className={styles.awaitingBar}>
+            ░░░░░░░░░░░░░░░ AWAITING QUERY ░░░░░░░░░░░░░░░
+          </div>
+          <div className={styles.emptyStats}>
+            <div className={styles.statRow}>
+              <span className={styles.statLabel}>ROUTING DECISIONS:</span>
+              <span className={styles.statValue}>0</span>
+            </div>
+            <div className={styles.statRow}>
+              <span className={styles.statLabel}>AVG LATENCY:</span>
+              <span className={styles.statValue}>--</span>
+            </div>
+          </div>
+          <div className={styles.emptyHint}>
+            → Submit query to begin orchestration
+          </div>
+        </div>
+      </Panel>
+    );
+  }
+
   return (
     <Panel
       title="NEURAL SUBSTRATE ORCHESTRATOR"
-      titleRight={`AVG ${status.avgDecisionTimeMs.toFixed(1)}ms`}
+      titleRight={
+        <span className={statusClass}>
+          STATUS: {routingStatus}
+        </span>
+      }
     >
       <div className={styles.container}>
-        {/* Tier Utilization Section */}
-        <section className={styles.section}>
-          <div className={styles.sectionTitle}>TIER UTILIZATION</div>
-          <div className={styles.utilizationGrid}>
-            {status.tierUtilization.map((tier) => (
-              <TierUtilizationRow key={tier.tier} tier={tier} />
-            ))}
+        {/* Current Routing State (3 simple rows) */}
+        <div className={styles.currentState}>
+          {/* Row 1: Current Routing */}
+          <div className={styles.stateRow}>
+            <span className={styles.label}>CURRENT ROUTING:</span>
+            <span className={styles.value}>
+              {lastDecision ? (
+                <>
+                  <span className={getTierColorClass(lastDecision.tier)}>
+                    {formatTierName(lastDecision.tier)}
+                  </span>
+                </>
+              ) : (
+                <span className={styles.idle}>None</span>
+              )}
+            </span>
           </div>
-        </section>
 
-        {/* Recent Routing Decisions */}
-        <section className={styles.section}>
-          <div className={styles.sectionTitle}>
-            ROUTING DECISIONS (LAST {status.recentDecisions.length})
+          {/* Row 2: Last Decision */}
+          <div className={styles.stateRow}>
+            <span className={styles.label}>LAST DECISION:</span>
+            <span className={styles.value}>
+              {lastDecision ? (
+                <>
+                  <span className={getTierColorClass(lastDecision.tier)}>
+                    {lastDecision.tier}
+                  </span>
+                  {' '}
+                  <span className={getComplexityColorClass(lastDecision.complexity)}>
+                    [{lastDecision.complexity}]
+                  </span>
+                  {' - '}
+                  <span className={styles.latency}>
+                    {status.avgDecisionTimeMs.toFixed(0)}ms
+                  </span>
+                </>
+              ) : (
+                <span className={styles.idle}>No decisions yet</span>
+              )}
+            </span>
           </div>
-          <div className={styles.decisionsGrid}>
-            {status.recentDecisions.map((decision) => (
-              <RoutingDecisionRow key={decision.id} decision={decision} />
-            ))}
+
+          {/* Row 3: Analytics Link */}
+          <div className={styles.stateRow}>
+            <span className={styles.analyticsHint}>
+              For detailed routing analytics, visit Metrics → Routing Analytics
+            </span>
           </div>
-        </section>
-
-        {/* Complexity Distribution */}
-        <section className={styles.section}>
-          <div className={styles.sectionTitle}>COMPLEXITY DISTRIBUTION</div>
-          <ComplexityDistributionBar
-            simple={status.complexityDistribution.simple}
-            moderate={status.complexityDistribution.moderate}
-            complex={status.complexityDistribution.complex}
-          />
-        </section>
-
-        {/* Footer Stats */}
-        <div className={styles.footer}>
-          <span>TOTAL DECISIONS: {status.totalDecisions.toLocaleString()}</span>
-          <span className={styles.separator}>|</span>
-          <span>LAST UPDATE: {new Date(status.timestamp).toLocaleTimeString()}</span>
         </div>
       </div>
     </Panel>

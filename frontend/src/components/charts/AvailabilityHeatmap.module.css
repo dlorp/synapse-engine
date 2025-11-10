@@ -1,0 +1,117 @@
+/**
+ * AvailabilityHeatmap Component Styles
+ * Color-coded progress bars for model availability
+ */
+
+.heatmap {
+  font-family: var(--webtui-font-family);
+  font-size: var(--webtui-font-size-small);
+  display: flex;
+  flex-direction: column;
+  gap: var(--webtui-spacing-sm);
+}
+
+/* Tier row */
+.tierRow {
+  display: grid;
+  grid-template-columns: 40px 1fr 120px;
+  gap: var(--webtui-spacing-sm);
+  align-items: center;
+}
+
+/* Tier label */
+.tierLabel {
+  font-weight: bold;
+  color: var(--webtui-text);
+  text-align: right;
+}
+
+/* Progress bar */
+.progressBar {
+  font-family: var(--webtui-font-family);
+  letter-spacing: -1px; /* Tighten ASCII characters */
+  font-size: 16px;
+  line-height: 1;
+  padding: 4px 8px;
+  border: 1px solid var(--webtui-border);
+  border-radius: 2px;
+  background: rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
+}
+
+/* Color states */
+.progressBar.healthy {
+  color: var(--webtui-success);
+  border-color: var(--webtui-success);
+}
+
+.progressBar.degraded {
+  color: var(--webtui-warning);
+  border-color: var(--webtui-warning);
+}
+
+.progressBar.critical {
+  color: var(--webtui-error);
+  border-color: var(--webtui-error);
+  animation: pulse-critical 1s ease-in-out infinite;
+}
+
+/* Stats section */
+.stats {
+  display: flex;
+  gap: var(--webtui-spacing-xs);
+  align-items: center;
+  font-size: var(--webtui-font-size-small);
+}
+
+.fraction {
+  color: var(--webtui-text);
+  font-weight: bold;
+}
+
+.percentage {
+  font-size: 11px;
+}
+
+.percentage.healthy {
+  color: var(--webtui-success);
+}
+
+.percentage.degraded {
+  color: var(--webtui-warning);
+}
+
+.percentage.critical {
+  color: var(--webtui-error);
+}
+
+/* Pulse animation for critical state */
+@keyframes pulse-critical {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .tierRow {
+    grid-template-columns: 35px 1fr 100px;
+    gap: var(--webtui-spacing-xs);
+  }
+
+  .progressBar {
+    font-size: 14px;
+    padding: 3px 6px;
+  }
+
+  .stats {
+    font-size: 11px;
+  }
+
+  .percentage {
+    font-size: 10px;
+  }
+}
