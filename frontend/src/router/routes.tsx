@@ -13,6 +13,9 @@ import { DotMatrixTestPage } from '@/pages/DotMatrixTestPage';
 import CRTEffectsTestPage from '@/pages/CRTEffectsTestPage';
 import { OrchestratorTestPage } from '@/pages/OrchestratorTestPage';
 import LiveEventFeedTestPage from '@/pages/LiveEventFeedTestPage';
+import { QueryAnalyticsTestPage } from '@/pages/QueryAnalyticsTestPage';
+import { ResourcePanelTestPage } from '@/pages/ResourcePanelTestPage';
+import ModelSparklineTestPage from '@/pages/ModelSparklineTestPage';
 
 export const router = createBrowserRouter([
   {
@@ -66,6 +69,18 @@ export const router = createBrowserRouter([
       {
         path: 'live-event-feed-test',
         element: <LiveEventFeedTestPage />,
+      },
+      {
+        path: 'query-analytics-test',
+        element: <QueryAnalyticsTestPage />,
+      },
+      {
+        path: 'resource-panel-test',
+        element: <ResourcePanelTestPage />,
+      },
+      {
+        path: 'model-sparkline-test',
+        element: <ModelSparklineTestPage />,
       },
       {
         path: '*',

@@ -1,16 +1,22 @@
 /**
  * HomePage Component - S.Y.N.A.P.S.E. ENGINE Main Interface
  *
- * CORE:INTERFACE - Main query interface with terminal aesthetic.
- * Integrates query input, response display, and system metrics.
+ * CORE:INTERFACE - Mission Control query interface with terminal aesthetic.
+ * Integrates query input, response display, and essential system metrics.
+ *
+ * UI CONSOLIDATION (PHASE 1 COMPLETE ✅ 2025-11-09):
+ * - Simplified System Status Panel (5 essential metrics, zero sparklines) ✅
+ * - Removed metricsHistory dependency (trends moved to MetricsPage) ✅
+ * - Faster page load time (<2s target) ✅
+ * - Integrated Quick Actions into System Status Panel ✅
  *
  * PHASE 1 ENHANCEMENTS (COMPLETE ✅):
  * - Dot Matrix LED Display banner ✅
- * - Enhanced System Status Panel (10 metrics + sparklines) ✅
  * - OrchestratorStatusPanel (real-time routing visualization) ✅
  * - LiveEventFeed (8-event rolling window with WebSocket) ✅
  * - Enhanced CRT effects (bloom, curvature, scanlines) ✅
  * - Terminal spinners for loading states ✅
+ * - System Status moved to bottom with Quick Actions footer ✅
  *
  * Backend Integration Complete:
  * - /api/orchestrator/status endpoint providing real metrics
@@ -29,11 +35,9 @@ import {
 import { OrchestratorStatusPanel, LiveEventFeed } from '@/components/dashboard';
 import { useSystemEventsContext } from '@/contexts/SystemEventsContext';
 import { useModelStatus } from '@/hooks/useModelStatus';
-import { useMetricsHistory } from '@/hooks/useMetricsHistory';
 import { useQuerySubmit } from '@/hooks/useQuery';
 import { QueryInput, ResponseDisplay, Timer } from '@/components/query';
 import { QueryResponse, QueryMode } from '@/types/query';
-import { QuickActions } from '@/components/dashboard';
 import { ModeSelector, ModeConfig } from '@/components/modes/ModeSelector';
 import styles from './HomePage.module.css';
 
@@ -44,7 +48,6 @@ export const HomePage: React.FC = () => {
   const [queryMode, setQueryMode] = useState<QueryMode>('two-stage');
   const [modeConfig, setModeConfig] = useState<ModeConfig>({});
   const { data: modelStatus } = useModelStatus();
-  const metricsHistory = useMetricsHistory();
   const queryMutation = useQuerySubmit();
 
   // Calculate number of available models (active, idle, or processing = ready to use)
@@ -146,60 +149,32 @@ export const HomePage: React.FC = () => {
           />
         </div>
 
-        <div className={styles.header}>
-          <h1 className={styles.title}>
-            ▓▓▓▓ NEURAL SUBSTRATE ORCHESTRATOR ▓▓▓▓
-          </h1>
-        </div>
-
-        {/* Enhanced System Status Panel - Real Metrics */}
-        {modelStatus ? (
-          <div className={styles.statusPanelContainer}>
-            <SystemStatusPanelEnhanced
-              modelStatus={modelStatus}
-              metricsHistory={metricsHistory}
-              title="SYSTEM STATUS"
-            />
-          </div>
-        ) : (
-          <div className={styles.statusPanelContainer}>
-            <Panel title="SYSTEM STATUS">
-              <div style={{ padding: '40px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
-                <TerminalSpinner style="arc" size={24} />
-                <div style={{ color: 'var(--phosphor-green, #ff9500)', fontFamily: 'var(--font-mono)' }}>
-                  Loading system status...
-                </div>
-              </div>
-            </Panel>
-          </div>
-        )}
-
-        {/* Orchestrator Status & Live Events - 2 Column Grid */}
-        <div className={styles.dashboardGrid}>
-          <OrchestratorStatusPanel />
-          <LiveEventFeed maxEvents={8} />
-        </div>
-
+        {/* Query Interface - Primary Interaction Point */}
         <div className={styles.content}>
-        <div className={styles.inputSection}>
-          <ModeSelector
-            currentMode={queryMode}
-            onModeChange={handleModeChange}
-          />
-          <QueryInput
-            onSubmit={handleQuerySubmit}
-            isLoading={queryMutation.isPending}
-            disabled={activeModels === 0}
-          />
-          {activeModels === 0 && (
-            <div className={styles.warningMessage}>
-              <StatusIndicator status="error" label="NO MODELS ACTIVE" showDot />
-              <span>Waiting for models to come online...</span>
+          <Panel title="NEURAL SUBSTRATE ORCHESTRATOR INTERFACE">
+            <div className={styles.inputSection}>
+              <ModeSelector
+                currentMode={queryMode}
+                onModeChange={handleModeChange}
+              />
+              <QueryInput
+                onSubmit={handleQuerySubmit}
+                isLoading={queryMutation.isPending}
+                disabled={activeModels === 0}
+              />
+              {activeModels === 0 && (
+                <div className={styles.warningMessage}>
+                  <StatusIndicator status="error" label="NO MODELS ACTIVE" showDot />
+                  <span>Waiting for models to come online...</span>
+                </div>
+              )}
             </div>
-          )}
+          </Panel>
         </div>
 
-        <div className={styles.responseSection}>
+        {/* Response Display Section */}
+        <div className={styles.content}>
+          <div className={styles.responseSection}>
           {queryMutation.isPending && (
             <div className={styles.loadingIndicator}>
               <TerminalSpinner style="arc" size={24} />
@@ -216,15 +191,39 @@ export const HomePage: React.FC = () => {
           )}
 
           <ResponseDisplay response={latestResponse} />
-        </div>
+          </div>
         </div>
 
-        <QuickActions
-          onRescan={handleRescan}
-          onEnableAll={handleEnableAll}
-          onDisableAll={handleDisableAll}
-          isLoading={queryMutation.isPending}
-        />
+        {/* Orchestrator Status & Live Events - 2 Column Grid */}
+        <div className={styles.dashboardGrid}>
+          <OrchestratorStatusPanel />
+          <LiveEventFeed maxEvents={8} />
+        </div>
+
+        {/* System Status Panel - MOVED TO BOTTOM with integrated Quick Actions */}
+        {modelStatus ? (
+          <div className={styles.statusPanelContainer}>
+            <SystemStatusPanelEnhanced
+              modelStatus={modelStatus}
+              title="SYSTEM STATUS"
+              onRescan={handleRescan}
+              onEnableAll={handleEnableAll}
+              onDisableAll={handleDisableAll}
+              isLoading={queryMutation.isPending}
+            />
+          </div>
+        ) : (
+          <div className={styles.statusPanelContainer}>
+            <Panel title="SYSTEM STATUS">
+              <div style={{ padding: '40px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+                <TerminalSpinner style="arc" size={24} />
+                <div style={{ color: 'var(--phosphor-green, #ff9500)', fontFamily: 'var(--font-mono)' }}>
+                  Loading system status...
+                </div>
+              </div>
+            </Panel>
+          </div>
+        )}
       </div>
     </CRTMonitor>
   );

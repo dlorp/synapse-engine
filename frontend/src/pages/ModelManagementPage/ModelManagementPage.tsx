@@ -2,8 +2,9 @@ import React, { useState, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Panel } from '@/components/terminal';
 import { StatusIndicator } from '@/components/terminal';
-import { ModelTable } from '@/components/models/ModelTable';
+import { ModelCardGrid } from '@/components/models/ModelCardGrid';
 import { ModelSettings } from '@/components/models/ModelSettings';
+import { useModelMetrics } from '@/hooks/useModelMetrics';
 import { LogViewer } from '@/components/logs/LogViewer';
 import { useSystemEventsContext } from '@/contexts/SystemEventsContext';
 import {
@@ -34,12 +35,14 @@ import styles from './ModelManagementPage.module.css';
  * Terminal aesthetic with dense information display and real-time updates
  */
 export const ModelManagementPage: React.FC = () => {
+  // ALL HOOKS MUST BE CALLED FIRST (Rules of Hooks - unconditional)
   const { ensureConnected } = useSystemEventsContext();
   const queryClient = useQueryClient();
   const { data: registry, isLoading, error, refetch } = useModelRegistry();
   const { data: serverStatus } = useServerStatus();
   const { data: runtimeSettings } = useRuntimeSettings();
   const { data: externalServerStatus } = useExternalServerStatus();
+  const { data: modelMetrics } = useModelMetrics(); // Phase 3: Per-model metrics for sparklines
   const rescanModels = useRescanModels();
   const updatePortMutation = useUpdateModelPort();
   const updateSettingsMutation = useUpdateModelRuntimeSettings();
@@ -50,6 +53,18 @@ export const ModelManagementPage: React.FC = () => {
   const [operationError, setOperationError] = useState<string | null>(null);
   const [operationSuccess, setOperationSuccess] = useState<string | null>(null);
   const [expandedSettings, setExpandedSettings] = useState<Record<string, boolean>>({});
+
+  // Phase 3: Calculate running model IDs set for ModelCardGrid
+  // IMPORTANT: This useMemo MUST be called before early returns to maintain consistent hook order
+  const runningModelIds = React.useMemo(() => {
+    const ids = new Set<string>();
+    serverStatus?.servers?.forEach((server) => {
+      if (server.isRunning) {
+        ids.add(server.modelId);
+      }
+    });
+    return ids;
+  }, [serverStatus]);
 
   /**
    * Trigger a re-scan of the HUB directory for new models
@@ -204,6 +219,128 @@ export const ModelManagementPage: React.FC = () => {
     [updateSettingsMutation]
   );
 
+  /**
+   * Phase 3: Start individual model
+   */
+  const handleStartModel = useCallback(
+    async (modelId: string) => {
+      setOperationError(null);
+      setOperationSuccess(null);
+      ensureConnected();
+      try {
+        const response = await fetch(`/api/models/servers/start/${modelId}`, {
+          method: 'POST',
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ detail: response.statusText }));
+          throw new Error(errorData.detail || response.statusText);
+        }
+
+        setOperationSuccess(`Started model ${modelId}`);
+        setTimeout(() => setOperationSuccess(null), 3000);
+
+        await Promise.all([
+          refetch(),
+          queryClient.invalidateQueries({ queryKey: ['serverStatus'] }),
+        ]);
+      } catch (err) {
+        console.error('Failed to start model:', err);
+        setOperationError(err instanceof Error ? err.message : 'Failed to start model');
+      }
+    },
+    [refetch, queryClient, ensureConnected]
+  );
+
+  /**
+   * Phase 3: Stop individual model
+   */
+  const handleStopModel = useCallback(
+    async (modelId: string) => {
+      setOperationError(null);
+      setOperationSuccess(null);
+      ensureConnected();
+      try {
+        const response = await fetch(`/api/models/servers/stop/${modelId}`, {
+          method: 'POST',
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ detail: response.statusText }));
+          throw new Error(errorData.detail || response.statusText);
+        }
+
+        setOperationSuccess(`Stopped model ${modelId}`);
+        setTimeout(() => setOperationSuccess(null), 3000);
+
+        await Promise.all([
+          refetch(),
+          queryClient.invalidateQueries({ queryKey: ['serverStatus'] }),
+        ]);
+      } catch (err) {
+        console.error('Failed to stop model:', err);
+        setOperationError(err instanceof Error ? err.message : 'Failed to stop model');
+      }
+    },
+    [refetch, queryClient, ensureConnected]
+  );
+
+  /**
+   * Phase 3: Restart individual model
+   */
+  const handleRestartModel = useCallback(
+    async (modelId: string) => {
+      try {
+        await handleStopModel(modelId);
+        setTimeout(() => handleStartModel(modelId), 1000); // Wait 1s between stop and start
+      } catch (err) {
+        console.error('Failed to restart model:', err);
+        setOperationError(err instanceof Error ? err.message : 'Failed to restart model');
+      }
+    },
+    [handleStartModel, handleStopModel]
+  );
+
+  /**
+   * Toggle model enabled status (triggers auto start/stop)
+   */
+  const handleToggleEnable = useCallback(
+    async (modelId: string, enabled: boolean) => {
+      setOperationError(null);
+      setOperationSuccess(null);
+      ensureConnected();
+      try {
+        const response = await fetch(`/api/models/${modelId}/enabled`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ enabled }),
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.detail?.message || 'Failed to toggle model');
+        }
+
+        const result = await response.json();
+        console.log(`Model ${modelId} ${enabled ? 'enabled' : 'disabled'}. Registry: ${result.serverStatus}`);
+
+        const statusMsg = enabled ? 'enabled (use START ALL to activate)' : 'disabled';
+        setOperationSuccess(`✓ Model ${statusMsg}`);
+        setTimeout(() => setOperationSuccess(null), 3000);
+
+        // Refresh registry to show updated enabled status
+        await refetch();
+      } catch (err) {
+        console.error('Failed to toggle model:', err);
+        setOperationError(err instanceof Error ? err.message : 'Failed to toggle model');
+        setTimeout(() => setOperationError(null), 5000);
+      }
+    },
+    [refetch, queryClient, ensureConnected]
+  );
+
   // Loading state
   if (isLoading) {
     return (
@@ -211,10 +348,34 @@ export const ModelManagementPage: React.FC = () => {
         <div className={styles.header}>
           <h1 className={styles.title}>PRAXIS MODEL REGISTRY</h1>
         </div>
-        <div className={styles.loadingContainer}>
-          <div className={styles.loadingSpinner}></div>
-          <div className={styles.loadingText}>SCANNING MODEL REGISTRY...</div>
-        </div>
+        <Panel title="MODEL DISCOVERY" variant="accent">
+          <div className={styles.scanningRegistry}>
+            <div className={styles.scanningHeader}>SCANNING MODEL REGISTRY</div>
+
+            <div className={styles.fileSystemTree}>
+              <div className={styles.treeLine}>┌─ HUGGINGFACE CACHE</div>
+              <div className={styles.treeLine}>│</div>
+              <div className={styles.treeLine}>├─── models/</div>
+              <div className={styles.treeBranch}>
+                │&nbsp;&nbsp;&nbsp;&nbsp;├─ TheBloke/ <span className={styles.breathingDots}>░░░</span>
+              </div>
+              <div className={styles.treeBranch}>
+                │&nbsp;&nbsp;&nbsp;&nbsp;├─ Meta-Llama/ <span className={styles.breathingDots}>░░░</span>
+              </div>
+              <div className={styles.treeBranch}>
+                │&nbsp;&nbsp;&nbsp;&nbsp;└─ Qwen/ <span className={styles.breathingDots}>░░░</span>
+              </div>
+              <div className={styles.treeLine}>│</div>
+              <div className={styles.treeLine}>└─── [Scanning for GGUF files<span className={styles.animatedEllipsis}>...</span>]</div>
+            </div>
+
+            <div className={styles.scanningProgress}>
+              <div className={styles.progressWave}>▁▂▃▄▅▆▇█▇▆▅▄▃▂▁</div>
+              <div className={styles.progressLabel}>PROGRESS</div>
+              <div className={styles.progressWave}>▁▂▃▄▅▆▇█▇▆▅▄▃▂▁</div>
+            </div>
+          </div>
+        </Panel>
       </div>
     );
   }
@@ -253,13 +414,29 @@ export const ModelManagementPage: React.FC = () => {
         <div className={styles.header}>
           <h1 className={styles.title}>PRAXIS MODEL REGISTRY</h1>
         </div>
-        <Panel title="NO REGISTRY FOUND" variant="warning">
-          <div className={styles.emptyContainer}>
-            <div className={styles.emptyText}>
-              NO REGISTRY FOUND. RUN DISCOVERY FIRST.
+        <Panel title="MODEL REGISTRY" variant="warning">
+          <div className={styles.emptyRegistry}>
+            <div className={styles.emptyHeader}>MODEL REGISTRY UNINITIALIZED</div>
+
+            <div className={styles.emptyFileSystem}>
+              <div className={styles.fsBox}>
+                <div className={styles.fsPath}>/models/</div>
+                <div className={styles.fsTree}>│</div>
+                <div className={styles.fsEmpty}>
+                  └─ <span className={styles.emptyBrackets}>[</span> empty <span className={styles.emptyBrackets}>]</span>
+                </div>
+                <div className={styles.fsMessage}>
+                  No GGUF models<br />discovered yet
+                </div>
+              </div>
             </div>
+
+            <div className={styles.emptyHint}>
+              ◆ Initialize registry to begin discovery
+            </div>
+
             <button className={styles.scanButton} onClick={handleRescan}>
-              RUN DISCOVERY SCAN
+              ▶ RUN DISCOVERY SCAN
             </button>
           </div>
         </Panel>
@@ -285,45 +462,39 @@ export const ModelManagementPage: React.FC = () => {
 
   return (
     <div className={styles.page}>
-      {/* Header with Title and Control Buttons */}
+      {/* Header with Title and Registry Controls */}
       <div className={styles.header}>
         <h1 className={styles.title}>PRAXIS MODEL REGISTRY</h1>
-        <div className={styles.actions}>
+
+        <div className={styles.headerControls}>
           <button
-            className={`${styles.rescanButton} ${isRescanning ? styles.rescanning : ''}`}
+            className={`${styles.controlButton} ${isRescanning ? styles.active : ''}`}
             onClick={handleRescan}
             disabled={isRescanning}
             aria-label="Re-scan HUB directory for models"
           >
-            {isRescanning ? (
-              <>
-                <span className={styles.scanIcon}></span>
-                SCANNING...
-              </>
-            ) : (
-              <>
-                <span className={styles.scanIcon}>⟳</span>
-                RE-SCAN HUB
-              </>
-            )}
+            <span className={styles.buttonIcon}>{isRescanning ? '◌' : '⟳'}</span>
+            <span className={styles.buttonLabel}>{isRescanning ? 'SCANNING' : 'RE-SCAN'}</span>
           </button>
 
           <button
-            className={styles.startAllButton}
+            className={`${styles.controlButton} ${isStartingAll ? styles.active : ''}`}
             onClick={handleStartAll}
             disabled={isStartingAll}
             aria-label="Start all enabled model servers"
           >
-            {isStartingAll ? 'STARTING...' : 'START ALL ENABLED'}
+            <span className={styles.buttonIcon}>{isStartingAll ? '◌' : '▶'}</span>
+            <span className={styles.buttonLabel}>{isStartingAll ? 'STARTING' : 'START ALL'}</span>
           </button>
 
           <button
-            className={styles.stopAllButton}
+            className={`${styles.controlButton} ${isStoppingAll ? styles.active : ''}`}
             onClick={handleStopAll}
             disabled={isStoppingAll}
             aria-label="Stop all running model servers"
           >
-            {isStoppingAll ? 'STOPPING...' : 'STOP ALL SERVERS'}
+            <span className={styles.buttonIcon}>{isStoppingAll ? '◌' : '⏹'}</span>
+            <span className={styles.buttonLabel}>{isStoppingAll ? 'STOPPING' : 'STOP ALL'}</span>
           </button>
         </div>
       </div>
@@ -334,33 +505,47 @@ export const ModelManagementPage: React.FC = () => {
           title="EXTERNAL METAL SERVERS"
           variant={externalServerStatus.areReachable ? 'accent' : 'error'}
         >
-          <div className={styles.externalServerStatus}>
-            <StatusIndicator
-              status={externalServerStatus.areReachable ? 'active' : 'offline'}
-              label={externalServerStatus.message}
-              pulse={!externalServerStatus.areReachable}
-            />
-            {externalServerStatus.servers.length > 0 && (
-              <div className={styles.serverList}>
-                {externalServerStatus.servers.map((server) => (
-                  <div key={server.port} className={styles.serverItem}>
-                    <span className={styles.serverPort}>Port {server.port}:</span>
-                    <span className={
-                      server.status === 'online'
-                        ? styles.serverOnline
-                        : styles.serverOffline
-                    }>
-                      {server.status.toUpperCase()}
-                    </span>
-                    {server.responseTimeMs && (
-                      <span className={styles.responseTime}>
-                        ({server.responseTimeMs}ms)
-                      </span>
+          <div className={styles.externalServersEnhanced}>
+            <div className={styles.connectionDiagram}>
+              <div className={styles.connectionHeader}>CONNECTION TOPOLOGY</div>
+              <div className={styles.topologyLine}>
+                HOST MACHINE ─────→ DOCKER NETWORK
+              </div>
+            </div>
+
+            <div className={styles.portStatusList}>
+              {externalServerStatus.servers.map((server) => (
+                <div key={server.port} className={styles.portStatusRow}>
+                  <span className={styles.portLabel}>Port {server.port}:</span>
+                  <div className={styles.statusBarContainer}>
+                    {server.status === 'online' ? (
+                      <>
+                        <span className={styles.statusIndicator}>ONLINE</span>
+                        <span className={styles.breathingBarOnline}>████</span>
+                        <span className={styles.responseTime}>
+                          ({server.responseTimeMs}ms)
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span className={styles.statusIndicator}>OFFLINE</span>
+                        <span className={styles.breathingBarOffline}>░░░░</span>
+                      </>
                     )}
                   </div>
-                ))}
-              </div>
-            )}
+                </div>
+              ))}
+            </div>
+
+            <div className={styles.serversSummary}>
+              <span className={styles.summaryIcon}>
+                {externalServerStatus.areReachable ? '✓' : '✗'}
+              </span>
+              <span className={styles.summaryText}>
+                {externalServerStatus.servers.filter((s) => s.status === 'online').length}/
+                {externalServerStatus.servers.length} reachable
+              </span>
+            </div>
           </div>
         </Panel>
       )}
@@ -399,107 +584,234 @@ export const ModelManagementPage: React.FC = () => {
         </Panel>
       )}
 
-      {/* System Status Panel */}
+      {/* System Status Panel - Enhanced with ASCII */}
       <Panel title="SYSTEM STATUS" variant="accent">
-        <div className={styles.statusGrid}>
-          <div className={styles.statusItem}>
-            <div className={styles.statusLabel}>MODELS DISCOVERED</div>
-            <div className={styles.statusValue}>{modelCount}</div>
-          </div>
+        <div className={styles.neuralSubstrateStatus}>
+          <div className={styles.statusHeader}>NEURAL SUBSTRATE REGISTRY</div>
 
-          <div className={styles.statusItem}>
-            <div className={styles.statusLabel}>MODELS ENABLED</div>
-            <div className={styles.statusValue}>{enabledCount}</div>
-          </div>
+          {/* Tier Distribution */}
+          <div className={styles.tierDistribution}>
+            <div className={styles.distributionHeader}>┌─ TIER DISTRIBUTION ─────────┐</div>
 
-          <div className={styles.statusItem}>
-            <div className={styles.statusLabel}>SERVERS RUNNING</div>
-            <div className={styles.statusValue}>{runningServers}</div>
-          </div>
-
-          <div className={styles.statusItem}>
-            <div className={styles.statusLabel}>SERVERS READY</div>
-            <div
-              className={`${styles.statusValue} ${
-                readyServers === runningServers && runningServers > 0
-                  ? styles.statusGood
-                  : styles.statusWarning
-              }`}
-            >
-              {readyServers}/{runningServers}
+            <div className={styles.tierBar}>
+              <span className={styles.tierLabel}>Q2 [FAST]</span>
+              <div className={styles.barContainer}>
+                <div
+                  className={styles.barFilled}
+                  style={{ width: `${modelCount > 0 ? ((tierCounts.fast || 0) / modelCount) * 100 : 0}%` }}
+                >
+                  <span className={styles.barBlocks}>
+                    {'█'.repeat(Math.max(0, Math.min(10, Math.ceil(modelCount > 0 ? ((tierCounts.fast || 0) / modelCount) * 10 : 0))))}
+                  </span>
+                </div>
+                <div className={styles.barEmpty}>
+                  <span className={styles.emptyBlocks}>
+                    {'░'.repeat(Math.max(0, 10 - Math.max(0, Math.min(10, Math.ceil(modelCount > 0 ? ((tierCounts.fast || 0) / modelCount) * 10 : 0)))))}
+                  </span>
+                </div>
+              </div>
+              <span className={styles.tierCount}>
+                {tierCounts.fast || 0}/{modelCount}
+              </span>
             </div>
-          </div>
-        </div>
 
-        <div className={styles.tierGrid}>
-          <div className={styles.tierItem}>
-            <div className={styles.tierLabel}>FAST TIER</div>
-            <div className={styles.tierValue}>{tierCounts.fast || 0}</div>
+            <div className={styles.tierBar}>
+              <span className={styles.tierLabel}>Q3 [BALANCED]</span>
+              <div className={styles.barContainer}>
+                <div
+                  className={styles.barFilled}
+                  style={{
+                    width: `${modelCount > 0 ? ((tierCounts.balanced || 0) / modelCount) * 100 : 0}%`,
+                  }}
+                >
+                  <span className={styles.barBlocks}>
+                    {'█'.repeat(Math.max(0, Math.min(10, Math.ceil(modelCount > 0 ? ((tierCounts.balanced || 0) / modelCount) * 10 : 0))))}
+                  </span>
+                </div>
+                <div className={styles.barEmpty}>
+                  <span className={styles.emptyBlocks}>
+                    {'░'.repeat(Math.max(0, 10 - Math.max(0, Math.min(10, Math.ceil(modelCount > 0 ? ((tierCounts.balanced || 0) / modelCount) * 10 : 0)))))}
+                  </span>
+                </div>
+              </div>
+              <span className={styles.tierCount}>
+                {tierCounts.balanced || 0}/{modelCount}
+              </span>
+            </div>
+
+            <div className={styles.tierBar}>
+              <span className={styles.tierLabel}>Q4 [POWERFUL]</span>
+              <div className={styles.barContainer}>
+                <div
+                  className={styles.barFilled}
+                  style={{
+                    width: `${modelCount > 0 ? ((tierCounts.powerful || 0) / modelCount) * 100 : 0}%`,
+                  }}
+                >
+                  <span className={styles.barBlocks}>
+                    {'█'.repeat(Math.max(0, Math.min(10, Math.ceil(modelCount > 0 ? ((tierCounts.powerful || 0) / modelCount) * 10 : 0))))}
+                  </span>
+                </div>
+                <div className={styles.barEmpty}>
+                  <span className={styles.emptyBlocks}>
+                    {'░'.repeat(Math.max(0, 10 - Math.max(0, Math.min(10, Math.ceil(modelCount > 0 ? ((tierCounts.powerful || 0) / modelCount) * 10 : 0)))))}
+                  </span>
+                </div>
+              </div>
+              <span className={styles.tierCount}>
+                {tierCounts.powerful || 0}/{modelCount}
+              </span>
+            </div>
+
+            <div className={styles.distributionFooter}>
+              <span>TOTAL: {modelCount} models</span>
+              <span>ENABLED: {enabledCount} models</span>
+            </div>
+
+            <div className={styles.distributionHeader}>└─────────────────────────────┘</div>
           </div>
 
-          <div className={styles.tierItem}>
-            <div className={styles.tierLabel}>BALANCED TIER</div>
-            <div className={styles.tierValue}>{tierCounts.balanced || 0}</div>
+          {/* Server Status */}
+          <div className={styles.serverStatusBox}>
+            <div className={styles.distributionHeader}>┌─ SERVER STATUS ─────────────┐</div>
+
+            <div className={styles.serverBar}>
+              <span className={styles.serverLabel}>RUNNING:</span>
+              <div className={styles.barContainer}>
+                <div
+                  className={styles.barFilled}
+                  style={{
+                    width: `${enabledCount > 0 ? (runningServers / enabledCount) * 100 : 0}%`,
+                  }}
+                >
+                  <span className={styles.breathingBarActive}>
+                    {'█'.repeat(Math.max(0, Math.min(10, Math.ceil(enabledCount > 0 ? (runningServers / enabledCount) * 10 : 0))))}
+                  </span>
+                </div>
+                <div className={styles.barEmpty}>
+                  <span className={styles.emptyBlocks}>
+                    {'░'.repeat(Math.max(0, 10 - Math.max(0, Math.min(10, Math.ceil(enabledCount > 0 ? (runningServers / enabledCount) * 10 : 0)))))}
+                  </span>
+                </div>
+              </div>
+              <span className={styles.serverCount}>
+                {runningServers}/{enabledCount}
+              </span>
+            </div>
+
+            <div className={styles.serverBar}>
+              <span className={styles.serverLabel}>READY:</span>
+              <div className={styles.barContainer}>
+                <div
+                  className={styles.barFilled}
+                  style={{
+                    width: `${runningServers > 0 ? (readyServers / runningServers) * 100 : 0}%`,
+                  }}
+                >
+                  <span className={styles.breathingBarActive}>
+                    {'█'.repeat(Math.max(0, Math.min(10, Math.ceil(runningServers > 0 ? (readyServers / runningServers) * 10 : 0))))}
+                  </span>
+                </div>
+                <div className={styles.barEmpty}>
+                  <span className={styles.emptyBlocks}>
+                    {'░'.repeat(Math.max(0, 10 - Math.max(0, Math.min(10, Math.ceil(runningServers > 0 ? (readyServers / runningServers) * 10 : 0)))))}
+                  </span>
+                </div>
+              </div>
+              <span className={styles.serverCount}>
+                {readyServers}/{runningServers}
+              </span>
+            </div>
+
+            <div className={styles.distributionHeader}>└─────────────────────────────┘</div>
           </div>
 
-          <div className={styles.tierItem}>
-            <div className={styles.tierLabel}>POWERFUL TIER</div>
-            <div className={styles.tierValue}>{tierCounts.powerful || 0}</div>
-          </div>
-        </div>
-
-        <div className={styles.registryInfo}>
-          <div className={styles.infoRow}>
-            <span className={styles.infoLabel}>SCAN PATH:</span>
-            <span className={styles.infoValue}>{registry.scanPath}</span>
-          </div>
-          <div className={styles.infoRow}>
-            <span className={styles.infoLabel}>LAST SCAN:</span>
-            <span className={styles.infoValue}>
-              {registry.lastScan ? new Date(registry.lastScan).toLocaleString() : 'Never'}
-            </span>
-          </div>
-          <div className={styles.infoRow}>
-            <span className={styles.infoLabel}>PORT RANGE:</span>
-            <span className={styles.infoValue}>
-              {registry.portRange?.[0] ?? 'N/A'} - {registry.portRange?.[1] ?? 'N/A'}
-            </span>
+          {/* Registry Info (compact) */}
+          <div className={styles.registryInfoCompact}>
+            <div className={styles.infoLine}>
+              <span className={styles.infoIcon}>📁</span>
+              <span className={styles.infoText}>{registry.scanPath}</span>
+            </div>
+            <div className={styles.infoLine}>
+              <span className={styles.infoIcon}>⏱</span>
+              <span className={styles.infoText}>
+                {registry.lastScan ? new Date(registry.lastScan).toLocaleString() : 'Never'}
+              </span>
+            </div>
+            <div className={styles.infoLine}>
+              <span className={styles.infoIcon}>⚡</span>
+              <span className={styles.infoText}>
+                Ports {registry.portRange?.[0] ?? 'N/A'} - {registry.portRange?.[1] ?? 'N/A'}
+              </span>
+            </div>
           </div>
         </div>
       </Panel>
 
-      {/* Discovered Models Table */}
-      <Panel title="DISCOVERED MODELS" variant="default" noPadding>
-        <ModelTable
-          models={registry.models}
-          expandedSettings={expandedSettings}
-          onToggleSettings={handleToggleSettings}
-          renderSettingsPanel={(model) => {
-            // Check if this model's server is running
-            const serverInfo = serverStatus?.servers.find((s) => s.modelId === model.modelId);
-            const isServerRunning = serverInfo?.isRunning || false;
+      {/* Discovered Models Card Grid */}
+      <Panel title="DISCOVERED MODELS" variant="default">
+        {modelCount === 0 ? (
+          <div className={styles.emptyModelsGrid}>
+            <div className={styles.emptyHeader}>NO GGUF MODELS FOUND</div>
+            <div className={styles.emptySubheader}>FILESYSTEM SCAN COMPLETE</div>
 
-            // Provide default values if runtime settings haven't loaded yet
-            const defaults = runtimeSettings || {
-              nGpuLayers: 99,
-              ctxSize: 8192,
-              nThreads: 8,
-              batchSize: 512,
-            };
+            <div className={styles.scanResults}>
+              <div className={styles.resultBox}>
+                <div className={styles.resultLabel}>Searched:</div>
+                <div className={styles.searchedPath}>• TheBloke/ ✓</div>
+                <div className={styles.searchedPath}>• Meta-Llama/ ✓</div>
+                <div className={styles.searchedPath}>• Qwen/ ✓</div>
+                <div className={styles.resultSummary}>GGUF files: 0</div>
+              </div>
+            </div>
 
-            return (
-              <ModelSettings
-                model={model}
-                allModels={Object.values(registry.models)}
-                portRange={registry.portRange}
-                isServerRunning={isServerRunning}
-                globalDefaults={defaults}
-                onSave={handleSettingsSave}
-                onPortChange={handlePortChange}
-              />
-            );
-          }}
-        />
+            <div className={styles.emptyBreathingBar}>
+              ░░░░░░░░░░░░░░░░░░░░░░░░
+            </div>
+
+            <div className={styles.emptyHint}>
+              → Download models to HuggingFace cache<br />
+              &nbsp;&nbsp;then run discovery scan
+            </div>
+          </div>
+        ) : (
+          <ModelCardGrid
+            models={registry.models}
+            expandedSettings={expandedSettings}
+            modelMetrics={modelMetrics}
+            runningModels={runningModelIds}
+            onToggleSettings={handleToggleSettings}
+            onToggleEnable={handleToggleEnable}
+            onStartModel={handleStartModel}
+            onStopModel={handleStopModel}
+            onRestartModel={handleRestartModel}
+            renderSettingsPanel={(model) => {
+              // Check if this model's server is running
+              const serverInfo = serverStatus?.servers.find((s) => s.modelId === model.modelId);
+              const isServerRunning = serverInfo?.isRunning || false;
+
+              // Provide default values if runtime settings haven't loaded yet
+              const defaults = runtimeSettings || {
+                nGpuLayers: 99,
+                ctxSize: 8192,
+                nThreads: 8,
+                batchSize: 512,
+              };
+
+              return (
+                <ModelSettings
+                  model={model}
+                  allModels={Object.values(registry.models)}
+                  portRange={registry.portRange}
+                  isServerRunning={isServerRunning}
+                  globalDefaults={defaults}
+                  onSave={handleSettingsSave}
+                  onPortChange={handlePortChange}
+                />
+              );
+            }}
+          />
+        )}
       </Panel>
 
       {/* Real-time Log Viewer */}

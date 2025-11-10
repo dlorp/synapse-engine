@@ -18,6 +18,9 @@ python-json-logger==2.0.7
 # Configuration
 pyyaml==6.0.2
 
+# System metrics
+psutil==6.1.0
+
 # File uploads
 python-multipart==0.0.20
 
