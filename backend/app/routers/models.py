@@ -11,7 +11,7 @@ This module provides REST API endpoints for:
 import logging
 import os
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import List, Optional
 
@@ -41,6 +41,7 @@ from app.models.api import (
 )
 from app.models.discovered_model import DiscoveredModel, ModelRegistry, ModelTier
 from app.models.model import SystemStatus
+from app.models.model_metrics import ModelMetrics
 from app.models.profile import ModelProfile
 from app.services.llama_server_manager import LlamaServerManager
 from app.services.model_discovery import ModelDiscoveryService
@@ -145,22 +146,24 @@ def _get_discovery_service() -> ModelDiscoveryService:
     return discovery_service
 
 
-@router.get("/status", response_model=SystemStatus, response_model_by_alias=True)
+@router.get("/status")
 async def get_models_status(
     model_manager: ModelManagerDependency,
     logger_dep: LoggerDependency
-) -> SystemStatus:
-    """Get status of all models with system metrics.
+):
+    """Get status of all models with system metrics and time-series data.
 
     Retrieves real-time status from all configured model instances,
-    including health state, performance metrics, and aggregate statistics.
+    including health state, performance metrics, aggregate statistics,
+    and per-model time-series metrics for sparkline visualization.
 
     Args:
         model_manager: ModelManager instance (injected)
         logger_dep: Logger instance (injected)
 
     Returns:
-        System status with all model statuses and aggregate metrics
+        System status with all model statuses, aggregate metrics, and
+        per-model time-series metrics (tokens/sec, memory, latency)
     """
     logger_dep.debug("Models status requested")
 
@@ -180,7 +183,31 @@ async def get_models_status(
         }
     )
 
-    return system_status
+    # Add per-model time-series metrics
+    models_metrics = []
+    for model_id, state in model_manager._model_states.items():
+        metrics = ModelMetrics(
+            model_id=model_id,
+            tokens_per_second=list(state['tokens_per_second_history']),
+            current_tokens_per_second=state['last_tokens_per_second'],
+            memory_gb=list(state['memory_gb_history']),
+            current_memory_gb=state['last_memory_gb'],
+            latency_ms=list(state['latency_ms_history']),
+            current_latency_ms=state['latency_ms']
+        )
+        models_metrics.append(metrics)
+
+    logger_dep.debug(
+        f"Collected metrics for {len(models_metrics)} models",
+        extra={'metrics_count': len(models_metrics)}
+    )
+
+    # Return combined response (backward compatible)
+    return {
+        **system_status.model_dump(by_alias=True),
+        "metrics": [m.model_dump(by_alias=True) for m in models_metrics],
+        "metricsTimestamp": datetime.now(timezone.utc).isoformat()
+    }
 
 
 @router.get("/registry", response_model_by_alias=True)
@@ -601,44 +628,14 @@ async def toggle_model_enabled(
             }
         )
 
-    # ============================================================================
-    # NEW: Dynamic server control - start/stop based on enabled status
-    # ============================================================================
-    server_status = "no_action"
-
-    if request.enabled:
-        # Start server if not already running
-        if server_manager and not server_manager.is_server_running(model_id):
-            try:
-                logger.info(f"Auto-starting server for {model_id}...")
-                await server_manager.start_server(model)
-                logger.info(f"✅ Enabled and started {model_id}")
-                server_status = "started"
-            except Exception as e:
-                logger.error(f"Enabled {model_id} but failed to start server: {e}")
-                server_status = "failed_to_start"
-        else:
-            server_status = "already_running"
-    else:
-        # Stop server if running
-        if server_manager and server_manager.is_server_running(model_id):
-            try:
-                logger.info(f"Auto-stopping server for {model_id}...")
-                await server_manager.stop_server(model_id)
-                logger.info(f"❌ Disabled and stopped {model_id}")
-                server_status = "stopped"
-            except Exception as e:
-                logger.error(f"Disabled {model_id} but failed to stop server: {e}")
-                server_status = "failed_to_stop"
-        else:
-            server_status = "not_running"
-
+    # NOTE: Enabling/disabling only updates registry - does NOT start/stop servers
+    # Use "START ALL ENABLED" button to start servers for enabled models
     return EnabledUpdateResponse(
-        message=f"Model {model_id} {status_str}",
+        message=f"Model {model_id} {status_str} in registry",
         model_id=model_id,
         enabled=request.enabled,
         restart_required=False,
-        server_status=server_status
+        server_status="registry_updated"
     )
 
 

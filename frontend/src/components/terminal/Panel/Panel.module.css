@@ -4,6 +4,11 @@
   position: relative;
   display: flex;
   flex-direction: column;
+  /* Center on wide screens - max-width constrains content, auto margins center */
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: var(--space-md);
 }
 
 .panel.default {

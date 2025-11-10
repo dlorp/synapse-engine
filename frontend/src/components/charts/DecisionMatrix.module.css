@@ -1,0 +1,130 @@
+/**
+ * DecisionMatrix Component Styles
+ * Terminal-aesthetic ASCII matrix with Unicode box drawing characters
+ */
+
+.matrix {
+  font-family: var(--webtui-font-family);
+  font-size: var(--webtui-font-size-small);
+  color: var(--webtui-text);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Header row */
+.headerRow {
+  display: grid;
+  grid-template-columns: 100px repeat(3, 1fr);
+  gap: 0;
+  border-bottom: 1px solid var(--webtui-border);
+  padding-bottom: var(--webtui-spacing-xs);
+  margin-bottom: var(--webtui-spacing-xs);
+}
+
+.headerCell {
+  text-align: center;
+  font-weight: bold;
+  color: var(--webtui-primary);
+  text-shadow: var(--phosphor-glow);
+}
+
+/* Data rows */
+.dataRow {
+  display: grid;
+  grid-template-columns: 100px repeat(3, 1fr);
+  gap: 0;
+  padding: var(--webtui-spacing-xs) 0;
+  border-bottom: 1px solid rgba(255, 149, 0, 0.2);
+}
+
+.dataRow:last-of-type {
+  border-bottom: none;
+}
+
+/* Label cell (complexity name) */
+.labelCell {
+  font-weight: bold;
+  color: var(--webtui-text);
+  padding-right: var(--webtui-spacing-sm);
+  display: flex;
+  align-items: center;
+}
+
+/* Data cells */
+.dataCell {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--webtui-spacing-xs);
+  border-left: 1px solid rgba(255, 149, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.dataCell:first-of-type {
+  border-left: none;
+}
+
+/* Count display */
+.count {
+  font-size: var(--webtui-font-size-base);
+  font-weight: bold;
+  color: var(--webtui-text);
+  margin-bottom: 2px;
+}
+
+/* Percentage display */
+.percentage {
+  font-size: var(--webtui-font-size-small);
+  color: var(--webtui-text-secondary);
+  opacity: 0.7;
+}
+
+/* Highest percentage highlighting */
+.highest {
+  background: rgba(255, 149, 0, 0.1);
+  border: 1px solid var(--webtui-primary);
+  border-radius: 2px;
+}
+
+.highest .count {
+  color: var(--webtui-primary);
+  text-shadow: var(--phosphor-glow);
+}
+
+.highest .percentage {
+  color: var(--webtui-primary);
+  opacity: 1;
+}
+
+/* Legend */
+.legend {
+  margin-top: var(--webtui-spacing-sm);
+  font-size: 10px;
+  color: var(--webtui-text-secondary);
+  opacity: 0.5;
+  text-align: center;
+  font-style: italic;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .headerRow,
+  .dataRow {
+    grid-template-columns: 80px repeat(3, 1fr);
+  }
+
+  .labelCell {
+    font-size: 11px;
+  }
+
+  .count {
+    font-size: 12px;
+  }
+
+  .percentage {
+    font-size: 10px;
+  }
+}

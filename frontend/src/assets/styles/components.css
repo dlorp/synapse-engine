@@ -76,17 +76,15 @@
   font-family: var(--webtui-font-family);
   color: var(--webtui-primary);
   white-space: pre;
-  overflow-x: auto;
-  padding: var(--webtui-spacing-sm);
-  background: rgba(0, 0, 0, 0.5);
-  border: 1px solid var(--webtui-border);
+  overflow: hidden; /* No scrollbars - ASCII frame is static container */
+  padding: 0; /* No padding - ASCII frame provides visual boundary */
+  background: transparent; /* Transparent - ASCII art provides the frame */
+  border: none; /* No CSS border - ASCII box-drawing chars are the frame */
   line-height: 1.2;
   letter-spacing: 0;
 }
 
-.synapse-chart::-webkit-scrollbar {
-  height: 8px;
-}
+/* Scrollbar styles removed - no longer needed with overflow: hidden */
 
 /* ============================================
    SPARKLINE CONTAINERS
@@ -262,4 +260,64 @@
 
 .synapse-pulse-fast {
   animation: phosphor-pulse 1s ease-in-out infinite;
+}
+
+/* ============================================
+   UNIVERSAL TERMINAL CHECKBOX STYLES (SIMPLE HIGH CONTRAST)
+   ============================================ */
+
+/**
+ * Global checkbox styling for S.Y.N.A.P.S.E. ENGINE terminal aesthetic
+ * Applies to ALL checkboxes across the application
+ *
+ * Features:
+ * - SOLID BLACK background (no transparency, no glow)
+ * - Orange border when unchecked
+ * - Bright green border when checked
+ * - WHITE ✓ checkmark (maximum contrast against dark background)
+ * - NO animations or breathing effects (causes contrast issues)
+ */
+
+input[type="checkbox"] {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  width: 1.2rem !important;
+  height: 1.2rem !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 2px solid #ff9500 !important;
+  background: #000000 !important;  /* SOLID BLACK - no transparency */
+  cursor: pointer !important;
+  position: relative !important;
+  transition: border-color 0.2s ease !important;
+  flex-shrink: 0 !important;
+  overflow: hidden !important;
+}
+
+input[type="checkbox"]:hover {
+  border-color: #ffaa00 !important;  /* Brighter orange on hover */
+}
+
+input[type="checkbox"]:checked {
+  border-color: #00ff00 !important;  /* Bright green border */
+  background: #00ff00 !important;  /* BRIGHT GREEN background for black checkmark visibility */
+}
+
+input[type="checkbox"]:checked::before {
+  content: '✓' !important;
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  color: #000000 !important;  /* BLACK checkmark for maximum contrast against bright green */
+  font-size: 1.1rem !important;
+  font-weight: 900 !important;  /* Extra bold */
+  text-shadow: none !important;  /* NO glow - just solid white */
+  line-height: 1 !important;
+}
+
+input[type="checkbox"]:focus {
+  outline: none !important;
+  border-color: #00ffff !important;
 }

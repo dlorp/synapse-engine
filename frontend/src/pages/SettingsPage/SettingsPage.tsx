@@ -88,10 +88,10 @@ export const SettingsPage: React.FC = () => {
     }
   }, [registry?.portRange]);
 
-  // Track if port range changed
-  const portRangeChanged =
-    portRangeStart !== (registry?.portRange?.[0] || 8080) ||
-    portRangeEnd !== (registry?.portRange?.[1] || 8099);
+  // Track if port range changed (only if registry is loaded)
+  const portRangeChanged = registry?.portRange
+    ? portRangeStart !== registry.portRange[0] || portRangeEnd !== registry.portRange[1]
+    : false;
 
   // Track if settings changed vs saved values
   const hasChanges = useMemo(
@@ -321,18 +321,33 @@ export const SettingsPage: React.FC = () => {
     <div className={styles.page}>
       <h1 className={styles.title}>SYSTEM CONFIGURATION</h1>
 
-      {/* Tooltip Toggle */}
-      <div className={styles.tooltipToggle}>
-        <input
-          type="checkbox"
-          id="tooltip_toggle"
-          checked={showTooltips}
-          onChange={(e) => setShowTooltips(e.target.checked)}
-          className={styles.checkbox}
-        />
-        <label htmlFor="tooltip_toggle" className={styles.checkboxLabel}>
-          Show Help Tooltips ⓘ
-        </label>
+      {/* System Configuration Section with ASCII Border */}
+      <div className={styles.systemConfigSection}>
+        <div className={styles.asciiHeader}>
+          <span className={styles.asciiCorner}>┌─</span>
+          <span className={styles.asciiTitle}> SYSTEM CONFIGURATION </span>
+          <span className={styles.asciiLine}>{'─'.repeat(50)}</span>
+          <span className={styles.asciiCorner}>┐</span>
+        </div>
+        <div className={styles.asciiBody}>
+          <label className={styles.terminalCheckbox}>
+            <input
+              type="checkbox"
+              checked={showTooltips}
+              onChange={(e) => setShowTooltips(e.target.checked)}
+            />
+            <span className={styles.checkboxLabel}>SHOW HELP TOOLTIPS</span>
+            {showTooltips && <span className={styles.checkboxStatus}>⚪ ENABLED</span>}
+          </label>
+          <p className={styles.helpText}>
+            Display contextual help when hovering over interface elements
+          </p>
+        </div>
+        <div className={styles.asciiFooter}>
+          <span className={styles.asciiCorner}>└</span>
+          <span className={styles.asciiLine}>{'─'.repeat(70)}</span>
+          <span className={styles.asciiCorner}>┘</span>
+        </div>
       </div>
 
       {/* Restart Required Banner */}
@@ -365,9 +380,15 @@ export const SettingsPage: React.FC = () => {
         </div>
       )}
 
-      {/* Section 1: Port Configuration */}
-      <Panel title="PORT CONFIGURATION" variant="default">
-        <div className={`${styles.section} ${styles.systemConfig}`}>
+      {/* Section 1: Port Configuration with ASCII Border */}
+      <div className={styles.portConfigSection}>
+        <div className={styles.asciiHeader}>
+          <span className={styles.asciiCorner}>┌─</span>
+          <span className={styles.asciiTitle}> PORT CONFIGURATION </span>
+          <span className={styles.asciiLine}>{'─'.repeat(50)}</span>
+          <span className={styles.asciiCorner}>┐</span>
+        </div>
+        <div className={styles.asciiBody}>
           <p className={styles.sectionDescription}>
             Configure the port range for llama.cpp model servers. Individual models can be
             assigned specific ports in Model Management.
@@ -376,9 +397,8 @@ export const SettingsPage: React.FC = () => {
           <div className={styles.portRangeGrid}>
             <div className={styles.field}>
               <label className={styles.label}>
-                Port Range Start
-                <span className={styles.required}>*</span>
-                <span className={styles.hint}>Minimum: 1024</span>
+                PORT RANGE START
+                <span className={styles.hint}>⚠ Minimum: 1024</span>
               </label>
               <Input
                 type="number"
@@ -395,9 +415,8 @@ export const SettingsPage: React.FC = () => {
 
             <div className={styles.field}>
               <label className={styles.label}>
-                Port Range End
-                <span className={styles.required}>*</span>
-                <span className={styles.hint}>Maximum: 65535</span>
+                PORT RANGE END
+                <span className={styles.hint}>⚠ Maximum: 65535</span>
               </label>
               <Input
                 type="number"
@@ -413,234 +432,300 @@ export const SettingsPage: React.FC = () => {
             </div>
           </div>
 
-          <div className={styles.portSummary}>
-            <span className={styles.portLabel}>Available Ports:</span>
-            <span className={styles.portValue}>
-              {portRangeEnd - portRangeStart + 1} ports ({portRangeStart}-{portRangeEnd})
-            </span>
-            {portRangeStart >= portRangeEnd && (
-              <span className={styles.errorText}> ⚠ Start port must be less than end port</span>
-            )}
-          </div>
-
-          {assignedPorts.length > 0 && (
-            <div className={styles.portSummary}>
-              <span className={styles.portLabel}>Assigned Ports:</span>
-              <span className={styles.portValue}>
-                {assignedPorts.length} in use (
-                {assignedPorts.sort((a, b) => a - b).join(', ')})
-              </span>
+          {/* Status Display Box */}
+          <div className={styles.statusBox}>
+            <div className={styles.statusHeader}>
+              <span className={styles.asciiCorner}>┌─</span>
+              <span className={styles.statusTitle}> STATUS </span>
+              <span className={styles.asciiLine}>{'─'.repeat(60)}</span>
+              <span className={styles.asciiCorner}>┐</span>
             </div>
-          )}
+            <div className={styles.statusBody}>
+              <div className={styles.portStatus}>
+                <span className={styles.portLabel}>AVAILABLE PORTS:</span>
+                <span className={`${styles.portValue} ${styles.available}`}>
+                  {portRangeEnd - portRangeStart + 1} ports ({portRangeStart}-{portRangeEnd}) ✓
+                </span>
+                {portRangeStart >= portRangeEnd && (
+                  <span className={styles.errorText}> ⚠ Start port must be less than end port</span>
+                )}
+              </div>
+
+              {assignedPorts.length > 0 && (
+                <div className={styles.portStatus}>
+                  <span className={styles.portLabel}>ASSIGNED PORTS:</span>
+                  <span className={`${styles.portValue} ${styles.assigned}`}>
+                    {assignedPorts.length} in use (
+                    {assignedPorts.sort((a, b) => a - b).join(', ')})
+                  </span>
+                </div>
+              )}
+            </div>
+            <div className={styles.statusFooter}>
+              <span className={styles.asciiCorner}>└</span>
+              <span className={styles.asciiLine}>{'─'.repeat(68)}</span>
+              <span className={styles.asciiCorner}>┘</span>
+            </div>
+          </div>
         </div>
-      </Panel>
+        <div className={styles.asciiFooter}>
+          <span className={styles.asciiCorner}>└</span>
+          <span className={styles.asciiLine}>{'─'.repeat(70)}</span>
+          <span className={styles.asciiCorner}>┘</span>
+        </div>
+      </div>
 
       <Divider spacing="lg" />
 
-      {/* Section 2: Global Model Runtime Defaults */}
-      <Panel title="GLOBAL MODEL RUNTIME DEFAULTS" variant="default">
-        <div className={`${styles.section} ${styles.globalDefaults}`}>
+      {/* Section 2: Global Model Runtime Defaults with ASCII Border */}
+      <div className={styles.runtimeDefaultsSection}>
+        <div className={styles.asciiHeader}>
+          <span className={styles.asciiCorner}>┌─</span>
+          <span className={styles.asciiTitle}> GLOBAL MODEL RUNTIME DEFAULTS </span>
+          <span className={styles.asciiLine}>{'─'.repeat(40)}</span>
+          <span className={styles.asciiCorner}>┐</span>
+        </div>
+        <div className={styles.asciiBody}>
           <p className={styles.sectionDescription}>
-            Default settings for all models. Individual models can override these in Model
-            Management.
+            These settings apply to all models unless overridden individually.
           </p>
 
-          <div className={styles.infoBox}>
-            ℹ These settings apply to all models unless overridden. To configure per-model
-            settings, go to Model Management → CONFIGURE button.
+          {/* 3-Column Grid: GPU / Context / Performance */}
+          <div className={styles.settingsGrid}>
+            {/* GPU Acceleration Column */}
+            <div className={styles.settingsColumn}>
+              <div className={styles.columnHeader}>
+                <span className={styles.asciiCorner}>┌─</span>
+                <span className={styles.columnTitle}> GPU ACCELERATION </span>
+                <span className={styles.asciiLine}>{'─'.repeat(10)}</span>
+                <span className={styles.asciiCorner}>┐</span>
+              </div>
+              <div className={styles.columnBody}>
+                <div className={styles.field}>
+                  <label className={styles.label}>
+                    GPU LAYERS
+                    {renderTooltip(
+                      'Number of model layers offloaded to GPU. Higher = more VRAM usage but faster inference. Use 99 for max GPU offload.'
+                    )}
+                  </label>
+                  <div className={styles.sliderGroup}>
+                    <input
+                      type="range"
+                      min="0"
+                      max="99"
+                      value={currentSettings.n_gpu_layers}
+                      onChange={(e) =>
+                        handleFieldChange('n_gpu_layers', parseInt(e.target.value, 10))
+                      }
+                      className={styles.slider}
+                    />
+                    <Input
+                      type="number"
+                      min="0"
+                      max="99"
+                      value={currentSettings.n_gpu_layers}
+                      onChange={(e) =>
+                        handleFieldChange('n_gpu_layers', parseInt(e.target.value, 10))
+                      }
+                      className={styles.numericInput}
+                      error={validationErrors.n_gpu_layers}
+                    />
+                  </div>
+                  <div className={styles.fieldInfo}>⚡ Metal acceleration</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Context Column */}
+            <div className={styles.settingsColumn}>
+              <div className={styles.columnHeader}>
+                <span className={styles.asciiCorner}>┌─</span>
+                <span className={styles.columnTitle}> CONTEXT </span>
+                <span className={styles.asciiLine}>{'─'.repeat(15)}</span>
+                <span className={styles.asciiCorner}>┐</span>
+              </div>
+              <div className={styles.columnBody}>
+                <div className={styles.field}>
+                  <label className={styles.label}>
+                    CONTEXT SIZE
+                    {renderTooltip(
+                      'Maximum number of tokens the model can process at once. Larger contexts use more VRAM.'
+                    )}
+                  </label>
+                  <select
+                    value={currentSettings.ctx_size}
+                    onChange={(e) =>
+                      handleFieldChange('ctx_size', parseInt(e.target.value, 10))
+                    }
+                    className={styles.select}
+                  >
+                    {CTX_SIZE_PRESETS.map((size) => (
+                      <option key={size} value={size}>
+                        {formatCtxSize(size)}
+                      </option>
+                    ))}
+                  </select>
+                  <div className={styles.fieldInfo}>🧠 Tokens in memory</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Performance Column */}
+            <div className={styles.settingsColumn}>
+              <div className={styles.columnHeader}>
+                <span className={styles.asciiCorner}>┌─</span>
+                <span className={styles.columnTitle}> PERFORMANCE </span>
+                <span className={styles.asciiLine}>{'─'.repeat(10)}</span>
+                <span className={styles.asciiCorner}>┐</span>
+              </div>
+              <div className={styles.columnBody}>
+                <div className={styles.field}>
+                  <label className={styles.label}>
+                    THREADS
+                    {renderTooltip(
+                      'Number of CPU threads for inference. Higher values improve speed but increase CPU usage.'
+                    )}
+                  </label>
+                  <Input
+                    type="number"
+                    min="1"
+                    max="64"
+                    value={currentSettings.threads}
+                    onChange={(e) =>
+                      handleFieldChange('threads', parseInt(e.target.value, 10))
+                    }
+                    error={validationErrors.threads}
+                  />
+                  <div className={styles.fieldInfo}>⚙ CPU threads</div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* VRAM Estimate Display */}
-          {vramEstimate?.success && (
-            <div className={styles.vramEstimate}>
-              <div className={styles.vramLabel}>ESTIMATED VRAM:</div>
-              <div className={styles.vramValue}>
-                {vramEstimate.vram_gb.toFixed(2)} GB
-              </div>
-              <div className={styles.vramDetails}>
-                (Q4_K_M, 8B model, {currentSettings.n_gpu_layers} GPU layers)
-              </div>
+          {/* Batch Settings Row */}
+          <div className={styles.batchSettingsBox}>
+            <div className={styles.batchHeader}>
+              <span className={styles.asciiCorner}>┌─</span>
+              <span className={styles.batchTitle}> BATCH SETTINGS </span>
+              <span className={styles.asciiLine}>{'─'.repeat(55)}</span>
+              <span className={styles.asciiCorner}>┐</span>
             </div>
-          )}
+            <div className={styles.batchBody}>
+              <div className={styles.batchGrid}>
+                <div className={styles.field}>
+                  <label className={styles.label}>BATCH SIZE</label>
+                  <Input
+                    type="number"
+                    min="32"
+                    max="2048"
+                    step="32"
+                    value={currentSettings.batch_size}
+                    onChange={(e) =>
+                      handleFieldChange('batch_size', parseInt(e.target.value, 10))
+                    }
+                    className={styles.numericInput}
+                  />
+                </div>
 
-          {/* GPU Layers */}
-          <div className={styles.field}>
-            <div className={styles.fieldHeader}>
-              <label className={styles.label}>
-                GPU Layers (n_gpu_layers)
-                {renderTooltip(
-                  'Number of model layers offloaded to GPU. Higher = more VRAM usage but faster inference. Use 99 for max GPU offload.'
-                )}
-              </label>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={handleMaxGPUOffload}
-                className={styles.presetButton}
-              >
-                Max GPU Offload
-              </Button>
+                <div className={styles.field}>
+                  <label className={styles.label}>UBATCH SIZE</label>
+                  <Input
+                    type="number"
+                    min="32"
+                    max="1024"
+                    step="32"
+                    value={currentSettings.ubatch_size}
+                    onChange={(e) =>
+                      handleFieldChange('ubatch_size', parseInt(e.target.value, 10))
+                    }
+                    error={validationErrors.ubatch_size}
+                    className={styles.numericInput}
+                  />
+                </div>
+
+                <label className={styles.terminalCheckbox}>
+                  <input
+                    type="checkbox"
+                    checked={currentSettings.flash_attn}
+                    onChange={(e) => handleFieldChange('flash_attn', e.target.checked)}
+                  />
+                  <span className={styles.checkboxLabel}>FLASH ATTENTION</span>
+                  {currentSettings.flash_attn && <span className={styles.checkboxStatus}>⚪ ENABLED</span>}
+                </label>
+
+                <label className={styles.terminalCheckbox}>
+                  <input
+                    type="checkbox"
+                    checked={currentSettings.no_mmap}
+                    onChange={(e) => handleFieldChange('no_mmap', e.target.checked)}
+                  />
+                  <span className={styles.checkboxLabel}>NO MMAP</span>
+                  {currentSettings.no_mmap && <span className={styles.checkboxStatus}>⚪ ENABLED</span>}
+                </label>
+              </div>
             </div>
-            <div className={styles.sliderGroup}>
-              <input
-                type="range"
-                min="0"
-                max="99"
-                value={currentSettings.n_gpu_layers}
-                onChange={(e) =>
-                  handleFieldChange('n_gpu_layers', parseInt(e.target.value, 10))
-                }
-                className={styles.slider}
-              />
-              <Input
-                type="number"
-                min="0"
-                max="99"
-                value={currentSettings.n_gpu_layers}
-                onChange={(e) =>
-                  handleFieldChange('n_gpu_layers', parseInt(e.target.value, 10))
-                }
-                className={styles.numericInput}
-                error={validationErrors.n_gpu_layers}
-              />
-            </div>
-            <div className={styles.currentValue}>
-              Current: {currentSettings.n_gpu_layers}
+            <div className={styles.batchFooter}>
+              <span className={styles.asciiCorner}>└</span>
+              <span className={styles.asciiLine}>{'─'.repeat(73)}</span>
+              <span className={styles.asciiCorner}>┘</span>
             </div>
           </div>
 
-          {/* Context Size */}
-          <div className={styles.field}>
-            <label className={styles.label}>
-              Context Size (ctx_size)
-              {renderTooltip(
-                'Maximum number of tokens the model can process at once. Larger contexts use more VRAM.'
-              )}
-            </label>
-            <select
-              value={currentSettings.ctx_size}
-              onChange={(e) =>
-                handleFieldChange('ctx_size', parseInt(e.target.value, 10))
+          {/* Action Buttons Row */}
+          <div className={styles.actionRow}>
+            <Button
+              variant="primary"
+              onClick={handleSave}
+              disabled={
+                !hasChanges ||
+                Object.keys(validationErrors).length > 0 ||
+                updateMutation.isPending
               }
-              className={styles.select}
+              loading={updateMutation.isPending}
             >
-              {CTX_SIZE_PRESETS.map((size) => (
-                <option key={size} value={size}>
-                  {formatCtxSize(size)}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Threads */}
-          <div className={styles.field}>
-            <label className={styles.label}>
-              CPU Threads
-              {renderTooltip(
-                'Number of CPU threads for inference. Higher values improve speed but increase CPU usage.'
-              )}
-            </label>
-            <Input
-              type="number"
-              min="1"
-              max="64"
-              value={currentSettings.threads}
-              onChange={(e) =>
-                handleFieldChange('threads', parseInt(e.target.value, 10))
-              }
-              error={validationErrors.threads}
-            />
-          </div>
-
-          {/* Batch Size */}
-          <div className={styles.field}>
-            <label className={styles.label}>
-              Batch Size
-              {renderTooltip(
-                'Number of tokens processed in parallel. Higher values improve throughput but increase VRAM usage.'
-              )}
-            </label>
-            <Input
-              type="number"
-              min="32"
-              max="2048"
-              step="32"
-              value={currentSettings.batch_size}
-              onChange={(e) =>
-                handleFieldChange('batch_size', parseInt(e.target.value, 10))
-              }
-            />
-          </div>
-
-          {/* Micro Batch Size */}
-          <div className={styles.field}>
-            <label className={styles.label}>
-              Micro Batch Size (ubatch_size)
-              {renderTooltip(
-                'Internal batch size for processing. Must be ≤ batch_size. Lower values reduce VRAM usage.'
-              )}
-            </label>
-            <Input
-              type="number"
-              min="32"
-              max="1024"
-              step="32"
-              value={currentSettings.ubatch_size}
-              onChange={(e) =>
-                handleFieldChange('ubatch_size', parseInt(e.target.value, 10))
-              }
-              error={validationErrors.ubatch_size}
-            />
-          </div>
-
-          {/* Flash Attention */}
-          <div className={styles.checkboxField}>
-            <input
-              type="checkbox"
-              id="flash_attn"
-              checked={currentSettings.flash_attn}
-              onChange={(e) => handleFieldChange('flash_attn', e.target.checked)}
-              className={styles.checkbox}
-            />
-            <label htmlFor="flash_attn" className={styles.checkboxLabel}>
-              Enable Flash Attention (GPU only)
-              {renderTooltip(
-                'Optimized attention mechanism for GPUs. Reduces VRAM and improves speed on compatible hardware.'
-              )}
-            </label>
-          </div>
-
-          {/* No Memory Mapping */}
-          <div className={styles.checkboxField}>
-            <input
-              type="checkbox"
-              id="no_mmap"
-              checked={currentSettings.no_mmap}
-              onChange={(e) => handleFieldChange('no_mmap', e.target.checked)}
-              className={styles.checkbox}
-            />
-            <label htmlFor="no_mmap" className={styles.checkboxLabel}>
-              Disable Memory Mapping (recommended for GPU)
-              {renderTooltip(
-                'Disables memory-mapped model loading. Recommended for GPU inference to avoid slowdowns.'
-              )}
-            </label>
+              {updateMutation.isPending ? 'APPLYING...' : '● APPLY CHANGES'}
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => setShowResetDialog(true)}
+              disabled={resetMutation.isPending}
+            >
+              ○ RESET TO DEFAULTS
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => refetch()}
+            >
+              ⟳ RELOAD CONFIG
+            </Button>
           </div>
         </div>
-      </Panel>
+        <div className={styles.asciiFooter}>
+          <span className={styles.asciiCorner}>└</span>
+          <span className={styles.asciiLine}>{'─'.repeat(70)}</span>
+          <span className={styles.asciiCorner}>┘</span>
+        </div>
+      </div>
 
       <Divider spacing="lg" />
 
-      {/* Section 3: Embeddings Configuration */}
-      <Panel title="EMBEDDING CONFIGURATION" variant="default">
-        <div className={`${styles.section} ${styles.serviceConfig}`}>
+      {/* Section 3: Embedding Configuration with ASCII Border */}
+      <div className={styles.embeddingConfigSection}>
+        <div className={styles.asciiHeader}>
+          <span className={styles.asciiCorner}>┌─</span>
+          <span className={styles.asciiTitle}> EMBEDDING CONFIGURATION </span>
+          <span className={styles.asciiLine}>{'─'.repeat(45)}</span>
+          <span className={styles.asciiCorner}>┐</span>
+        </div>
+        <div className={styles.asciiBody}>
           <p className={styles.sectionDescription}>
             Configuration for HuggingFace sentence transformer models used in CGRAG retrieval.
           </p>
+
           {/* Embedding Model */}
           <div className={styles.field}>
             <label className={styles.label}>
-              Embedding Model
+              EMBEDDING MODEL
               {renderTooltip(
                 'Sentence transformer model for semantic search. Changing this requires re-indexing CGRAG data.'
               )}
@@ -660,23 +745,38 @@ export const SettingsPage: React.FC = () => {
             </select>
           </div>
 
+          {/* Embedding Dimension */}
+          <div className={styles.field}>
+            <label className={styles.label}>
+              EMBEDDING DIMENSION
+              {renderTooltip('Must match model output dimension')}
+            </label>
+            <Input
+              type="number"
+              min="128"
+              max="1536"
+              value={currentSettings.embedding_dimension}
+              onChange={(e) =>
+                handleFieldChange('embedding_dimension', parseInt(e.target.value, 10))
+              }
+              className={styles.numericInput}
+            />
+          </div>
+
           {/* Embedding Cache Path */}
           <div className={styles.field}>
-            <div className={styles.checkboxField}>
+            <label className={styles.terminalCheckbox}>
               <input
                 type="checkbox"
-                id="use_default_cache"
                 checked={useDefaultCache}
                 onChange={(e) => setUseDefaultCache(e.target.checked)}
-                className={styles.checkbox}
               />
-              <label htmlFor="use_default_cache" className={styles.checkboxLabel}>
-                Use default cache location (~/.cache/huggingface)
-                {renderTooltip(
-                  'Store HuggingFace models in default cache directory. Uncheck to specify custom location.'
-                )}
-              </label>
-            </div>
+              <span className={styles.checkboxLabel}>Use default cache location (~/.cache/huggingface)</span>
+              {useDefaultCache && <span className={styles.checkboxStatus}>⚪ ENABLED</span>}
+            </label>
+            {renderTooltip(
+              'Store HuggingFace models in default cache directory. Uncheck to specify custom location.'
+            )}
             {!useDefaultCache && (
               <Input
                 type="text"
@@ -689,58 +789,97 @@ export const SettingsPage: React.FC = () => {
               />
             )}
           </div>
-
-          {/* Embedding Dimension */}
-          <div className={styles.field}>
-            <label className={styles.label}>
-              Embedding Dimension
-              {renderTooltip('Must match model output dimension')}
-            </label>
-            <Input
-              type="number"
-              min="128"
-              max="1536"
-              value={currentSettings.embedding_dimension}
-              onChange={(e) =>
-                handleFieldChange('embedding_dimension', parseInt(e.target.value, 10))
-              }
-            />
-          </div>
         </div>
-      </Panel>
+        <div className={styles.asciiFooter}>
+          <span className={styles.asciiCorner}>└</span>
+          <span className={styles.asciiLine}>{'─'.repeat(70)}</span>
+          <span className={styles.asciiCorner}>┘</span>
+        </div>
+      </div>
 
       <Divider spacing="lg" />
 
-      {/* Section 4: CGRAG Configuration */}
-      <Panel title="CGRAG CONFIGURATION" variant="default">
-        <div className={`${styles.section} ${styles.serviceConfig}`}>
+      {/* Section 4: CGRAG Configuration with ASCII Border */}
+      <div className={styles.cgragConfigSection}>
+        <div className={styles.asciiHeader}>
+          <span className={styles.asciiCorner}>┌─</span>
+          <span className={styles.asciiTitle}> CGRAG CONFIGURATION </span>
+          <span className={styles.asciiLine}>{'─'.repeat(48)}</span>
+          <span className={styles.asciiCorner}>┐</span>
+        </div>
+        <div className={styles.asciiBody}>
           <p className={styles.sectionDescription}>
             Contextually-Guided Retrieval Augmented Generation settings for semantic search and
             context retrieval.
           </p>
+
+          {/* 2-Column Grid: Top K Results & Min Relevance */}
+          <div className={styles.cgragTopGrid}>
+            {/* Top K Results */}
+            <div className={styles.field}>
+              <label className={styles.label}>
+                TOP K RESULTS
+                {renderTooltip(
+                  'Maximum number of CGRAG results to retrieve. Higher values provide more context but increase token usage.'
+                )}
+              </label>
+              <Input
+                type="number"
+                min="1"
+                max="100"
+                value={currentSettings.cgrag_max_results}
+                onChange={(e) =>
+                  handleFieldChange('cgrag_max_results', parseInt(e.target.value, 10))
+                }
+                className={styles.numericInput}
+              />
+            </div>
+
+            {/* Minimum Relevance Score */}
+            <div className={styles.field}>
+              <label className={styles.label}>
+                MIN RELEVANCE SCORE
+                {renderTooltip(
+                  'Minimum similarity threshold for CGRAG results. Higher values return only highly relevant context.'
+                )}
+              </label>
+              <Input
+                type="number"
+                min="0"
+                max="1"
+                step="0.1"
+                value={currentSettings.cgrag_min_relevance}
+                onChange={(e) =>
+                  handleFieldChange('cgrag_min_relevance', parseFloat(e.target.value))
+                }
+                className={styles.numericInput}
+              />
+              <div className={styles.fieldInfo}>
+                {formatRelevance(currentSettings.cgrag_min_relevance)}
+              </div>
+            </div>
+          </div>
+
           {/* Token Budget */}
           <div className={styles.field}>
             <label className={styles.label}>
-              Token Budget: {formatTokenBudget(currentSettings.cgrag_token_budget)}
+              TOKEN BUDGET
               {renderTooltip(
                 'Maximum tokens allocated for CGRAG context retrieval. Higher values provide more context but reduce available tokens for generation.'
               )}
             </label>
-            <div className={styles.sliderGroup}>
-              <input
-                type="range"
-                min="1000"
-                max="32000"
-                step="1000"
-                value={currentSettings.cgrag_token_budget}
-                onChange={(e) =>
-                  handleFieldChange('cgrag_token_budget', parseInt(e.target.value, 10))
-                }
-                className={styles.slider}
-              />
-              <div className={styles.sliderValue}>
-                {currentSettings.cgrag_token_budget}
-              </div>
+            <Input
+              type="number"
+              min="1000"
+              max="32000"
+              step="1000"
+              value={currentSettings.cgrag_token_budget}
+              onChange={(e) =>
+                handleFieldChange('cgrag_token_budget', parseInt(e.target.value, 10))
+              }
+            />
+            <div className={styles.fieldInfo}>
+              {formatTokenBudget(currentSettings.cgrag_token_budget)}
             </div>
             <ProgressBar
               current={currentSettings.cgrag_token_budget}
@@ -749,101 +888,54 @@ export const SettingsPage: React.FC = () => {
             />
           </div>
 
-          {/* Minimum Relevance */}
-          <div className={styles.field}>
-            <label className={styles.label}>
-              Minimum Relevance: {formatRelevance(currentSettings.cgrag_min_relevance)}
-              {renderTooltip(
-                'Minimum similarity threshold for CGRAG results. Higher values return only highly relevant context.'
-              )}
-            </label>
-            <div className={styles.sliderGroup}>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.1"
-                value={currentSettings.cgrag_min_relevance}
+          {/* Chunk Settings Grid */}
+          <div className={styles.cgragChunkGrid}>
+            <div className={styles.field}>
+              <label className={styles.label}>
+                CHUNK SIZE (tokens)
+                {renderTooltip(
+                  'Number of tokens per document chunk for CGRAG indexing. Larger chunks preserve context but reduce granularity.'
+                )}
+              </label>
+              <Input
+                type="number"
+                min="128"
+                max="2048"
+                step="64"
+                value={currentSettings.cgrag_chunk_size}
                 onChange={(e) =>
-                  handleFieldChange('cgrag_min_relevance', parseFloat(e.target.value))
+                  handleFieldChange('cgrag_chunk_size', parseInt(e.target.value, 10))
                 }
-                className={styles.slider}
+                className={styles.numericInput}
               />
-              <div className={styles.sliderValue}>
-                {formatRelevance(currentSettings.cgrag_min_relevance)}
-              </div>
             </div>
-            <ProgressBar
-              current={currentSettings.cgrag_min_relevance * 100}
-              max={100}
-              variant="default"
-            />
-          </div>
 
-          {/* Chunk Size */}
-          <div className={styles.field}>
-            <label className={styles.label}>
-              Chunk Size (tokens)
-              {renderTooltip(
-                'Number of tokens per document chunk for CGRAG indexing. Larger chunks preserve context but reduce granularity.'
-              )}
-            </label>
-            <Input
-              type="number"
-              min="128"
-              max="2048"
-              step="64"
-              value={currentSettings.cgrag_chunk_size}
-              onChange={(e) =>
-                handleFieldChange('cgrag_chunk_size', parseInt(e.target.value, 10))
-              }
-            />
-          </div>
-
-          {/* Chunk Overlap */}
-          <div className={styles.field}>
-            <label className={styles.label}>
-              Chunk Overlap (tokens)
-              {renderTooltip(
-                'Overlapping tokens between adjacent chunks. Prevents context loss at chunk boundaries.'
-              )}
-            </label>
-            <Input
-              type="number"
-              min="0"
-              max="512"
-              step="32"
-              value={currentSettings.cgrag_chunk_overlap}
-              onChange={(e) =>
-                handleFieldChange('cgrag_chunk_overlap', parseInt(e.target.value, 10))
-              }
-              error={validationErrors.cgrag_chunk_overlap}
-            />
-          </div>
-
-          {/* Max Results */}
-          <div className={styles.field}>
-            <label className={styles.label}>
-              Max Results
-              {renderTooltip(
-                'Maximum number of CGRAG results to retrieve. Higher values provide more context but increase token usage.'
-              )}
-            </label>
-            <Input
-              type="number"
-              min="1"
-              max="100"
-              value={currentSettings.cgrag_max_results}
-              onChange={(e) =>
-                handleFieldChange('cgrag_max_results', parseInt(e.target.value, 10))
-              }
-            />
+            <div className={styles.field}>
+              <label className={styles.label}>
+                CHUNK OVERLAP (tokens)
+                {renderTooltip(
+                  'Overlapping tokens between adjacent chunks. Prevents context loss at chunk boundaries.'
+                )}
+              </label>
+              <Input
+                type="number"
+                min="0"
+                max="512"
+                step="32"
+                value={currentSettings.cgrag_chunk_overlap}
+                onChange={(e) =>
+                  handleFieldChange('cgrag_chunk_overlap', parseInt(e.target.value, 10))
+                }
+                error={validationErrors.cgrag_chunk_overlap}
+                className={styles.numericInput}
+              />
+            </div>
           </div>
 
           {/* Index Directory */}
           <div className={styles.field}>
             <label className={styles.label}>
-              CGRAG Index Directory
+              CGRAG INDEX DIRECTORY
               {renderTooltip(
                 'Directory path containing CGRAG FAISS indexes, relative to project root. Default: data/faiss_indexes'
               )}
@@ -859,133 +951,131 @@ export const SettingsPage: React.FC = () => {
             />
           </div>
         </div>
-      </Panel>
+        <div className={styles.asciiFooter}>
+          <span className={styles.asciiCorner}>└</span>
+          <span className={styles.asciiLine}>{'─'.repeat(70)}</span>
+          <span className={styles.asciiCorner}>┘</span>
+        </div>
+      </div>
 
       <Divider spacing="lg" />
 
-      {/* Section 5: Benchmark & Search Configuration */}
-      <Panel title="BENCHMARK & WEB SEARCH CONFIGURATION" variant="default">
-        <div className={`${styles.section} ${styles.serviceConfig}`}>
+      {/* Section 5: Benchmark & Web Search Configuration with ASCII Border */}
+      <div className={styles.benchmarkConfigSection}>
+        <div className={styles.asciiHeader}>
+          <span className={styles.asciiCorner}>┌─</span>
+          <span className={styles.asciiTitle}> BENCHMARK & WEB SEARCH CONFIGURATION </span>
+          <span className={styles.asciiLine}>{'─'.repeat(35)}</span>
+          <span className={styles.asciiCorner}>┐</span>
+        </div>
+        <div className={styles.asciiBody}>
           <p className={styles.sectionDescription}>
             Default settings for benchmark mode and web search integration.
           </p>
-          {/* Benchmark Max Tokens */}
-          <div className={styles.field}>
-            <label className={styles.label}>
-              Benchmark Default Max Tokens
-              {renderTooltip('Token limit per model in benchmark mode')}
-            </label>
-            <Input
-              type="number"
-              min="128"
-              max="4096"
-              step="128"
-              value={currentSettings.benchmark_default_max_tokens}
-              onChange={(e) =>
-                handleFieldChange(
-                  'benchmark_default_max_tokens',
-                  parseInt(e.target.value, 10)
-                )
-              }
-            />
-          </div>
 
-          {/* Benchmark Parallel Models */}
-          <div className={styles.field}>
-            <label className={styles.label}>
-              Benchmark Parallel Max Models
-              {renderTooltip(
-                'Maximum models to run simultaneously in parallel benchmark mode. Higher values increase VRAM usage.'
+          {/* Benchmark Settings Grid */}
+          <div className={styles.benchmarkGrid}>
+            {/* Benchmark Max Tokens */}
+            <div className={styles.field}>
+              <label className={styles.label}>
+                BENCHMARK MAX TOKENS
+                {renderTooltip('Token limit per model in benchmark mode')}
+              </label>
+              <Input
+                type="number"
+                min="128"
+                max="4096"
+                step="128"
+                value={currentSettings.benchmark_default_max_tokens}
+                onChange={(e) =>
+                  handleFieldChange(
+                    'benchmark_default_max_tokens',
+                    parseInt(e.target.value, 10)
+                  )
+                }
+                className={styles.numericInput}
+              />
+            </div>
+
+            {/* Benchmark Parallel Models */}
+            <div className={styles.field}>
+              <label className={styles.label}>
+                PARALLEL MAX MODELS
+                {renderTooltip(
+                  'Maximum models to run simultaneously in parallel benchmark mode. Higher values increase VRAM usage.'
+                )}
+              </label>
+              <Input
+                type="number"
+                min="1"
+                max="10"
+                value={currentSettings.benchmark_parallel_max_models}
+                onChange={(e) =>
+                  handleFieldChange(
+                    'benchmark_parallel_max_models',
+                    parseInt(e.target.value, 10)
+                  )
+                }
+                error={validationErrors.benchmark_parallel_max_models}
+                className={styles.numericInput}
+              />
+              {currentSettings.benchmark_parallel_max_models > 5 && (
+                <div className={styles.warning}>Warning: High VRAM usage</div>
               )}
-            </label>
-            <Input
-              type="number"
-              min="1"
-              max="10"
-              value={currentSettings.benchmark_parallel_max_models}
-              onChange={(e) =>
-                handleFieldChange(
-                  'benchmark_parallel_max_models',
-                  parseInt(e.target.value, 10)
-                )
-              }
-              error={validationErrors.benchmark_parallel_max_models}
-            />
-            {currentSettings.benchmark_parallel_max_models > 5 && (
-              <div className={styles.warning}>Warning: High VRAM usage</div>
-            )}
+            </div>
           </div>
 
-          {/* WebSearch Max Results */}
-          <div className={styles.field}>
-            <label className={styles.label}>
-              Web Search Max Results
-              {renderTooltip('Maximum number of web search results to retrieve and process.')}
-            </label>
-            <Input
-              type="number"
-              min="1"
-              max="20"
-              value={currentSettings.websearch_max_results}
-              onChange={(e) =>
-                handleFieldChange('websearch_max_results', parseInt(e.target.value, 10))
-              }
-            />
-          </div>
+          {/* Web Search Settings Grid */}
+          <div className={styles.webSearchGrid}>
+            {/* WebSearch Max Results */}
+            <div className={styles.field}>
+              <label className={styles.label}>
+                WEB SEARCH MAX RESULTS
+                {renderTooltip('Maximum number of web search results to retrieve and process.')}
+              </label>
+              <Input
+                type="number"
+                min="1"
+                max="20"
+                value={currentSettings.websearch_max_results}
+                onChange={(e) =>
+                  handleFieldChange('websearch_max_results', parseInt(e.target.value, 10))
+                }
+                className={styles.numericInput}
+              />
+            </div>
 
-          {/* WebSearch Timeout */}
-          <div className={styles.field}>
-            <label className={styles.label}>
-              Web Search Timeout (seconds)
-              {renderTooltip(
-                'Maximum time in seconds to wait for web search results before timing out.'
-              )}
-            </label>
-            <Input
-              type="number"
-              min="5"
-              max="30"
-              value={currentSettings.websearch_timeout_seconds}
-              onChange={(e) =>
-                handleFieldChange(
-                  'websearch_timeout_seconds',
-                  parseInt(e.target.value, 10)
-                )
-              }
-            />
+            {/* WebSearch Timeout */}
+            <div className={styles.field}>
+              <label className={styles.label}>
+                WEB SEARCH TIMEOUT (seconds)
+                {renderTooltip(
+                  'Maximum time in seconds to wait for web search results before timing out.'
+                )}
+              </label>
+              <Input
+                type="number"
+                min="5"
+                max="30"
+                value={currentSettings.websearch_timeout_seconds}
+                onChange={(e) =>
+                  handleFieldChange(
+                    'websearch_timeout_seconds',
+                    parseInt(e.target.value, 10)
+                  )
+                }
+                className={styles.numericInput}
+              />
+            </div>
           </div>
         </div>
-      </Panel>
-
-      {/* Actions Panel */}
-      <div className={styles.actions}>
-        <Button
-          variant="primary"
-          onClick={handleSave}
-          disabled={
-            !hasChanges ||
-            Object.keys(validationErrors).length > 0 ||
-            updateMutation.isPending
-          }
-          loading={updateMutation.isPending}
-        >
-          {updateMutation.isPending ? 'SAVING...' : 'SAVE SETTINGS'}
-        </Button>
-        <Button
-          variant="secondary"
-          onClick={handleDiscard}
-          disabled={!hasChanges || updateMutation.isPending}
-        >
-          DISCARD CHANGES
-        </Button>
-        <Button
-          variant="danger"
-          onClick={() => setShowResetDialog(true)}
-          disabled={resetMutation.isPending}
-        >
-          RESET TO DEFAULTS
-        </Button>
+        <div className={styles.asciiFooter}>
+          <span className={styles.asciiCorner}>└</span>
+          <span className={styles.asciiLine}>{'─'.repeat(70)}</span>
+          <span className={styles.asciiCorner}>┘</span>
+        </div>
       </div>
+
 
       {/* Reset Confirmation Dialog */}
       {showResetDialog && (
