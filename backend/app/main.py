@@ -27,7 +27,7 @@ from app.core.logging import (
     get_logger,
     ServiceTag
 )
-from app.routers import health, models, query, admin, settings, proxy, events, orchestrator
+from app.routers import health, models, query, admin, settings, proxy, events, orchestrator, metrics
 from app.services.llama_server_manager import LlamaServerManager
 from app.services.model_discovery import ModelDiscoveryService
 from app.services.profile_manager import ProfileManager
@@ -435,6 +435,7 @@ app.include_router(settings.router, tags=["settings"])
 app.include_router(proxy.router, tags=["proxy"])
 app.include_router(events.router, tags=["events"])
 app.include_router(orchestrator.router, tags=["orchestrator"])
+app.include_router(metrics.router, tags=["metrics"])
 
 
 # Root endpoint
