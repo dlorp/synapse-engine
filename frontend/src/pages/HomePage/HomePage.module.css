@@ -8,6 +8,16 @@
  * - Enhanced System Status Panel (10 metrics + sparklines) ✅
  */
 
+/* ============================================
+   PAGE CONTAINER - ALLOWS NATURAL EXPANSION
+   ============================================
+   SCROLLING: overflow: visible allows content to
+   expand naturally. RootLayout .main handles all
+   vertical scrolling. This container must NOT
+   have overflow: auto/hidden or it will interfere
+   with the scrolling hierarchy.
+   ============================================ */
+
 .page {
   display: flex;
   flex-direction: column;
@@ -15,9 +25,7 @@
   animation: fade-in var(--transition-base);
   /* Full width - no max-width to allow ASCII borders to extend edge-to-edge */
   width: 100%;
-  max-width: 100vw; /* Prevent horizontal overflow */
-  overflow-x: hidden; /* Hide any overflow that escapes */
-  overflow-y: visible; /* Allow natural vertical scrolling on page itself */
+  overflow: visible; /* CRITICAL: Allow natural expansion, .main handles scrolling */
   margin: 0;
   padding: 0; /* Edge-to-edge pattern: Panel components inside handle their own padding */
   box-sizing: border-box;

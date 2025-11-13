@@ -1,8 +1,18 @@
+/* ============================================
+   LAYOUT CONTAINER - LOCKED TO VIEWPORT
+   ============================================
+   Must use height (not min-height) to prevent
+   growing beyond viewport and causing body
+   scrollbar. Grid layout ensures sidebar and
+   main fill exactly 100vh.
+   ============================================ */
+
 .layout {
   display: grid;
   grid-template-rows: 1fr;
   grid-template-columns: var(--sidebar-width) 1fr;
-  min-height: 100vh;
+  height: 100vh; /* CRITICAL: Lock to viewport height exactly (not min-height) */
+  overflow: hidden; /* Prevent layout-level scrollbar */
   transition: grid-template-columns var(--transition-base);
 }
 
@@ -15,11 +25,22 @@
   grid-row: 1;
 }
 
+/* ============================================
+   MAIN CONTENT AREA - ONLY SCROLLABLE CONTAINER
+   ============================================
+   This is the ONLY element that should have
+   overflow-y: auto. All content inside (CRTMonitor,
+   Pages, etc.) should have overflow: visible to
+   allow natural expansion, and .main handles all
+   vertical scrolling.
+   ============================================ */
+
 .main {
   grid-column: 2;
   grid-row: 1;
   padding: var(--space-xl);
-  overflow-y: auto;
+  overflow-y: auto; /* ONLY SCROLLBAR - handles all vertical scrolling */
+  overflow-x: hidden; /* Prevent horizontal scrollbar */
   background-color: var(--bg-primary);
 }
 
