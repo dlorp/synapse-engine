@@ -54,10 +54,10 @@ Unlike traditional single model deployments, S.Y.N.A.P.S.E. ENGINE treats your l
 - Advanced metrics visualization with Chart.js time-series
 - System architecture topology with health monitoring
 - Context window allocation display
+- WebSocket /ws/events endpoint with real-time event streaming (v5.0)
 
 ### What's In Progress
 - Code Chat mode with file editing capabilities
-- WebSocket /ws/events endpoint for real-time event streaming
 - Performance optimization for >100k document indexes
 - Multi chat conversational mode
 
