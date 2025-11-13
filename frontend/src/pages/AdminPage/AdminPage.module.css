@@ -8,17 +8,23 @@
   width: 100%;
   /* Removed max-width to allow ASCII borders to extend to browser edges */
   margin: 0;
-  padding: var(--webtui-spacing-lg);
+  padding: 0; /* CRITICAL: No padding so ASCII frames can extend edge-to-edge */
   font-family: var(--webtui-font-family);
   display: flex;
   flex-direction: column;
   gap: var(--webtui-spacing-xl);
 }
 
+/* Padded content wrapper for non-ASCII elements */
+.paddedContent {
+  padding-left: var(--webtui-spacing-lg);
+  padding-right: var(--webtui-spacing-lg);
+}
+
 .header {
   margin-bottom: var(--webtui-spacing-xl);
   border-bottom: 2px solid var(--webtui-primary);
-  padding-bottom: var(--webtui-spacing-md);
+  padding: 0 var(--webtui-spacing-lg) var(--webtui-spacing-md) var(--webtui-spacing-lg);
 }
 
 .title {
@@ -99,9 +105,10 @@
   color: var(--webtui-accent);
   padding: var(--webtui-spacing-xs) 0;
   letter-spacing: 0; /* Consistent monospace spacing for box-drawing chars */
-  white-space: nowrap;
+  white-space: pre; /* Changed from nowrap to pre for proper ASCII rendering */
   overflow: hidden;
-  text-overflow: ellipsis;
+  text-overflow: clip; /* Changed from ellipsis to clip - no "..." truncation */
+  width: 100%; /* Ensure full width for edge-to-edge rendering */
   animation: section-pulse 2s ease-in-out infinite;
   line-height: 1.2;
   font-feature-settings: "liga" 0, "calt" 0; /* Disable ligatures for consistent char width */
@@ -123,14 +130,20 @@
 }
 
 .asciiSectionBody {
-  padding: var(--webtui-spacing-sm) 0;
+  padding: var(--webtui-spacing-sm) var(--webtui-spacing-lg); /* Horizontal padding for content */
 }
 
 /* Health Section */
+/* ⚠️ WARNING: .healthContainer has horizontal padding (24px)
+ * DO NOT wrap ASCII frames or section headers in this container!
+ * ASCII frames MUST be at top level to extend edge-to-edge.
+ * Use this ONLY for non-ASCII content (cards, buttons, text).
+ */
 .healthContainer {
   display: flex;
   flex-direction: column;
   gap: var(--webtui-spacing-md);
+  padding: 0 var(--webtui-spacing-lg); /* ⚠️ PADDING: Do not use for ASCII frames! */
 }
 
 .healthHeader {
@@ -262,13 +275,18 @@
   border-color: var(--webtui-error);
 }
 
-/* Discovery Section */
+/* Discovery Section - Add horizontal padding for non-ASCII content */
+/* ⚠️ WARNING: These containers have horizontal padding (24px)
+ * DO NOT wrap ASCII frames or section headers in these containers!
+ * Use these ONLY for buttons, forms, and interactive content.
+ */
 .discoverySection,
 .testingSection,
 .serverSection {
   display: flex;
   flex-direction: column;
   gap: var(--webtui-spacing-md);
+  padding: 0 var(--webtui-spacing-lg); /* ⚠️ PADDING: Do not use for ASCII frames! */
 }
 
 .sectionDesc {
@@ -492,7 +510,7 @@
   font-family: var(--webtui-font-family);
 }
 
-/* System Info - Terminal aesthetic */
+/* System Info - Terminal aesthetic (NO padding, sections handle their own spacing) */
 .systemInfo {
   display: flex;
   flex-direction: column;
@@ -612,7 +630,7 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .adminPage {
-    padding: var(--webtui-spacing-sm);
+    padding: 0; /* Keep zero padding to allow ASCII frames to extend edge-to-edge on mobile */
   }
 
   .componentsGrid {

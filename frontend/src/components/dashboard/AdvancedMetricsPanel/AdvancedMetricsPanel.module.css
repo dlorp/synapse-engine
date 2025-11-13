@@ -1,0 +1,386 @@
+/**
+ * AdvancedMetricsPanel Styles - Terminal Aesthetic
+ *
+ * Phase 4, Component 3 - Chart.js visualization with phosphor orange color scheme.
+ *
+ * Design principles:
+ * - Dense information layout with clear visual hierarchy
+ * - Phosphor orange (#ff9500) for active states and primary UI elements
+ * - Monospace fonts throughout (JetBrains Mono)
+ * - Terminal-style button states with borders and glow
+ * - Smooth 60fps animations on hover and active states
+ * - Responsive design (mobile-first)
+ */
+
+.metricsPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0; /* AsciiPanel provides padding */
+}
+
+/* ============================================================================
+   View Mode Selector
+   ============================================================================ */
+
+.viewModeSelector {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.viewButton {
+  flex: 1;
+  min-width: 140px;
+  padding: 10px 16px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 149, 0, 0.3);
+  color: var(--webtui-text-secondary, #888);
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+}
+
+.viewButton:hover {
+  background: rgba(255, 149, 0, 0.1);
+  border-color: rgba(255, 149, 0, 0.5);
+  color: var(--webtui-primary, #ff9500);
+}
+
+.viewButton.active {
+  background: rgba(255, 149, 0, 0.15);
+  border-color: var(--webtui-primary, #ff9500);
+  color: var(--webtui-primary, #ff9500);
+  box-shadow: 0 0 8px rgba(255, 149, 0, 0.3);
+}
+
+/* ============================================================================
+   Time Range Selector
+   ============================================================================ */
+
+.timeRangeSelector {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.rangeButton {
+  flex: 1;
+  min-width: 50px;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 149, 0, 0.3);
+  color: var(--webtui-text-secondary, #888);
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.rangeButton:hover {
+  background: rgba(255, 149, 0, 0.1);
+  border-color: rgba(255, 149, 0, 0.5);
+  color: var(--webtui-primary, #ff9500);
+}
+
+.rangeButton.active {
+  background: rgba(255, 149, 0, 0.15);
+  border-color: var(--webtui-primary, #ff9500);
+  color: var(--webtui-primary, #ff9500);
+  box-shadow: 0 0 8px rgba(255, 149, 0, 0.3);
+}
+
+/* ============================================================================
+   Metric Selector
+   ============================================================================ */
+
+.metricSelector {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.metricButton {
+  flex: 1;
+  min-width: 110px;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 149, 0, 0.3);
+  color: var(--webtui-text-secondary, #888);
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.metricButton:hover {
+  background: rgba(255, 149, 0, 0.1);
+  border-color: rgba(255, 149, 0, 0.5);
+  color: var(--webtui-primary, #ff9500);
+}
+
+.metricButton.active {
+  background: rgba(255, 149, 0, 0.15);
+  border-color: var(--webtui-primary, #ff9500);
+  color: var(--webtui-primary, #ff9500);
+  box-shadow: 0 0 8px rgba(255, 149, 0, 0.3);
+}
+
+/* ============================================================================
+   ASCII Sparkline
+   ============================================================================ */
+
+.sparklineContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 149, 0, 0.2);
+  border-radius: 2px;
+}
+
+.sparkline {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 24px;
+  color: var(--webtui-primary, #ff9500);
+  letter-spacing: 0.1em;
+  text-align: center;
+  line-height: 1;
+}
+
+.sparklineSummary {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 10px;
+  color: var(--webtui-text-secondary, #888);
+}
+
+.sparklineSummary span {
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 149, 0, 0.2);
+}
+
+/* ============================================================================
+   Chart Container
+   ============================================================================ */
+
+.chartContainer {
+  position: relative;
+  width: 100%;
+  min-height: 400px;
+  height: 400px;
+  max-height: 400px;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 149, 0, 0.2);
+  border-radius: 2px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* ============================================================================
+   Empty State
+   ============================================================================ */
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  min-height: 400px;
+  padding: 40px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 149, 0, 0.2);
+  border-radius: 2px;
+}
+
+.emptyText {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--webtui-primary, #ff9500);
+  letter-spacing: 0.05em;
+}
+
+.emptySubtext {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 11px;
+  color: var(--webtui-text-secondary, #888);
+  letter-spacing: 0.03em;
+}
+
+/* ============================================================================
+   Controls Hint
+   ============================================================================ */
+
+.controlsHint {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 9px;
+  color: var(--webtui-text-secondary, #666);
+  text-align: center;
+  letter-spacing: 0.05em;
+  padding: 8px;
+  border-top: 1px solid rgba(255, 149, 0, 0.1);
+}
+
+/* ============================================================================
+   Responsive Design
+   ============================================================================ */
+
+/* Tablet (768px - 1023px) */
+@media (max-width: 1023px) {
+  .chartContainer {
+    min-height: 350px;
+    height: 350px;
+    padding: 12px;
+  }
+
+  .emptyState {
+    min-height: 350px;
+    padding: 32px;
+  }
+
+  .viewButton {
+    min-width: 120px;
+    font-size: 10px;
+  }
+
+  .metricButton {
+    min-width: 100px;
+    font-size: 9px;
+  }
+
+  .sparkline {
+    font-size: 20px;
+  }
+
+  .sparklineSummary {
+    font-size: 9px;
+    gap: 12px;
+  }
+}
+
+/* Mobile (< 768px) */
+@media (max-width: 767px) {
+  .metricsPanel {
+    gap: 12px;
+  }
+
+  .viewModeSelector {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .viewButton {
+    min-width: auto;
+    width: 100%;
+    font-size: 10px;
+    padding: 8px 12px;
+  }
+
+  .timeRangeSelector {
+    gap: 4px;
+  }
+
+  .rangeButton {
+    min-width: 40px;
+    font-size: 9px;
+    padding: 6px 8px;
+  }
+
+  .metricSelector {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .metricButton {
+    min-width: auto;
+    width: 100%;
+    font-size: 9px;
+    padding: 6px 10px;
+  }
+
+  .chartContainer {
+    min-height: 300px;
+    height: 300px;
+    padding: 8px;
+  }
+
+  .emptyState {
+    min-height: 300px;
+    padding: 24px 16px;
+  }
+
+  .emptyText {
+    font-size: 12px;
+  }
+
+  .emptySubtext {
+    font-size: 10px;
+  }
+
+  .sparklineContainer {
+    padding: 8px;
+  }
+
+  .sparkline {
+    font-size: 16px;
+    letter-spacing: 0.05em;
+  }
+
+  .sparklineSummary {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    font-size: 9px;
+  }
+
+  .sparklineSummary span {
+    text-align: center;
+  }
+
+  .controlsHint {
+    font-size: 8px;
+    padding: 6px;
+  }
+}
+
+/* Very small mobile (< 375px) */
+@media (max-width: 374px) {
+  .chartContainer {
+    min-height: 250px;
+    height: 250px;
+  }
+
+  .emptyState {
+    min-height: 250px;
+  }
+
+  .sparkline {
+    font-size: 14px;
+  }
+}
+
+/* ============================================================================
+   Loading State (TerminalSpinner)
+   ============================================================================ */
+
+.emptyState > div:first-child {
+  /* TerminalSpinner styling handled by component */
+  color: var(--webtui-primary, #ff9500);
+}
