@@ -37,6 +37,8 @@ from app.services.pipeline_state import init_pipeline_state_manager, get_pipelin
 from app.services.context_state import init_context_state_manager, get_context_state_manager
 from app.services.metrics_aggregator import init_metrics_aggregator, get_metrics_aggregator
 from app.services.topology_manager import init_topology_manager, get_topology_manager
+from app.services.cache_metrics import init_cache_metrics, get_cache_metrics
+from app.services.health_monitor import init_health_monitor, get_health_monitor
 from app.models.discovered_model import ModelRegistry
 
 # Track application start time
@@ -162,6 +164,15 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         await topology_manager.start()
         logger.info("Topology manager initialized and started")
 
+        # Initialize cache metrics tracker for production monitoring
+        cache_metrics = init_cache_metrics()
+        logger.info("Cache metrics tracker initialized")
+
+        # Initialize health monitor for degraded status alerts
+        health_monitor = init_health_monitor(check_interval=60)
+        await health_monitor.start()
+        logger.info("Health monitor initialized and started (check interval: 60s)")
+
         server_manager = LlamaServerManager(
             llama_server_path=config.model_management.llama_server_path,
             max_startup_time=config.model_management.max_startup_time,
@@ -271,6 +282,14 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
     # Shutdown
     logger.info("S.Y.N.A.P.S.E. Core (PRAXIS) shutting down...")
+
+    # Stop health monitor
+    try:
+        health_monitor = get_health_monitor()
+        await health_monitor.stop()
+        logger.info("Health monitor stopped")
+    except Exception as e:
+        logger.warning(f"Error stopping health monitor: {e}")
 
     # Stop topology manager
     try:
