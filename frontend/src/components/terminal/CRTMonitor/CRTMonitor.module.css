@@ -13,13 +13,18 @@
 
 /* ============================================
    CONTAINER - Outer frame with phosphor glow
+   ============================================
+   SCROLLING: overflow: visible allows content to
+   expand naturally. RootLayout .main handles all
+   vertical scrolling. This container must NOT
+   have overflow: auto or it will create duplicate
+   scrollbars.
    ============================================ */
 
 .crtContainer {
   position: relative;
   background: var(--webtui-background, #000000);
-  overflow-x: hidden; /* Prevent horizontal overflow only */
-  overflow-y: visible; /* Allow vertical content to expand naturally - main viewport handles scrolling */
+  overflow: visible; /* CRITICAL: Allow content to expand, .main handles scrolling */
 
   /* GPU acceleration */
   transform: translateZ(0);
@@ -82,12 +87,17 @@
 
 /* ============================================
    SCREEN - Inner content area
+   ============================================
+   SCROLLING: min-height: 100% ensures screen
+   fills container minimum, but can expand beyond.
+   overflow: visible allows natural expansion.
    ============================================ */
 
 .crtScreen {
   position: relative;
   width: 100%;
   min-height: 100%; /* Allow content to expand naturally while maintaining minimum height */
+  overflow: visible; /* CRITICAL: Allow content to expand, .main handles scrolling */
   z-index: 2;
 
   /* Allow content to be interactive */
