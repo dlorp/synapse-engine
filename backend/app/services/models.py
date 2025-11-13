@@ -362,7 +362,22 @@ class ModelManager:
         # Calculate aggregate metrics
         total_vram_gb = 16.0  # Mock value
         total_vram_used_gb = sum(m.memory_used for m in model_statuses) / 1024.0
-        cache_hit_rate = 0.0  # TODO: Get from Redis cache when implemented
+
+        # Get cache hit rate from cache metrics service
+        cache_hit_rate = 0.0
+        try:
+            from app.services.cache_metrics import get_cache_metrics
+            cache_metrics = get_cache_metrics()
+            cache_hit_rate = cache_metrics.get_hit_rate()
+        except RuntimeError:
+            # Cache metrics not initialized - use default 0.0
+            pass
+        except Exception as e:
+            self._logger.warning(
+                f"Failed to get cache hit rate: {e}",
+                extra={'error': str(e)}
+            )
+
         active_queries = sum(
             1 for m in model_statuses
             if m.state == ModelState.PROCESSING

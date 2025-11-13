@@ -527,6 +527,167 @@ async def get_system_info() -> Dict[str, Any]:
     }
 
 
+@router.get("/cache/stats")
+async def get_cache_stats() -> Dict[str, Any]:
+    """Get Redis cache performance statistics.
+
+    Returns comprehensive cache metrics including hit rate, request counts,
+    and cache size. Used for production monitoring and optimization.
+
+    Returns:
+        Cache statistics including:
+        - hits: Total cache hits
+        - misses: Total cache misses
+        - sets: Total cache writes
+        - total_requests: Total lookup attempts
+        - hit_rate: Hit rate as formatted percentage string
+        - hit_rate_percent: Raw hit rate percentage value
+        - cache_size: Current number of keys in Redis
+        - uptime_seconds: Time since metrics tracking started
+        - timestamp: ISO timestamp of stats snapshot
+
+    Raises:
+        HTTPException: If cache metrics not initialized
+
+    Example Response:
+        {
+            "hits": 245,
+            "misses": 32,
+            "sets": 277,
+            "total_requests": 277,
+            "hit_rate": "88.4%",
+            "hit_rate_percent": 88.45,
+            "cache_size": 156,
+            "uptime_seconds": 3600.52,
+            "timestamp": "2025-11-13T12:34:56.789Z"
+        }
+    """
+    try:
+        from app.services.cache_metrics import get_cache_metrics
+
+        cache_metrics = get_cache_metrics()
+        stats = await cache_metrics.get_stats()
+
+        # Add formatted hit rate string for display
+        stats["hit_rate"] = f"{stats['hit_rate_percent']:.1f}%"
+
+        logger.info(
+            f"Cache stats retrieved: {stats['hit_rate']} hit rate, "
+            f"{stats['cache_size']} keys",
+            extra={
+                'hit_rate': stats['hit_rate_percent'],
+                'cache_size': stats['cache_size']
+            }
+        )
+
+        return stats
+
+    except RuntimeError as e:
+        logger.warning(f"Cache metrics not initialized: {e}")
+        raise HTTPException(
+            status_code=503,
+            detail="Cache metrics service not initialized"
+        )
+    except Exception as e:
+        logger.error(f"Failed to get cache stats: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to retrieve cache stats: {str(e)}"
+        )
+
+
+@router.post("/cache/reset")
+async def reset_cache_stats() -> Dict[str, str]:
+    """Reset cache metrics counters to zero.
+
+    Use this endpoint to reset all cache performance counters. Useful for
+    testing or when starting fresh metrics collection after system changes.
+
+    WARNING: This resets all cache hit/miss counters. Use with caution in
+    production environments.
+
+    Returns:
+        Success message with timestamp
+
+    Raises:
+        HTTPException: If cache metrics not initialized or reset fails
+    """
+    try:
+        from app.services.cache_metrics import get_cache_metrics
+
+        cache_metrics = get_cache_metrics()
+        await cache_metrics.reset()
+
+        logger.info("Cache metrics reset via admin endpoint")
+
+        return {
+            "message": "Cache metrics reset successfully",
+            "timestamp": datetime.now().isoformat()
+        }
+
+    except RuntimeError as e:
+        logger.warning(f"Cache metrics not initialized: {e}")
+        raise HTTPException(
+            status_code=503,
+            detail="Cache metrics service not initialized"
+        )
+    except Exception as e:
+        logger.error(f"Failed to reset cache stats: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to reset cache stats: {str(e)}"
+        )
+
+
+@router.get("/health/monitor-status")
+async def get_health_monitor_status() -> Dict[str, Any]:
+    """Get health monitor service status.
+
+    Returns current status of the health monitoring service including
+    whether it's running, last known health status, and degradation info.
+
+    Returns:
+        Health monitor status including:
+        - running: Whether monitor is active
+        - last_status: Last known health status ("ok" or "degraded")
+        - degraded_since: ISO timestamp if degraded, None otherwise
+        - check_interval: Seconds between health checks
+
+    Raises:
+        HTTPException: If health monitor not initialized
+
+    Example Response:
+        {
+            "running": true,
+            "last_status": "ok",
+            "degraded_since": null,
+            "check_interval": 60
+        }
+    """
+    try:
+        from app.services.health_monitor import get_health_monitor
+
+        health_monitor = get_health_monitor()
+        status = health_monitor.get_status()
+
+        logger.debug(f"Health monitor status: {status['last_status']}")
+
+        return status
+
+    except RuntimeError as e:
+        logger.warning(f"Health monitor not initialized: {e}")
+        raise HTTPException(
+            status_code=503,
+            detail="Health monitor service not initialized"
+        )
+    except Exception as e:
+        logger.error(f"Failed to get health monitor status: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to retrieve health monitor status: {str(e)}"
+        )
+
+
 @router.post("/servers/restart")
 async def restart_servers() -> Dict[str, Any]:
     """Stop all servers and restart based on current profile.
