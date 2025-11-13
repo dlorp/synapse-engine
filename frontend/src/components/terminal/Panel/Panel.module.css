@@ -1,0 +1,151 @@
+/* Panel.module.css - Terminal-aesthetic panel component for S.Y.N.A.P.S.E. ENGINE */
+
+.panel {
+  background: #0a0a0a;
+  border: 2px solid #ff9500;
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', 'Fira Code', monospace;
+  position: relative;
+  box-shadow: 0 0 10px rgba(255, 149, 0, 0.2);
+  transition: box-shadow 0.3s ease;
+}
+
+.panel:hover {
+  box-shadow: 0 0 15px rgba(255, 149, 0, 0.3);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid #ff9500;
+  background: rgba(255, 149, 0, 0.05);
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.title {
+  color: #ff9500;
+  font-weight: 600;
+  flex: 1;
+}
+
+.titleRight {
+  color: #ffb84d;
+  font-size: 11px;
+  opacity: 0.8;
+  margin-left: 12px;
+}
+
+.content {
+  padding: 16px;
+  color: #ffffff;
+}
+
+.noPadding {
+  padding: 0;
+}
+
+/* Variant: Default (phosphor orange) */
+.default {
+  border-color: #ff9500;
+}
+
+.default .header {
+  border-bottom-color: #ff9500;
+  background: rgba(255, 149, 0, 0.05);
+}
+
+.default .title {
+  color: #ff9500;
+}
+
+.default:hover {
+  box-shadow: 0 0 15px rgba(255, 149, 0, 0.3);
+}
+
+/* Variant: Accent (cyan) */
+.accent {
+  border-color: #00ffff;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+}
+
+.accent .header {
+  border-bottom-color: #00ffff;
+  background: rgba(0, 255, 255, 0.05);
+}
+
+.accent .title {
+  color: #00ffff;
+}
+
+.accent .titleRight {
+  color: #66ffff;
+}
+
+.accent:hover {
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+}
+
+/* Variant: Warning (amber) */
+.warning {
+  border-color: #ffaa00;
+  box-shadow: 0 0 10px rgba(255, 170, 0, 0.2);
+}
+
+.warning .header {
+  border-bottom-color: #ffaa00;
+  background: rgba(255, 170, 0, 0.05);
+}
+
+.warning .title {
+  color: #ffaa00;
+}
+
+.warning .titleRight {
+  color: #ffcc66;
+}
+
+.warning:hover {
+  box-shadow: 0 0 15px rgba(255, 170, 0, 0.3);
+}
+
+/* Variant: Error (red) */
+.error {
+  border-color: #ff0000;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.2);
+}
+
+.error .header {
+  border-bottom-color: #ff0000;
+  background: rgba(255, 0, 0, 0.05);
+}
+
+.error .title {
+  color: #ff0000;
+}
+
+.error .titleRight {
+  color: #ff6666;
+}
+
+.error:hover {
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .header {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+
+  .content {
+    padding: 12px;
+  }
+
+  .titleRight {
+    font-size: 10px;
+  }
+}

@@ -1,0 +1,37 @@
+/**
+ * ModelSparkline Styles
+ *
+ * Minimal wrapper styles for model-specific sparkline metrics.
+ * AsciiSparkline component handles primary visual presentation.
+ *
+ * S.Y.N.A.P.S.E. ENGINE terminal aesthetic:
+ * - Phosphor orange primary: #ff9500
+ * - Monospace fonts: JetBrains Mono, IBM Plex Mono
+ * - Dense information displays
+ */
+
+.modelSparkline {
+  display: block;
+  width: 100%;
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', 'Fira Code', monospace;
+}
+
+/* Metric-specific styling (if needed for future enhancements) */
+.modelSparkline[data-metric="tokens"] {
+  /* Tokens/sec throughput - default styling */
+}
+
+.modelSparkline[data-metric="memory"] {
+  /* Memory usage - default styling */
+}
+
+.modelSparkline[data-metric="latency"] {
+  /* Response latency - default styling */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .modelSparkline {
+    font-size: 0.875rem;
+  }
+}
