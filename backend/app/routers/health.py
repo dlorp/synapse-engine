@@ -72,17 +72,64 @@ async def readiness_probe(request: Request, response: Response) -> HealthRespons
     components = {}
     overall_status = "ok"
 
-    # TODO: Implement actual dependency checks
-    # For now, return basic status
+    # Check PRAXIS (FastAPI backend itself - always ready if this code is running)
     components["praxis"] = "ready"
-    components["memex"] = "unknown"  # Redis check
-    components["recall"] = "unknown"  # FAISS check
-    components["neural"] = "unknown"  # Host API check
+
+    # Check MEMEX (Redis) connectivity
+    try:
+        from app.core.config import get_config
+        import redis
+
+        config = get_config()
+        redis_client = redis.Redis(
+            host=config.redis.host,
+            port=config.redis.port,
+            db=config.redis.db,
+            password=config.redis.password,
+            socket_connect_timeout=2,
+            decode_responses=True
+        )
+        redis_client.ping()
+        components["memex"] = "ready"
+    except Exception as e:
+        components["memex"] = "unavailable"
+        overall_status = "degraded"
+
+    # Check RECALL (FAISS Index) availability
+    try:
+        from pathlib import Path
+        project_root = Path(__file__).parent.parent.parent
+        index_path = project_root / "data" / "faiss_indexes" / "docs.index"
+
+        if index_path.exists():
+            components["recall"] = "ready"
+        else:
+            components["recall"] = "not_indexed"
+    except Exception:
+        components["recall"] = "unavailable"
+
+    # Check NEURAL (Model Servers) availability
+    try:
+        # Import the global server_manager from main module
+        from app import main
+
+        if main.server_manager is not None:
+            status_summary = main.server_manager.get_status_summary()
+            active_count = status_summary.get("running_servers", 0)
+
+            if active_count > 0:
+                components["neural"] = f"{active_count}_active"
+            else:
+                components["neural"] = "no_models_running"
+        else:
+            components["neural"] = "not_initialized"
+    except Exception:
+        components["neural"] = "unknown"
 
     # If any component is unhealthy, mark overall status as degraded
     if "error" in components.values():
         overall_status = "error"
-    elif "degraded" in components.values() or "unknown" in components.values():
+    elif "unavailable" in components.values() or "degraded" in components.values():
         overall_status = "degraded"
 
     return HealthResponse(
