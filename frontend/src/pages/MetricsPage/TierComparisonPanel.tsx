@@ -11,7 +11,7 @@
  */
 
 import React, { useMemo } from 'react';
-import { Panel } from '@/components/terminal/Panel/Panel';
+import { AsciiPanel } from '@/components/terminal';
 import { TerminalSpinner } from '@/components/terminal/TerminalSpinner/TerminalSpinner';
 import { AsciiSparkline } from '@/components/charts/AsciiSparkline';
 import { useTierMetrics } from '@/hooks/useTierMetrics';
@@ -142,46 +142,46 @@ export const TierComparisonPanel: React.FC = () => {
     const tierOrder: Record<string, number> = { Q2: 0, Q3: 1, Q4: 2 };
     return [...metrics.tiers]
       .filter(tier => runningTiers.has(tier.name))
-      .sort((a, b) => tierOrder[a.name] - tierOrder[b.name]);
+      .sort((a, b) => (tierOrder[a.name] ?? 0) - (tierOrder[b.name] ?? 0));
   }, [metrics, runningTiers]);
 
   // Render loading state
   if (isLoading) {
     return (
-      <Panel title="TIER PERFORMANCE COMPARISON">
+      <AsciiPanel title="TIER PERFORMANCE COMPARISON">
         <div className={styles.loading}>
           <TerminalSpinner style="arc" size={24} />
           <span className={styles.loadingText}>Loading tier metrics...</span>
         </div>
-      </Panel>
+      </AsciiPanel>
     );
   }
 
   // Render error state
   if (error) {
     return (
-      <Panel title="TIER PERFORMANCE COMPARISON" variant="error">
+      <AsciiPanel title="TIER PERFORMANCE COMPARISON">
         <div className={styles.error}>
           <div className={styles.errorTitle}>ERROR: Failed to load tier metrics</div>
           <div className={styles.errorMessage}>{error.message}</div>
         </div>
-      </Panel>
+      </AsciiPanel>
     );
   }
 
   // Render empty state (no data from backend)
   if (!metrics) {
     return (
-      <Panel title="TIER PERFORMANCE COMPARISON">
+      <AsciiPanel title="TIER PERFORMANCE COMPARISON">
         <div className={styles.empty}>No tier metrics data available</div>
-      </Panel>
+      </AsciiPanel>
     );
   }
 
   // No models running state
   if (sortedTiers.length === 0) {
     return (
-      <Panel title="TIER PERFORMANCE COMPARISON">
+      <AsciiPanel title="TIER PERFORMANCE COMPARISON">
         <div className={styles.awaitingModels}>
           <div className={styles.emptyTierGrid}>
             <div className={styles.emptyTierBox}>
@@ -222,12 +222,12 @@ export const TierComparisonPanel: React.FC = () => {
             → Deploy models to enable tier comparison analytics
           </div>
         </div>
-      </Panel>
+      </AsciiPanel>
     );
   }
 
   return (
-    <Panel title="TIER PERFORMANCE COMPARISON">
+    <AsciiPanel title="TIER PERFORMANCE COMPARISON">
       <div className={styles.container}>
         <div className={styles.grid}>
           {sortedTiers.map((tier) => (
@@ -242,6 +242,6 @@ export const TierComparisonPanel: React.FC = () => {
           ))}
         </div>
       </div>
-    </Panel>
+    </AsciiPanel>
   );
 };

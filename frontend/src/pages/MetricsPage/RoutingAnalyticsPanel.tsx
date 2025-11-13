@@ -17,6 +17,7 @@ import React from 'react';
 import { useRoutingMetrics } from '@/hooks/useRoutingMetrics';
 import { DecisionMatrix, AvailabilityHeatmap } from '@/components/charts';
 import { TerminalSpinner } from '@/components/terminal/TerminalSpinner';
+import { AsciiPanel } from '@/components/terminal';
 import styles from './RoutingAnalyticsPanel.module.css';
 
 export const RoutingAnalyticsPanel: React.FC = () => {
@@ -25,25 +26,19 @@ export const RoutingAnalyticsPanel: React.FC = () => {
   // Loading state
   if (isLoading) {
     return (
-      <div className="webtui-panel">
-        <div className="webtui-panel-header">
-          <h2>ROUTING ANALYTICS</h2>
-        </div>
+      <AsciiPanel title="ROUTING ANALYTICS">
         <div className={styles.loading}>
           <TerminalSpinner style="dots" size={24} />
           <span>LOADING ROUTING METRICS...</span>
         </div>
-      </div>
+      </AsciiPanel>
     );
   }
 
   // Error state
   if (error) {
     return (
-      <div className="webtui-panel">
-        <div className="webtui-panel-header">
-          <h2>ROUTING ANALYTICS</h2>
-        </div>
+      <AsciiPanel title="ROUTING ANALYTICS">
         <div className={styles.error}>
           <span className={styles.errorIcon}>✖</span>
           <div className={styles.errorMessage}>
@@ -53,21 +48,18 @@ export const RoutingAnalyticsPanel: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
+      </AsciiPanel>
     );
   }
 
   // No data state
   if (!metrics) {
     return (
-      <div className="webtui-panel">
-        <div className="webtui-panel-header">
-          <h2>ROUTING ANALYTICS</h2>
-        </div>
+      <AsciiPanel title="ROUTING ANALYTICS">
         <div className={styles.noData}>
           <span>NO ROUTING DATA AVAILABLE</span>
         </div>
-      </div>
+      </AsciiPanel>
     );
   }
 
@@ -79,10 +71,7 @@ export const RoutingAnalyticsPanel: React.FC = () => {
   // No models running state
   if (!hasAvailableModels) {
     return (
-      <div className="webtui-panel">
-        <div className="webtui-panel-header">
-          <h2>ROUTING ANALYTICS</h2>
-        </div>
+      <AsciiPanel title="ROUTING ANALYTICS">
         <div className={styles.awaitingModels}>
           <div className={styles.emptyHeader}>NEURAL SUBSTRATE STATUS</div>
           <div className={styles.tierStructure}>
@@ -106,16 +95,12 @@ export const RoutingAnalyticsPanel: React.FC = () => {
             → Deploy models via Model Management to begin processing
           </div>
         </div>
-      </div>
+      </AsciiPanel>
     );
   }
 
   return (
-    <div className="webtui-panel">
-      <div className="webtui-panel-header">
-        <h2>ROUTING ANALYTICS</h2>
-      </div>
-
+    <AsciiPanel title="ROUTING ANALYTICS">
       <div className={styles.content}>
         {/* Summary Stats */}
         <div className={styles.summaryStats}>
@@ -171,6 +156,6 @@ export const RoutingAnalyticsPanel: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
+    </AsciiPanel>
   );
 };

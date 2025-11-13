@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Panel } from '@/components/terminal';
+import { AsciiPanel } from '@/components/terminal';
 import { StatusIndicator } from '@/components/terminal';
 import { ModelCardGrid } from '@/components/models/ModelCardGrid';
 import { ModelSettings } from '@/components/models/ModelSettings';
@@ -348,7 +348,7 @@ export const ModelManagementPage: React.FC = () => {
         <div className={styles.header}>
           <h1 className={styles.title}>PRAXIS MODEL REGISTRY</h1>
         </div>
-        <Panel title="MODEL DISCOVERY" variant="accent">
+        <AsciiPanel title="MODEL DISCOVERY" variant="accent">
           <div className={styles.scanningRegistry}>
             <div className={styles.scanningHeader}>SCANNING MODEL REGISTRY</div>
 
@@ -375,7 +375,7 @@ export const ModelManagementPage: React.FC = () => {
               <div className={styles.progressWave}>▁▂▃▄▅▆▇█▇▆▅▄▃▂▁</div>
             </div>
           </div>
-        </Panel>
+        </AsciiPanel>
       </div>
     );
   }
@@ -387,7 +387,7 @@ export const ModelManagementPage: React.FC = () => {
         <div className={styles.header}>
           <h1 className={styles.title}>PRAXIS MODEL REGISTRY</h1>
         </div>
-        <Panel title="SYSTEM ERROR" variant="error">
+        <AsciiPanel title="SYSTEM ERROR" variant="error">
           <div className={styles.errorContainer}>
             <div className={styles.errorIcon}>⚠</div>
             <div className={styles.errorText}>
@@ -402,7 +402,7 @@ export const ModelManagementPage: React.FC = () => {
               RETRY
             </button>
           </div>
-        </Panel>
+        </AsciiPanel>
       </div>
     );
   }
@@ -414,7 +414,7 @@ export const ModelManagementPage: React.FC = () => {
         <div className={styles.header}>
           <h1 className={styles.title}>PRAXIS MODEL REGISTRY</h1>
         </div>
-        <Panel title="MODEL REGISTRY" variant="warning">
+        <AsciiPanel title="MODEL REGISTRY" variant="warning">
           <div className={styles.emptyRegistry}>
             <div className={styles.emptyHeader}>MODEL REGISTRY UNINITIALIZED</div>
 
@@ -439,7 +439,7 @@ export const ModelManagementPage: React.FC = () => {
               ▶ RUN DISCOVERY SCAN
             </button>
           </div>
-        </Panel>
+        </AsciiPanel>
       </div>
     );
   }
@@ -462,9 +462,12 @@ export const ModelManagementPage: React.FC = () => {
 
   return (
     <div className={styles.page}>
-      {/* Header with Title and Registry Controls */}
+      {/* Header with Title and Registry Controls - Matches AdminPage format */}
       <div className={styles.header}>
-        <h1 className={styles.title}>PRAXIS MODEL REGISTRY</h1>
+        <div className={styles.headerLeft}>
+          <h1 className={styles.title}>PRAXIS MODEL REGISTRY</h1>
+          <div className={styles.subtitle}>Neural substrate model discovery and lifecycle management</div>
+        </div>
 
         <div className={styles.headerControls}>
           <button
@@ -501,7 +504,7 @@ export const ModelManagementPage: React.FC = () => {
 
       {/* External Metal Servers Status Banner */}
       {externalServerStatus && externalServerStatus.useExternalServers && (
-        <Panel
+        <AsciiPanel
           title="EXTERNAL METAL SERVERS"
           variant={externalServerStatus.areReachable ? 'accent' : 'error'}
         >
@@ -547,12 +550,12 @@ export const ModelManagementPage: React.FC = () => {
               </span>
             </div>
           </div>
-        </Panel>
+        </AsciiPanel>
       )}
 
       {/* Operation Success Display */}
       {operationSuccess && (
-        <Panel title="OPERATION SUCCESS" variant="accent">
+        <AsciiPanel title="OPERATION SUCCESS" variant="accent">
           <div className={styles.operationSuccess}>
             <div className={styles.successIcon}>✓</div>
             <div className={styles.successText}>{operationSuccess}</div>
@@ -564,12 +567,12 @@ export const ModelManagementPage: React.FC = () => {
               DISMISS
             </button>
           </div>
-        </Panel>
+        </AsciiPanel>
       )}
 
       {/* Operation Error Display */}
       {operationError && (
-        <Panel title="OPERATION ERROR" variant="error">
+        <AsciiPanel title="OPERATION ERROR" variant="error">
           <div className={styles.operationError}>
             <div className={styles.errorIcon}>⚠</div>
             <div className={styles.errorText}>{operationError}</div>
@@ -581,17 +584,17 @@ export const ModelManagementPage: React.FC = () => {
               DISMISS
             </button>
           </div>
-        </Panel>
+        </AsciiPanel>
       )}
 
       {/* System Status Panel - Enhanced with ASCII */}
-      <Panel title="SYSTEM STATUS" variant="accent">
+      <AsciiPanel title="SYSTEM STATUS">
         <div className={styles.neuralSubstrateStatus}>
           <div className={styles.statusHeader}>NEURAL SUBSTRATE REGISTRY</div>
 
           {/* Tier Distribution */}
           <div className={styles.tierDistribution}>
-            <div className={styles.distributionHeader}>┌─ TIER DISTRIBUTION ─────────┐</div>
+            <div className={styles.distributionHeader}>{`${'─ TIER DISTRIBUTION '}${'─'.repeat(150)}`}</div>
 
             <div className={styles.tierBar}>
               <span className={styles.tierLabel}>Q2 [FAST]</span>
@@ -667,13 +670,11 @@ export const ModelManagementPage: React.FC = () => {
               <span>TOTAL: {modelCount} models</span>
               <span>ENABLED: {enabledCount} models</span>
             </div>
-
-            <div className={styles.distributionHeader}>└─────────────────────────────┘</div>
           </div>
 
           {/* Server Status */}
           <div className={styles.serverStatusBox}>
-            <div className={styles.distributionHeader}>┌─ SERVER STATUS ─────────────┐</div>
+            <div className={styles.distributionHeader}>{`${'─ SERVER STATUS '}${'─'.repeat(150)}`}</div>
 
             <div className={styles.serverBar}>
               <span className={styles.serverLabel}>RUNNING:</span>
@@ -722,8 +723,6 @@ export const ModelManagementPage: React.FC = () => {
                 {readyServers}/{runningServers}
               </span>
             </div>
-
-            <div className={styles.distributionHeader}>└─────────────────────────────┘</div>
           </div>
 
           {/* Registry Info (compact) */}
@@ -746,10 +745,10 @@ export const ModelManagementPage: React.FC = () => {
             </div>
           </div>
         </div>
-      </Panel>
+      </AsciiPanel>
 
       {/* Discovered Models Card Grid */}
-      <Panel title="DISCOVERED MODELS" variant="default">
+      <AsciiPanel title="DISCOVERED MODELS">
         {modelCount === 0 ? (
           <div className={styles.emptyModelsGrid}>
             <div className={styles.emptyHeader}>NO GGUF MODELS FOUND</div>
@@ -812,7 +811,7 @@ export const ModelManagementPage: React.FC = () => {
             }}
           />
         )}
-      </Panel>
+      </AsciiPanel>
 
       {/* Real-time Log Viewer */}
       <LogViewer

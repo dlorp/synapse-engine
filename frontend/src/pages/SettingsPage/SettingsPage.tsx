@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Panel, Input, Button, Divider, ProgressBar } from '@/components/terminal';
+import { AsciiPanel, Input, Button, Divider, ProgressBar } from '@/components/terminal';
 import {
   useSettings,
   useUpdateSettings,
@@ -322,33 +322,20 @@ export const SettingsPage: React.FC = () => {
       <h1 className={styles.title}>SYSTEM CONFIGURATION</h1>
 
       {/* System Configuration Section with ASCII Border */}
-      <div className={styles.systemConfigSection}>
-        <div className={styles.asciiHeader}>
-          <span className={styles.asciiCorner}>┌─</span>
-          <span className={styles.asciiTitle}> SYSTEM CONFIGURATION </span>
-          <span className={styles.asciiLine}>{'─'.repeat(50)}</span>
-          <span className={styles.asciiCorner}>┐</span>
-        </div>
-        <div className={styles.asciiBody}>
-          <label className={styles.terminalCheckbox}>
-            <input
-              type="checkbox"
-              checked={showTooltips}
-              onChange={(e) => setShowTooltips(e.target.checked)}
-            />
-            <span className={styles.checkboxLabel}>SHOW HELP TOOLTIPS</span>
-            {showTooltips && <span className={styles.checkboxStatus}>⚪ ENABLED</span>}
-          </label>
-          <p className={styles.helpText}>
-            Display contextual help when hovering over interface elements
-          </p>
-        </div>
-        <div className={styles.asciiFooter}>
-          <span className={styles.asciiCorner}>└</span>
-          <span className={styles.asciiLine}>{'─'.repeat(70)}</span>
-          <span className={styles.asciiCorner}>┘</span>
-        </div>
-      </div>
+      <AsciiPanel title="SYSTEM CONFIGURATION">
+        <label className={styles.terminalCheckbox}>
+          <input
+            type="checkbox"
+            checked={showTooltips}
+            onChange={(e) => setShowTooltips(e.target.checked)}
+          />
+          <span className={styles.checkboxLabel}>SHOW HELP TOOLTIPS</span>
+          {showTooltips && <span className={styles.checkboxStatus}>⚪ ENABLED</span>}
+        </label>
+        <p className={styles.helpText}>
+          Display contextual help when hovering over interface elements
+        </p>
+      </AsciiPanel>
 
       {/* Restart Required Banner */}
       {restartRequired && (
@@ -381,125 +368,87 @@ export const SettingsPage: React.FC = () => {
       )}
 
       {/* Section 1: Port Configuration with ASCII Border */}
-      <div className={styles.portConfigSection}>
-        <div className={styles.asciiHeader}>
-          <span className={styles.asciiCorner}>┌─</span>
-          <span className={styles.asciiTitle}> PORT CONFIGURATION </span>
-          <span className={styles.asciiLine}>{'─'.repeat(50)}</span>
-          <span className={styles.asciiCorner}>┐</span>
-        </div>
-        <div className={styles.asciiBody}>
-          <p className={styles.sectionDescription}>
-            Configure the port range for llama.cpp model servers. Individual models can be
-            assigned specific ports in Model Management.
-          </p>
+      <AsciiPanel title="PORT CONFIGURATION">
+        <p className={styles.sectionDescription}>
+          Configure the port range for llama.cpp model servers. Individual models can be
+          assigned specific ports in Model Management.
+        </p>
 
-          <div className={styles.portRangeGrid}>
-            <div className={styles.field}>
-              <label className={styles.label}>
-                PORT RANGE START
-                <span className={styles.hint}>⚠ Minimum: 1024</span>
-              </label>
-              <Input
-                type="number"
-                min={1024}
-                max={65535}
-                value={portRangeStart}
-                onChange={(e) => {
-                  setPortRangeStart(parseInt(e.target.value, 10) || 1024);
-                  setRestartRequired(true);
-                }}
-                className={styles.numericInput}
-              />
-            </div>
-
-            <div className={styles.field}>
-              <label className={styles.label}>
-                PORT RANGE END
-                <span className={styles.hint}>⚠ Maximum: 65535</span>
-              </label>
-              <Input
-                type="number"
-                min={1024}
-                max={65535}
-                value={portRangeEnd}
-                onChange={(e) => {
-                  setPortRangeEnd(parseInt(e.target.value, 10) || 65535);
-                  setRestartRequired(true);
-                }}
-                className={styles.numericInput}
-              />
-            </div>
+        <div className={styles.portRangeGrid}>
+          <div className={styles.field}>
+            <label className={styles.label}>
+              PORT RANGE START
+              <span className={styles.hint}>⚠ Minimum: 1024</span>
+            </label>
+            <Input
+              type="number"
+              min={1024}
+              max={65535}
+              value={portRangeStart}
+              onChange={(e) => {
+                setPortRangeStart(parseInt(e.target.value, 10) || 1024);
+                setRestartRequired(true);
+              }}
+              className={styles.numericInput}
+            />
           </div>
 
-          {/* Status Display Box */}
-          <div className={styles.statusBox}>
-            <div className={styles.statusHeader}>
-              <span className={styles.asciiCorner}>┌─</span>
-              <span className={styles.statusTitle}> STATUS </span>
-              <span className={styles.asciiLine}>{'─'.repeat(60)}</span>
-              <span className={styles.asciiCorner}>┐</span>
-            </div>
-            <div className={styles.statusBody}>
-              <div className={styles.portStatus}>
-                <span className={styles.portLabel}>AVAILABLE PORTS:</span>
-                <span className={`${styles.portValue} ${styles.available}`}>
-                  {portRangeEnd - portRangeStart + 1} ports ({portRangeStart}-{portRangeEnd}) ✓
-                </span>
-                {portRangeStart >= portRangeEnd && (
-                  <span className={styles.errorText}> ⚠ Start port must be less than end port</span>
-                )}
-              </div>
-
-              {assignedPorts.length > 0 && (
-                <div className={styles.portStatus}>
-                  <span className={styles.portLabel}>ASSIGNED PORTS:</span>
-                  <span className={`${styles.portValue} ${styles.assigned}`}>
-                    {assignedPorts.length} in use (
-                    {assignedPorts.sort((a, b) => a - b).join(', ')})
-                  </span>
-                </div>
-              )}
-            </div>
-            <div className={styles.statusFooter}>
-              <span className={styles.asciiCorner}>└</span>
-              <span className={styles.asciiLine}>{'─'.repeat(68)}</span>
-              <span className={styles.asciiCorner}>┘</span>
-            </div>
+          <div className={styles.field}>
+            <label className={styles.label}>
+              PORT RANGE END
+              <span className={styles.hint}>⚠ Maximum: 65535</span>
+            </label>
+            <Input
+              type="number"
+              min={1024}
+              max={65535}
+              value={portRangeEnd}
+              onChange={(e) => {
+                setPortRangeEnd(parseInt(e.target.value, 10) || 65535);
+                setRestartRequired(true);
+              }}
+              className={styles.numericInput}
+            />
           </div>
         </div>
-        <div className={styles.asciiFooter}>
-          <span className={styles.asciiCorner}>└</span>
-          <span className={styles.asciiLine}>{'─'.repeat(70)}</span>
-          <span className={styles.asciiCorner}>┘</span>
-        </div>
-      </div>
+
+        {/* Status Display Box */}
+        <AsciiPanel title="STATUS">
+          <div className={styles.portStatus}>
+            <span className={styles.portLabel}>AVAILABLE PORTS:</span>
+            <span className={`${styles.portValue} ${styles.available}`}>
+              {portRangeEnd - portRangeStart + 1} ports ({portRangeStart}-{portRangeEnd}) ✓
+            </span>
+            {portRangeStart >= portRangeEnd && (
+              <span className={styles.errorText}> ⚠ Start port must be less than end port</span>
+            )}
+          </div>
+
+          {assignedPorts.length > 0 && (
+            <div className={styles.portStatus}>
+              <span className={styles.portLabel}>ASSIGNED PORTS:</span>
+              <span className={`${styles.portValue} ${styles.assigned}`}>
+                {assignedPorts.length} in use (
+                {assignedPorts.sort((a, b) => a - b).join(', ')})
+              </span>
+            </div>
+          )}
+        </AsciiPanel>
+      </AsciiPanel>
 
       <Divider spacing="lg" />
 
       {/* Section 2: Global Model Runtime Defaults with ASCII Border */}
-      <div className={styles.runtimeDefaultsSection}>
-        <div className={styles.asciiHeader}>
-          <span className={styles.asciiCorner}>┌─</span>
-          <span className={styles.asciiTitle}> GLOBAL MODEL RUNTIME DEFAULTS </span>
-          <span className={styles.asciiLine}>{'─'.repeat(40)}</span>
-          <span className={styles.asciiCorner}>┐</span>
-        </div>
-        <div className={styles.asciiBody}>
-          <p className={styles.sectionDescription}>
-            These settings apply to all models unless overridden individually.
-          </p>
+      <AsciiPanel title="GLOBAL MODEL RUNTIME DEFAULTS">
+        <p className={styles.sectionDescription}>
+          These settings apply to all models unless overridden individually.
+        </p>
 
-          {/* 3-Column Grid: GPU / Context / Performance */}
-          <div className={styles.settingsGrid}>
-            {/* GPU Acceleration Column */}
-            <div className={styles.settingsColumn}>
-              <div className={styles.columnHeader}>
-                <span className={styles.asciiCorner}>┌─</span>
-                <span className={styles.columnTitle}> GPU ACCELERATION </span>
-                <span className={styles.asciiLine}>{'─'.repeat(10)}</span>
-                <span className={styles.asciiCorner}>┐</span>
-              </div>
+        {/* 3-Column Grid: GPU / Context / Performance */}
+        <div className={styles.settingsGrid}>
+          {/* GPU Acceleration Column */}
+          <div className={styles.settingsColumn}>
+            <AsciiPanel title="GPU ACCELERATION">
               <div className={styles.columnBody}>
                 <div className={styles.field}>
                   <label className={styles.label}>
@@ -534,16 +483,12 @@ export const SettingsPage: React.FC = () => {
                   <div className={styles.fieldInfo}>⚡ Metal acceleration</div>
                 </div>
               </div>
-            </div>
+            </AsciiPanel>
+          </div>
 
-            {/* Context Column */}
-            <div className={styles.settingsColumn}>
-              <div className={styles.columnHeader}>
-                <span className={styles.asciiCorner}>┌─</span>
-                <span className={styles.columnTitle}> CONTEXT </span>
-                <span className={styles.asciiLine}>{'─'.repeat(15)}</span>
-                <span className={styles.asciiCorner}>┐</span>
-              </div>
+          {/* Context Column */}
+          <div className={styles.settingsColumn}>
+            <AsciiPanel title="CONTEXT">
               <div className={styles.columnBody}>
                 <div className={styles.field}>
                   <label className={styles.label}>
@@ -568,16 +513,12 @@ export const SettingsPage: React.FC = () => {
                   <div className={styles.fieldInfo}>🧠 Tokens in memory</div>
                 </div>
               </div>
-            </div>
+            </AsciiPanel>
+          </div>
 
-            {/* Performance Column */}
-            <div className={styles.settingsColumn}>
-              <div className={styles.columnHeader}>
-                <span className={styles.asciiCorner}>┌─</span>
-                <span className={styles.columnTitle}> PERFORMANCE </span>
-                <span className={styles.asciiLine}>{'─'.repeat(10)}</span>
-                <span className={styles.asciiCorner}>┐</span>
-              </div>
+          {/* Performance Column */}
+          <div className={styles.settingsColumn}>
+            <AsciiPanel title="PERFORMANCE">
               <div className={styles.columnBody}>
                 <div className={styles.field}>
                   <label className={styles.label}>
@@ -599,18 +540,13 @@ export const SettingsPage: React.FC = () => {
                   <div className={styles.fieldInfo}>⚙ CPU threads</div>
                 </div>
               </div>
-            </div>
+            </AsciiPanel>
           </div>
+        </div>
 
-          {/* Batch Settings Row */}
-          <div className={styles.batchSettingsBox}>
-            <div className={styles.batchHeader}>
-              <span className={styles.asciiCorner}>┌─</span>
-              <span className={styles.batchTitle}> BATCH SETTINGS </span>
-              <span className={styles.asciiLine}>{'─'.repeat(55)}</span>
-              <span className={styles.asciiCorner}>┐</span>
-            </div>
-            <div className={styles.batchBody}>
+        {/* Batch Settings Row */}
+        <AsciiPanel title="BATCH SETTINGS">
+          <div className={styles.batchBody}>
               <div className={styles.batchGrid}>
                 <div className={styles.field}>
                   <label className={styles.label}>BATCH SIZE</label>
@@ -664,15 +600,10 @@ export const SettingsPage: React.FC = () => {
                 </label>
               </div>
             </div>
-            <div className={styles.batchFooter}>
-              <span className={styles.asciiCorner}>└</span>
-              <span className={styles.asciiLine}>{'─'.repeat(73)}</span>
-              <span className={styles.asciiCorner}>┘</span>
-            </div>
-          </div>
+        </AsciiPanel>
 
-          {/* Action Buttons Row */}
-          <div className={styles.actionRow}>
+        {/* Action Buttons Row */}
+        <div className={styles.actionRow}>
             <Button
               variant="primary"
               onClick={handleSave}
@@ -698,26 +629,13 @@ export const SettingsPage: React.FC = () => {
             >
               ⟳ RELOAD CONFIG
             </Button>
-          </div>
         </div>
-        <div className={styles.asciiFooter}>
-          <span className={styles.asciiCorner}>└</span>
-          <span className={styles.asciiLine}>{'─'.repeat(70)}</span>
-          <span className={styles.asciiCorner}>┘</span>
-        </div>
-      </div>
+      </AsciiPanel>
 
       <Divider spacing="lg" />
 
       {/* Section 3: Embedding Configuration with ASCII Border */}
-      <div className={styles.embeddingConfigSection}>
-        <div className={styles.asciiHeader}>
-          <span className={styles.asciiCorner}>┌─</span>
-          <span className={styles.asciiTitle}> EMBEDDING CONFIGURATION </span>
-          <span className={styles.asciiLine}>{'─'.repeat(45)}</span>
-          <span className={styles.asciiCorner}>┐</span>
-        </div>
-        <div className={styles.asciiBody}>
+      <AsciiPanel title="EMBEDDING CONFIGURATION">
           <p className={styles.sectionDescription}>
             Configuration for HuggingFace sentence transformer models used in CGRAG retrieval.
           </p>
@@ -789,25 +707,12 @@ export const SettingsPage: React.FC = () => {
               />
             )}
           </div>
-        </div>
-        <div className={styles.asciiFooter}>
-          <span className={styles.asciiCorner}>└</span>
-          <span className={styles.asciiLine}>{'─'.repeat(70)}</span>
-          <span className={styles.asciiCorner}>┘</span>
-        </div>
-      </div>
+      </AsciiPanel>
 
       <Divider spacing="lg" />
 
       {/* Section 4: CGRAG Configuration with ASCII Border */}
-      <div className={styles.cgragConfigSection}>
-        <div className={styles.asciiHeader}>
-          <span className={styles.asciiCorner}>┌─</span>
-          <span className={styles.asciiTitle}> CGRAG CONFIGURATION </span>
-          <span className={styles.asciiLine}>{'─'.repeat(48)}</span>
-          <span className={styles.asciiCorner}>┐</span>
-        </div>
-        <div className={styles.asciiBody}>
+      <AsciiPanel title="CGRAG CONFIGURATION">
           <p className={styles.sectionDescription}>
             Contextually-Guided Retrieval Augmented Generation settings for semantic search and
             context retrieval.
@@ -950,25 +855,12 @@ export const SettingsPage: React.FC = () => {
               className={styles.pathInput}
             />
           </div>
-        </div>
-        <div className={styles.asciiFooter}>
-          <span className={styles.asciiCorner}>└</span>
-          <span className={styles.asciiLine}>{'─'.repeat(70)}</span>
-          <span className={styles.asciiCorner}>┘</span>
-        </div>
-      </div>
+      </AsciiPanel>
 
       <Divider spacing="lg" />
 
       {/* Section 5: Benchmark & Web Search Configuration with ASCII Border */}
-      <div className={styles.benchmarkConfigSection}>
-        <div className={styles.asciiHeader}>
-          <span className={styles.asciiCorner}>┌─</span>
-          <span className={styles.asciiTitle}> BENCHMARK & WEB SEARCH CONFIGURATION </span>
-          <span className={styles.asciiLine}>{'─'.repeat(35)}</span>
-          <span className={styles.asciiCorner}>┐</span>
-        </div>
-        <div className={styles.asciiBody}>
+      <AsciiPanel title="BENCHMARK & WEB SEARCH CONFIGURATION">
           <p className={styles.sectionDescription}>
             Default settings for benchmark mode and web search integration.
           </p>
@@ -1068,19 +960,13 @@ export const SettingsPage: React.FC = () => {
               />
             </div>
           </div>
-        </div>
-        <div className={styles.asciiFooter}>
-          <span className={styles.asciiCorner}>└</span>
-          <span className={styles.asciiLine}>{'─'.repeat(70)}</span>
-          <span className={styles.asciiCorner}>┘</span>
-        </div>
-      </div>
+      </AsciiPanel>
 
 
       {/* Reset Confirmation Dialog */}
       {showResetDialog && (
         <div className={styles.dialog}>
-          <Panel title="CONFIRM RESET" variant="default">
+          <AsciiPanel title="CONFIRM RESET">
             <div className={styles.dialogContent}>
               <p className={styles.dialogText}>
                 Are you sure you want to reset all settings to defaults? This action
@@ -1103,7 +989,7 @@ export const SettingsPage: React.FC = () => {
                 </Button>
               </div>
             </div>
-          </Panel>
+          </AsciiPanel>
         </div>
       )}
 
