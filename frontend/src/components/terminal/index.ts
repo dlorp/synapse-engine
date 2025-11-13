@@ -1,6 +1,12 @@
 export { Panel } from './Panel';
 export type { PanelProps } from './Panel';
 
+export { AsciiPanel } from './AsciiPanel';
+export type { AsciiPanelProps } from './AsciiPanel';
+
+export { AsciiSectionHeader } from './AsciiSectionHeader/AsciiSectionHeader';
+export type { AsciiSectionHeaderProps } from './AsciiSectionHeader/AsciiSectionHeader';
+
 export { DotMatrixPanel } from './DotMatrixPanel';
 export type { DotMatrixPanelProps } from './DotMatrixPanel';
 

@@ -27,7 +27,11 @@ import styles from '../HomePage/HomePage.module.css';
 export const MetricsPage: React.FC = () => {
   return (
     <div className={styles.page}>
-      <h1 className={styles.title}>S.Y.N.A.P.S.E. ENGINE - System Metrics</h1>
+      {/* Header - Matches AdminPage format */}
+      <div className={styles.header}>
+        <h1 className={styles.title}>SYSTEM METRICS</h1>
+        <div className={styles.subtitle}>Real-time analytics and performance monitoring</div>
+      </div>
 
       {/* Panel 0: System Health Overview - Aggregate system performance trends */}
       <SystemHealthOverview />
