@@ -1,0 +1,156 @@
+/**
+ * LogViewer Component Styles - Terminal aesthetic log viewer
+ *
+ * Features:
+ * - Scrollable log container with custom scrollbar
+ * - Empty state message styling
+ * - Sticky "scroll to bottom" button with pulse animation
+ * - Phosphor orange (#ff9500) accent color
+ */
+
+.logViewer {
+  margin-top: 2rem;
+  position: relative;
+}
+
+.logContainer {
+  max-height: 600px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--bg-primary);
+  border: 2px solid var(--border-primary);
+  padding: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: var(--leading-tight);
+  position: relative;
+}
+
+/* Custom scrollbar for log container */
+.logContainer::-webkit-scrollbar {
+  width: 10px;
+}
+
+.logContainer::-webkit-scrollbar-track {
+  background: var(--bg-panel);
+  border-left: 1px solid var(--border-secondary);
+}
+
+.logContainer::-webkit-scrollbar-thumb {
+  background: var(--border-secondary);
+  border: 1px solid var(--border-primary);
+}
+
+.logContainer::-webkit-scrollbar-thumb:hover {
+  background: var(--border-primary);
+}
+
+/* Empty state */
+.emptyState {
+  text-align: center;
+  color: var(--text-dim);
+  padding: 3rem 2rem;
+  font-size: var(--text-md);
+  font-weight: var(--font-medium);
+  letter-spacing: 1px;
+  border: 1px dashed var(--border-secondary);
+  background: var(--bg-panel);
+}
+
+/* Scroll to bottom button */
+.scrollToBottom {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  text-align: center;
+  padding: 0.625rem 1rem;
+  cursor: pointer;
+  font-weight: var(--font-bold);
+  font-size: var(--text-sm);
+  font-family: var(--font-mono);
+  border: none;
+  border-top: 2px solid var(--bg-primary);
+  animation: pulse 2s infinite;
+  z-index: var(--z-sticky);
+  transition: all var(--transition-fast);
+}
+
+.scrollToBottom:hover {
+  background: var(--text-accent);
+  animation: none;
+}
+
+.scrollToBottom:active {
+  background: var(--text-secondary);
+}
+
+/* Pulse animation for scroll button */
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+/* Loading state (future enhancement) */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.loading::before {
+  content: '⟳';
+  display: inline-block;
+  margin-right: 0.5rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .logContainer {
+    max-height: 500px;
+  }
+}
+
+@media (max-width: 768px) {
+  .logContainer {
+    max-height: 400px;
+    padding: 0.5rem;
+  }
+
+  .scrollToBottom {
+    padding: 0.5rem;
+    font-size: var(--text-xs);
+  }
+}
+
+/* Accessibility */
+.logContainer:focus {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+}
+
+.scrollToBottom:focus {
+  outline: 2px solid var(--bg-primary);
+  outline-offset: -2px;
+}
