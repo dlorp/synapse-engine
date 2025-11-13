@@ -134,7 +134,7 @@ export const HomePage: React.FC = () => {
   );
 
   return (
-    <CRTMonitor bloomIntensity={0.3} scanlinesEnabled curvatureEnabled>
+    <CRTMonitor bloomIntensity={0} scanlinesEnabled curvatureEnabled>
       <div className={styles.page}>
         {/* Dot Matrix LED Banner */}
         <div className={styles.bannerContainer}>
