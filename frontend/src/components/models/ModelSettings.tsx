@@ -18,6 +18,17 @@ export interface ModelSettingsProps {
 }
 
 /**
+ * Pad ASCII line to fixed width for terminal aesthetic
+ * Ensures consistent frame width across all screen sizes (150 chars)
+ */
+const padLine = (content: string, width: number = 150): string => {
+  if (content.length >= width) {
+    return content.substring(0, width);
+  }
+  return content.padEnd(width, '─');
+};
+
+/**
  * ModelSettings - Expandable panel for per-model configuration
  *
  * Features:
@@ -28,6 +39,7 @@ export interface ModelSettingsProps {
  * - Apply/Reset buttons
  * - Restart warning when server is running
  * - Terminal aesthetic with override indicators
+ * - Responsive ASCII borders (150-char width)
  */
 export const ModelSettings: React.FC<ModelSettingsProps> = ({
   model,
@@ -101,7 +113,7 @@ export const ModelSettings: React.FC<ModelSettingsProps> = ({
         {/* Header */}
         <div className={styles.header}>
           <div className={styles.headerBorder}>
-            ┌─ MODEL CONFIGURATION ──────────────────────────────────────────────────┐
+            {padLine('─ MODEL CONFIGURATION ')}
           </div>
           <div className={styles.headerContent}>
             <span className={styles.modelInfo}>
@@ -114,15 +126,12 @@ export const ModelSettings: React.FC<ModelSettingsProps> = ({
               </div>
             )}
           </div>
-          <div className={styles.headerBorder}>
-            └────────────────────────────────────────────────────────────────────────┘
-          </div>
         </div>
 
         {/* Port Assignment Section */}
         <div className={styles.section}>
           <div className={styles.sectionBorder}>
-            ┌─ PORT ASSIGNMENT ──────────────────────────────────────────────────────┐
+            {padLine('─ PORT ASSIGNMENT ')}
           </div>
           <div className={styles.sectionContent}>
             <div className={styles.portRow}>
@@ -139,15 +148,12 @@ export const ModelSettings: React.FC<ModelSettingsProps> = ({
               )}
             </div>
           </div>
-          <div className={styles.sectionBorder}>
-            └────────────────────────────────────────────────────────────────────────┘
-          </div>
         </div>
 
         {/* Runtime Settings Grid */}
         <div className={styles.section}>
           <div className={styles.sectionBorder}>
-            ┌─ RUNTIME SETTINGS ─────────────────────────────────────────────────────┐
+            {padLine('─ RUNTIME SETTINGS ')}
           </div>
           <div className={styles.runtimeGrid}>
             {/* GPU Layers */}
@@ -287,9 +293,6 @@ export const ModelSettings: React.FC<ModelSettingsProps> = ({
                 )}
               </div>
             </div>
-          </div>
-          <div className={styles.sectionBorder}>
-            └────────────────────────────────────────────────────────────────────────┘
           </div>
         </div>
 

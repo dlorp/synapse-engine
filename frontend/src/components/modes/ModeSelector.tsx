@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Panel } from '../terminal/Panel/Panel';
 import styles from './ModeSelector.module.css';
 
 export type QueryMode = 'two-stage' | 'simple' | 'council' | 'benchmark';
@@ -126,8 +125,9 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
   };
 
   return (
-    <Panel title="QUERY MODE SELECTION" variant="accent">
-      <div className={styles.modeGrid}>
+    <div className={styles.modeSelectorContainer}>
+      <div className={styles.sectionContent}>
+        <div className={styles.modeGrid}>
         {MODES.map(mode => (
           <button
             key={mode.id}
@@ -398,6 +398,7 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
           </div>
         </div>
       )}
-    </Panel>
+      </div>
+    </div>
   );
 };

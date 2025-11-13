@@ -17,7 +17,7 @@
 import React, { useMemo } from 'react';
 import { useModelStatus } from '@/hooks/useModelStatus';
 import { useMetricsHistory } from '@/hooks/useMetricsHistory';
-import { TerminalSpinner } from '@/components/terminal';
+import { TerminalSpinner, AsciiPanel } from '@/components/terminal';
 import styles from './SystemHealthOverview.module.css';
 
 /**
@@ -94,25 +94,19 @@ export const SystemHealthOverview: React.FC = () => {
   // Loading state
   if (isLoading) {
     return (
-      <div className="webtui-panel">
-        <div className="webtui-panel-header">
-          <h2>SYSTEM HEALTH OVERVIEW</h2>
-        </div>
+      <AsciiPanel title="SYSTEM HEALTH OVERVIEW">
         <div className={styles.loading}>
           <TerminalSpinner style="dots" size={24} />
           <span>LOADING SYSTEM METRICS...</span>
         </div>
-      </div>
+      </AsciiPanel>
     );
   }
 
   // Error state
   if (error) {
     return (
-      <div className="webtui-panel">
-        <div className="webtui-panel-header">
-          <h2>SYSTEM HEALTH OVERVIEW</h2>
-        </div>
+      <AsciiPanel title="SYSTEM HEALTH OVERVIEW">
         <div className={styles.error}>
           <span className={styles.errorIcon}>✖</span>
           <div className={styles.errorMessage}>
@@ -122,21 +116,18 @@ export const SystemHealthOverview: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
+      </AsciiPanel>
     );
   }
 
   // No data state
   if (!modelStatus) {
     return (
-      <div className="webtui-panel">
-        <div className="webtui-panel-header">
-          <h2>SYSTEM HEALTH OVERVIEW</h2>
-        </div>
+      <AsciiPanel title="SYSTEM HEALTH OVERVIEW">
         <div className={styles.noData}>
           <span>NO SYSTEM DATA AVAILABLE</span>
         </div>
-      </div>
+      </AsciiPanel>
     );
   }
 
@@ -148,10 +139,7 @@ export const SystemHealthOverview: React.FC = () => {
   // No models running state
   if (runningModels.length === 0) {
     return (
-      <div className="webtui-panel">
-        <div className="webtui-panel-header">
-          <h2>SYSTEM HEALTH OVERVIEW</h2>
-        </div>
+      <AsciiPanel title="SYSTEM HEALTH OVERVIEW">
         <div className={styles.awaitingModels}>
           <div className={styles.emptyMetricsTable}>
             <div className={styles.emptyMetricRow}>
@@ -191,20 +179,16 @@ export const SystemHealthOverview: React.FC = () => {
             → NO ACTIVE MODELS - Deploy to begin monitoring
           </div>
         </div>
-      </div>
+      </AsciiPanel>
     );
   }
 
   return (
-    <div className="webtui-panel">
-      <div className="webtui-panel-header">
-        <h2>SYSTEM HEALTH OVERVIEW</h2>
+    <AsciiPanel title="SYSTEM HEALTH OVERVIEW">
+      <div className={styles.content}>
         <div className={styles.subtitle}>
           Aggregate system performance trends (30-min rolling history)
         </div>
-      </div>
-
-      <div className={styles.content}>
         {/* Dense 4-row layout with ASCII sparklines */}
         <div className={styles.metricsTable}>
           {metrics.map((metric, idx) => (
@@ -223,6 +207,6 @@ export const SystemHealthOverview: React.FC = () => {
           ))}
         </div>
       </div>
-    </div>
+    </AsciiPanel>
   );
 };

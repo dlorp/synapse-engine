@@ -1,0 +1,464 @@
+/* ===================================================================
+   ContextWindowPanel - Token allocation visualization styles
+   Terminal-aesthetic ASCII bar chart with utilization warnings
+   ================================================================== */
+
+/* ===================================================================
+   Container Layout
+   ================================================================== */
+
+.container {
+  padding: var(--webtui-spacing-lg);
+  font-family: var(--webtui-font-family);
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* ===================================================================
+   Empty State (No Allocation Data)
+   ================================================================== */
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 250px;
+  text-align: center;
+  color: var(--webtui-text-secondary);
+  opacity: 0.6;
+}
+
+.emptyTitle {
+  font-size: var(--webtui-font-size-large);
+  font-weight: var(--font-bold);
+  color: var(--webtui-primary);
+  margin: 0 0 var(--webtui-spacing-sm) 0;
+  letter-spacing: 0.1em;
+}
+
+.hint {
+  font-size: var(--webtui-font-size-small);
+  margin: 0;
+  color: var(--webtui-text-secondary);
+  opacity: 0.8;
+}
+
+/* ===================================================================
+   Loading State
+   ================================================================== */
+
+.loadingState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 250px;
+  color: var(--webtui-processing);
+  font-size: var(--webtui-font-size-base);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* ===================================================================
+   Allocation View Container
+   ================================================================== */
+
+.allocationView {
+  display: flex;
+  flex-direction: column;
+  gap: var(--webtui-spacing-md);
+}
+
+/* ===================================================================
+   Budget Bars (ASCII Visualization)
+   ================================================================== */
+
+.budgetBars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--webtui-spacing-sm);
+}
+
+.budgetRow {
+  display: flex;
+  align-items: center;
+  gap: var(--webtui-spacing-sm);
+  font-family: var(--webtui-font-family);
+  font-size: 13px;
+  line-height: 1.8;
+  transition: all var(--transition-base);
+}
+
+.budgetRow:hover {
+  background: rgba(255, 149, 0, 0.05);
+  padding: 4px;
+  margin: -4px;
+}
+
+.componentLabel {
+  color: var(--webtui-accent);
+  font-weight: 600;
+  min-width: 180px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.bar {
+  color: var(--webtui-primary);
+  font-weight: bold;
+  letter-spacing: -1px;
+  text-shadow: 0 0 5px var(--webtui-primary);
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.tokenCount {
+  color: var(--webtui-text-primary);
+  min-width: 180px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===================================================================
+   Separator Line
+   ================================================================== */
+
+.separator {
+  color: var(--webtui-border);
+  font-size: 12px;
+  text-align: center;
+  margin: var(--webtui-spacing-sm) 0;
+  opacity: 0.5;
+  letter-spacing: -1px;
+}
+
+/* ===================================================================
+   Summary Bar
+   ================================================================== */
+
+.summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--webtui-spacing-md);
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--webtui-border);
+  font-size: var(--webtui-font-size-small);
+  font-weight: 600;
+  color: var(--webtui-primary);
+  font-variant-numeric: tabular-nums;
+  gap: var(--webtui-spacing-md);
+  flex-wrap: wrap;
+}
+
+.divider {
+  color: var(--webtui-text-secondary);
+  opacity: 0.5;
+}
+
+/* ===================================================================
+   Utilization Color Coding
+   ================================================================== */
+
+.utilizationLow {
+  color: var(--webtui-success);
+  text-shadow: 0 0 3px var(--webtui-success);
+}
+
+.utilizationMedium {
+  color: var(--webtui-warning);
+  text-shadow: 0 0 3px var(--webtui-warning);
+}
+
+.utilizationHigh {
+  color: var(--webtui-error);
+  animation: blink 1s infinite;
+  text-shadow: 0 0 5px var(--webtui-error);
+  font-weight: var(--font-bold);
+}
+
+/* ===================================================================
+   Warning Banner
+   ================================================================== */
+
+.warning {
+  padding: var(--webtui-spacing-md);
+  background: rgba(255, 149, 0, 0.1);
+  border: 1px solid var(--webtui-warning);
+  color: var(--webtui-warning);
+  font-size: var(--webtui-font-size-small);
+  text-align: center;
+  animation: warningPulse 2s ease-in-out infinite;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+/* ===================================================================
+   CGRAG Artifacts Expandable List
+   ================================================================== */
+
+.artifactsDetails {
+  margin-top: var(--webtui-spacing-lg);
+  border: 1px solid var(--webtui-border);
+  background: rgba(0, 0, 0, 0.2);
+  transition: all var(--transition-base);
+}
+
+.artifactsDetails[open] {
+  border-color: var(--webtui-accent);
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
+}
+
+.artifactsSummary {
+  padding: var(--webtui-spacing-md);
+  color: var(--webtui-accent);
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  transition: all var(--transition-base);
+  letter-spacing: 0.05em;
+}
+
+.artifactsSummary:hover {
+  background: rgba(0, 255, 255, 0.1);
+  text-shadow: 0 0 5px var(--webtui-accent);
+}
+
+.artifactsList {
+  padding: var(--webtui-spacing-md);
+  max-height: 400px;
+  overflow-y: auto;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Custom scrollbar for artifacts list */
+.artifactsList::-webkit-scrollbar {
+  width: 8px;
+}
+
+.artifactsList::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.artifactsList::-webkit-scrollbar-thumb {
+  background: var(--webtui-primary);
+  border-radius: 0;
+}
+
+.artifactsList::-webkit-scrollbar-thumb:hover {
+  background: var(--webtui-accent);
+}
+
+/* ===================================================================
+   Individual Artifact Display
+   ================================================================== */
+
+.artifact {
+  padding: var(--webtui-spacing-sm);
+  margin-bottom: var(--webtui-spacing-sm);
+  border-left: 2px solid var(--webtui-primary);
+  background: rgba(255, 149, 0, 0.05);
+  transition: all var(--transition-base);
+}
+
+.artifact:hover {
+  border-left-width: 4px;
+  background: rgba(255, 149, 0, 0.1);
+  padding-left: calc(var(--webtui-spacing-sm) + 2px);
+}
+
+.artifact:last-child {
+  margin-bottom: 0;
+}
+
+.artifactHeader {
+  display: flex;
+  gap: var(--webtui-spacing-md);
+  margin-bottom: var(--webtui-spacing-xs);
+  font-size: var(--webtui-font-size-small);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.artifactNumber {
+  color: var(--webtui-accent);
+  font-weight: bold;
+  min-width: 30px;
+}
+
+.artifactFile {
+  color: var(--webtui-primary);
+  flex: 1;
+  min-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.artifactTokens {
+  color: var(--webtui-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.artifactScore {
+  color: var(--webtui-success);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.artifactPreview {
+  font-size: 11px;
+  color: var(--webtui-text-secondary);
+  line-height: 1.5;
+  margin-left: var(--webtui-spacing-md);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  opacity: 0.8;
+}
+
+/* ===================================================================
+   Animations
+   ================================================================== */
+
+@keyframes blink {
+  0%, 50%, 100% {
+    opacity: 1;
+  }
+  25%, 75% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes warningPulse {
+  0%, 100% {
+    box-shadow: 0 0 5px var(--webtui-warning);
+    border-color: var(--webtui-warning);
+  }
+  50% {
+    box-shadow: 0 0 15px var(--webtui-warning);
+    border-color: rgba(255, 149, 0, 0.6);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===================================================================
+   Responsive Design
+   ================================================================== */
+
+@media (max-width: 1024px) {
+  .budgetRow {
+    font-size: 12px;
+  }
+
+  .componentLabel {
+    min-width: 160px;
+  }
+
+  .tokenCount {
+    min-width: 160px;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: var(--webtui-spacing-md);
+    min-height: 250px;
+  }
+
+  .budgetRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    font-size: 11px;
+  }
+
+  .componentLabel {
+    min-width: auto;
+    width: 100%;
+  }
+
+  .bar {
+    width: 100%;
+    font-size: 10px;
+  }
+
+  .tokenCount {
+    min-width: auto;
+    width: 100%;
+    text-align: left;
+  }
+
+  .summary {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--webtui-spacing-xs);
+    font-size: 11px;
+  }
+
+  .divider {
+    display: none;
+  }
+
+  .artifactHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .artifactFile {
+    min-width: auto;
+    width: 100%;
+  }
+
+  .artifactPreview {
+    margin-left: 0;
+    -webkit-line-clamp: 2;
+  }
+
+  .artifactsList {
+    max-height: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .budgetRow {
+    font-size: 10px;
+  }
+
+  .separator {
+    font-size: 10px;
+  }
+
+  .artifactsDetails {
+    font-size: 10px;
+  }
+
+  .artifactPreview {
+    font-size: 10px;
+  }
+}

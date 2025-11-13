@@ -11,23 +11,43 @@
   flex-direction: column;
   gap: 24px;
   animation: fade-in var(--transition-base);
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: 24px;
+  /* Removed max-width to allow ASCII borders to extend to browser edges */
+  width: 100%;
+  margin: 0;
+  padding: 0; /* CRITICAL: No padding so ASCII frames can extend edge-to-edge */
 }
 
-/* Header Section - Title with inline controls */
+.sectionContent {
+  padding: var(--webtui-spacing-md, 16px);
+  background: rgba(0, 0, 0, 0.3);
+  margin-bottom: var(--webtui-spacing-lg, 24px);
+}
+
+/* Header Section - Matches AdminPage format
+ * Simple title + subtitle on left, controls on right */
 .header {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding: 24px;
-  background: var(--webtui-background);
-  border: 2px solid var(--webtui-border);
-  border-bottom: 4px solid var(--webtui-border);
-  margin-bottom: 0;
+  margin-bottom: var(--webtui-spacing-xl);
+  border-bottom: 2px solid var(--webtui-primary);
+  padding: 0 var(--webtui-spacing-lg) var(--webtui-spacing-md) var(--webtui-spacing-lg);
+}
+
+.headerLeft {
+  display: flex;
+  flex-direction: column;
+  gap: var(--webtui-spacing-xs);
+  flex: 1;
+}
+
+.subtitle {
+  font-size: var(--webtui-font-size-small);
+  color: var(--webtui-text-muted);
+  margin: 0;
+  letter-spacing: 0.08em;
 }
 
 .title {
@@ -440,6 +460,10 @@
   color: rgba(255, 149, 0, 0.5);
   font-size: 0.85rem;
   letter-spacing: -1px;
+  overflow: hidden;
+  text-overflow: clip;
+  white-space: pre;
+  width: 100%;
 }
 
 .tierBar {
@@ -1051,14 +1075,19 @@
 /* Responsive Design */
 @media (max-width: 1024px) {
   .page {
-    padding: 16px;
+    padding: 0; /* Maintain edge-to-edge pattern on mobile */
     gap: 16px;
   }
 
   .header {
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     gap: 16px;
+    padding: 0 var(--webtui-spacing-md) var(--webtui-spacing-md) var(--webtui-spacing-md);
+  }
+
+  .headerLeft {
+    width: 100%;
   }
 
   .headerControls {
@@ -1109,7 +1138,7 @@
 
 @media (max-width: 640px) {
   .page {
-    padding: 12px;
+    padding: 0; /* Maintain edge-to-edge pattern on mobile */
   }
 
   .title {

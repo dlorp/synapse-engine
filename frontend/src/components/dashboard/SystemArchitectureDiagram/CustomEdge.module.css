@@ -1,0 +1,101 @@
+/**
+ * CustomEdge Styles - Terminal-Aesthetic Edge Styling
+ *
+ * Features:
+ * - Connection type styling (solid, dashed, dotted)
+ * - Active/inactive state colors
+ * - Animated flow particles for active data_flow edges
+ * - Hover tooltips with metadata
+ * - Terminal-style edge labels
+ */
+
+/* Edge label container */
+.edgeLabel {
+  background: rgba(0, 0, 0, 0.9);
+  border: 1px solid var(--webtui-border, #ff9500);
+  border-radius: 3px;
+  padding: 4px 8px;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 9px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+.edgeLabel:hover {
+  background: rgba(0, 0, 0, 1);
+  border-color: var(--webtui-primary, #ff9500);
+  box-shadow: 0 0 10px rgba(255, 149, 0, 0.5);
+  z-index: 1000;
+}
+
+/* Active vs inactive edge labels */
+.edgeLabel.active {
+  border-color: var(--webtui-primary, #ff9500);
+  opacity: 1;
+}
+
+.edgeLabel.inactive {
+  border-color: #666;
+  opacity: 0.6;
+}
+
+/* Label content */
+.labelContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  white-space: nowrap;
+}
+
+.labelType {
+  color: var(--webtui-text-primary, #ff9500);
+  font-weight: bold;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  font-size: 8px;
+}
+
+.labelMetadata {
+  color: var(--webtui-text-secondary, #888);
+  font-size: 8px;
+}
+
+/* Animated flow particle for data_flow edges */
+.flowParticle {
+  width: 12px;
+  height: 12px;
+  pointer-events: none;
+}
+
+.particle {
+  width: 100%;
+  height: 100%;
+  background: var(--webtui-primary, #ff9500);
+  border-radius: 50%;
+  animation: particle-flow 2s ease-in-out infinite;
+  box-shadow: 0 0 8px var(--webtui-primary, #ff9500),
+    0 0 12px var(--webtui-primary, #ff9500);
+}
+
+/* Particle flow animation */
+@keyframes particle-flow {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0.7;
+  }
+}
+
+/* React Flow marker override */
+:global(.react-flow__edge-path) {
+  transition: stroke 0.3s ease;
+}
+
+:global(.react-flow__edge:hover .react-flow__edge-path) {
+  stroke-width: 3 !important;
+}

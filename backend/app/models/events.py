@@ -25,6 +25,13 @@ class EventType(str, Enum):
     - CACHE: Redis cache hits/misses and performance metrics
     - ERROR: System errors, warnings, and failures
     - PERFORMANCE: Performance threshold alerts (latency, memory)
+    - PIPELINE_STAGE_START: Pipeline stage started
+    - PIPELINE_STAGE_COMPLETE: Pipeline stage completed
+    - PIPELINE_STAGE_FAILED: Pipeline stage failed
+    - PIPELINE_COMPLETE: Entire pipeline completed
+    - PIPELINE_FAILED: Entire pipeline failed
+    - TOPOLOGY_HEALTH_UPDATE: Component health status changed
+    - TOPOLOGY_DATAFLOW_UPDATE: Query entered a new component
     """
     QUERY_ROUTE = "query_route"
     MODEL_STATE = "model_state"
@@ -32,6 +39,13 @@ class EventType(str, Enum):
     CACHE = "cache"
     ERROR = "error"
     PERFORMANCE = "performance"
+    PIPELINE_STAGE_START = "pipeline_stage_start"
+    PIPELINE_STAGE_COMPLETE = "pipeline_stage_complete"
+    PIPELINE_STAGE_FAILED = "pipeline_stage_failed"
+    PIPELINE_COMPLETE = "pipeline_complete"
+    PIPELINE_FAILED = "pipeline_failed"
+    TOPOLOGY_HEALTH_UPDATE = "topology_health_update"
+    TOPOLOGY_DATAFLOW_UPDATE = "topology_dataflow_update"
 
 
 class EventSeverity(str, Enum):
@@ -283,3 +297,32 @@ class PerformanceEvent(BaseModel):
     threshold_value: float = Field(..., description="Threshold value")
     component: str = Field(..., description="Component being monitored")
     action_required: bool = Field(default=False, description="Manual intervention needed")
+
+
+class PipelineEvent(BaseModel):
+    """Specialized event for query processing pipeline stage updates.
+
+    Tracks real-time progress through query processing stages for visualization.
+
+    Attributes:
+        query_id: Unique query identifier
+        stage: Pipeline stage name (input, complexity, cgrag, routing, generation, response)
+        metadata: Stage-specific metadata (duration_ms, artifacts, model selected, etc.)
+
+    Example:
+        >>> metadata = PipelineEvent(
+        ...     query_id="550e8400-e29b-41d4-a716-446655440000",
+        ...     stage="cgrag",
+        ...     metadata={"artifacts_retrieved": 8, "tokens_used": 4500, "duration_ms": 70}
+        ... ).model_dump()
+    """
+
+    query_id: str = Field(..., description="Unique query identifier")
+    stage: Literal["input", "complexity", "cgrag", "routing", "generation", "response"] = Field(
+        ...,
+        description="Pipeline stage name"
+    )
+    metadata: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Stage-specific metadata"
+    )
