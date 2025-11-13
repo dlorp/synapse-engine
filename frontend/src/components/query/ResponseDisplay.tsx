@@ -6,6 +6,7 @@
  */
 
 import React, { useCallback, useState, useMemo } from 'react';
+import { toast } from 'react-toastify';
 import { QueryResponse, BenchmarkResult } from '../../types/query';
 import { Panel } from '../terminal/Panel/Panel';
 import { MetricDisplay } from '../terminal/MetricDisplay/MetricDisplay';
@@ -138,11 +139,25 @@ export const ResponseDisplay: React.FC<ResponseDisplayProps> = ({
     navigator.clipboard
       .writeText(response.response)
       .then(() => {
-        // TODO: Show success toast
-        console.log('Response copied to clipboard');
+        toast.success('✓ Response copied to clipboard', {
+          position: 'bottom-right',
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
       })
       .catch((err) => {
         console.error('Failed to copy:', err);
+        toast.error('✗ Failed to copy response', {
+          position: 'bottom-right',
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
       });
   }, [response]);
 
