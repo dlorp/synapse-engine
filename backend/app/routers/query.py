@@ -49,7 +49,13 @@ from app.services.event_emitter import (
     emit_error_event,
     emit_performance_event
 )
-from typing import Optional
+from app.services.pipeline_tracker import PipelineTracker
+from app.services.context_state import get_context_state_manager
+from app.models.context import ContextAllocationRequest, CGRAGArtifact as ContextCGRAGArtifact
+from app.services.metrics_aggregator import get_metrics_aggregator
+from app.models.timeseries import MetricType
+from app.services.topology_manager import get_topology_manager
+from typing import Optional, List
 
 
 router = APIRouter()
@@ -57,6 +63,186 @@ router = APIRouter()
 # Global service instances (initialized in main.py lifespan)
 model_registry: Optional[ModelRegistry] = None
 model_selector: Optional[ModelSelector] = None
+
+
+async def store_context_allocation(
+    query_id: str,
+    model_id: str,
+    system_prompt: str,
+    cgrag_context: str,
+    user_query: str,
+    context_window_size: int,
+    cgrag_artifacts: Optional[List] = None
+) -> None:
+    """Store context allocation for a query.
+
+    Helper function to store token allocation data for the Context Window
+    Allocation Viewer. Can be called from any query processing mode.
+
+    Args:
+        query_id: Unique query identifier
+        model_id: Model identifier used for generation
+        system_prompt: System prompt text
+        cgrag_context: Combined CGRAG context text
+        user_query: User query text
+        context_window_size: Model's maximum context window
+        cgrag_artifacts: Optional list of CGRAG artifacts with metadata
+    """
+    try:
+        # Get context state manager
+        context_manager = get_context_state_manager()
+
+        # Convert CGRAG artifacts to context format if provided
+        context_artifacts = None
+        if cgrag_artifacts:
+            context_artifacts = [
+                ContextCGRAGArtifact(
+                    artifact_id=f"chunk_{artifact.chunk_index}",
+                    source_file=artifact.file_path,
+                    relevance_score=artifact.relevance_score,
+                    token_count=artifact.token_count,
+                    content_preview=artifact.content[:200] if hasattr(artifact, 'content') else ""
+                )
+                for artifact in cgrag_artifacts
+            ]
+
+        # Create allocation request
+        allocation_request = ContextAllocationRequest(
+            query_id=query_id,
+            model_id=model_id,
+            system_prompt=system_prompt,
+            cgrag_context=cgrag_context,
+            user_query=user_query,
+            context_window_size=context_window_size,
+            cgrag_artifacts=context_artifacts
+        )
+
+        # Store allocation
+        await context_manager.store_allocation(allocation_request)
+
+    except RuntimeError:
+        # Context state manager not initialized - this is OK, just skip
+        pass
+    except Exception as e:
+        # Log but don't fail the request
+        from app.core.logging import get_logger
+        logger = get_logger(__name__)
+        logger.warning(
+            f"Failed to store context allocation for query {query_id}: {e}",
+            extra={"query_id": query_id, "error": str(e)}
+        )
+
+
+async def record_topology_flow(
+    query_id: str,
+    component_id: str
+) -> None:
+    """Record query data flow through a system component.
+
+    Helper function to record query traversal through system components
+    for topology visualization. Silently fails if topology manager not available.
+
+    Args:
+        query_id: Unique query identifier
+        component_id: Component identifier (orchestrator, cgrag_engine, model_id, etc.)
+    """
+    try:
+        topology_manager = get_topology_manager()
+        await topology_manager.record_data_flow(query_id, component_id)
+    except RuntimeError:
+        # Topology manager not initialized - this is OK, just skip
+        pass
+    except Exception as e:
+        # Log but don't fail the request
+        from app.core.logging import get_logger
+        logger = get_logger(__name__)
+        logger.debug(
+            f"Failed to record topology flow for query {query_id}: {e}",
+            extra={"query_id": query_id, "component_id": component_id}
+        )
+
+
+async def record_query_metrics(
+    query_id: str,
+    model_id: str,
+    tier: str,
+    query_mode: str,
+    duration_ms: float,
+    complexity_score: Optional[float] = None,
+    tokens_generated: Optional[int] = None,
+    cgrag_retrieval_time_ms: Optional[float] = None
+) -> None:
+    """Record query metrics to the time-series aggregator.
+
+    Helper function to record metrics after query completion for
+    historical analysis and visualization.
+
+    Args:
+        query_id: Unique query identifier
+        model_id: Model identifier used for generation
+        tier: Tier (Q2, Q3, Q4)
+        query_mode: Query mode (auto, simple, two-stage, council, etc.)
+        duration_ms: Total query duration in milliseconds
+        complexity_score: Optional complexity score
+        tokens_generated: Optional token count
+        cgrag_retrieval_time_ms: Optional CGRAG retrieval time
+    """
+    try:
+        # Get metrics aggregator
+        aggregator = get_metrics_aggregator()
+
+        # Build metadata
+        metadata = {
+            "query_id": query_id,
+            "model_id": model_id,
+            "tier": tier,
+            "query_mode": query_mode
+        }
+
+        # Record response time
+        await aggregator.record_metric(
+            metric_name=MetricType.RESPONSE_TIME,
+            value=duration_ms,
+            metadata=metadata
+        )
+
+        # Record complexity score if available
+        if complexity_score is not None:
+            await aggregator.record_metric(
+                metric_name=MetricType.COMPLEXITY_SCORE,
+                value=complexity_score,
+                metadata=metadata
+            )
+
+        # Record tokens per second if available
+        if tokens_generated is not None and duration_ms > 0:
+            # Convert to tokens/sec
+            tokens_per_sec = (tokens_generated / duration_ms) * 1000
+            await aggregator.record_metric(
+                metric_name=MetricType.TOKENS_PER_SECOND,
+                value=tokens_per_sec,
+                metadata=metadata
+            )
+
+        # Record CGRAG retrieval time if available
+        if cgrag_retrieval_time_ms is not None:
+            await aggregator.record_metric(
+                metric_name=MetricType.CGRAG_RETRIEVAL_TIME,
+                value=cgrag_retrieval_time_ms,
+                metadata=metadata
+            )
+
+    except RuntimeError:
+        # Metrics aggregator not initialized - this is OK, just skip
+        pass
+    except Exception as e:
+        # Log but don't fail the request
+        from app.core.logging import get_logger
+        logger = get_logger(__name__)
+        logger.warning(
+            f"Failed to record metrics for query {query_id}: {e}",
+            extra={"query_id": query_id, "error": str(e)}
+        )
 
 
 async def validate_models_available(
@@ -307,6 +493,9 @@ async def _process_consensus_mode(
     cgrag_context_text = None
     if request.use_context:
         try:
+            # Record topology flow - entering CGRAG engine
+            await record_topology_flow(query_id, "cgrag_engine")
+
             # Determine path to FAISS index using runtime settings
             _, index_path, metadata_path = get_cgrag_index_paths("docs")
 
@@ -601,6 +790,16 @@ Consensus Answer:"""
                 "published_date": r.published_date
             } for r in web_search_results
         ]
+
+    # Record metrics for time-series analysis
+    await record_query_metrics(
+        query_id=query_id,
+        model_id=synthesizer_model,
+        tier="council",
+        query_mode="council",
+        duration_ms=total_time,
+        complexity_score=complexity_score
+    )
 
     return QueryResponse(
         id=query_id,
@@ -1082,6 +1281,13 @@ async def process_query(
         }
     )
 
+    # Initialize pipeline tracker
+    tracker = PipelineTracker(query_id)
+    await tracker.create_pipeline()
+
+    # Record topology flow - query entering orchestrator
+    await record_topology_flow(query_id, "orchestrator")
+
     try:
         # ====================================================================
         # MODE-BASED QUERY ROUTING
@@ -1109,6 +1315,9 @@ async def process_query(
                 stage1_model = await model_selector.select_model(stage1_tier)
                 stage1_model_id = stage1_model.model_id
                 logger.info(f"Stage 1 model selected: {stage1_model_id}")
+
+                # Record topology flow - query routed to model
+                await record_topology_flow(query_id, stage1_model_id)
             except Exception as e:
                 logger.error(f"Failed to select Stage 1 model: {e}")
                 raise HTTPException(
@@ -1401,6 +1610,9 @@ async def process_query(
                 stage2_model = await model_selector.select_model(stage2_tier)
                 stage2_model_id = stage2_model.model_id
                 logger.info(f"Stage 2 model selected: {stage2_model_id}")
+
+                # Record topology flow - query routed to stage 2 model
+                await record_topology_flow(query_id, stage2_model_id)
             except Exception as e:
                 logger.error(f"Failed to select Stage 2 model: {e}")
                 raise HTTPException(
@@ -1527,64 +1739,83 @@ Refined Response:"""
             # ================================================================
             logger.info("🎯 Simple single-model workflow")
 
-            # Assess complexity or force tier based on mode (legacy QueryMode enum)
-            complexity: QueryComplexity
-            tier: str
+            # STAGE 1: INPUT
+            async with tracker.stage("input") as metadata:
+                metadata["query_length"] = len(request.query)
+                metadata["mode"] = request.mode
+                metadata["use_context"] = request.use_context
+                metadata["use_web_search"] = request.use_web_search
+                metadata["max_tokens"] = request.max_tokens
 
-            # For simple mode, default to FAST tier (b2-7)
-            tier = "fast"
-            complexity = QueryComplexity(
-                tier=tier,
-                score=0.0,
-                reasoning="Simple mode - fast tier (2B-7B models)",
-                indicators={"forced": True, "mode": "simple"}
-            )
-
-            # Record routing decision for orchestrator telemetry
-            orchestrator_service = get_orchestrator_status_service()
-            orchestrator_service.record_routing_decision(
-                query=request.query,
-                tier=tier,
-                complexity_score=complexity.score,
-                decision_time_ms=0.0  # Simple mode has no complexity assessment overhead
-            )
-
-            # Emit query routing event for LiveEventFeed
-            tier_mapping = {"fast": "Q2", "balanced": "Q3", "powerful": "Q4"}
-            await emit_query_route_event(
-                query_id=query_id,
-                complexity_score=complexity.score,
-                selected_tier=tier_mapping.get(tier, "Q2"),
-                estimated_latency_ms=2000,  # Fast tier target
-                routing_reason=complexity.reasoning
-            )
-
-            logger.info(
-                f"Query {query_id} using simple mode",
-                extra={
-                    "query_id": query_id,
-                    "tier": tier
-                }
-            )
-
-            # Select model from tier
-            logger.debug(f"Selecting model for tier {tier}")
-            if not model_selector:
-                raise HTTPException(
-                    status_code=503,
-                    detail="Model selector not initialized"
+            # STAGE 2: COMPLEXITY ASSESSMENT
+            async with tracker.stage("complexity") as metadata:
+                # For simple mode, default to FAST tier (b2-7)
+                tier = "fast"
+                complexity = QueryComplexity(
+                    tier=tier,
+                    score=0.0,
+                    reasoning="Simple mode - fast tier (2B-7B models)",
+                    indicators={"forced": True, "mode": "simple"}
                 )
-            model = await model_selector.select_model(tier)
-            model_id = model.model_id
 
-            logger.info(
-                f"Routing query {query_id} to {model_id}",
-                extra={
-                    "query_id": query_id,
-                    "model_id": model_id,
-                    "tier": tier
-                }
-            )
+                metadata["complexity_score"] = complexity.score
+                metadata["tier"] = tier
+                metadata["reasoning"] = complexity.reasoning
+
+                # Record routing decision for orchestrator telemetry
+                orchestrator_service = get_orchestrator_status_service()
+                orchestrator_service.record_routing_decision(
+                    query=request.query,
+                    tier=tier,
+                    complexity_score=complexity.score,
+                    decision_time_ms=0.0  # Simple mode has no complexity assessment overhead
+                )
+
+                # Emit query routing event for LiveEventFeed
+                tier_mapping = {"fast": "Q2", "balanced": "Q3", "powerful": "Q4"}
+                await emit_query_route_event(
+                    query_id=query_id,
+                    complexity_score=complexity.score,
+                    selected_tier=tier_mapping.get(tier, "Q2"),
+                    estimated_latency_ms=2000,  # Fast tier target
+                    routing_reason=complexity.reasoning
+                )
+
+                logger.info(
+                    f"Query {query_id} using simple mode",
+                    extra={
+                        "query_id": query_id,
+                        "tier": tier
+                    }
+                )
+
+            # STAGE 3: ROUTING (Model Selection)
+            async with tracker.stage("routing") as metadata:
+                # Select model from tier
+                logger.debug(f"Selecting model for tier {tier}")
+                if not model_selector:
+                    raise HTTPException(
+                        status_code=503,
+                        detail="Model selector not initialized"
+                    )
+                model = await model_selector.select_model(tier)
+                model_id = model.model_id
+
+                # Record topology flow - query routed to model
+                await record_topology_flow(query_id, model_id)
+
+                metadata["model_selected"] = model_id
+                metadata["model_port"] = model.port
+                metadata["tier"] = tier
+
+                logger.info(
+                    f"Routing query {query_id} to {model_id}",
+                    extra={
+                        "query_id": query_id,
+                        "model_id": model_id,
+                        "tier": tier
+                    }
+                )
 
             # Web search (if enabled) - simple mode
             web_search_results = []
@@ -1627,120 +1858,133 @@ Refined Response:"""
                         extra={"query_id": query_id, "error": str(e)}
                     )
 
-            # CGRAG context retrieval (if enabled)
+            # STAGE 4: CGRAG Retrieval (Context Gathering)
             cgrag_artifacts = []
             cgrag_result = None
             cgrag_context_text = None
             full_prompt = request.query
             cgrag_start_time = time.time()
 
-            if request.use_context:
-                try:
-                    # Determine path to FAISS index
-                    project_root = Path(__file__).parent.parent.parent.parent
-                    index_path = project_root / "data" / "faiss_indexes" / "docs.index"
-                    metadata_path = project_root / "data" / "faiss_indexes" / "docs.metadata"
+            async with tracker.stage("cgrag") as cgrag_metadata:
+                if not request.use_context:
+                    cgrag_metadata["skipped"] = True
+                    cgrag_metadata["reason"] = "use_context=False"
+                elif request.use_context:
+                    try:
+                        # Determine path to FAISS index
+                        project_root = Path(__file__).parent.parent.parent.parent
+                        index_path = project_root / "data" / "faiss_indexes" / "docs.index"
+                        metadata_path = project_root / "data" / "faiss_indexes" / "docs.metadata"
 
-                    # Check if index exists
-                    if index_path.exists() and metadata_path.exists():
-                        logger.debug(f"Loading CGRAG index for query {query_id}")
-                        index_load_start = time.time()
+                        # Check if index exists
+                        if index_path.exists() and metadata_path.exists():
+                            logger.debug(f"Loading CGRAG index for query {query_id}")
+                            index_load_start = time.time()
 
-                        # Load CGRAG indexer
-                        cgrag_indexer = CGRAGIndexer.load_index(
-                            index_path=index_path,
-                            metadata_path=metadata_path
-                        )
+                            # Load CGRAG indexer
+                            cgrag_indexer = CGRAGIndexer.load_index(
+                                index_path=index_path,
+                                metadata_path=metadata_path
+                            )
 
-                        index_load_time_ms = (time.time() - index_load_start) * 1000
-                        logger.info(
-                            f"CGRAG index loaded in {index_load_time_ms:.1f}ms",
-                            extra={'query_id': query_id, 'load_time_ms': round(index_load_time_ms, 2)}
-                        )
+                            index_load_time_ms = (time.time() - index_load_start) * 1000
+                            logger.info(
+                                f"CGRAG index loaded in {index_load_time_ms:.1f}ms",
+                                extra={'query_id': query_id, 'load_time_ms': round(index_load_time_ms, 2)}
+                            )
 
-                        # Validate embedding model consistency
-                        settings = settings_service.get_runtime_settings()
-                        is_valid, warning = cgrag_indexer.validate_embedding_model(settings.embedding_model_name)
-                        if not is_valid:
-                            logger.warning(warning, extra={'query_id': query_id})
+                            # Validate embedding model consistency
+                            settings = settings_service.get_runtime_settings()
+                            is_valid, warning = cgrag_indexer.validate_embedding_model(settings.embedding_model_name)
+                            if not is_valid:
+                                logger.warning(warning, extra={'query_id': query_id})
 
-                        # Create retriever
-                        retriever = CGRAGRetriever(
-                            indexer=cgrag_indexer,
-                            min_relevance=config.cgrag.retrieval.min_relevance
-                        )
+                            # Create retriever
+                            retriever = CGRAGRetriever(
+                                indexer=cgrag_indexer,
+                                min_relevance=config.cgrag.retrieval.min_relevance
+                            )
 
-                        # Retrieve context
-                        retrieval_start = time.time()
-                        cgrag_result = await retriever.retrieve(
-                            query=request.query,
-                            token_budget=config.cgrag.retrieval.token_budget,
-                            max_artifacts=config.cgrag.retrieval.max_artifacts
-                        )
-                        retrieval_time_ms = (time.time() - retrieval_start) * 1000
+                            # Retrieve context
+                            retrieval_start = time.time()
+                            cgrag_result = await retriever.retrieve(
+                                query=request.query,
+                                token_budget=config.cgrag.retrieval.token_budget,
+                                max_artifacts=config.cgrag.retrieval.max_artifacts
+                            )
+                            retrieval_time_ms = (time.time() - retrieval_start) * 1000
 
-                        cgrag_artifacts = cgrag_result.artifacts
+                            cgrag_artifacts = cgrag_result.artifacts
 
-                        logger.info(
-                            f"Retrieved {len(cgrag_artifacts)} CGRAG artifacts for query {query_id}",
-                            extra={
-                                "query_id": query_id,
-                                "artifacts_count": len(cgrag_artifacts),
-                                "tokens_used": cgrag_result.tokens_used,
-                                "retrieval_time_ms": round(retrieval_time_ms, 2),
-                                "candidates_considered": cgrag_result.candidates_considered,
-                                "total_cgrag_overhead_ms": round((time.time() - cgrag_start_time) * 1000, 2)
-                            }
-                        )
+                            # Populate pipeline metadata
+                            cgrag_metadata["artifacts_retrieved"] = len(cgrag_artifacts)
+                            cgrag_metadata["tokens_used"] = cgrag_result.tokens_used
+                            cgrag_metadata["retrieval_time_ms"] = round(retrieval_time_ms, 2)
+                            cgrag_metadata["cache_hit"] = cgrag_result.cache_hit
 
-                        # Emit CGRAG event for LiveEventFeed
-                        await emit_cgrag_event(
-                            query_id=query_id,
-                            chunks_retrieved=len(cgrag_artifacts),
-                            relevance_threshold=config.cgrag.retrieval.min_relevance,
-                            retrieval_time_ms=int(retrieval_time_ms),
-                            total_tokens=cgrag_result.tokens_used,
-                            cache_hit=cgrag_result.cache_hit
-                        )
+                            logger.info(
+                                f"Retrieved {len(cgrag_artifacts)} CGRAG artifacts for query {query_id}",
+                                extra={
+                                    "query_id": query_id,
+                                    "artifacts_count": len(cgrag_artifacts),
+                                    "tokens_used": cgrag_result.tokens_used,
+                                    "retrieval_time_ms": round(retrieval_time_ms, 2),
+                                    "candidates_considered": cgrag_result.candidates_considered,
+                                    "total_cgrag_overhead_ms": round((time.time() - cgrag_start_time) * 1000, 2)
+                                }
+                            )
 
-                        # Build context prompt (CGRAG artifacts)
-                        if cgrag_artifacts:
-                            context_sections = []
-                            for chunk in cgrag_artifacts:
-                                context_sections.append(
-                                    f"[Source: {chunk.file_path} (chunk {chunk.chunk_index})]\n{chunk.content}"
-                                )
-                            cgrag_context_text = "\n\n---\n\n".join(context_sections)
+                            # Emit CGRAG event for LiveEventFeed
+                            await emit_cgrag_event(
+                                query_id=query_id,
+                                chunks_retrieved=len(cgrag_artifacts),
+                                relevance_threshold=config.cgrag.retrieval.min_relevance,
+                                retrieval_time_ms=int(retrieval_time_ms),
+                                total_tokens=cgrag_result.tokens_used,
+                                cache_hit=cgrag_result.cache_hit
+                            )
+
+                            # Build context prompt (CGRAG artifacts)
+                            if cgrag_artifacts:
+                                context_sections = []
+                                for chunk in cgrag_artifacts:
+                                    context_sections.append(
+                                        f"[Source: {chunk.file_path} (chunk {chunk.chunk_index})]\n{chunk.content}"
+                                    )
+                                cgrag_context_text = "\n\n---\n\n".join(context_sections)
+                            else:
+                                cgrag_context_text = None
+
+                            logger.debug(
+                                f"CGRAG context prepared for query {query_id} (simple mode)",
+                                extra={
+                                    "query_id": query_id,
+                                    "cgrag_context_length": len(cgrag_context_text) if cgrag_context_text else 0
+                                }
+                            )
                         else:
-                            cgrag_context_text = None
+                            cgrag_metadata["skipped"] = True
+                            cgrag_metadata["reason"] = "Index not found"
+                            logger.warning(
+                                f"CGRAG index not found for query {query_id}, continuing without context",
+                                extra={
+                                    "query_id": query_id,
+                                    "index_path": str(index_path),
+                                    "metadata_path": str(metadata_path)
+                                }
+                            )
 
-                        logger.debug(
-                            f"CGRAG context prepared for query {query_id} (simple mode)",
-                            extra={
-                                "query_id": query_id,
-                                "cgrag_context_length": len(cgrag_context_text) if cgrag_context_text else 0
-                            }
-                        )
-                    else:
+                    except Exception as e:
+                        cgrag_metadata["error"] = str(e)
                         logger.warning(
-                            f"CGRAG index not found for query {query_id}, continuing without context",
+                            f"CGRAG retrieval failed for query {query_id}: {e}, continuing without context",
                             extra={
                                 "query_id": query_id,
-                                "index_path": str(index_path),
-                                "metadata_path": str(metadata_path)
+                                "error": str(e),
+                                "error_type": type(e).__name__
                             }
                         )
-
-                except Exception as e:
-                    logger.warning(
-                        f"CGRAG retrieval failed for query {query_id}: {e}, continuing without context",
-                        extra={
-                            "query_id": query_id,
-                            "error": str(e),
-                            "error_type": type(e).__name__
-                        }
-                    )
-                    cgrag_context_text = None
+                        cgrag_context_text = None
 
             # Build combined prompt with web search + CGRAG context (simple mode)
             context_parts = []
@@ -1786,101 +2030,120 @@ Refined Response:"""
                 # No context available, use query as-is
                 logger.info(f"No context available for query {query_id}, using raw query")
 
-            # Call model with prompt and parameters
-            model_call_start = time.time()
-            logger.debug(
-                f"Calling model {model_id} for query {query_id}",
-                extra={
-                    "query_id": query_id,
-                    "model_id": model_id,
-                    "max_tokens": request.max_tokens,
-                    "temperature": request.temperature,
-                    "has_context": len(cgrag_artifacts) > 0,
-                    "time_before_model_call_ms": round((time.time() - start_time) * 1000, 2)
-                }
-            )
+            # STAGE 5: GENERATION (Model Inference)
+            async with tracker.stage("generation") as gen_metadata:
+                model_call_start = time.time()
+                logger.debug(
+                    f"Calling model {model_id} for query {query_id}",
+                    extra={
+                        "query_id": query_id,
+                        "model_id": model_id,
+                        "max_tokens": request.max_tokens,
+                        "temperature": request.temperature,
+                        "has_context": len(cgrag_artifacts) > 0,
+                        "time_before_model_call_ms": round((time.time() - start_time) * 1000, 2)
+                    }
+                )
 
-            result = await _call_model_direct(
-                model_id=model_id,
-                prompt=full_prompt,  # Use full_prompt with context
-                max_tokens=request.max_tokens,
-                temperature=request.temperature
-            )
+                result = await _call_model_direct(
+                    model_id=model_id,
+                    prompt=full_prompt,  # Use full_prompt with context
+                    max_tokens=request.max_tokens,
+                    temperature=request.temperature
+                )
 
-            # Calculate metrics
-            model_call_time_ms = (time.time() - model_call_start) * 1000
-            processing_time_ms = (time.time() - start_time) * 1000
+                # Calculate metrics
+                model_call_time_ms = (time.time() - model_call_start) * 1000
+                processing_time_ms = (time.time() - start_time) * 1000
 
-            logger.info(
-                f"Query {query_id} timing breakdown",
-                extra={
-                    "query_id": query_id,
-                    "total_time_ms": round(processing_time_ms, 2),
-                    "model_call_time_ms": round(model_call_time_ms, 2),
-                    "overhead_ms": round(processing_time_ms - model_call_time_ms, 2),
-                    "cgrag_enabled": request.use_context,
-                    "tokens_generated": result.get("tokens_predicted", 0)
-                }
-            )
+                # Populate pipeline metadata
+                gen_metadata["tokens_generated"] = result.get("tokens_predicted", 0)
+                gen_metadata["response_length"] = len(result.get("content", ""))
+                gen_metadata["model_call_time_ms"] = round(model_call_time_ms, 2)
 
-            # Build artifact info for metadata
-            artifacts_info = []
-            if cgrag_artifacts:
-                for chunk in cgrag_artifacts:
-                    # Count tokens for this chunk
-                    token_count = int(len(chunk.content.split()) * 1.3)
-                    artifacts_info.append(
-                        ArtifactInfo(
-                            file_path=chunk.file_path,
-                            relevance_score=chunk.relevance_score,
-                            chunk_index=chunk.chunk_index,
-                            token_count=token_count
+                logger.info(
+                    f"Query {query_id} timing breakdown",
+                    extra={
+                        "query_id": query_id,
+                        "total_time_ms": round(processing_time_ms, 2),
+                        "model_call_time_ms": round(model_call_time_ms, 2),
+                        "overhead_ms": round(processing_time_ms - model_call_time_ms, 2),
+                        "cgrag_enabled": request.use_context,
+                        "tokens_generated": result.get("tokens_predicted", 0)
+                    }
+                )
+
+            # STAGE 6: RESPONSE (Package Response)
+            async with tracker.stage("response") as resp_metadata:
+                # Build artifact info for metadata
+                artifacts_info = []
+                if cgrag_artifacts:
+                    for chunk in cgrag_artifacts:
+                        # Count tokens for this chunk
+                        token_count = int(len(chunk.content.split()) * 1.3)
+                        artifacts_info.append(
+                            ArtifactInfo(
+                                file_path=chunk.file_path,
+                                relevance_score=chunk.relevance_score,
+                                chunk_index=chunk.chunk_index,
+                                token_count=token_count
+                            )
                         )
-                    )
 
-            # Build response with metadata
-            metadata = QueryMetadata(
-                model_tier=tier,
-                model_id=model_id,
-                complexity=complexity,
-                tokens_used=result.get("tokens_predicted", 0),
-                processing_time_ms=round(processing_time_ms, 2),
-                cgrag_artifacts=len(cgrag_artifacts),
-                cgrag_artifacts_info=artifacts_info,
-                cache_hit=cgrag_result.cache_hit if cgrag_result else False,
-                query_mode="simple",
-                # Web search metadata
-                web_search_results=[
-                    {
-                        "title": r.title,
-                        "url": r.url,
-                        "content": r.content,
-                        "engine": r.engine,
-                        "score": r.score,
-                        "published_date": r.published_date
-                    } for r in web_search_results
-                ] if web_search_results else None,
-                web_search_time_ms=web_search_time_ms if web_search_time_ms > 0 else None,
-                web_search_count=len(web_search_results)
-            )
+                # Build response with metadata
+                metadata = QueryMetadata(
+                    model_tier=tier,
+                    model_id=model_id,
+                    complexity=complexity,
+                    tokens_used=result.get("tokens_predicted", 0),
+                    processing_time_ms=round(processing_time_ms, 2),
+                    cgrag_artifacts=len(cgrag_artifacts),
+                    cgrag_artifacts_info=artifacts_info,
+                    cache_hit=cgrag_result.cache_hit if cgrag_result else False,
+                    query_mode="simple",
+                    # Web search metadata
+                    web_search_results=[
+                        {
+                            "title": r.title,
+                            "url": r.url,
+                            "content": r.content,
+                            "engine": r.engine,
+                            "score": r.score,
+                            "published_date": r.published_date
+                        } for r in web_search_results
+                    ] if web_search_results else None,
+                    web_search_time_ms=web_search_time_ms if web_search_time_ms > 0 else None,
+                    web_search_count=len(web_search_results)
+                )
 
-            response = QueryResponse(
-                id=query_id,
-                query=request.query,
-                response=result.get("content", ""),
-                metadata=metadata,
-            )
+                response = QueryResponse(
+                    id=query_id,
+                    query=request.query,
+                    response=result.get("content", ""),
+                    metadata=metadata,
+                )
 
-            logger.info(
-                f"Query {query_id} completed successfully",
-                extra={
-                    "query_id": query_id,
-                    "model_id": model_id,
-                    "tier": tier,
-                    "tokens_generated": metadata.tokens_used,
-                    "processing_time_ms": metadata.processing_time_ms,
-                    "response_length": len(response.response)
-                }
+                resp_metadata["response_ready"] = True
+                resp_metadata["total_tokens"] = metadata.tokens_used
+                resp_metadata["processing_time_ms"] = metadata.processing_time_ms
+
+                logger.info(
+                    f"Query {query_id} completed successfully",
+                    extra={
+                        "query_id": query_id,
+                        "model_id": model_id,
+                        "tier": tier,
+                        "tokens_generated": metadata.tokens_used,
+                        "processing_time_ms": metadata.processing_time_ms,
+                        "response_length": len(response.response)
+                    }
+                )
+
+            # Mark pipeline as complete
+            await tracker.complete_pipeline(
+                model_selected=model_id,
+                tier=tier,
+                cgrag_artifacts_count=len(cgrag_artifacts)
             )
 
             return response
@@ -2375,6 +2638,7 @@ DETAILED COMPARISON:
     except NoModelsAvailableError as e:
         # No healthy models in the requested tier
         tier_name = e.tier if hasattr(e, 'tier') else "unknown"
+        await tracker.fail_pipeline(f"No models available in {tier_name} tier")
         logger.error(
             f"No models available for query {query_id} in tier {tier_name}",
             extra={
@@ -2396,6 +2660,7 @@ DETAILED COMPARISON:
 
     except ModelNotFoundError as e:
         # Model ID doesn't exist (should not happen in normal flow)
+        await tracker.fail_pipeline(f"Model not found: {e.model_id}")
         logger.error(
             f"Model not found for query {query_id}: {e}",
             extra={
@@ -2416,6 +2681,7 @@ DETAILED COMPARISON:
 
     except ModelUnavailableError as e:
         # Model exists but is unhealthy
+        await tracker.fail_pipeline(f"Model unavailable: {e.reason}")
         logger.error(
             f"Model unavailable for query {query_id}: {e}",
             extra={
@@ -2437,6 +2703,7 @@ DETAILED COMPARISON:
 
     except QueryTimeoutError as e:
         # Query processing exceeded timeout
+        await tracker.fail_pipeline(f"Query timeout: {e.timeout_seconds}s")
         logger.error(
             f"Query {query_id} timed out",
             extra={
@@ -2459,6 +2726,7 @@ DETAILED COMPARISON:
 
     except Exception as e:
         # Unexpected error
+        await tracker.fail_pipeline(f"Unexpected error: {str(e)}")
         logger.error(
             f"Unexpected error processing query {query_id}: {e}",
             extra={

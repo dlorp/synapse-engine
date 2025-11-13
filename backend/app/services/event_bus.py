@@ -235,6 +235,64 @@ class EventBus:
                 extra={"event_type": event.type}
             )
 
+    async def emit_pipeline_event(
+        self,
+        query_id: str,
+        stage: str,
+        event_type: EventType,
+        metadata: Optional[dict] = None
+    ) -> None:
+        """Emit a pipeline stage event.
+
+        Convenience method for publishing pipeline-specific events with
+        consistent formatting and metadata structure.
+
+        Args:
+            query_id: Unique query identifier
+            stage: Pipeline stage name (input, complexity, cgrag, etc.)
+            event_type: Pipeline event type (PIPELINE_STAGE_START, etc.)
+            metadata: Optional stage-specific metadata
+
+        Example:
+            await event_bus.emit_pipeline_event(
+                query_id="abc123",
+                stage="cgrag",
+                event_type=EventType.PIPELINE_STAGE_COMPLETE,
+                metadata={"artifacts_retrieved": 8, "tokens_used": 4500}
+            )
+        """
+        # Map event types to messages
+        event_messages = {
+            EventType.PIPELINE_STAGE_START: f"Pipeline stage started: {stage}",
+            EventType.PIPELINE_STAGE_COMPLETE: f"Pipeline stage completed: {stage}",
+            EventType.PIPELINE_STAGE_FAILED: f"Pipeline stage failed: {stage}",
+            EventType.PIPELINE_COMPLETE: "Query pipeline completed",
+            EventType.PIPELINE_FAILED: "Query pipeline failed"
+        }
+
+        message = event_messages.get(event_type, f"Pipeline event: {stage}")
+
+        # Build event metadata
+        event_metadata = {
+            "query_id": query_id,
+            "stage": stage
+        }
+        if metadata:
+            event_metadata.update(metadata)
+
+        # Determine severity
+        severity = EventSeverity.INFO
+        if event_type in [EventType.PIPELINE_STAGE_FAILED, EventType.PIPELINE_FAILED]:
+            severity = EventSeverity.ERROR
+
+        # Publish event
+        await self.publish(
+            event_type=event_type,
+            message=message,
+            severity=severity,
+            metadata=event_metadata
+        )
+
     async def subscribe(
         self,
         event_types: Optional[Set[EventType]] = None,

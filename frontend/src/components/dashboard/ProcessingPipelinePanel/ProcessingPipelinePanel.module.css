@@ -1,0 +1,290 @@
+/* ===================================================================
+   ProcessingPipelinePanel - Real-time pipeline visualization styles
+   Terminal-aesthetic ASCII flow diagram with status animations
+   ================================================================== */
+
+/* ===================================================================
+   Container Layout
+   ================================================================== */
+
+.pipelineContainer {
+  padding: var(--webtui-spacing-lg);
+  font-family: var(--webtui-font-family);
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* ===================================================================
+   Empty State (No Active Query)
+   ================================================================== */
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  text-align: center;
+  color: var(--webtui-text-secondary);
+  opacity: 0.6;
+}
+
+.emptyTitle {
+  font-size: var(--webtui-font-size-large);
+  font-weight: var(--font-bold);
+  color: var(--webtui-primary);
+  margin: 0 0 var(--webtui-spacing-sm) 0;
+  letter-spacing: 0.1em;
+}
+
+.hint {
+  font-size: var(--webtui-font-size-small);
+  margin: 0;
+  color: var(--webtui-text-secondary);
+  opacity: 0.8;
+}
+
+/* ===================================================================
+   Loading State
+   ================================================================== */
+
+.loadingState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  color: var(--webtui-processing);
+  font-size: var(--webtui-font-size-base);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* ===================================================================
+   ASCII Flow Diagram
+   ================================================================== */
+
+.asciiFlow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--webtui-spacing-lg);
+}
+
+.flowDiagram {
+  font-family: var(--webtui-font-family);
+  font-size: 14px;
+  line-height: 2;
+  color: var(--webtui-primary);
+  margin: 0;
+  white-space: pre;
+  overflow-x: auto;
+}
+
+/* ===================================================================
+   Stage Status States
+   ================================================================== */
+
+.stagePending {
+  color: var(--text-dim);
+  opacity: 0.5;
+  transition: all var(--transition-base);
+}
+
+.stageActive {
+  color: var(--webtui-processing);
+  animation: stageActivePulse 1s ease-in-out infinite;
+  text-shadow: 0 0 10px var(--webtui-processing);
+  font-weight: var(--font-bold);
+}
+
+.stageCompleted {
+  color: var(--webtui-primary);
+  text-shadow: 0 0 5px var(--webtui-primary);
+}
+
+.stageFailed {
+  color: var(--webtui-error);
+  animation: stageFailedShake 0.5s;
+  text-shadow: 0 0 8px var(--webtui-error);
+}
+
+/* ===================================================================
+   Flow Arrow
+   ================================================================== */
+
+.arrow {
+  color: var(--webtui-accent);
+  opacity: 0.6;
+  margin: 4px 0;
+  animation: arrowBlink 2s ease-in-out infinite;
+}
+
+/* ===================================================================
+   Stage Metadata Display
+   ================================================================== */
+
+.metadata {
+  font-size: 11px;
+  color: var(--webtui-accent);
+  margin-left: 24px;
+  padding: 4px 12px;
+  background: rgba(0, 255, 255, 0.05);
+  border-left: 2px solid var(--webtui-accent);
+  margin-top: 4px;
+  margin-bottom: 4px;
+  line-height: 1.4;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* ===================================================================
+   Summary Displays
+   ================================================================== */
+
+.summary {
+  margin-top: var(--webtui-spacing-lg);
+  padding: var(--webtui-spacing-md);
+  background: rgba(255, 149, 0, 0.05);
+  border: 1px solid var(--webtui-success);
+  color: var(--webtui-success);
+  font-size: var(--webtui-font-size-small);
+  text-align: center;
+  animation: summaryFadeIn 0.5s ease-out;
+}
+
+.summary p {
+  margin: 4px 0;
+  line-height: 1.6;
+}
+
+.summary p:first-child {
+  font-weight: var(--font-bold);
+  font-size: var(--webtui-font-size-base);
+  letter-spacing: 0.1em;
+  margin-bottom: var(--webtui-spacing-sm);
+}
+
+.errorSummary {
+  margin-top: var(--webtui-spacing-lg);
+  padding: var(--webtui-spacing-md);
+  background: rgba(255, 0, 0, 0.05);
+  border: 1px solid var(--webtui-error);
+  color: var(--webtui-error);
+  font-size: var(--webtui-font-size-small);
+  text-align: center;
+  animation: errorPulse 1s ease-in-out 3;
+}
+
+.errorSummary p {
+  margin: 4px 0;
+  line-height: 1.6;
+}
+
+.errorSummary p:first-child {
+  font-weight: var(--font-bold);
+  font-size: var(--webtui-font-size-base);
+  letter-spacing: 0.1em;
+  margin-bottom: var(--webtui-spacing-sm);
+}
+
+.errorDetail {
+  font-size: 11px;
+  opacity: 0.8;
+  margin-top: var(--webtui-spacing-sm);
+  padding-top: var(--webtui-spacing-sm);
+  border-top: 1px solid rgba(255, 0, 0, 0.3);
+}
+
+/* ===================================================================
+   Animations
+   ================================================================== */
+
+@keyframes stageActivePulse {
+  0%, 100% {
+    opacity: 1;
+    text-shadow: 0 0 5px var(--webtui-processing);
+  }
+  50% {
+    opacity: 0.7;
+    text-shadow: 0 0 15px var(--webtui-processing);
+  }
+}
+
+@keyframes stageFailedShake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+@keyframes arrowBlink {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@keyframes summaryFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes errorPulse {
+  0%, 100% {
+    border-color: var(--webtui-error);
+    box-shadow: 0 0 0 rgba(255, 0, 0, 0);
+  }
+  50% {
+    border-color: rgba(255, 0, 0, 0.6);
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* ===================================================================
+   Responsive Design
+   ================================================================== */
+
+@media (max-width: 768px) {
+  .pipelineContainer {
+    padding: var(--webtui-spacing-md);
+    min-height: 300px;
+  }
+
+  .flowDiagram {
+    font-size: 12px;
+  }
+
+  .metadata {
+    font-size: 10px;
+    margin-left: 16px;
+    padding: 4px 8px;
+  }
+
+  .summary,
+  .errorSummary {
+    padding: var(--webtui-spacing-sm);
+    font-size: 11px;
+  }
+}

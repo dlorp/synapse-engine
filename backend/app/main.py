@@ -27,12 +27,16 @@ from app.core.logging import (
     get_logger,
     ServiceTag
 )
-from app.routers import health, models, query, admin, settings, proxy, events, orchestrator, metrics
+from app.routers import health, models, query, admin, settings, proxy, events, orchestrator, metrics, pipeline, context, timeseries, topology
 from app.services.llama_server_manager import LlamaServerManager
 from app.services.model_discovery import ModelDiscoveryService
 from app.services.profile_manager import ProfileManager
 from app.services.websocket_manager import WebSocketManager
 from app.services.event_bus import init_event_bus, get_event_bus
+from app.services.pipeline_state import init_pipeline_state_manager, get_pipeline_state_manager
+from app.services.context_state import init_context_state_manager, get_context_state_manager
+from app.services.metrics_aggregator import init_metrics_aggregator, get_metrics_aggregator
+from app.services.topology_manager import init_topology_manager, get_topology_manager
 from app.models.discovered_model import ModelRegistry
 
 # Track application start time
@@ -137,6 +141,26 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         event_bus = init_event_bus(history_size=100, max_queue_size=1000)
         await event_bus.start()
         logger.info("Event bus initialized and started")
+
+        # Initialize pipeline state manager for query processing visualization
+        pipeline_manager = init_pipeline_state_manager(cleanup_interval=300, ttl_seconds=3600)
+        await pipeline_manager.start()
+        logger.info("Pipeline state manager initialized and started")
+
+        # Initialize context state manager for context window allocation tracking
+        context_manager = init_context_state_manager(cleanup_interval=300, ttl_seconds=3600)
+        await context_manager.start()
+        logger.info("Context state manager initialized and started")
+
+        # Initialize metrics aggregator for time-series metrics storage
+        metrics_aggregator = init_metrics_aggregator()
+        await metrics_aggregator.start()
+        logger.info("Metrics aggregator initialized and started")
+
+        # Initialize topology manager for system architecture visualization
+        topology_manager = init_topology_manager()
+        await topology_manager.start()
+        logger.info("Topology manager initialized and started")
 
         server_manager = LlamaServerManager(
             llama_server_path=config.model_management.llama_server_path,
@@ -247,6 +271,38 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
     # Shutdown
     logger.info("S.Y.N.A.P.S.E. Core (PRAXIS) shutting down...")
+
+    # Stop topology manager
+    try:
+        topology_manager = get_topology_manager()
+        await topology_manager.stop()
+        logger.info("Topology manager stopped")
+    except Exception as e:
+        logger.warning(f"Error stopping topology manager: {e}")
+
+    # Stop metrics aggregator
+    try:
+        metrics_aggregator = get_metrics_aggregator()
+        await metrics_aggregator.stop()
+        logger.info("Metrics aggregator stopped")
+    except Exception as e:
+        logger.warning(f"Error stopping metrics aggregator: {e}")
+
+    # Stop context state manager
+    try:
+        context_manager = get_context_state_manager()
+        await context_manager.stop()
+        logger.info("Context state manager stopped")
+    except Exception as e:
+        logger.warning(f"Error stopping context state manager: {e}")
+
+    # Stop pipeline state manager
+    try:
+        pipeline_manager = get_pipeline_state_manager()
+        await pipeline_manager.stop()
+        logger.info("Pipeline state manager stopped")
+    except Exception as e:
+        logger.warning(f"Error stopping pipeline state manager: {e}")
 
     # Stop event bus
     try:
@@ -436,6 +492,10 @@ app.include_router(proxy.router, tags=["proxy"])
 app.include_router(events.router, tags=["events"])
 app.include_router(orchestrator.router, tags=["orchestrator"])
 app.include_router(metrics.router, tags=["metrics"])
+app.include_router(pipeline.router, tags=["pipeline"])
+app.include_router(context.router, tags=["context"])
+app.include_router(timeseries.router, tags=["timeseries"])
+app.include_router(topology.router, tags=["topology"])
 
 
 # Root endpoint
