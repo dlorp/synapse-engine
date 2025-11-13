@@ -1,0 +1,47 @@
+/**
+ * ModelCardGrid Styles
+ * Responsive CSS Grid with terminal aesthetic
+ */
+
+.gridContainer {
+  display: grid;
+  gap: 20px;
+  width: 100%;
+
+  /* Responsive columns */
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+
+  /* Wide screens: 3 columns */
+  @media (min-width: 1400px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* Medium screens: 2 columns */
+  @media (min-width: 900px) and (max-width: 1399px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Narrow screens: 1 column */
+  @media (max-width: 899px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  padding: 40px;
+  color: #ff9500;
+  font-family: "JetBrains Mono", "IBM Plex Mono", monospace;
+  font-size: 14px;
+  text-align: center;
+  border: 1px solid rgba(255, 149, 0, 0.3);
+  border-radius: 4px;
+  background: rgba(255, 149, 0, 0.05);
+}
+
+.emptyState p {
+  margin: 0;
+}

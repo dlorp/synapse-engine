@@ -1,0 +1,28 @@
+.asciiSectionHeader {
+  font-family: var(--webtui-font-family);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--webtui-accent);
+  padding: var(--webtui-spacing-xs) 0;
+  letter-spacing: 0;
+  white-space: pre;
+  overflow: hidden;
+  text-overflow: clip;
+  width: 100%;
+  animation: section-pulse 2s ease-in-out infinite;
+  line-height: 1.2;
+  font-feature-settings: "liga" 0, "calt" 0;
+  font-kerning: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: geometricPrecision;
+}
+
+@keyframes section-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
