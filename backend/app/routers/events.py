@@ -12,6 +12,7 @@ Phase: 1 - LiveEventFeed Backend (Task 1.4)
 """
 
 import asyncio
+import json
 from typing import Optional, Set
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query
@@ -153,11 +154,19 @@ async def websocket_events(
             try:
                 while True:
                     message = await websocket.receive()
-                    # Handle ping messages
+                    # Handle ping messages (client sends JSON: {"type": "ping"})
                     if message.get("type") == "websocket.receive":
-                        # Client sent ping, respond with pong
-                        if message.get("text") == "ping":
-                            await websocket.send_text("pong")
+                        text = message.get("text", "")
+                        if text:
+                            try:
+                                # Parse JSON message
+                                data = json.loads(text)
+                                # Client sent ping, respond with pong (JSON format)
+                                if data.get("type") == "ping":
+                                    await websocket.send_json({"type": "pong"})
+                            except (json.JSONDecodeError, ValueError):
+                                # Ignore non-JSON messages
+                                logger.debug(f"Received non-JSON WebSocket message: {text}")
             except (WebSocketDisconnect, asyncio.CancelledError):
                 pass
 
