@@ -9,12 +9,14 @@ Phase: 4 - Dashboard Features (Component 4)
 """
 
 import asyncio
+import os
 import time
 from collections import defaultdict
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 
 import httpx
+import psutil
 
 from app.core.logging import get_logger
 from app.models.topology import (
@@ -460,24 +462,73 @@ class TopologyManager:
         """Perform health checks on all components."""
         # Check orchestrator (always healthy if we're running)
         orchestrator_uptime = int(time.time() - self._start_time)
+
+        # Get actual process metrics using psutil
+        try:
+            process = psutil.Process(os.getpid())
+            cpu_percent = process.cpu_percent(interval=0.1)
+            memory_info = process.memory_info()
+            memory_usage_mb = memory_info.rss / (1024 * 1024)  # Convert bytes to MB
+        except Exception as e:
+            logger.warning(f"Failed to get process metrics: {e}")
+            cpu_percent = 0.0
+            memory_usage_mb = 0.0
+
         await self.update_component_health(
             "orchestrator",
             HealthMetrics(
                 component_id="orchestrator",
                 status="healthy",
                 uptime_seconds=orchestrator_uptime,
-                memory_usage_mb=0.0,  # TODO: Get actual process memory
-                cpu_percent=0.0,  # TODO: Get actual CPU usage
+                memory_usage_mb=round(memory_usage_mb, 2),
+                cpu_percent=round(cpu_percent, 2),
                 error_rate=0.0,
                 avg_latency_ms=0.0,
                 last_check=datetime.utcnow()
             )
         )
 
-        # Check model servers via /health endpoint
-        # Note: This requires access to server_manager or model_registry
-        # For now, we'll mark models as offline by default
-        # TODO: Integrate with LlamaServerManager for actual health checks
+        # Check model servers via LlamaServerManager
+        try:
+            from app import main
+
+            if main.server_manager is not None:
+                server_manager = main.server_manager
+                status_summary = server_manager.get_status_summary()
+
+                # Update status for each tracked model server
+                for server_status in status_summary.get("servers", []):
+                    model_id = server_status.get("model_id", "unknown")
+                    is_running = server_status.get("is_running", False)
+                    is_ready = server_status.get("is_ready", False)
+                    uptime = server_status.get("uptime_seconds", 0)
+
+                    # Determine health status based on server state
+                    if is_running and is_ready:
+                        status = "healthy"
+                    elif is_running and not is_ready:
+                        status = "degraded"  # Running but not ready yet
+                    else:
+                        status = "offline"
+
+                    # Create HealthMetrics for this model
+                    # Note: Memory/CPU metrics would need to come from llama.cpp /health endpoint
+                    # For now, we track basic availability
+                    await self.update_component_health(
+                        model_id,
+                        HealthMetrics(
+                            component_id=model_id,
+                            status=status,
+                            uptime_seconds=uptime,
+                            memory_usage_mb=0.0,  # llama.cpp doesn't expose this yet
+                            cpu_percent=0.0,  # llama.cpp doesn't expose this yet
+                            error_rate=0.0,
+                            avg_latency_ms=0.0,
+                            last_check=datetime.utcnow()
+                        )
+                    )
+        except Exception as e:
+            logger.debug(f"Failed to update model health from server_manager: {e}")
 
         # Check CGRAG/FAISS availability
         try:

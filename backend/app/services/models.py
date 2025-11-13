@@ -314,14 +314,42 @@ class ModelManager:
                     state['total_response_time_ms'] / state['request_count']
                 )
 
+            # Get memory statistics from llama.cpp if model is healthy
+            memory_used_mb = 0
+            memory_total_mb = 8000  # Default fallback
+
+            if state['is_healthy'] and state['state'] != ModelState.OFFLINE:
+                try:
+                    client = self._clients[model_id]
+                    stats = await client.get_stats()
+
+                    if not stats.get('error'):
+                        # Get memory usage in GB and convert to MB
+                        memory_used_gb = stats.get('memory_used_gb', 0.0)
+                        memory_used_mb = int(memory_used_gb * 1024)
+
+                        # Estimate total memory based on tier
+                        # Q2 models: ~2-3GB, Q3: ~4-5GB, Q4: ~6-8GB
+                        tier_memory_map = {
+                            'fast': 3072,      # 3GB in MB
+                            'balanced': 5120,  # 5GB in MB
+                            'powerful': 8192   # 8GB in MB
+                        }
+                        memory_total_mb = tier_memory_map.get(config.tier.lower(), 8000)
+                except Exception as e:
+                    self._logger.debug(
+                        f"Failed to get memory stats for {model_id}: {e}",
+                        extra={'model_id': model_id}
+                    )
+
             model_status = ModelStatus(
                 id=model_id,
                 name=config.name,
                 tier=config.tier,
                 port=config.port,
                 state=state['state'],
-                memory_used=0,  # TODO: Get from llama.cpp when endpoint available
-                memory_total=8000,  # Mock value for now
+                memory_used=memory_used_mb,
+                memory_total=memory_total_mb,
                 request_count=state['request_count'],
                 avg_response_time=round(avg_response_time, 2),
                 last_active=state['last_check'],
@@ -334,7 +362,22 @@ class ModelManager:
         # Calculate aggregate metrics
         total_vram_gb = 16.0  # Mock value
         total_vram_used_gb = sum(m.memory_used for m in model_statuses) / 1024.0
-        cache_hit_rate = 0.0  # TODO: Get from Redis cache when implemented
+
+        # Get cache hit rate from cache metrics service
+        cache_hit_rate = 0.0
+        try:
+            from app.services.cache_metrics import get_cache_metrics
+            cache_metrics = get_cache_metrics()
+            cache_hit_rate = cache_metrics.get_hit_rate()
+        except RuntimeError:
+            # Cache metrics not initialized - use default 0.0
+            pass
+        except Exception as e:
+            self._logger.warning(
+                f"Failed to get cache hit rate: {e}",
+                extra={'error': str(e)}
+            )
+
         active_queries = sum(
             1 for m in model_statuses
             if m.state == ModelState.PROCESSING

@@ -27,7 +27,7 @@ from app.core.logging import (
     get_logger,
     ServiceTag
 )
-from app.routers import health, models, query, admin, settings, proxy, events, orchestrator, metrics, pipeline, context, timeseries, topology
+from app.routers import health, models, query, admin, settings, proxy, events, orchestrator, metrics, pipeline, context, timeseries, topology, logs
 from app.services.llama_server_manager import LlamaServerManager
 from app.services.model_discovery import ModelDiscoveryService
 from app.services.profile_manager import ProfileManager
@@ -37,6 +37,10 @@ from app.services.pipeline_state import init_pipeline_state_manager, get_pipelin
 from app.services.context_state import init_context_state_manager, get_context_state_manager
 from app.services.metrics_aggregator import init_metrics_aggregator, get_metrics_aggregator
 from app.services.topology_manager import init_topology_manager, get_topology_manager
+from app.services.cache_metrics import init_cache_metrics, get_cache_metrics
+from app.services.health_monitor import init_health_monitor, get_health_monitor
+from app.services.log_aggregator import init_log_aggregator, get_log_aggregator
+from app.core.logging_handler import AggregatorHandler
 from app.models.discovered_model import ModelRegistry
 
 # Track application start time
@@ -162,6 +166,26 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         await topology_manager.start()
         logger.info("Topology manager initialized and started")
 
+        # Initialize cache metrics tracker for production monitoring
+        cache_metrics = init_cache_metrics()
+        logger.info("Cache metrics tracker initialized")
+
+        # Initialize health monitor for degraded status alerts
+        health_monitor = init_health_monitor(check_interval=60)
+        await health_monitor.start()
+        logger.info("Health monitor initialized and started (check interval: 60s)")
+
+        # Initialize log aggregator for system-wide log collection
+        log_aggregator = init_log_aggregator(max_logs=1000)
+        logger.info("Log aggregator initialized (max_logs=1000)")
+
+        # Add custom logging handler to capture all logs
+        root_logger = logging.getLogger()
+        aggregator_handler = AggregatorHandler(log_aggregator)
+        aggregator_handler.setLevel(logging.DEBUG)  # Capture all log levels
+        root_logger.addHandler(aggregator_handler)
+        logger.info("Log aggregation handler installed - capturing all system logs")
+
         server_manager = LlamaServerManager(
             llama_server_path=config.model_management.llama_server_path,
             max_startup_time=config.model_management.max_startup_time,
@@ -271,6 +295,14 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
     # Shutdown
     logger.info("S.Y.N.A.P.S.E. Core (PRAXIS) shutting down...")
+
+    # Stop health monitor
+    try:
+        health_monitor = get_health_monitor()
+        await health_monitor.stop()
+        logger.info("Health monitor stopped")
+    except Exception as e:
+        logger.warning(f"Error stopping health monitor: {e}")
 
     # Stop topology manager
     try:
@@ -496,6 +528,7 @@ app.include_router(pipeline.router, tags=["pipeline"])
 app.include_router(context.router, tags=["context"])
 app.include_router(timeseries.router, tags=["timeseries"])
 app.include_router(topology.router, tags=["topology"])
+app.include_router(logs.router, tags=["logs"])
 
 
 # Root endpoint

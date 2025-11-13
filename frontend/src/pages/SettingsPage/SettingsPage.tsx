@@ -378,6 +378,9 @@ export const SettingsPage: React.FC = () => {
           <div className={styles.field}>
             <label className={styles.label}>
               PORT RANGE START
+              {renderTooltip(
+                'Starting port number for llama.cpp model servers. Must be between 1024-65535. Each model requires one unique port.'
+              )}
               <span className={styles.hint}>⚠ Minimum: 1024</span>
             </label>
             <Input
@@ -396,6 +399,9 @@ export const SettingsPage: React.FC = () => {
           <div className={styles.field}>
             <label className={styles.label}>
               PORT RANGE END
+              {renderTooltip(
+                'Ending port number for llama.cpp model servers. The total range determines how many models can run simultaneously.'
+              )}
               <span className={styles.hint}>⚠ Maximum: 65535</span>
             </label>
             <Input
@@ -549,7 +555,12 @@ export const SettingsPage: React.FC = () => {
           <div className={styles.batchBody}>
               <div className={styles.batchGrid}>
                 <div className={styles.field}>
-                  <label className={styles.label}>BATCH SIZE</label>
+                  <label className={styles.label}>
+                    BATCH SIZE
+                    {renderTooltip(
+                      'Maximum number of tokens processed in parallel during prompt evaluation. Higher values improve throughput but increase VRAM usage. Recommended: 512-2048.'
+                    )}
+                  </label>
                   <Input
                     type="number"
                     min="32"
@@ -564,7 +575,12 @@ export const SettingsPage: React.FC = () => {
                 </div>
 
                 <div className={styles.field}>
-                  <label className={styles.label}>UBATCH SIZE</label>
+                  <label className={styles.label}>
+                    UBATCH SIZE
+                    {renderTooltip(
+                      'Micro-batch size for token generation. Must be ≤ batch_size. Lower values reduce VRAM usage with minimal performance impact. Recommended: 256-512.'
+                    )}
+                  </label>
                   <Input
                     type="number"
                     min="32"
@@ -585,7 +601,12 @@ export const SettingsPage: React.FC = () => {
                     checked={currentSettings.flash_attn}
                     onChange={(e) => handleFieldChange('flash_attn', e.target.checked)}
                   />
-                  <span className={styles.checkboxLabel}>FLASH ATTENTION</span>
+                  <span className={styles.checkboxLabel}>
+                    FLASH ATTENTION
+                    {renderTooltip(
+                      'Enable Flash Attention 2 algorithm for faster, more memory-efficient attention computation. Requires compatible GPU and model.'
+                    )}
+                  </span>
                   {currentSettings.flash_attn && <span className={styles.checkboxStatus}>⚪ ENABLED</span>}
                 </label>
 
@@ -595,7 +616,12 @@ export const SettingsPage: React.FC = () => {
                     checked={currentSettings.no_mmap}
                     onChange={(e) => handleFieldChange('no_mmap', e.target.checked)}
                   />
-                  <span className={styles.checkboxLabel}>NO MMAP</span>
+                  <span className={styles.checkboxLabel}>
+                    NO MMAP
+                    {renderTooltip(
+                      'Disable memory-mapped file I/O for model loading. Increases RAM usage but may improve performance on some systems. Leave disabled for optimal memory efficiency.'
+                    )}
+                  </span>
                   {currentSettings.no_mmap && <span className={styles.checkboxStatus}>⚪ ENABLED</span>}
                 </label>
               </div>
