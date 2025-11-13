@@ -13,8 +13,12 @@
   animation: fade-in var(--transition-base);
   /* Removed max-width to allow ASCII borders to extend to browser edges */
   width: 100%;
+  max-width: 100vw; /* Prevent horizontal overflow */
+  overflow-x: hidden; /* Hide any horizontal overflow */
+  overflow-y: visible; /* Allow natural vertical scrolling - main viewport handles all scrolling */
   margin: 0;
   padding: 0; /* CRITICAL: No padding so ASCII frames can extend edge-to-edge */
+  box-sizing: border-box;
 }
 
 .sectionContent {
