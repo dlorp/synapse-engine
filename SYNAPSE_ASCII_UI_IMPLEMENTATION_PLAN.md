@@ -966,11 +966,13 @@ ${'─'.repeat(150)}`;
 
 ## Phase 0: WebTUI Foundation Setup (MANDATORY PREREQUISITE)
 
+**Status:** ✅ COMPLETE
 **Duration:** 8 hours
 **Priority:** Critical (BLOCKS ALL OTHER PHASES)
 **Complexity:** Medium
 **Lead Agent:** @terminal-ui-specialist
 **Support Agents:** @frontend-engineer, @devops-engineer
+**Completion Date:** 2025-11-09
 
 ### Overview
 
@@ -2344,11 +2346,13 @@ Phase 0.5 is complete when:
 
 ## Phase 1: HomePage Enhancements
 
+**Status:** ✅ COMPLETE
 **Duration:** 8-10 hours
 **Priority:** High
 **Complexity:** Medium
 **Lead Agent:** @frontend-engineer
 **Support Agents:** @terminal-ui-specialist, @websocket-realtime-specialist
+**Completion Date:** 2025-11-09
 
 **Prerequisites:** Phase 0 (WebTUI Foundation) MUST be complete before starting this phase. All components in this phase will build on WebTUI base classes and use the phosphor orange theme.
 
@@ -2423,11 +2427,13 @@ Phase 0.5 is complete when:
 
 ## Phase 2: MetricsPage Redesign
 
+**Status:** ✅ COMPLETE
 **Duration:** 12-14 hours
 **Priority:** High
 **Complexity:** High
 **Lead Agent:** @frontend-engineer
 **Support Agents:** @terminal-ui-specialist, @backend-architect, @performance-optimizer
+**Completion Date:** 2025-11-09
 
 **Prerequisites:** Phase 0 (WebTUI Foundation) and Phase 1 complete. All chart components will use WebTUI base styling with ASCII content layered on top.
 
@@ -2516,11 +2522,13 @@ Phase 0.5 is complete when:
 
 ## Phase 3: ModelManagementPage Enhancements
 
+**Status:** ✅ COMPLETE
 **Duration:** 8-10 hours
 **Priority:** Medium
 **Complexity:** Medium
 **Lead Agent:** @frontend-engineer
 **Support Agents:** @terminal-ui-specialist, @model-lifecycle-manager
+**Completion Date:** 2025-11-09
 
 **Prerequisites:** Phase 0 (WebTUI Foundation) complete. Model cards will use synapse-panel classes with WebTUI responsive grid.
 
@@ -2591,23 +2599,27 @@ Phase 0.5 is complete when:
 
 ## Phase 4: NEURAL SUBSTRATE DASHBOARD
 
-**Status:** ✅ COMPLETE (Components) / 🚧 IN PROGRESS (WebSocket Backend Endpoint)
+**Status:** ✅ COMPLETE
 **Duration:** 16-20 hours (Completed: ~4 hours)
 **Priority:** High
 **Complexity:** Very High
 **Lead Agent:** @frontend-engineer
 **Support Agents:** @terminal-ui-specialist, @cgrag-specialist, @backend-architect, @websocket-realtime-specialist
-**Completion Date:** 2025-11-12
+**Completion Date:** 2025-11-13
 
 **Prerequisites:** Phase 0 (WebTUI Foundation) complete. Dashboard uses advanced WebTUI layouts with dense panel arrangements and real-time ASCII visualizations.
 
-**IMPLEMENTATION NOTES (2025-11-12):**
+**IMPLEMENTATION NOTES (2025-11-13 UPDATE):**
 - All 4 dashboard components implemented and rendering correctly
 - ProcessingPipelinePanel, ContextWindowPanel, AdvancedMetricsPanel, SystemArchitectureDiagram all functional
 - reactflow library successfully integrated (49 packages)
 - All 6 backend API endpoints functional with proper trailing slashes
 - WebSocket client implementation complete with max retry limit (10 attempts)
-- **PENDING:** Backend /ws/events WebSocket endpoint implementation (returns 404)
+- ✅ **COMPLETE:** Backend /ws/events WebSocket endpoint implemented (backend/app/routers/events.py)
+- ✅ **COMPLETE:** WebSocket router mounted in main.py line 492
+- ✅ **COMPLETE:** Full EventBus integration with type/severity filtering
+- ✅ **COMPLETE:** Ping/pong heartbeat protocol (30s interval)
+- ✅ **COMPLETE:** Frontend useSystemEvents hook with auto-reconnect
 - **KNOWN ISSUE:** Occasional scrollbar overflow (cosmetic, under investigation)
 
 ### Tasks
