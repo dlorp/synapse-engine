@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S.Y.N.A.P.S.E. ENGINE - WebSocket Test</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #000;
+            color: #ff9500;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            border-bottom: 2px solid #ff9500;
+            padding-bottom: 10px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ff9500;
+            border-radius: 4px;
+        }
+        .status.connected {
+            background-color: #00330011;
+            border-color: #00ff00;
+            color: #00ff00;
+        }
+        .status.disconnected {
+            background-color: #33000011;
+            border-color: #ff0000;
+            color: #ff0000;
+        }
+        .status.connecting {
+            background-color: #33330011;
+            border-color: #ffff00;
+            color: #ffff00;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        button {
+            background-color: #000;
+            color: #ff9500;
+            border: 2px solid #ff9500;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #ff9500;
+            color: #000;
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .events {
+            border: 1px solid #ff9500;
+            padding: 10px;
+            height: 400px;
+            overflow-y: auto;
+            background-color: #000;
+        }
+        .event {
+            padding: 8px;
+            margin: 5px 0;
+            border-left: 3px solid #ff9500;
+            background-color: #11110011;
+        }
+        .event.info {
+            border-left-color: #00ffff;
+        }
+        .event.warning {
+            border-left-color: #ffff00;
+        }
+        .event.error {
+            border-left-color: #ff0000;
+        }
+        .event-timestamp {
+            color: #888;
+            font-size: 12px;
+        }
+        .event-type {
+            color: #00ffff;
+            font-weight: bold;
+        }
+        .event-message {
+            margin-top: 5px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .stat-box {
+            border: 1px solid #ff9500;
+            padding: 15px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #00ffff;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>S.Y.N.A.P.S.E. ENGINE - WebSocket Test</h1>
+
+    <div class="status" id="status">
+        <strong>Status:</strong> <span id="statusText">Not connected</span>
+    </div>
+
+    <div class="stats">
+        <div class="stat-box">
+            <div class="stat-value" id="eventCount">0</div>
+            <div class="stat-label">EVENTS RECEIVED</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" id="reconnectCount">0</div>
+            <div class="stat-label">RECONNECT ATTEMPTS</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" id="pingCount">0</div>
+            <div class="stat-label">PING/PONG CYCLES</div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button id="connectBtn" onclick="connect()">Connect</button>
+        <button id="disconnectBtn" onclick="disconnect()" disabled>Disconnect</button>
+        <button onclick="sendTestEvent()">Send Test Event</button>
+        <button onclick="clearEvents()">Clear Events</button>
+    </div>
+
+    <h2>Event Stream</h2>
+    <div class="events" id="events">
+        <div style="color: #888; text-align: center; padding: 20px;">
+            Waiting for events...
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        let eventCount = 0;
+        let reconnectCount = 0;
+        let pingCount = 0;
+        let pingInterval = null;
+
+        function updateStatus(text, className) {
+            const statusEl = document.getElementById('status');
+            const statusTextEl = document.getElementById('statusText');
+            statusEl.className = `status ${className}`;
+            statusTextEl.textContent = text;
+        }
+
+        function updateStats() {
+            document.getElementById('eventCount').textContent = eventCount;
+            document.getElementById('reconnectCount').textContent = reconnectCount;
+            document.getElementById('pingCount').textContent = pingCount;
+        }
+
+        function addEvent(event) {
+            const eventsEl = document.getElementById('events');
+
+            // Clear placeholder text
+            if (eventCount === 0) {
+                eventsEl.innerHTML = '';
+            }
+
+            const eventEl = document.createElement('div');
+            eventEl.className = `event ${event.severity || 'info'}`;
+
+            const timestamp = new Date(event.timestamp * 1000).toLocaleTimeString();
+
+            eventEl.innerHTML = `
+                <div class="event-timestamp">${timestamp}</div>
+                <div class="event-type">[${event.type}]</div>
+                <div class="event-message">${event.message}</div>
+            `;
+
+            eventsEl.insertBefore(eventEl, eventsEl.firstChild);
+
+            // Keep only last 20 events
+            while (eventsEl.children.length > 20) {
+                eventsEl.removeChild(eventsEl.lastChild);
+            }
+
+            eventCount++;
+            updateStats();
+        }
+
+        function connect() {
+            if (ws) {
+                console.log('Already connected');
+                return;
+            }
+
+            updateStatus('Connecting...', 'connecting');
+
+            // Connect to WebSocket endpoint
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}/ws/events`;
+
+            console.log('Connecting to:', wsUrl);
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = () => {
+                console.log('WebSocket connected');
+                updateStatus('Connected', 'connected');
+                document.getElementById('connectBtn').disabled = true;
+                document.getElementById('disconnectBtn').disabled = false;
+
+                // Start ping/pong heartbeat (every 30 seconds)
+                startHeartbeat();
+            };
+
+            ws.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+
+                    // Handle pong response
+                    if (data.type === 'pong') {
+                        console.log('Received pong');
+                        pingCount++;
+                        updateStats();
+                        return;
+                    }
+
+                    // Handle system event
+                    console.log('Received event:', data);
+                    addEvent(data);
+                } catch (error) {
+                    console.error('Failed to parse message:', error);
+                }
+            };
+
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+                updateStatus('Error', 'disconnected');
+            };
+
+            ws.onclose = (event) => {
+                console.log('WebSocket closed:', event.code, event.reason);
+                updateStatus('Disconnected', 'disconnected');
+                document.getElementById('connectBtn').disabled = false;
+                document.getElementById('disconnectBtn').disabled = true;
+
+                stopHeartbeat();
+                ws = null;
+
+                // Auto-reconnect if abnormal closure
+                if (event.code !== 1000 && reconnectCount < 5) {
+                    reconnectCount++;
+                    updateStats();
+                    console.log(`Auto-reconnecting in 2s (attempt ${reconnectCount}/5)...`);
+                    setTimeout(connect, 2000);
+                }
+            };
+        }
+
+        function disconnect() {
+            if (ws) {
+                console.log('Disconnecting...');
+                stopHeartbeat();
+                ws.close(1000, 'User disconnected');
+                ws = null;
+            }
+        }
+
+        function startHeartbeat() {
+            if (pingInterval) {
+                clearInterval(pingInterval);
+            }
+
+            pingInterval = setInterval(() => {
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    console.log('Sending ping');
+                    ws.send(JSON.stringify({ type: 'ping' }));
+                }
+            }, 30000); // 30 seconds
+        }
+
+        function stopHeartbeat() {
+            if (pingInterval) {
+                clearInterval(pingInterval);
+                pingInterval = null;
+            }
+        }
+
+        async function sendTestEvent() {
+            try {
+                const response = await fetch('/api/events/test?message=Test+event+from+WebSocket+tester', {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                console.log('Test event published:', result);
+            } catch (error) {
+                console.error('Failed to send test event:', error);
+            }
+        }
+
+        function clearEvents() {
+            document.getElementById('events').innerHTML = `
+                <div style="color: #888; text-align: center; padding: 20px;">
+                    Waiting for events...
+                </div>
+            `;
+            eventCount = 0;
+            updateStats();
+        }
+
+        // Auto-connect on page load
+        window.onload = () => {
+            connect();
+        };
+
+        // Clean up on page unload
+        window.onbeforeunload = () => {
+            disconnect();
+        };
+    </script>
+</body>
+</html>

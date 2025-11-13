@@ -1,6 +1,7 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { RouterProvider } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ToastContainer } from 'react-toastify';
 import { SystemEventsProvider } from './contexts/SystemEventsContext';
 import { router } from './router/routes';
 
@@ -94,6 +95,20 @@ export const App: React.FC = () => {
       <SystemEventsProvider>
         <ErrorBoundary>
           <RouterProvider router={router} />
+
+          {/* Toast Notification Container - Terminal Aesthetic */}
+          <ToastContainer
+            position="bottom-right"
+            autoClose={2000}
+            hideProgressBar={false}
+            newestOnTop={true}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="dark"
+          />
         </ErrorBoundary>
       </SystemEventsProvider>
     </QueryClientProvider>

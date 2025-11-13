@@ -32,6 +32,7 @@ class EventType(str, Enum):
     - PIPELINE_FAILED: Entire pipeline failed
     - TOPOLOGY_HEALTH_UPDATE: Component health status changed
     - TOPOLOGY_DATAFLOW_UPDATE: Query entered a new component
+    - LOG: System log entry from Python logging
     """
     QUERY_ROUTE = "query_route"
     MODEL_STATE = "model_state"
@@ -46,6 +47,7 @@ class EventType(str, Enum):
     PIPELINE_FAILED = "pipeline_failed"
     TOPOLOGY_HEALTH_UPDATE = "topology_health_update"
     TOPOLOGY_DATAFLOW_UPDATE = "topology_dataflow_update"
+    LOG = "log"
 
 
 class EventSeverity(str, Enum):
