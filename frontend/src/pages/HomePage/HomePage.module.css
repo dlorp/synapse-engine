@@ -13,9 +13,14 @@
   flex-direction: column;
   gap: 24px;
   animation: fade-in var(--transition-base);
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: 24px;
+  /* Full width - no max-width to allow ASCII borders to extend edge-to-edge */
+  width: 100%;
+  max-width: 100vw; /* Prevent horizontal overflow */
+  overflow-x: hidden; /* Hide any overflow that escapes */
+  overflow-y: visible; /* Allow natural vertical scrolling on page itself */
+  margin: 0;
+  padding: 0; /* Edge-to-edge pattern: Panel components inside handle their own padding */
+  box-sizing: border-box;
 }
 
 /* Dot Matrix LED Banner */
@@ -31,25 +36,41 @@
   max-width: 100%;
 }
 
+/* Header - Matches AdminPage format (used by MetricsPage) */
 .header {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 24px;
-  background: var(--bg-panel, #0a0a0a);
-  border: 2px solid var(--border-primary, #ff9500);
-  border-bottom: 4px solid var(--border-primary, #ff9500);
+  margin-bottom: var(--webtui-spacing-xl);
+  border-bottom: 2px solid var(--webtui-primary);
+  padding: 0 var(--webtui-spacing-lg) var(--webtui-spacing-md) var(--webtui-spacing-lg);
+}
+
+.subtitle {
+  font-size: var(--webtui-font-size-small);
+  color: var(--webtui-text-muted);
+  margin: 0;
+  letter-spacing: 0.08em;
 }
 
 .title {
   font-family: var(--font-display, 'JetBrains Mono', monospace);
   font-size: 24px;
-  color: var(--phosphor-green, #ff9500);
-  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--webtui-primary);
+  margin: 0 0 var(--webtui-spacing-xs) 0;
   letter-spacing: 0.15em;
-  text-align: center;
-  text-shadow: 0 0 10px rgba(255, 149, 0, 0.5);
-  margin: 0;
+  text-transform: uppercase;
+  text-shadow: 0 0 10px var(--webtui-primary);
+  animation: phosphor-glow 1.8s ease-in-out infinite;
+}
+
+@keyframes phosphor-glow {
+  0%, 100% {
+    text-shadow: 0 0 10px var(--webtui-primary);
+    opacity: 1;
+  }
+  50% {
+    text-shadow: 0 0 20px var(--webtui-primary), 0 0 30px var(--webtui-primary);
+    opacity: 0.9;
+  }
 }
 
 .systemStatus {
@@ -78,6 +99,16 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 24px;
+  width: 100%;
+  max-width: 100%;
+  overflow: visible;
+  box-sizing: border-box;
+}
+
+.sectionContent {
+  padding: 0 var(--webtui-spacing-md, 16px); /* Horizontal-only padding for edge-to-edge pattern */
+  background: rgba(0, 0, 0, 0.3);
+  margin-bottom: var(--webtui-spacing-lg, 24px);
 }
 
 .inputSection {
@@ -138,7 +169,7 @@
 
 @media (max-width: 1024px) {
   .page {
-    padding: 16px;
+    padding: 0; /* Maintain edge-to-edge pattern on mobile */
   }
 
   .bannerContainer {
@@ -171,7 +202,7 @@
 
 @media (max-width: 768px) {
   .page {
-    padding: 12px;
+    padding: 0; /* Maintain edge-to-edge pattern on mobile */
   }
 
   .bannerContainer {

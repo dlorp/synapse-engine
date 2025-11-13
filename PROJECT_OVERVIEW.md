@@ -1,8 +1,8 @@
 # S.Y.N.A.P.S.E. ENGINE - Project Overview
 
 **Scalable Yoked Network for Adaptive Praxial System Emergence**
-**Last Updated:** November 8, 2025
-**Status:** Phase 6 Complete | Production Ready | Host API Operational
+**Last Updated:** November 12, 2025
+**Status:** Phase 4 & 6 Complete | Prod Ready v5.0 | Host API Operational
 
 ---
 
@@ -28,7 +28,7 @@ Unlike traditional single model deployments, S.Y.N.A.P.S.E. ENGINE treats your l
 
 ## Project Status
 
-### Current State (v4.0)
+### Current State (v5.0)
 - ✅ **Production-Ready Infrastructure** - Docker Compose with health checks and monitoring
 - ✅ **Full Model Management** - Auto discovery, dynamic enable/disable, real time health monitoring
 - ✅ **CGRAG System** - FAISS based retrieval with token budget management (35+ docs indexed)
@@ -38,6 +38,7 @@ Unlike traditional single model deployments, S.Y.N.A.P.S.E. ENGINE treats your l
 - ✅ **Host API** - Automatic Metal accelerated llama-server management on macOS
 - ✅ **Terminal UI** - Dense information displays with 60fps animations
 - ✅ **WebSocket Updates** - Real time model status and processing events
+- ✅ **Dashboard Features** - Interactive pipeline visualization (React Flow), advanced metrics (Chart.js), system topology, context window allocation
 - ✅ **Comprehensive Testing** - 24 automated tests across backend/frontend/integration
 
 ### What's Working
@@ -49,10 +50,14 @@ Unlike traditional single model deployments, S.Y.N.A.P.S.E. ENGINE treats your l
 - Council consensus and debate modes
 - Real time logs and resource monitoring
 - Metal GPU acceleration on Apple Silicon
+- Interactive dashboard with React Flow pipeline graphs
+- Advanced metrics visualization with Chart.js time-series
+- System architecture topology with health monitoring
+- Context window allocation display
 
 ### What's In Progress
 - Code Chat mode with file editing capabilities
-- Advanced visualization features (React Flow pipeline graphs)
+- WebSocket /ws/events endpoint for real-time event streaming
 - Performance optimization for >100k document indexes
 - Multi chat conversational mode
 
@@ -243,40 +248,14 @@ For detailed mode documentation, see [docs/features/MODES.md](./docs/features/MO
 - **Technical Aesthetic**: Inspired by NERV panels
 - **Keyboard Navigation**: Terminal style shortcuts
 
----
+#### 6. Dashboard Features (v5.0)
+- **ProcessingPipelinePanel**: Interactive query flow visualization using React Flow with node-based graphs
+- **ContextWindowPanel**: Real-time token allocation display showing CGRAG, query, and system prompt budgets
+- **AdvancedMetricsPanel**: Time-series charts with Chart.js for query rates, tier performance, and resource utilization
+- **SystemArchitectureDiagram**: Live system topology with health monitoring, interactive nodes, and query path visualization
+- **WebSocket Event Streaming**: Real-time event feed with 8-event rolling window (in progress)
 
-## Team Structure
-
-### Specialized Claude Code Agents
-
-The project has **14 specialized agents** organized into project specific and user-level categories:
-
-#### Project Agents (.claude/agents/)
-1. **Backend Architect** - FastAPI, async Python, WebSockets, model orchestration
-2. **Frontend Engineer** - React, TypeScript, terminal UI, visualizations
-3. **CGRAG Specialist** - Vector search, FAISS, embeddings, retrieval optimization
-4. **DevOps Engineer** - Docker, deployment, CI/CD, monitoring
-5. **Database Persistence Specialist** - Data persistence, migrations, backups
-6. **Model Lifecycle Manager** - Model management, health checks, resource allocation
-7. **Performance Optimizer** - System optimization, profiling, bottleneck analysis
-8. **Query Mode Specialist** - Query routing, mode implementation, complexity assessment
-9. **Security Specialist** - Authentication, authorization, security hardening
-10. **Terminal UI Specialist** - Terminal aesthetics, dense displays, animations
-11. **Testing Specialist** - Test automation, coverage, quality assurance
-12. **WebSocket Realtime Specialist** - Real time communication, event streaming
-
-#### User Agents (~/.claude/agents/)
-1. **Record Keeper** - Historical context, session tracking, knowledge management
-2. **Strategic Planning Architect** - Project planning, multi agent coordination
-
-### Agent Collaboration Patterns
-
-Agents work together on complex features:
-- **API Development**: Backend Architect + Frontend Engineer
-- **CGRAG Integration**: CGRAG Specialist + Backend Architect + Frontend Engineer
-- **Deployment**: DevOps Engineer + All domain specialists
-- **Performance**: Performance Optimizer + Domain specialists
-- **Security**: Security Specialist + Backend Architect
+For dashboard implementation details, see [docs/implementation/phase4/](./docs/implementation/phase4/).
 
 ---
 
@@ -347,13 +326,16 @@ See [TEST_SUITE_SUMMARY.md](./docs/TEST_SUITE_SUMMARY.md) for detailed test docu
 
 ## Recent Progress
 
-### Latest Sessions (November 7, 2025)
+### Latest Sessions (November 12, 2025)
 
-#### Documentation & Dependency Fixes
-- Fixed color palette documentation (phosphor orange, not green)
-- Resolved circular dependency in frontend model components
-- CSS variable naming corrections
-- Build issues resolved
+#### Phase 4 (Dashboard Features) Complete
+- ProcessingPipelinePanel with React Flow visualization
+- ContextWindowPanel with token allocation display
+- AdvancedMetricsPanel with Chart.js time-series
+- SystemArchitectureDiagram with interactive topology
+- reactflow library integration (49 packages)
+- WebSocket client implementation complete
+- Codebase organization: 46 files moved to logical structure
 
 ### Phase Completions
 
@@ -373,8 +355,7 @@ See [TEST_SUITE_SUMMARY.md](./docs/TEST_SUITE_SUMMARY.md) for detailed test docu
 - Frontend timeout implementation
 
 #### Earlier Phases
-- **Phase 4**: Response display, metrics, error handling
-- **Phase 3**: CGRAG implementation, query routing
+- **Phase 3**: CGRAG implementation, query routing, ASCII UI migration
 - **Phase 2**: Model integration, health checks
 - **Phase 1**: Infrastructure setup, terminal UI
 
@@ -383,10 +364,10 @@ See [TEST_SUITE_SUMMARY.md](./docs/TEST_SUITE_SUMMARY.md) for detailed test docu
 ## Next Steps
 
 ### Immediate Priorities
-1. **Council Mode Refinement** - Polish consensus and debate implementations
-2. **Code Chat Mode** - Implement code Q&A with file editing
-3. **Performance Optimization** - Optimize for >100k document indexes
-4. **Pipeline Visualization** - React Flow integration for processing graphs
+1. **WebSocket Event Stream** - Complete /ws/events endpoint for real-time dashboard updates
+2. **Code Chat Mode** - Implement code Q&A with file editing capabilities
+3. **Council Mode Refinement** - Polish consensus and debate implementations
+4. **Performance Optimization** - Optimize for >100k document indexes
 
 ### Future Roadmap
 - Multi-chat conversational mode
@@ -538,19 +519,21 @@ SYNAPSE_ENGINE/
 
 S.Y.N.A.P.S.E. ENGINE is a sophisticated, production ready platform for orchestrating multiple local LLM instances with intelligent routing, context enhancement, and a beautiful terminal inspired interface. The system is built with modern technologies, follows best practices, and is designed for both performance and maintainability.
 
-**Key Achievements:**
+**Key Achievements (v5.0):**
 - ✅ Complete multi model orchestration with dynamic control via NEURAL SUBSTRATE ORCHESTRATOR
 - ✅ Sub-100ms CGRAG retrieval with token budget management
 - ✅ Multiple query modes including two stage refinement and council modes
 - ✅ Metal GPU acceleration for Apple Silicon
 - ✅ Dense terminal UI with real time updates
+- ✅ Advanced dashboard with React Flow pipeline graphs and Chart.js metrics
+- ✅ Interactive system topology visualization with health monitoring
+- ✅ Context window allocation display with token budget tracking
 - ✅ Comprehensive test coverage (24 automated tests)
 - ✅ Production-ready Docker infrastructure with canonical service naming
-- ✅ 14 specialized AI agents for development support
 - ✅ Standardized health checks and logging with service tags
 
 **Current Focus:**
-The project is actively being developed with a focus on enhancing query modes, improving performance for large document sets, and adding advanced visualization features.
+The project is actively being developed with a focus on completing real-time WebSocket event streaming, implementing Code Chat mode for file editing, and optimizing performance for large document sets (>100k documents).
 
 ---
 
@@ -580,7 +563,3 @@ The project is actively being developed with a focus on enhancing query modes, i
 See [docs/README.md](./docs/README.md) for a complete index of all documentation.
 
 ---
-
-**Generated by:** Strategic Planning Architect Agent
-**Research Date:** November 7, 2025
-**Agent Collaboration:** Backend Architect, Frontend Engineer, CGRAG Specialist, DevOps Engineer, Database Persistence Specialist, Model Lifecycle Manager, Performance Optimizer, Query Mode Specialist, Security Specialist, Terminal UI Specialist, Testing Specialist, WebSocket Realtime Specialist, Record Keeper

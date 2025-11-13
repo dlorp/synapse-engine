@@ -5,7 +5,7 @@
  */
 
 import React, { useMemo } from 'react';
-import { Panel } from '@/components/terminal';
+import { AsciiPanel } from '@/components/terminal';
 import { ResourceMetricCard } from '@/components/metrics';
 import { TerminalSpinner } from '@/components/terminal/TerminalSpinner/TerminalSpinner';
 import { useResourceMetrics } from '@/hooks/useResourceMetrics';
@@ -14,7 +14,6 @@ import {
   formatBytes,
   formatMemory,
   formatPercent,
-  formatThroughput,
   formatRatio,
   getPercentStatus,
 } from '@/utils/formatters';
@@ -81,19 +80,19 @@ export const ResourceUtilizationPanel: React.FC = () => {
   // Loading state
   if (isLoading) {
     return (
-      <Panel title="SYSTEM RESOURCE UTILIZATION" variant="default">
+      <AsciiPanel title="SYSTEM RESOURCE UTILIZATION">
         <div className={styles.loadingContainer}>
           <TerminalSpinner size={32} style="arc" />
           <span className={styles.loadingText}>INITIALIZING RESOURCE MONITORS...</span>
         </div>
-      </Panel>
+      </AsciiPanel>
     );
   }
 
   // Error state
   if (isError) {
     return (
-      <Panel title="SYSTEM RESOURCE UTILIZATION" variant="default">
+      <AsciiPanel title="SYSTEM RESOURCE UTILIZATION">
         <div className={styles.errorContainer}>
           <div className={styles.errorIcon}>⚠</div>
           <div className={styles.errorText}>
@@ -103,18 +102,18 @@ export const ResourceUtilizationPanel: React.FC = () => {
             {error?.message || 'Failed to fetch resource metrics'}
           </div>
         </div>
-      </Panel>
+      </AsciiPanel>
     );
   }
 
   // No data state
   if (!formattedMetrics) {
     return (
-      <Panel title="SYSTEM RESOURCE UTILIZATION" variant="default">
+      <AsciiPanel title="SYSTEM RESOURCE UTILIZATION">
         <div className={styles.errorContainer}>
           <div className={styles.errorText}>NO RESOURCE DATA AVAILABLE</div>
         </div>
-      </Panel>
+      </AsciiPanel>
     );
   }
 
@@ -138,7 +137,7 @@ export const ResourceUtilizationPanel: React.FC = () => {
     ];
 
     return (
-      <Panel title="SYSTEM RESOURCE UTILIZATION" variant="default">
+      <AsciiPanel title="SYSTEM RESOURCE UTILIZATION">
         <div className={styles.awaitingModels}>
           <div className={styles.emptyResourceGrid}>
             {emptyResources.map((resource, idx) => (
@@ -155,12 +154,12 @@ export const ResourceUtilizationPanel: React.FC = () => {
             → Deploy models via Model Management to enable resource monitoring
           </div>
         </div>
-      </Panel>
+      </AsciiPanel>
     );
   }
 
   return (
-    <Panel title="SYSTEM RESOURCE UTILIZATION" variant="default">
+    <AsciiPanel title="SYSTEM RESOURCE UTILIZATION">
       <div className={styles.grid}>
         {/* Row 1: Core Resources */}
         <ResourceMetricCard
@@ -228,6 +227,6 @@ export const ResourceUtilizationPanel: React.FC = () => {
           secondary={formattedMetrics.network.secondary}
         />
       </div>
-    </Panel>
+    </AsciiPanel>
   );
 };

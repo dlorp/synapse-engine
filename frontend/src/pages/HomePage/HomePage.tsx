@@ -26,13 +26,14 @@
 import React, { useState, useMemo } from 'react';
 import {
   Panel,
+  AsciiPanel,
   StatusIndicator,
   CRTMonitor,
   DotMatrixDisplay,
   TerminalSpinner,
   SystemStatusPanelEnhanced,
 } from '@/components/terminal';
-import { OrchestratorStatusPanel, LiveEventFeed } from '@/components/dashboard';
+import { OrchestratorStatusPanel, LiveEventFeed, ProcessingPipelinePanel, ContextWindowPanel, AdvancedMetricsPanel, SystemArchitectureDiagram } from '@/components/dashboard';
 import { useSystemEventsContext } from '@/contexts/SystemEventsContext';
 import { useModelStatus } from '@/hooks/useModelStatus';
 import { useQuerySubmit } from '@/hooks/useQuery';
@@ -141,7 +142,6 @@ export const HomePage: React.FC = () => {
             text="SYNAPSE ENGINE"
             revealSpeed={150}
             loop={false}
-            width={600}
             height={60}
             pattern="wave"
             effects={dotMatrixEffects}
@@ -151,7 +151,7 @@ export const HomePage: React.FC = () => {
 
         {/* Query Interface - Primary Interaction Point */}
         <div className={styles.content}>
-          <Panel title="NEURAL SUBSTRATE ORCHESTRATOR INTERFACE">
+          <AsciiPanel title="NEURAL SUBSTRATE ORCHESTRATOR INTERFACE">
             <div className={styles.inputSection}>
               <ModeSelector
                 currentMode={queryMode}
@@ -169,7 +169,7 @@ export const HomePage: React.FC = () => {
                 </div>
               )}
             </div>
-          </Panel>
+          </AsciiPanel>
         </div>
 
         {/* Response Display Section */}
@@ -198,6 +198,26 @@ export const HomePage: React.FC = () => {
         <div className={styles.dashboardGrid}>
           <OrchestratorStatusPanel />
           <LiveEventFeed maxEvents={8} />
+        </div>
+
+        {/* Processing Pipeline Visualization */}
+        <div className={styles.content}>
+          <ProcessingPipelinePanel />
+        </div>
+
+        {/* Context Window Allocation Viewer */}
+        <div className={styles.content}>
+          <ContextWindowPanel />
+        </div>
+
+        {/* Advanced Metrics Visualization */}
+        <div className={styles.content}>
+          <AdvancedMetricsPanel />
+        </div>
+
+        {/* System Architecture Diagram */}
+        <div className={styles.content}>
+          <SystemArchitectureDiagram />
         </div>
 
         {/* System Status Panel - MOVED TO BOTTOM with integrated Quick Actions */}

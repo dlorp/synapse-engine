@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Panel } from '../../terminal/Panel/Panel';
+import { AsciiPanel } from '@/components/terminal';
 import { useSystemEventsContext } from '../../../contexts/SystemEventsContext';
 import type { SystemEvent } from '../../../hooks/useSystemEvents';
 import styles from './LiveEventFeed.module.css';
@@ -97,8 +97,6 @@ export const LiveEventFeed: React.FC = () => {
     } else if (connectionState === 'reconnecting') {
       return <span className={styles.statusReconnecting}>RECONNECTING...</span>;
     } else {
-      // Debug: Log to verify glow icon is rendering
-      console.log('[LiveEventFeed] Rendering reconnect button with glow icon');
       return (
         <span className={styles.statusDisconnected}>
           DISCONNECTED
@@ -116,7 +114,7 @@ export const LiveEventFeed: React.FC = () => {
   };
 
   return (
-    <Panel
+    <AsciiPanel
       title="SYSTEM EVENT STREAM"
       titleRight={getConnectionStatus()}
       variant="default"
@@ -150,6 +148,6 @@ export const LiveEventFeed: React.FC = () => {
           ))
         )}
       </div>
-    </Panel>
+    </AsciiPanel>
   );
 };

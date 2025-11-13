@@ -1,0 +1,114 @@
+/* ===================================================================
+   AsciiPanel Component - Full-bordered terminal panel with breathing
+   ================================================================== */
+
+.asciiPanel {
+  border: 1px solid var(--webtui-primary);
+  background: rgba(0, 0, 0, 0.3);
+  animation: panel-breathe 2s ease-in-out infinite;
+  margin-bottom: var(--webtui-spacing-lg);
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  position: relative;
+}
+
+.asciiPanel.default {
+  border-color: var(--webtui-primary);
+}
+
+.asciiPanel.accent {
+  border-color: var(--webtui-accent);
+}
+
+.asciiPanel.warning {
+  border-color: var(--webtui-warning);
+}
+
+.asciiPanel.error {
+  border-color: var(--webtui-error);
+}
+
+.asciiPanelHeader {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--webtui-accent);
+  padding: 4px 0;
+  letter-spacing: 0;
+  white-space: pre;
+  overflow: hidden;
+  text-overflow: clip;
+  width: 100%;
+  max-width: 100%;
+  animation: section-pulse 2s ease-in-out infinite;
+  line-height: 1.2;
+  font-feature-settings: "liga" 0, "calt" 0;
+  font-kerning: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: geometricPrecision;
+}
+
+.asciiPanelHeaderWithRight {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 4px 24px;
+}
+
+.asciiPanelTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--webtui-accent);
+  letter-spacing: 0;
+  white-space: pre;
+  overflow: hidden;
+  text-overflow: clip;
+  line-height: 1.2;
+  font-feature-settings: "liga" 0, "calt" 0;
+  font-kerning: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: geometricPrecision;
+  flex: 1;
+  min-width: 0;
+}
+
+.asciiPanelTitleRight {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--webtui-text-secondary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.asciiPanelBody {
+  padding: 16px 24px;
+}
+
+/* ===================================================================
+   Animations
+   ================================================================== */
+
+@keyframes panel-breathe {
+  0%, 100% {
+    border-color: var(--webtui-primary);
+    box-shadow: 0 0 0 rgba(255, 149, 0, 0);
+  }
+  50% {
+    border-color: rgba(255, 149, 0, 0.8);
+    box-shadow: 0 0 15px rgba(255, 149, 0, 0.2);
+  }
+}
+
+@keyframes section-pulse {
+  0%, 100% {
+    color: var(--webtui-accent);
+    text-shadow: 0 0 3px var(--webtui-accent);
+  }
+  50% {
+    color: rgba(0, 255, 255, 0.8);
+    text-shadow: 0 0 6px var(--webtui-accent);
+  }
+}

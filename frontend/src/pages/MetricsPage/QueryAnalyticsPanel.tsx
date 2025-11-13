@@ -9,7 +9,7 @@
  */
 
 import React, { useMemo } from 'react';
-import { Panel } from '@/components/terminal/Panel/Panel';
+import { AsciiPanel } from '@/components/terminal';
 import { TerminalSpinner } from '@/components/terminal/TerminalSpinner/TerminalSpinner';
 import { AsciiLineChart } from '@/components/charts/AsciiLineChart';
 import { AsciiBarChart, type BarData } from '@/components/charts/AsciiBarChart';
@@ -52,33 +52,33 @@ export const QueryAnalyticsPanel: React.FC = () => {
   // Render loading state
   if (isLoading) {
     return (
-      <Panel title="QUERY ANALYTICS">
+      <AsciiPanel title="QUERY ANALYTICS">
         <div className={styles.loading}>
           <TerminalSpinner style="arc" size={24} />
           <span className={styles.loadingText}>Loading metrics...</span>
         </div>
-      </Panel>
+      </AsciiPanel>
     );
   }
 
   // Render error state
   if (error) {
     return (
-      <Panel title="QUERY ANALYTICS" variant="error">
+      <AsciiPanel title="QUERY ANALYTICS">
         <div className={styles.error}>
           <div className={styles.errorTitle}>ERROR: Failed to load metrics</div>
           <div className={styles.errorMessage}>{error.message}</div>
         </div>
-      </Panel>
+      </AsciiPanel>
     );
   }
 
   // Render empty state
   if (!metrics) {
     return (
-      <Panel title="QUERY ANALYTICS">
+      <AsciiPanel title="QUERY ANALYTICS">
         <div className={styles.empty}>No metrics data available</div>
-      </Panel>
+      </AsciiPanel>
     );
   }
 
@@ -90,7 +90,7 @@ export const QueryAnalyticsPanel: React.FC = () => {
   // No models running state
   if (runningModels.length === 0) {
     return (
-      <Panel title="QUERY ANALYTICS">
+      <AsciiPanel title="QUERY ANALYTICS">
         <div className={styles.awaitingModels}>
           <div className={styles.emptyChartContainer}>
             <div className={styles.emptyChartArt}>
@@ -108,12 +108,12 @@ export const QueryAnalyticsPanel: React.FC = () => {
             → Deploy models via Model Management to enable query analytics
           </div>
         </div>
-      </Panel>
+      </AsciiPanel>
     );
   }
 
   return (
-    <Panel title="QUERY ANALYTICS">
+    <AsciiPanel title="QUERY ANALYTICS">
       <div className={styles.container}>
         {/* Summary Statistics */}
         <div className={styles.summary}>
@@ -150,6 +150,6 @@ export const QueryAnalyticsPanel: React.FC = () => {
           />
         </div>
       </div>
-    </Panel>
+    </AsciiPanel>
   );
 };
