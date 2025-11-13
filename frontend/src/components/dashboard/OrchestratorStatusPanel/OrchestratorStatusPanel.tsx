@@ -15,7 +15,7 @@
  */
 
 import React from 'react';
-import { Panel } from '@/components/terminal/Panel';
+import { AsciiPanel } from '@/components/terminal/AsciiPanel';
 import { useOrchestratorStatus } from '@/hooks/useOrchestratorStatus';
 import type { ModelTierLabel, ComplexityLevel } from '@/types/orchestrator';
 import styles from './OrchestratorStatusPanel.module.css';
@@ -67,28 +67,28 @@ export const OrchestratorStatusPanel: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Panel title="NEURAL SUBSTRATE ORCHESTRATOR">
+      <AsciiPanel title="NEURAL SUBSTRATE ORCHESTRATOR">
         <div className={styles.loading}>Initializing orchestrator telemetry...</div>
-      </Panel>
+      </AsciiPanel>
     );
   }
 
   if (error) {
     return (
-      <Panel title="NEURAL SUBSTRATE ORCHESTRATOR" variant="error">
+      <AsciiPanel title="NEURAL SUBSTRATE ORCHESTRATOR" variant="error">
         <div className={styles.error}>
           ORCHESTRATOR TELEMETRY OFFLINE
           <div className={styles.errorDetail}>{error.message}</div>
         </div>
-      </Panel>
+      </AsciiPanel>
     );
   }
 
   if (!status) {
     return (
-      <Panel title="NEURAL SUBSTRATE ORCHESTRATOR">
+      <AsciiPanel title="NEURAL SUBSTRATE ORCHESTRATOR">
         <div className={styles.noData}>No orchestrator data available</div>
-      </Panel>
+      </AsciiPanel>
     );
   }
 
@@ -103,7 +103,7 @@ export const OrchestratorStatusPanel: React.FC = () => {
   // Enhanced empty state when no decisions have been made yet
   if (!lastDecision || status.recentDecisions.length === 0) {
     return (
-      <Panel
+      <AsciiPanel
         title="NEURAL SUBSTRATE ORCHESTRATOR"
         titleRight={
           <span className={styles.statusIdle}>
@@ -132,12 +132,12 @@ export const OrchestratorStatusPanel: React.FC = () => {
             → Submit query to begin orchestration
           </div>
         </div>
-      </Panel>
+      </AsciiPanel>
     );
   }
 
   return (
-    <Panel
+    <AsciiPanel
       title="NEURAL SUBSTRATE ORCHESTRATOR"
       titleRight={
         <span className={statusClass}>
@@ -196,6 +196,6 @@ export const OrchestratorStatusPanel: React.FC = () => {
           </div>
         </div>
       </div>
-    </Panel>
+    </AsciiPanel>
   );
 };

@@ -28,6 +28,22 @@ All runtime messages traverse the **NEURAL SUBSTRATE ORCHESTRATOR** — the mess
 📚 **CGRAG Integration** - Automatic context retrieval with FAISS (<100ms)
 📊 **Real-Time Monitoring** - Live server logs, resource tracking (VRAM, queries, cache hit rate)
 🔍 **Auto-Discovery** - Finds GGUF models in your Hugging Face cache
+🖼️ **Advanced Visualizations** - Interactive processing pipelines (ProcessingPipelinePanel with React Flow), time-series metrics (AdvancedMetricsPanel with Chart.js), system topology diagrams (SystemArchitectureDiagram)
+🎛️ **Dashboard Features** - Context window allocation display (ContextWindowPanel), advanced metrics panels, real-time event streaming (WebSocket)
+
+### What's New in v5.0
+
+**Phase 4 Dashboard Features - Complete:**
+- ✅ **ProcessingPipelinePanel** - Interactive React Flow visualization of query processing stages
+- ✅ **ContextWindowPanel** - Live token allocation display showing context budget distribution
+- ✅ **AdvancedMetricsPanel** - Chart.js time-series metrics with historical performance tracking
+- ✅ **SystemArchitectureDiagram** - Interactive system topology with component relationships
+- ✅ **Enhanced Real-Time Monitoring** - WebSocket event streaming for live updates across all dashboard components
+
+**Phase 5 Security Enhancements:**
+- ✅ Localhost-only model server binding (not exposed to host network)
+- ✅ Reverse proxy access through FastAPI backend
+- ✅ Centralized authentication foundation
 
 ### Available Query Modes
 
@@ -690,7 +706,6 @@ For detailed test documentation, see [TEST_SUITE_SUMMARY.md](./docs/TEST_SUITE_S
 - Custom query mode parameters and presets
 - A/B testing capabilities for model comparison
 - Advanced caching strategies for improved performance
-- Pipeline visualization with React Flow
 - Distributed model orchestration across multiple machines
 
 ## Performance Targets
@@ -821,8 +836,8 @@ GPLv3
 
 ---
 
-**Last Updated:** November 8, 2025
-**Version:** 5.0 (S.Y.N.A.P.S.E. ENGINE Migration Complete)
+**Last Updated:** November 12, 2025
+**Version:** 5.0 (Prod Ready - Phase 4 Dashboard Complete)
 **Project Name:** S.Y.N.A.P.S.E. ENGINE (Scalable Yoked Network for Adaptive Praxial System Emergence) ✅
 **Host API:** Automatic Metal Server Management ✅
 **CGRAG Status:** Prod Ready ✅

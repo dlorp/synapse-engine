@@ -1,0 +1,245 @@
+/**
+ * CustomNode Styles - Terminal-Aesthetic Node Styling
+ *
+ * Features:
+ * - Status-dependent border colors and glow
+ * - Pulsing animation for active nodes
+ * - Monospace font for all text
+ * - Fixed width for consistent layout
+ * - Highlight effect for query path animation
+ */
+
+.customNode {
+  position: relative;
+  width: 200px;
+  background: var(--webtui-bg-panel, #0a0a0a);
+  border: 2px solid var(--webtui-border, #ff9500);
+  border-radius: 4px;
+  padding: 12px;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 10px rgba(255, 149, 0, 0.3);
+}
+
+.customNode:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(255, 149, 0, 0.5);
+}
+
+/* Status-dependent border colors */
+.customNode.status-healthy {
+  border-color: var(--webtui-success, #00ff41);
+  box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+  animation: node-pulse-healthy 2s ease-in-out infinite;
+}
+
+.customNode.status-degraded {
+  border-color: var(--webtui-primary, #ff9500);
+  box-shadow: 0 0 10px rgba(255, 149, 0, 0.3);
+  animation: node-pulse-degraded 2s ease-in-out infinite;
+}
+
+.customNode.status-unhealthy {
+  border-color: var(--webtui-error, #ff0000);
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+  animation: node-pulse-unhealthy 2s ease-in-out infinite;
+}
+
+.customNode.status-offline {
+  border-color: #666;
+  box-shadow: 0 0 5px rgba(102, 102, 102, 0.2);
+  opacity: 0.6;
+}
+
+/* Node content wrapper */
+.nodeContent {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Node icon */
+.nodeIcon {
+  font-size: 24px;
+  text-align: center;
+  line-height: 1;
+}
+
+/* Node label */
+.nodeLabel {
+  color: var(--webtui-text-primary, #ff9500);
+  font-weight: bold;
+  font-size: 12px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Status badge */
+.statusBadge {
+  padding: 4px 8px;
+  text-align: center;
+  font-size: 9px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  border-radius: 2px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid;
+}
+
+.statusBadge[data-status='healthy'] {
+  color: var(--webtui-success, #00ff41);
+  border-color: var(--webtui-success, #00ff41);
+}
+
+.statusBadge[data-status='degraded'] {
+  color: var(--webtui-primary, #ff9500);
+  border-color: var(--webtui-primary, #ff9500);
+}
+
+.statusBadge[data-status='unhealthy'] {
+  color: var(--webtui-error, #ff0000);
+  border-color: var(--webtui-error, #ff0000);
+}
+
+.statusBadge[data-status='offline'] {
+  color: #666;
+  border-color: #666;
+}
+
+/* Node metadata */
+.nodeMetadata {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-top: 1px solid rgba(255, 149, 0, 0.2);
+  padding-top: 8px;
+  margin-top: 4px;
+}
+
+.metadataItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+}
+
+.metadataLabel {
+  color: var(--webtui-text-secondary, #888);
+  font-weight: 600;
+}
+
+.metadataValue {
+  color: var(--webtui-text-primary, #ff9500);
+  font-weight: bold;
+}
+
+/* Connection handles */
+.handle {
+  width: 8px;
+  height: 8px;
+  background: var(--webtui-primary, #ff9500);
+  border: 2px solid var(--webtui-bg-panel, #0a0a0a);
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.handle:hover {
+  opacity: 1;
+}
+
+/* Highlighted node (query path animation) */
+.customNode.highlighted {
+  border-width: 3px;
+  transform: scale(1.05);
+  z-index: 100;
+}
+
+.customNode.highlighted .nodeLabel {
+  color: var(--webtui-accent, #00ffff);
+  text-shadow: 0 0 10px var(--webtui-accent, #00ffff);
+}
+
+/* Highlight pulse effect */
+.highlightPulse {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border: 2px solid var(--webtui-accent, #00ffff);
+  border-radius: 6px;
+  pointer-events: none;
+  animation: highlight-pulse 0.8s ease-in-out infinite;
+}
+
+/* Pulse animations for status */
+@keyframes node-pulse-healthy {
+  0%,
+  100% {
+    box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(0, 255, 65, 0.5),
+      0 0 30px rgba(0, 255, 65, 0.3);
+  }
+}
+
+@keyframes node-pulse-degraded {
+  0%,
+  100% {
+    box-shadow: 0 0 10px rgba(255, 149, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 149, 0, 0.5),
+      0 0 30px rgba(255, 149, 0, 0.3);
+  }
+}
+
+@keyframes node-pulse-unhealthy {
+  0%,
+  100% {
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.5),
+      0 0 30px rgba(255, 0, 0, 0.3);
+  }
+}
+
+@keyframes highlight-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.05);
+  }
+}
+
+/* Responsive sizing */
+@media (max-width: 768px) {
+  .customNode {
+    width: 160px;
+    padding: 10px;
+  }
+
+  .nodeIcon {
+    font-size: 20px;
+  }
+
+  .nodeLabel {
+    font-size: 10px;
+  }
+
+  .metadataItem {
+    font-size: 9px;
+  }
+}

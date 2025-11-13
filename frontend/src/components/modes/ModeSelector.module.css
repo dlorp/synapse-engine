@@ -1,8 +1,19 @@
+/* Container for entire ModeSelector with ASCII header */
+.modeSelectorContainer {
+  margin-bottom: var(--webtui-spacing-lg);
+}
+
+/* Content wrapper matching AdminPage asciiSectionBody pattern */
+.sectionContent {
+  padding: var(--webtui-spacing-md);
+  background: rgba(0, 0, 0, 0.3);
+}
+
 .modeGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
-  padding: 1rem;
+  padding: 0; /* Remove padding since sectionContent handles it */
 }
 
 .modeButton {
