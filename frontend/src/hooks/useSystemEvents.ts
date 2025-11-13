@@ -63,7 +63,8 @@ export interface UseSystemEventsReturn {
  */
 export const useSystemEvents = (
   url: string = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws/events`,
-  maxEvents: number = 8
+  maxEvents: number = 8,
+  maxReconnectAttempts: number = 10
 ): UseSystemEventsReturn => {
   const [events, setEvents] = useState<SystemEvent[]>([]);
   const [connectionState, setConnectionState] = useState<ConnectionState>('connecting');
@@ -193,16 +194,19 @@ export const useSystemEvents = (
           heartbeatTimeoutRef.current = null;
         }
 
-        // Only reconnect if not a normal closure
-        if (closeEvent.code !== 1000) {
+        // Only reconnect if not a normal closure and haven't exceeded max attempts
+        if (closeEvent.code !== 1000 && reconnectAttemptsRef.current < maxReconnectAttempts) {
           // Reconnect with exponential backoff (max 30s)
           const delay = Math.min(1000 * Math.pow(2, reconnectAttemptsRef.current), 30000);
-          console.log(`[useSystemEvents] Reconnecting in ${delay}ms (attempt ${reconnectAttemptsRef.current + 1})`);
+          console.log(`[useSystemEvents] Reconnecting in ${delay}ms (attempt ${reconnectAttemptsRef.current + 1}/${maxReconnectAttempts})`);
 
           reconnectTimeoutRef.current = setTimeout(() => {
             reconnectAttemptsRef.current++;
             connect();
           }, delay);
+        } else if (reconnectAttemptsRef.current >= maxReconnectAttempts) {
+          console.log(`[useSystemEvents] Max reconnect attempts (${maxReconnectAttempts}) reached, giving up`);
+          setError(new Error(`Failed to connect after ${maxReconnectAttempts} attempts`));
         } else {
           console.log('[useSystemEvents] Normal closure, not reconnecting');
         }
@@ -214,7 +218,7 @@ export const useSystemEvents = (
       setError(err as Error);
       setConnectionState('disconnected');
     }
-  }, [url, maxEvents]);
+  }, [url, maxEvents, maxReconnectAttempts]);
 
   // Initialize connection on mount
   useEffect(() => {

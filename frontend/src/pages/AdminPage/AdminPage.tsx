@@ -285,9 +285,10 @@ ${'─'.repeat(150)}`;
                 </span>
                 <span className={styles.healthTime}>{formatTimestamp(health.timestamp)}</span>
               </div>
+            </div>
 
-              {/* System Metrics with Sparklines */}
-              <pre className={styles.asciiFrame}>
+            {/* System Metrics with Sparklines - OUTSIDE healthContainer for edge-to-edge */}
+            <pre className={styles.asciiFrame}>
 {(() => {
   const FRAME_WIDTH = 70;
   const cpuVal = metricsHistory.cpu[metricsHistory.cpu.length - 1].toFixed(0).padStart(2);
@@ -361,9 +362,10 @@ ${'─'.repeat(150)}`;
 })()}
               </pre>
 
-              {/* Registry Status */}
-              <div className={styles.asciiSection}>
-                <div className={styles.asciiSectionHeader}>├─ REGISTRY STATUS ──────────────────────────────────────────────────────────┤</div>
+            {/* Registry/Server/Profile sections - NO wrapper to allow edge-to-edge headers */}
+            {/* Registry Status */}
+            <div className={styles.asciiSection}>
+              <div className={styles.asciiSectionHeader}>{`${'─ REGISTRY STATUS '}${'─'.repeat(150)}`}</div>
                 <div className={styles.asciiSectionBody}>
                   {health.components.registry && (
                     <div className={styles.component}>
@@ -392,7 +394,7 @@ ${'─'.repeat(150)}`;
 
               {/* Server Status */}
               <div className={styles.asciiSection}>
-                <div className={styles.asciiSectionHeader}>├─ SERVER STATUS ────────────────────────────────────────────────────────────┤</div>
+                <div className={styles.asciiSectionHeader}>{`${'─ SERVER STATUS '}${'─'.repeat(150)}`}</div>
                 <div className={styles.asciiSectionBody}>
                   {health.components.servers && (
                     <div className={styles.component}>
@@ -422,7 +424,7 @@ ${'─'.repeat(150)}`;
 
               {/* Profile Status */}
               <div className={styles.asciiSection}>
-                <div className={styles.asciiSectionHeader}>├─ PROFILE STATUS ───────────────────────────────────────────────────────────┤</div>
+                <div className={styles.asciiSectionHeader}>{`${'─ PROFILE STATUS '}${'─'.repeat(150)}`}</div>
                 <div className={styles.asciiSectionBody}>
                   {health.components.profiles && (
                     <div className={styles.component}>
@@ -447,7 +449,7 @@ ${'─'.repeat(150)}`;
 
               {/* Discovery Status */}
               <div className={styles.asciiSection}>
-                <div className={styles.asciiSectionHeader}>├─ DISCOVERY STATUS ─────────────────────────────────────────────────────────┤</div>
+                <div className={styles.asciiSectionHeader}>{`${'─ DISCOVERY STATUS '}${'─'.repeat(150)}`}</div>
                 <div className={styles.asciiSectionBody}>
                   {health.components.discovery && (
                     <div className={styles.component}>
@@ -470,6 +472,8 @@ ${'─'.repeat(150)}`;
                 </div>
               </div>
 
+            {/* Refresh button with padding */}
+            <div className={styles.healthContainer}>
               <button
                 className={styles.actionButton}
                 onClick={() => refetchHealth()}
@@ -775,9 +779,9 @@ ${'─'.repeat(150)}`;
 })()}
             </pre>
 
-            <div className={styles.systemInfo}>
-                <div className={styles.asciiSection}>
-                  <div className={styles.asciiSectionHeader}>├─ ENVIRONMENT ──────────────────────────────────────────────────────────────┤</div>
+            {/* System info sections - NO wrapper to allow edge-to-edge headers */}
+            <div className={styles.asciiSection}>
+              <div className={styles.asciiSectionHeader}>{`${'─ ENVIRONMENT '}${'─'.repeat(150)}`}</div>
                   <div className={styles.asciiSectionBody}>
                     <div className={styles.infoGrid}>
                       <div className={styles.infoItem}>
@@ -794,10 +798,10 @@ ${'─'.repeat(150)}`;
                       </div>
                     </div>
                   </div>
-                </div>
+            </div>
 
-                <div className={styles.asciiSection}>
-                  <div className={styles.asciiSectionHeader}>├─ PYTHON RUNTIME ───────────────────────────────────────────────────────────┤</div>
+            <div className={styles.asciiSection}>
+              <div className={styles.asciiSectionHeader}>{`${'─ PYTHON RUNTIME '}${'─'.repeat(150)}`}</div>
                   <div className={styles.asciiSectionBody}>
                     <div className={styles.infoGrid}>
                       <div className={styles.infoItem}>
@@ -810,10 +814,10 @@ ${'─'.repeat(150)}`;
                       </div>
                     </div>
                   </div>
-                </div>
+            </div>
 
-                <div className={styles.asciiSection}>
-                  <div className={styles.asciiSectionHeader}>├─ SERVICE STATUS ───────────────────────────────────────────────────────────┤</div>
+            <div className={styles.asciiSection}>
+              <div className={styles.asciiSectionHeader}>{`${'─ SERVICE STATUS '}${'─'.repeat(150)}`}</div>
                   <div className={styles.asciiSectionBody}>
                     <div className={styles.infoGrid}>
                       {Object.entries(systemInfo.services).map(([name, initialized]) => (
@@ -828,8 +832,7 @@ ${'─'.repeat(150)}`;
                       ))}
                     </div>
                   </div>
-                </div>
-              </div>
+            </div>
           </>
         ) : (
           <div className={styles.loading}>LOADING SYSTEM INFO...</div>

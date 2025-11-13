@@ -19,6 +19,7 @@ import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DotMatrixPanel } from '../DotMatrixPanel';
 import { StatusIndicator } from '../StatusIndicator';
+import { AsciiSectionHeader } from '@/components/terminal/AsciiSectionHeader';
 import { ModelStatusResponse } from '@/types/models';
 import styles from './SystemStatusPanel.module.css';
 
@@ -136,17 +137,18 @@ export const SystemStatusPanelEnhanced: React.FC<SystemStatusPanelEnhancedProps>
   // Enhanced empty state when no models are active
   if (activeModels.total === 0) {
     return (
-      <DotMatrixPanel
-        title={title}
-        enableGrid
-        gridDensity="dense"
-        enableScanLines
-        scanLineSpeed="slow"
-        enableBorderGlow
-        glowColor="orange"
-        className={className}
-      >
-        <div className={styles.allModelsOffline}>
+      <>
+        <AsciiSectionHeader title={title} />
+        <DotMatrixPanel
+          enableGrid
+          gridDensity="dense"
+          enableScanLines
+          scanLineSpeed="slow"
+          enableBorderGlow
+          glowColor="orange"
+          className={className}
+        >
+          <div className={styles.allModelsOffline}>
           {/* Prominent offline header */}
           <div className={styles.offlineHeader}>
             <div className={styles.offlineTitle}>ALL MODELS OFFLINE</div>
@@ -199,20 +201,22 @@ export const SystemStatusPanelEnhanced: React.FC<SystemStatusPanelEnhancedProps>
         {/* Quick Actions Footer */}
         <QuickActionsFooter />
       </DotMatrixPanel>
+      </>
     );
   }
 
   return (
-    <DotMatrixPanel
-      title={title}
-      enableGrid
-      gridDensity="dense"
-      enableScanLines
-      scanLineSpeed="slow"
-      enableBorderGlow
-      glowColor="orange"
-      className={className}
-    >
+    <>
+      <AsciiSectionHeader title={title} />
+      <DotMatrixPanel
+        enableGrid
+        gridDensity="dense"
+        enableScanLines
+        scanLineSpeed="slow"
+        enableBorderGlow
+        glowColor="orange"
+        className={className}
+      >
       <div className={compact ? styles.compactGrid : styles.gridEnhanced}>
         {/* 1. Active Models with tier breakdown */}
         <div className={styles.metricRow}>
@@ -291,5 +295,6 @@ export const SystemStatusPanelEnhanced: React.FC<SystemStatusPanelEnhancedProps>
       {/* Quick Actions Footer */}
       <QuickActionsFooter />
     </DotMatrixPanel>
+    </>
   );
 };

@@ -4,11 +4,9 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  /* Center on wide screens - max-width constrains content, auto margins center */
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-  margin-bottom: var(--space-md);
+  /* Full width - no max-width to allow ASCII borders to extend edge-to-edge */
+  width: 100%;
+  margin: 0 0 var(--space-md) 0;
 }
 
 .panel.default {
@@ -53,7 +51,7 @@
 }
 
 .content {
-  padding: var(--space-md);
+  padding: 0 var(--space-md); /* Horizontal-only padding for edge-to-edge ASCII headers */
   flex: 1;
   overflow: visible; /* Allow tooltips to render outside panel bounds */
 }

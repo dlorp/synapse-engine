@@ -42,6 +42,10 @@
   letter-spacing: -0.05em;
   opacity: 0.7;
   user-select: none;
+  overflow: hidden;
+  white-space: pre;
+  text-overflow: clip;
+  width: 100%;
 }
 
 .headerContent {
@@ -99,6 +103,10 @@
   letter-spacing: -0.05em;
   opacity: 0.6;
   user-select: none;
+  overflow: hidden;
+  white-space: pre;
+  text-overflow: clip;
+  width: 100%;
 }
 
 .sectionContent {
