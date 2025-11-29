@@ -2,7 +2,7 @@
 
 **S.Y.N.A.P.S.E. ENGINE Documentation Structure**
 
-Last Updated: 2025-11-09
+Last Updated: 2025-11-29
 
 ---
 
@@ -13,65 +13,29 @@ Essential project documentation kept in the root directory for quick access:
 - **[CLAUDE.md](../CLAUDE.md)** - Project instructions and development guidelines for Claude Code
 - **[README.md](../README.md)** - Project overview and getting started guide
 - **[PROJECT_OVERVIEW.md](../PROJECT_OVERVIEW.md)** - Architecture and system design
-- **[SESSION_NOTES.md](../SESSION_NOTES.md)** - Development log (reverse chronological)
-- **[SYNAPSE_ASCII_UI_IMPLEMENTATION_PLAN.md](../SYNAPSE_ASCII_UI_IMPLEMENTATION_PLAN.md)** - Master UI implementation plan
-- **[WEBSOCKET_CONNECTION_LOOP_FIX.md](../WEBSOCKET_CONNECTION_LOOP_FIX.md)** - Recent critical WebSocket fix (2025-11-09)
+- **[SESSION_NOTES.md](../SESSION_NOTES.md)** - Development log (reverse chronological, recent 2 weeks)
+- **[ASCII_MASTER_GUIDE.md](../ASCII_MASTER_GUIDE.md)** - Terminal aesthetic design guide
 
 ---
 
-## Archive - Phase 1 Completion Reports ([archive/phase-1/](./archive/phase-1/))
+## Architecture ([architecture/](./architecture/))
 
-Historical implementation reports for Phase 1 (ASCII UI Foundation):
+System design and infrastructure documentation:
 
-- **PHASE_1_COMPLETE.md** - Comprehensive Phase 1 completion report
-- **PHASE_1_DAYS_3_4_COMPLETE.md** - Days 3-4 progress report
-- **PHASE_1_EVENT_INTEGRATION_COMPLETE.md** - Event bus integration completion
-- **PHASE_1_TESTING_CHECKLIST.md** - Phase 1 testing checklist
-- **TASK_0.5_COMPLETE.md** - Task 0.5 completion report
-- **TASK_1.0_CRT_EFFECTS_COMPLETE.md** - CRT effects implementation
-- **TASK_1.2_SYSTEM_STATUS_PANEL_COMPLETE.md** - System status panel completion
+- **PROJECT_SPECfINAL.md** - Complete project specification
+- **DOCKER_INFRASTRUCTURE.md** - Docker infrastructure architecture
+- **PAGE_BOUNDARIES.md** - Page boundary specifications
 
 ---
 
-## Archive - Component Implementation Reports ([archive/components/](./archive/components/))
+## Features ([features/](./features/))
 
-Detailed implementation reports for individual UI components:
+Feature specifications and documentation:
 
-### Dot Matrix Display
-- DOT_MATRIX_BUG_FIX_REPORT.md
-- DOT_MATRIX_FIX_VISUAL_GUIDE.md
-- DOT_MATRIX_IMPLEMENTATION_REPORT.md
-- DOT_MATRIX_LED_ENHANCEMENT_COMPLETE.md
-- DOT_MATRIX_RESTART_BUG_FIX.md
-- DOT_MATRIX_RESTART_FIX_SUMMARY.md
-- DOT_MATRIX_VISUAL_TEST.md
-
-### CRT Effects
-- CRT_EFFECTS_AND_SPINNER_COMPLETE.md
-- CRT_EFFECTS_ENHANCEMENT_REPORT.md
-- CRT_EFFECTS_PROP_API.md
-- CRT_ENHANCEMENT_SUMMARY.md
-
-### Terminal Widgets
-- TERMINAL_SPINNER_IMPLEMENTATION.md
-- TERMINAL_WIDGETS_IMPLEMENTATION.md
-- TERMINAL_WIDGETS_VISUAL_TEST.md
-
-### Orchestrator Status Panel
-- ORCHESTRATOR_PANEL_VISUAL_GUIDE.md
-- ORCHESTRATOR_STATUS_IMPLEMENTATION.md
-- ORCHESTRATOR_STATUS_PANEL_IMPLEMENTATION.md
-
-### Live Event Feed
-- LIVE_EVENT_FEED_ARCHITECTURE.md
-- LIVE_EVENT_FEED_IMPLEMENTATION_SUMMARY.md
-- LIVE_EVENT_FEED_INTEGRATION.md
-
-### Other Components
-- WEBSOCKET_EVENTS_COMPLETE.md
-- PHASE_3_PARTICLE_EFFECTS_COMPLETE.md
-- CSS_LAYER_IMPLEMENTATION_SUMMARY.md
-- CSS_TEST_PAGE_REPORT.md
+- **MODES.md** - Query mode documentation (referenced by agents)
+- **BENCHMARK_MODE.md** - Benchmark mode feature
+- **LOGVIEWER.md** - Log viewer feature
+- **DYNAMIC_CONTROL.md** - Dynamic control feature
 
 ---
 
@@ -79,64 +43,136 @@ Detailed implementation reports for individual UI components:
 
 Current operational guides for development and testing:
 
+- **DOCKER_QUICKSTART.md** - Docker quickstart guide
+- **DOCKER_QUICK_REFERENCE.md** - Docker quick reference (referenced by agents)
+- **PROFILE_QUICK_REFERENCE.md** - Profile system quick reference
+- **QUICK_START_MODEL_MANAGEMENT.md** - Model management quickstart
 - **VISUAL_TESTING_GUIDE.md** - Guide for visual testing of terminal UI components
 
 ---
 
-## Research ([research/](./research/))
+## Reference ([reference/](./reference/)) - NEW
 
-Research materials and reference documentation:
+Style guides and API reference documentation:
 
-- **ASCII_LIBRARIES_QUICK_REFERENCE.md** - Quick reference for ASCII art libraries
-- **ASCII_LIBRARIES_RESEARCH.md** - Detailed research on ASCII art libraries
-- **MOCKUPS_QUICK_REFERENCE.md** - UI mockup reference
-- **DENSE_TERMINAL_MOCKUPS.md** - Dense terminal UI design mockups
+- **WEBTUI_STYLE_GUIDE.md** - Complete WebTUI styling guide
+- **WEBTUI_INTEGRATION_GUIDE.md** - WebTUI integration patterns
 
 ---
 
-## Planning ([planning/](./planning/))
+## Implementation ([implementation/](./implementation/))
 
-Project planning and roadmap documents:
+Active implementation documentation:
 
-- **planning.md** - General project planning notes
-- **opencode_integration_plan.md** - OpenCode backend integration plan
+### Phase 3 - Model Management Rework
+- **PHASE3_MODEL_MANAGEMENT_REWORK.md** - Current model management overhaul
+- **PHASE3_UNIFIED_HEADERS_COMPLETE.md** - Header unification
+
+### Phase 4 - Dashboard Features
+- **PHASE4_COMPONENT3_TIMESERIES_METRICS_API.md** - Metrics API implementation
+- **CONTEXT_ALLOCATION_API_IMPLEMENTATION.md** - Context allocation backend
+- **CONTEXT_WINDOW_PANEL_IMPLEMENTATION.md** - Context window UI
+- **PROCESSING_PIPELINE_VISUALIZATION_IMPLEMENTATION.md** - Pipeline visualization
+- **TIER_COMPARISON_IMPLEMENTATION.md** - Tier comparison feature
 
 ---
 
-## Tests ([../tests/](../tests/))
+## Components ([components/](./components/))
 
-Test scripts and verification tools (located at project root level):
+Component-specific documentation:
 
-- Various test scripts for component verification
-- WebSocket connection tests
-- CSS layer verification scripts
+### ASCII Components
+- **ASCII_CHARTS_IMPLEMENTATION.md** - Chart implementation details
+- **ASCII_CHARTS_QUICK_REFERENCE.md** - Chart quick reference
+- **ASCIIPANEL_COMPONENT_CREATED.md** - ASCIIPanel component docs
+
+### Page Components
+- **ADMIN_PAGE_ASCII_ENHANCEMENTS.md** - Admin page improvements
+- **SETTINGS_PAGE_TERMINAL_TRANSFORMATION.md** - Settings page transformation
+
+---
+
+## Fixes ([fixes/](./fixes/))
+
+Recent bug fixes and solutions (Nov 12+):
+
+- **ASCIIPANEL_PADDING_FIX.md** - ASCII panel padding solution
+- **WEBSOCKET_CONNECTION_LOOP_FIX.md** - WebSocket connection fix
+- **ADMINPAGE_ASCII_FRAMES_FIX.md** - Admin page ASCII fix
+
+---
+
+## Development ([development/](./development/))
+
+Development setup and notes:
+
+- **SESSION_NOTES.md** - Current session notes
+- **DOCKER_SETUP.md** - Docker environment setup
+- **EXPLORATION_REPORT.md** - Codebase exploration findings
+
+---
+
+## Testing ([testing/](./testing/))
+
+Test documentation:
+
+- **TEST_SUITE_SUMMARY.md** - Test suite summary
+
+---
+
+## Archive ([archive/](./archive/))
+
+Historical documentation and completed work:
+
+### Session History
+- **session-history/** - Archived session notes (pre-Nov 15)
+
+### Implementation Plans
+- **implementation-plans/** - Completed implementation plans (MAGI_REWORK, etc.)
+
+### Research
+- **research/** - Design research and mockups
+
+### Migration
+- **migration/** - Migration and moderator documentation
+
+### Phase 1
+- **phase-1/** - Phase 1 completion reports
+
+### Components
+- **components/** - Historical component implementation reports
 
 ---
 
 ## Navigation Tips
 
-### Finding Historical Implementation Details
-All completed Phase 1 work is archived in `archive/phase-1/` and `archive/components/`. These documents are kept for reference but are no longer actively maintained.
+### Agent Documentation Paths
+These paths are referenced by agents and must exist:
+- `docs/guides/DOCKER_QUICK_REFERENCE.md`
+- `docs/features/MODES.md`
+- `docs/architecture/*`
 
 ### Current Development
-Refer to **[SESSION_NOTES.md](../SESSION_NOTES.md)** for the most recent development activity (newest entries at top).
+Refer to **[SESSION_NOTES.md](../SESSION_NOTES.md)** for the most recent development activity.
 
 ### Architecture Understanding
-Start with **[PROJECT_OVERVIEW.md](../PROJECT_OVERVIEW.md)** for system architecture and **[SYNAPSE_ASCII_UI_IMPLEMENTATION_PLAN.md](../SYNAPSE_ASCII_UI_IMPLEMENTATION_PLAN.md)** for UI implementation details.
+Start with **[PROJECT_OVERVIEW.md](../PROJECT_OVERVIEW.md)** for system architecture.
 
 ### Working with Claude Code
-Consult **[CLAUDE.md](../CLAUDE.md)** for project-specific instructions, patterns, and development guidelines.
+Consult **[CLAUDE.md](../CLAUDE.md)** for project-specific instructions.
 
 ---
 
 ## Maintenance
 
-This documentation structure is maintained to keep the project root clean and organized. When adding new documentation:
+When adding new documentation:
 
-1. **Root** - Only essential, actively used documents
-2. **archive/** - Completed implementation reports and historical records
-3. **guides/** - How-to guides and tutorials
-4. **research/** - Reference materials and research findings
-5. **planning/** - Future work and planning documents
+1. **Root** - Only 5 essential files (CLAUDE.md, README.md, PROJECT_OVERVIEW.md, SESSION_NOTES.md, ASCII_MASTER_GUIDE.md)
+2. **architecture/** - System design documents
+3. **features/** - Feature specifications
+4. **guides/** - How-to guides and quickstarts
+5. **reference/** - Style guides and API docs
+6. **implementation/** - Active phase work
+7. **archive/** - Historical and completed work
 
-**Last Reorganization:** 2025-11-09 - Moved 38 implementation reports to archive, cleaned root to 6 essential files.
+**Last Reorganization:** 2025-11-29 - Major cleanup: pruned SESSION_NOTES.md, consolidated docs structure, moved plans/ to archive.

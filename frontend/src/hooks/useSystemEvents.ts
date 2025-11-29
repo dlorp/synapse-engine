@@ -2,6 +2,8 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 
 /**
  * System event types for S.Y.N.A.P.S.E. ENGINE
+ *
+ * Must match backend EventType enum in app/models/events.py
  */
 export type SystemEventType =
   | 'query_route'
@@ -9,7 +11,15 @@ export type SystemEventType =
   | 'cgrag'
   | 'cache'
   | 'error'
-  | 'performance';
+  | 'performance'
+  | 'pipeline_stage_start'
+  | 'pipeline_stage_complete'
+  | 'pipeline_stage_failed'
+  | 'pipeline_complete'
+  | 'pipeline_failed'
+  | 'topology_health_update'
+  | 'topology_dataflow_update'
+  | 'log';
 
 /**
  * Event severity levels

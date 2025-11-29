@@ -16,8 +16,7 @@
   /* Full width - no max-width to allow ASCII borders to extend edge-to-edge */
   width: 100%;
   max-width: 100vw; /* Prevent horizontal overflow */
-  overflow-x: hidden; /* Hide any overflow that escapes */
-  overflow-y: visible; /* Allow natural vertical scrolling on page itself */
+  overflow: visible; /* Let parent RootLayout.main handle scrolling - avoid mixed overflow axes */
   margin: 0;
   padding: 0; /* Edge-to-edge pattern: Panel components inside handle their own padding */
   box-sizing: border-box;
@@ -93,6 +92,9 @@
   grid-template-columns: repeat(2, 1fr);
   gap: 24px;
   margin-bottom: 24px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .content {

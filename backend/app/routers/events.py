@@ -148,53 +148,69 @@ async def websocket_events(
             min_severity=min_severity
         )
 
-        # Create background task to handle ping/pong
-        async def handle_ping_pong():
-            """Background task to handle ping/pong messages for heartbeat"""
-            try:
-                while True:
-                    message = await websocket.receive()
-                    # Handle ping messages (client sends JSON: {"type": "ping"})
-                    if message.get("type") == "websocket.receive":
-                        text = message.get("text", "")
-                        if text:
+        # Create subscription iterator
+        event_iterator = subscription.__aiter__()
+
+        # Main event loop - handle both receiving (ping) and sending (events)
+        try:
+            while True:
+                # Use asyncio.wait with FIRST_COMPLETED to handle concurrent operations
+                pending = {
+                    asyncio.create_task(websocket.receive_text(), name="receive"),
+                    asyncio.create_task(event_iterator.__anext__(), name="event")
+                }
+
+                done, pending_remaining = await asyncio.wait(
+                    pending,
+                    return_when=asyncio.FIRST_COMPLETED
+                )
+
+                # Cancel remaining tasks
+                for task in pending_remaining:
+                    task.cancel()
+                    try:
+                        await task
+                    except asyncio.CancelledError:
+                        pass
+
+                # Process completed tasks
+                for task in done:
+                    if task.get_name() == "receive":
+                        try:
+                            text = task.result()
+                            # Handle ping messages
                             try:
-                                # Parse JSON message
                                 data = json.loads(text)
-                                # Client sent ping, respond with pong (JSON format)
                                 if data.get("type") == "ping":
                                     await websocket.send_json({"type": "pong"})
                             except (json.JSONDecodeError, ValueError):
                                 # Ignore non-JSON messages
                                 logger.debug(f"Received non-JSON WebSocket message: {text}")
-            except (WebSocketDisconnect, asyncio.CancelledError):
-                pass
+                        except WebSocketDisconnect:
+                            logger.info("WebSocket disconnected")
+                            return
+                        except Exception as e:
+                            logger.error(f"Error receiving WebSocket message: {e}")
+                            return
 
-        # Start ping/pong handler in background
-        ping_task = asyncio.create_task(handle_ping_pong())
+                    elif task.get_name() == "event":
+                        try:
+                            event = task.result()
+                            # Send event to client
+                            await websocket.send_json(event.model_dump())
+                        except StopAsyncIteration:
+                            logger.info("Event subscription ended")
+                            return
+                        except WebSocketDisconnect:
+                            logger.info("WebSocket disconnected while sending event")
+                            return
+                        except Exception as e:
+                            logger.error(f"Error sending event to WebSocket client: {e}")
+                            return
 
-        try:
-            # Stream events to client
-            async for event in subscription:
-                try:
-                    # Send event to client as JSON
-                    await websocket.send_json(event.model_dump())
-
-                except WebSocketDisconnect:
-                    logger.info("WebSocket disconnected while sending event")
-                    break
-
-                except Exception as e:
-                    logger.error(f"Error sending event to WebSocket client: {e}")
-                    break
-
-        finally:
-            # Cancel ping/pong task
-            ping_task.cancel()
-            try:
-                await ping_task
-            except asyncio.CancelledError:
-                pass
+        except asyncio.CancelledError:
+            logger.info("WebSocket event loop cancelled")
+            raise
 
     except WebSocketDisconnect:
         logger.info("WebSocket client disconnected from /ws/events normally")
