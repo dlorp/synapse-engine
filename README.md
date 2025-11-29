@@ -21,20 +21,29 @@ All runtime messages traverse the **NEURAL SUBSTRATE ORCHESTRATOR** — the mess
 ### Key Features
 
 🎨 **WebUI-First** - All control happens in the browser, no YAML editing
+
 ⚡ **Fast Startup** - Launches in ~5 seconds with no models loaded (default: NO models enabled)
+
 🔄 **Dynamic Control** - Start/stop models without Docker restart
+
 🚀 **One-Click Metal Servers** - Automatic Metal accelerated llama-server management via Host API
+
 🎯 **Multiple Modes** - Two Stage, Simple, Council (Consensus/Debate), Benchmark, Code Chat (planned)
+
 📚 **CGRAG Integration** - Automatic context retrieval with FAISS (<100ms)
+
 📊 **Real-Time Monitoring** - Live server logs, resource tracking (VRAM, queries, cache hit rate)
+
 🔍 **Auto-Discovery** - Finds GGUF models in your Hugging Face cache
-🖼️ **Advanced Visualizations** - Interactive processing pipelines (ProcessingPipelinePanel with React Flow), time-series metrics (AdvancedMetricsPanel with Chart.js), system topology diagrams (SystemArchitectureDiagram)
-🎛️ **Dashboard Features** - Context window allocation display (ContextWindowPanel), advanced metrics panels, real-time event streaming (WebSocket)
+
+🖼️ **Advanced Visualizations** - Interactive processing pipelines (ProcessingPipelinePanel with React Flow), time series metrics (AdvancedMetricsPanel with Chart.js), system topology diagrams (SystemArchitectureDiagram)
+
+🎛️ **Dashboard Features** - Context window allocation display (ContextWindowPanel), advanced metrics panels, real time event streaming (WebSocket)
 
 ### What's New in v5.1
 
 **TUI Navigation Overhaul:**
-- ✅ **Bottom Navigation Bar** - NERV-style double-border navigation replacing sidebar
+- ✅ **Bottom Navigation Bar** - Double border navigation replacing sidebar
 - ✅ **Keyboard Navigation** - Press 1-5 to navigate between pages instantly
 - ✅ **Glyph Icons** - Terminal-aesthetic icons (⌘ ◧ ◈ ⚙ ◎) for each section
 - ✅ **Phosphor Orange Breathing** - Animated border with 2s breathing cycle
@@ -43,12 +52,12 @@ All runtime messages traverse the **NEURAL SUBSTRATE ORCHESTRATOR** — the mess
 **Phase 4 Dashboard Features - Complete:**
 - ✅ **ProcessingPipelinePanel** - Interactive React Flow visualization of query processing stages
 - ✅ **ContextWindowPanel** - Live token allocation display showing context budget distribution
-- ✅ **AdvancedMetricsPanel** - Chart.js time-series metrics with historical performance tracking
+- ✅ **AdvancedMetricsPanel** - Chart.js time series metrics with historical performance tracking
 - ✅ **SystemArchitectureDiagram** - Interactive system topology with component relationships
 - ✅ **Enhanced Real-Time Monitoring** - WebSocket event streaming for live updates across all dashboard components
 
 **Phase 5 Security Enhancements:**
-- ✅ Localhost-only model server binding (not exposed to host network)
+- ✅ Localhost only model server binding (not exposed to host network)
 - ✅ Reverse proxy access through FastAPI backend
 - ✅ Centralized authentication foundation
 
@@ -104,7 +113,7 @@ All runtime messages traverse the **NEURAL SUBSTRATE ORCHESTRATOR** — the mess
 2. **Navigate to Model Management**
    - Browse discovered models (automatically scanned from your Hugging Face cache)
    - Enable models you want to use (each launches its own llama-server instance)
-   - Watch real-time logs in the System Logs panel as servers start
+   - Watch real time logs in the System Logs panel as servers start
 
 3. **Click "START ALL ENABLED"**
    - Wait for models to load (3-5s per model with Metal acceleration, 10-15s with CPU)
@@ -112,7 +121,7 @@ All runtime messages traverse the **NEURAL SUBSTRATE ORCHESTRATOR** — the mess
 
 4. **Go to Home** → Select query mode (Two Stage recommended)
 
-5. **Submit a query** → Watch S.Y.N.A.P.S.E. ENGINE process with CGRAG + multi-stage refinement!
+5. **Submit a query** → Watch S.Y.N.A.P.S.E. ENGINE process with CGRAG + multi stage refinement!
 
 6. **Monitor Resources**
    - View VRAM usage across all models
@@ -249,7 +258,7 @@ docker-compose up -d
 │  │  ┌────────────────────────────────────┐      │         │
 │  │  │ Frontend (Port 5173)                │      │         │
 │  │  │ - Model Management UI                │      │         │
-│  │  │ - System Logs (Real-Time)           │      │         │
+│  │  │ - System Logs (Real Time)           │      │         │
 │  │  │ - Resource Monitoring                │      │         │
 │  │  └────────────────────────────────────┘      │         │
 │  └──────────────────────────────────────────────┘         │
@@ -443,7 +452,7 @@ Final refined response with metadata (both stages visible in UI)
 
 ## Architecture
 
-### Three-Layer Model Management
+### Three Layer Model Management
 
 **1. DISCOVERY (Automatic)**
 - Scans HuggingFace cache for GGUF models
