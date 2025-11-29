@@ -4,14 +4,6 @@
  * Follows S.Y.N.A.P.S.E. ENGINE design language (phosphor orange #ff9500)
  */
 
-/* ============================================
-   SETTINGS PAGE CONTAINER - ALLOWS NATURAL EXPANSION
-   ============================================
-   SCROLLING: overflow: visible allows content to
-   expand naturally. RootLayout .main handles all
-   vertical scrolling.
-   ============================================ */
-
 .page {
   display: flex;
   flex-direction: column;
@@ -19,10 +11,7 @@
   animation: fade-in var(--transition-base);
   /* Edge-to-edge pattern: no max-width, no margin, zero padding */
   width: 100%;
-  overflow: visible; /* CRITICAL: Allow natural expansion, .main handles scrolling */
-  margin: 0;
   padding: 0;
-  box-sizing: border-box;
 }
 
 .title {
