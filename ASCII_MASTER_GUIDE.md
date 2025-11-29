@@ -1175,6 +1175,688 @@ All met or exceeded - 60fps, <3ms chart renders, smooth animations, minimal memo
 
 ---
 
+## Production Implementation Reference
+
+**Date Added:** 2025-11-13
+**Status:** Known Good Patterns - Replicate Throughout Codebase
+**Source:** AdminPage and working components in `/frontend/src/components/`
+
+This section documents the **actual working implementations** from the S.Y.N.A.P.S.E. ENGINE codebase. These are battle-tested, production-ready patterns that should be replicated when creating new pages or components.
+
+---
+
+### Working Components Library
+
+#### 1. AsciiSectionHeader Component
+
+**Location:** `/frontend/src/components/terminal/AsciiSectionHeader/AsciiSectionHeader.tsx`
+
+**Purpose:** Edge-to-edge section headers that maintain terminal illusion
+
+**Implementation:**
+```typescript
+import React from 'react';
+import styles from './AsciiSectionHeader.module.css';
+
+export interface AsciiSectionHeaderProps {
+  title: string;
+  className?: string;
+}
+
+export const AsciiSectionHeader: React.FC<AsciiSectionHeaderProps> = ({ title, className }) => {
+  return (
+    <div className={`${styles.asciiSectionHeader} ${className || ''}`}>
+      {`${'─ ' + title + ' '}${'─'.repeat(150)}`}
+    </div>
+  );
+};
+```
+
+**CSS (Required):**
+```css
+.asciiSectionHeader {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--webtui-accent);
+  padding: var(--webtui-spacing-xs) 0;
+  letter-spacing: 0;
+  white-space: pre; /* CRITICAL: pre, not nowrap */
+  overflow: hidden;
+  text-overflow: clip; /* CRITICAL: clip, not ellipsis */
+  width: 100%;
+  animation: section-pulse 2s ease-in-out infinite;
+  line-height: 1.2;
+  font-feature-settings: "liga" 0, "calt" 0;
+  font-kerning: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: geometricPrecision;
+}
+
+@keyframes section-pulse {
+  0%, 100% {
+    color: var(--webtui-accent);
+    text-shadow: 0 0 3px var(--webtui-accent);
+  }
+  50% {
+    color: rgba(0, 255, 255, 0.8);
+    text-shadow: 0 0 6px var(--webtui-accent);
+  }
+}
+```
+
+**Usage:**
+```tsx
+import { AsciiSectionHeader } from '@/components/terminal/AsciiSectionHeader';
+
+// At page top level (NOT inside padded containers)
+<AsciiSectionHeader title="SYSTEM HEALTH" />
+```
+
+**Why This Works:**
+- Generates 150 chars (extends beyond viewport)
+- `overflow: hidden` clips excess at viewport edges
+- `white-space: pre` preserves spacing
+- `text-overflow: clip` prevents "..." truncation
+- Works at ANY screen width (mobile to 4K)
+
+---
+
+#### 2. AsciiSparkline Component
+
+**Location:** `/frontend/src/components/charts/AsciiSparkline.tsx`
+
+**Purpose:** Compact inline trend visualization using asciichart library
+
+**Implementation:**
+```typescript
+import React, { useMemo } from 'react';
+import * as asciichart from 'asciichart';
+import styles from './AsciiSparkline.module.css';
+
+export interface AsciiSparklineProps {
+  data: number[];
+  label: string;
+  unit?: string;
+  color?: string;
+  height?: number;
+  decimals?: number;
+  className?: string;
+}
+
+export const AsciiSparkline: React.FC<AsciiSparklineProps> = ({
+  data,
+  label,
+  unit = '',
+  color = '#ff9500',
+  height = 3,
+  decimals = 1,
+  className,
+}) => {
+  // Memoize chart rendering for performance (<3ms target)
+  const chart = useMemo(() => {
+    if (data.length === 0) {
+      return '▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁';  // Empty sparkline (20 chars)
+    }
+
+    try {
+      return asciichart.plot(data, {
+        height,
+        format: () => '',  // No Y-axis labels for compact display
+      });
+    } catch (error) {
+      console.error('Failed to render sparkline:', error);
+      return '▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁';
+    }
+  }, [data, height]);
+
+  // Calculate min/max/current values
+  const stats = useMemo(() => {
+    if (data.length === 0) {
+      return { min: 0, max: 0, current: 0 };
+    }
+
+    const min = Math.min(...data);
+    const max = Math.max(...data);
+    const current = data[data.length - 1];
+
+    return { min, max, current };
+  }, [data]);
+
+  // Format numbers with specified decimals
+  const formatValue = (value: number): string => {
+    return value.toFixed(decimals);
+  };
+
+  const classNames = [styles.sparkline, className].filter(Boolean).join(' ');
+
+  return (
+    <div className={classNames}>
+      <div className={styles.label}>{label}</div>
+
+      <div className={styles.chartContainer} style={{ color }}>
+        <pre className={styles.chart}>{chart}</pre>
+      </div>
+
+      <div className={styles.stats}>
+        <span className={styles.current}>
+          {formatValue(stats.current)}{unit}
+        </span>
+        <span className={styles.range}>
+          (min: {formatValue(stats.min)}, max: {formatValue(stats.max)})
+        </span>
+      </div>
+    </div>
+  );
+};
+```
+
+**Usage:**
+```tsx
+import { AsciiSparkline } from '@/components/charts/AsciiSparkline';
+
+<AsciiSparkline
+  data={cpuHistory}        // Last 20 data points
+  label="CPU Usage"
+  unit="%"
+  color="#ff9500"
+  height={3}
+  decimals={1}
+/>
+```
+
+**Performance:**
+- Uses `useMemo` to cache chart generation
+- Targets <3ms render time
+- Efficient with `asciichart` library
+- Handles empty data gracefully
+
+---
+
+### AdminPage Utility Functions
+
+**Location:** `/frontend/src/pages/AdminPage/AdminPage.tsx`
+
+These inline utility functions are used throughout AdminPage for quick ASCII visualizations. Copy-paste ready for any component.
+
+#### generateSparkline()
+
+```typescript
+const generateSparkline = (values: number[]): string => {
+  const chars = ['▁', '▂', '▃', '▄', '▅', '▆', '▇', '█'];
+  const max = Math.max(...values, 1);
+  const min = Math.min(...values, 0);
+  const range = max - min || 1;
+
+  return values.map(v => {
+    const normalized = (v - min) / range;
+    const index = Math.min(Math.floor(normalized * chars.length), chars.length - 1);
+    return chars[index];
+  }).join('');
+};
+
+// Usage:
+const cpuHistory = [45, 52, 48, 55, 60, 58, 62, 65, 63, 68];
+const sparkline = generateSparkline(cpuHistory);
+// Result: "▃▄▃▅▆▅▆▇▇█"
+```
+
+#### generateBarChart()
+
+```typescript
+const generateBarChart = (value: number, maxValue: number = 100, width: number = 20): string => {
+  const filled = Math.floor((value / maxValue) * width);
+  const empty = width - filled;
+  return '█'.repeat(filled) + '░'.repeat(empty);
+};
+
+// Usage:
+const memoryBar = generateBarChart(65, 100, 20);
+// Result: "█████████████░░░░░░░" (65% filled)
+```
+
+#### generateLineChart()
+
+```typescript
+const generateLineChart = (values: number[], width: number = 60, height: number = 7): string[] => {
+  const max = Math.max(...values, 1);
+  const min = Math.min(...values, 0);
+  const range = max - min || 1;
+
+  const lines: string[] = [];
+
+  for (let y = height - 1; y >= 0; y--) {
+    let line = '';
+    const threshold = min + (range * y / (height - 1));
+
+    for (let x = 0; x < Math.min(values.length, width); x++) {
+      const value = values[x];
+      const nextValue = x < values.length - 1 ? values[x + 1] : value;
+
+      if (value >= threshold && nextValue >= threshold) {
+        line += '─';
+      } else if (value >= threshold && nextValue < threshold) {
+        line += '┐';
+      } else if (value < threshold && nextValue >= threshold) {
+        line += '└';
+      } else {
+        line += ' ';
+      }
+    }
+    lines.push(line);
+  }
+
+  return lines;
+};
+
+// Usage:
+const requestRateHistory = [10, 15, 12, 18, 22, 20, 25, 28, 26, 30];
+const lineChart = generateLineChart(requestRateHistory, 40, 7);
+// Result: Array of 7 strings forming ASCII line chart
+```
+
+---
+
+### AdminPage CSS Patterns (Known Good)
+
+**Location:** `/frontend/src/pages/AdminPage/AdminPage.module.css`
+
+#### Page Container Pattern
+
+```css
+/* ✅ CORRECT: No padding for edge-to-edge ASCII frames */
+.adminPage {
+  width: 100%;
+  /* CRITICAL: No max-width - allows ASCII borders to extend to browser edges */
+  margin: 0;
+  padding: 0; /* CRITICAL: No padding so ASCII frames can extend edge-to-edge */
+  font-family: var(--webtui-font-family);
+  display: flex;
+  flex-direction: column;
+  gap: var(--webtui-spacing-xl);
+}
+
+/* Padded content wrapper for non-ASCII elements */
+.paddedContent {
+  padding-left: var(--webtui-spacing-lg);
+  padding-right: var(--webtui-spacing-lg);
+}
+```
+
+**Usage Pattern:**
+```tsx
+<div className={styles.adminPage}>
+  {/* ASCII headers at top level (no padding) */}
+  <AsciiSectionHeader title="SYSTEM HEALTH" />
+
+  {/* Content in padded container */}
+  <div className={styles.paddedContent}>
+    <StatusCard />
+    <MetricsPanel />
+  </div>
+
+  {/* Another ASCII header */}
+  <AsciiSectionHeader title="TOPOLOGY" />
+
+  <div className={styles.paddedContent}>
+    <TopologyDiagram />
+  </div>
+</div>
+```
+
+#### Panel Breathing Animation
+
+```css
+.asciiPanel {
+  display: flex;
+  flex-direction: column;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--webtui-primary);
+  position: relative;
+  animation: panel-breathe 2s ease-in-out infinite;
+  font-family: var(--webtui-font-family);
+  contain: layout style paint;
+  will-change: auto;
+  margin-bottom: var(--webtui-spacing-lg);
+}
+
+@keyframes panel-breathe {
+  0%, 100% {
+    border-color: var(--webtui-primary);
+    box-shadow: 0 0 0 rgba(255, 149, 0, 0);
+  }
+  50% {
+    border-color: rgba(255, 149, 0, 0.8);
+    box-shadow: 0 0 15px rgba(255, 149, 0, 0.2);
+  }
+}
+```
+
+#### Phosphor Glow Animation
+
+```css
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--webtui-primary);
+  margin: 0 0 var(--webtui-spacing-xs) 0;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-shadow: 0 0 10px var(--webtui-primary);
+  animation: phosphor-glow 1.8s ease-in-out infinite;
+}
+
+@keyframes phosphor-glow {
+  0%, 100% {
+    text-shadow: 0 0 10px var(--webtui-primary);
+    opacity: 1;
+  }
+  50% {
+    text-shadow: 0 0 20px var(--webtui-primary), 0 0 30px var(--webtui-primary);
+    opacity: 0.9;
+  }
+}
+```
+
+---
+
+### Critical Anti-Patterns (From SYNAPSE_ASCII_UI_IMPLEMENTATION_PLAN.md)
+
+**⚠️ These patterns WILL BREAK the terminal illusion and MUST be avoided:**
+
+#### ❌ WRONG: Padded Container Wrapping ASCII Frames
+
+```tsx
+/* ❌ BAD: ASCII frame inside padded container */
+<div className={styles.healthContainer}> {/* Has padding: 0 24px */}
+  <AsciiSectionHeader title="SYSTEM HEALTH" />
+  {/* Frame stops 24px short of viewport edges */}
+</div>
+```
+
+#### ✅ CORRECT: ASCII Frame at Top Level
+
+```tsx
+/* ✅ GOOD: ASCII frame at top level */
+<AsciiSectionHeader title="SYSTEM HEALTH" />
+
+<div className={styles.healthContainer}> {/* Padding only for content */}
+  <StatusCard />
+</div>
+```
+
+#### ❌ WRONG: Corner Characters
+
+```typescript
+// ❌ NEVER USE CORNER CHARACTERS
+const frame = `┌${'─'.repeat(width)}┐
+│ Content here      │
+└${'─'.repeat(width)}┘`;
+// Breaks on window resize - NEVER DO THIS
+```
+
+#### ✅ CORRECT: Edge-to-Edge Lines
+
+```typescript
+// ✅ ALWAYS USE EDGE-TO-EDGE LINES
+const frame = `${'─ TITLE '}${'─'.repeat(150)}
+${padLine('Content here', 70)}
+${'─'.repeat(150)}`;
+// Works at any screen width
+```
+
+#### ❌ WRONG: text-overflow: ellipsis
+
+```css
+/* ❌ BAD: Adds "..." truncation */
+.asciiSectionHeader {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Creates: "─ TITLE ─────────────..." */
+}
+```
+
+#### ✅ CORRECT: text-overflow: clip
+
+```css
+/* ✅ GOOD: Clean cut at viewport edge */
+.asciiSectionHeader {
+  white-space: pre;
+  overflow: hidden;
+  text-overflow: clip; /* Creates: "─ TITLE ──────────────────" */
+}
+```
+
+---
+
+### Component Hierarchy Pattern (Known Good)
+
+**From AdminPage - Replicate This Structure:**
+
+```tsx
+{/* Page container - NO padding */}
+<div className={styles.adminPage}>
+
+  {/* ASCII header at top level */}
+  <AsciiSectionHeader title="SYSTEM HEALTH" />
+
+  {/* Content in padded container */}
+  <div className={styles.healthContainer}>
+    <StatusCard />
+    <MetricsGrid />
+  </div>
+
+  {/* Another ASCII header */}
+  <AsciiSectionHeader title="TOPOLOGY" />
+
+  {/* Content with padding */}
+  <div className={styles.topologyContainer}>
+    <pre className={styles.asciiDiagram}>
+      {topologyAscii}
+    </pre>
+  </div>
+
+  {/* Modern UI section */}
+  <AsciiSectionHeader title="PERFORMANCE METRICS" />
+
+  <div className={styles.metricsContainer}>
+    {/* Chart.js charts (modern UI) */}
+    <Bar data={chartData} options={chartOptions} />
+
+    {/* ASCII sparklines (ASCII structure) */}
+    <AsciiSparkline data={cpuData} label="CPU" unit="%" />
+  </div>
+
+</div>
+```
+
+**Key Principles:**
+1. Page container has `padding: 0`
+2. ASCII headers placed at top level
+3. Content sections have padding
+4. Modern UI elements (buttons, charts) inside padded containers
+5. ASCII structural elements (headers, diagrams) at top level
+6. Mix modern UI + ASCII freely (three-layer approach)
+
+---
+
+### Real-World Example: AdminPage System Health Section
+
+**Complete Working Implementation:**
+
+```tsx
+// AdminPage.tsx (excerpt)
+<div className={styles.adminPage}>
+
+  {/* ASCII header - no padding parent */}
+  <AsciiSectionHeader title="SYSTEM HEALTH" />
+
+  {/* Padded content */}
+  <div className={styles.healthContainer}>
+
+    {/* Status display */}
+    <div className={styles.statusDisplay}>
+      <span className={styles.statusLabel}>STATUS:</span>
+      <span className={styles.statusValue}>
+        {health?.status.toUpperCase() || 'UNKNOWN'}
+      </span>
+      <span className={styles.statusSeparator}>|</span>
+      <span className={styles.statusLabel}>Profiles:</span>
+      <span className={styles.statusValue}>
+        {health?.components.profiles?.total || 0}
+      </span>
+      <span className={styles.statusSeparator}>|</span>
+      <span className={styles.statusLabel}>Ready:</span>
+      <span className={styles.statusValue}>
+        {health?.components.profiles?.ready || 0}
+      </span>
+    </div>
+
+    {/* Status cards grid */}
+    <div className={styles.statusGrid}>
+      <StatusCard
+        title="ORCHESTRATOR"
+        status={health?.components.orchestrator?.status || 'unknown'}
+        message={health?.components.orchestrator?.message}
+      />
+      <StatusCard
+        title="NEURAL SUBSTRATE"
+        status={health?.components.neural_substrate?.status || 'unknown'}
+        message={health?.components.neural_substrate?.message}
+      />
+    </div>
+
+  </div>
+
+  {/* ASCII header for next section */}
+  <AsciiSectionHeader title="TOPOLOGY" />
+
+  {/* Topology diagram with padding */}
+  <div className={styles.topologyContainer}>
+    <pre className={styles.topologyDiagram}>
+{`[FASTAPI]──[ORCHESTRATOR]──[NEURAL SUBSTRATE]
+    │              │                │
+    │              ├──[Q2]──────────── ${activeQ2}/${totalQ2} ACTIVE
+    │              ├──[Q3]──────────
+    │              └──[Q4]──────────
+    │
+    └────[REGISTRY: ${modelCount} models]`}
+    </pre>
+  </div>
+
+</div>
+```
+
+**CSS for Above:**
+
+```css
+/* healthContainer - has padding for content */
+.healthContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--webtui-spacing-md);
+  padding: 0 var(--webtui-spacing-lg);
+}
+
+.statusDisplay {
+  display: flex;
+  align-items: center;
+  gap: var(--webtui-spacing-sm);
+  padding: var(--webtui-spacing-sm) 0;
+  font-size: var(--webtui-font-size-small);
+}
+
+.statusLabel {
+  color: var(--webtui-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.statusValue {
+  color: var(--webtui-primary);
+  font-weight: 700;
+  text-shadow: 0 0 5px var(--webtui-primary);
+}
+
+.topologyDiagram {
+  font-family: var(--webtui-font-family);
+  color: var(--webtui-accent);
+  white-space: pre;
+  line-height: 1.4;
+  font-size: 12px;
+  text-shadow: 0 0 5px var(--webtui-accent);
+  animation: diagram-pulse 2s ease-in-out infinite;
+}
+
+@keyframes diagram-pulse {
+  0%, 100% {
+    opacity: 1;
+    text-shadow: 0 0 5px var(--webtui-accent);
+  }
+  50% {
+    opacity: 0.9;
+    text-shadow: 0 0 8px var(--webtui-accent);
+  }
+}
+```
+
+---
+
+### Quick Copy-Paste Checklist
+
+When creating a new page, use this checklist with the patterns above:
+
+**Page Structure:**
+- [ ] Page container has `padding: 0` (not `padding: var(--webtui-spacing-lg)`)
+- [ ] ASCII headers use `<AsciiSectionHeader title="..." />`
+- [ ] ASCII headers placed at top level (not inside padded containers)
+- [ ] Content sections have their own padded containers
+- [ ] `.asciiSectionHeader` CSS uses `white-space: pre` and `text-overflow: clip`
+
+**Animations:**
+- [ ] Copied `@keyframes phosphor-glow` for titles
+- [ ] Copied `@keyframes panel-breathe` for panels
+- [ ] Copied `@keyframes section-pulse` for section headers
+
+**Components:**
+- [ ] Use `<AsciiSectionHeader />` for all section headers
+- [ ] Use `<AsciiSparkline />` for inline metrics
+- [ ] Use `generateSparkline()` / `generateBarChart()` for quick visualizations
+
+**Anti-Pattern Checks:**
+- [ ] NO corner characters (┌┐└┘) anywhere
+- [ ] NO `max-width` on page containers
+- [ ] NO padding on containers wrapping ASCII headers
+- [ ] NO `text-overflow: ellipsis` on ASCII elements
+
+---
+
+## Related Production Files
+
+**Reference these files for complete implementation examples:**
+
+1. **AdminPage (Canonical Reference)**
+   - [`/frontend/src/pages/AdminPage/AdminPage.tsx`](./frontend/src/pages/AdminPage/AdminPage.tsx)
+   - [`/frontend/src/pages/AdminPage/AdminPage.module.css`](./frontend/src/pages/AdminPage/AdminPage.module.css)
+
+2. **Working Components**
+   - [`/frontend/src/components/terminal/AsciiSectionHeader/`](./frontend/src/components/terminal/AsciiSectionHeader/)
+   - [`/frontend/src/components/charts/AsciiSparkline.tsx`](./frontend/src/components/charts/AsciiSparkline.tsx)
+   - [`/frontend/src/components/charts/AsciiBarChart.tsx`](./frontend/src/components/charts/AsciiBarChart.tsx)
+   - [`/frontend/src/components/charts/AsciiLineChart.tsx`](./frontend/src/components/charts/AsciiLineChart.tsx)
+
+3. **Implementation Plan**
+   - [`SYNAPSE_ASCII_UI_IMPLEMENTATION_PLAN.md`](./SYNAPSE_ASCII_UI_IMPLEMENTATION_PLAN.md) - Full canonical reference and anti-patterns
+
+4. **Design Research**
+   - [`SCIFI_GUI_RESEARCH.md`](./SCIFI_GUI_RESEARCH.md) - NGE NERV aesthetic principles
+
+---
+
+**END OF PRODUCTION IMPLEMENTATION REFERENCE**
+
+---
+
 **END OF MASTER GUIDE**
 
 *Use this document as the single source of truth for ALL ASCII implementations in S.Y.N.A.P.S.E. ENGINE. When in doubt, reference this guide.*

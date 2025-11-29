@@ -51,11 +51,11 @@ backoff = retry_delay_seconds  # 2s, 2s, 2s...
 
 ## Configuration Files
 
-**Main config**: `${PROJECT_DIR}/config/default.yaml`
+**Main config**: `${WORKSPACE_PATH}/MAGI/config/default.yaml`
 
-**Schema**: `${PROJECT_DIR}/backend/app/models/config.py`
+**Schema**: `${WORKSPACE_PATH}/MAGI/backend/app/models/config.py`
 
-**Client**: `${PROJECT_DIR}/backend/app/services/llama_client.py`
+**Client**: `${WORKSPACE_PATH}/MAGI/backend/app/services/llama_client.py`
 
 ## Monitoring
 

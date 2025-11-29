@@ -69,6 +69,14 @@ export const LiveEventFeed: React.FC = () => {
       cache: 'CACHE',
       error: 'ERROR',
       performance: 'PERF',
+      pipeline_stage_start: 'PIPE-START',
+      pipeline_stage_complete: 'PIPE-DONE',
+      pipeline_stage_failed: 'PIPE-FAIL',
+      pipeline_complete: 'COMPLETE',
+      pipeline_failed: 'FAILED',
+      topology_health_update: 'HEALTH',
+      topology_dataflow_update: 'FLOW',
+      log: 'LOG',
     };
     return typeMap[type] || type.toUpperCase();
   };
@@ -91,15 +99,15 @@ export const LiveEventFeed: React.FC = () => {
    */
   const getConnectionStatus = () => {
     if (connectionState === 'connected') {
-      return <span className={styles.statusConnected}>LIVE</span>;
+      return <span className={styles.statusConnected}>STATUS: LIVE</span>;
     } else if (connectionState === 'connecting') {
-      return <span className={styles.statusConnecting}>CONNECTING...</span>;
+      return <span className={styles.statusConnecting}>STATUS: CONNECTING</span>;
     } else if (connectionState === 'reconnecting') {
-      return <span className={styles.statusReconnecting}>RECONNECTING...</span>;
+      return <span className={styles.statusReconnecting}>STATUS: RECONNECTING</span>;
     } else {
       return (
         <span className={styles.statusDisconnected}>
-          DISCONNECTED
+          STATUS: DISCONNECTED
           <button
             onClick={reconnect}
             className={styles.reconnectButtonInline}

@@ -1,0 +1,282 @@
+/* ===================================================================
+   BottomNavBar Component - TUI-style double-border navigation
+   NERV Terminal Aesthetic with Phosphor Orange Theme
+
+   Reference: ASCII_MASTER_GUIDE.md
+   - Box-Drawing Double Line: ═ ║ ╔ ╗ ╚ ╝
+   - Primary Color: #ff9500 (phosphor orange)
+   - Accent Color: #00ffff (cyan)
+   - Animation: 2s breathing cycle
+   =================================================================== */
+
+.bottomNav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-sticky, 100);
+  background: var(--webtui-background, #000000);
+  font-family: var(--webtui-font-family, 'JetBrains Mono', 'IBM Plex Mono', 'Fira Code', monospace);
+  font-feature-settings: "liga" 0, "calt" 0;
+  font-kerning: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: geometricPrecision;
+
+  /* Performance optimizations matching AsciiPanel */
+  will-change: auto;
+  contain: layout style paint;
+}
+
+/* ===================================================================
+   Double-Border Frame (Box-Drawing Characters)
+   Uses panel-breathe animation from AsciiPanel.module.css pattern
+   =================================================================== */
+
+.borderTop,
+.borderBottom {
+  color: var(--webtui-primary, #ff9500);
+  font-size: 14px;
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: pre;
+  overflow: hidden;
+  text-overflow: clip;
+  animation: border-breathe 2s ease-in-out infinite;
+  text-shadow: 0 0 8px rgba(255, 149, 0, 0.6);
+}
+
+.borderTop {
+  padding-top: 2px;
+}
+
+.borderBottom {
+  padding-bottom: 2px;
+}
+
+.borderChar {
+  color: var(--webtui-primary, #ff9500);
+  font-size: 14px;
+  line-height: 1;
+  animation: border-breathe 2s ease-in-out infinite;
+  text-shadow: 0 0 8px rgba(255, 149, 0, 0.6);
+  flex-shrink: 0;
+}
+
+/* ===================================================================
+   Navigation Content Row
+   =================================================================== */
+
+.navContent {
+  display: flex;
+  align-items: center;
+  padding: 6px 0;
+  gap: 0;
+  min-height: 28px;
+}
+
+.navItems {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding-left: 8px;
+}
+
+/* ===================================================================
+   Navigation Items
+   =================================================================== */
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  color: rgba(255, 149, 0, 0.6);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: color 150ms ease, text-shadow 150ms ease;
+  white-space: nowrap;
+}
+
+.navItem:hover {
+  color: var(--webtui-primary, #ff9500);
+  text-shadow: 0 0 8px rgba(255, 149, 0, 0.5);
+}
+
+.navItem.active {
+  color: var(--webtui-primary, #ff9500);
+  text-shadow: 0 0 10px rgba(255, 149, 0, 0.7),
+               0 0 20px rgba(255, 149, 0, 0.4);
+  animation: phosphor-pulse-nav 2s ease-in-out infinite;
+}
+
+.shortcutKey {
+  color: var(--webtui-accent, #00ffff);
+  font-weight: 700;
+  font-size: 11px;
+  text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+}
+
+.navItem:hover .shortcutKey {
+  text-shadow: 0 0 8px rgba(0, 255, 255, 0.6);
+}
+
+.navItem.active .shortcutKey {
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+}
+
+.navLabel {
+  /* Inherits from parent */
+}
+
+/* ===================================================================
+   Separators (Single-line box character)
+   =================================================================== */
+
+.separator {
+  color: rgba(255, 149, 0, 0.35);
+  font-size: 14px;
+  padding: 0 2px;
+  user-select: none;
+}
+
+/* ===================================================================
+   Status Section (Right Side)
+   Displays: Model count, Uptime, Active queries
+   =================================================================== */
+
+.spacer {
+  flex: 1;
+}
+
+.statusSection {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding-right: 8px;
+}
+
+.statusItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 8px;
+  color: rgba(255, 149, 0, 0.7);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.statusIcon {
+  color: var(--webtui-accent, #00ffff);
+  font-size: 10px;
+  text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+}
+
+.statusValue {
+  font-variant-numeric: tabular-nums;
+  min-width: 32px;
+}
+
+/* ===================================================================
+   Animations - Matching AsciiPanel patterns
+   =================================================================== */
+
+@keyframes border-breathe {
+  0%, 100% {
+    color: var(--webtui-primary, #ff9500);
+    text-shadow: 0 0 8px rgba(255, 149, 0, 0.6);
+  }
+  50% {
+    color: rgba(255, 149, 0, 0.85);
+    text-shadow: 0 0 15px rgba(255, 149, 0, 0.8),
+                 0 0 20px rgba(255, 149, 0, 0.2);
+  }
+}
+
+@keyframes phosphor-pulse-nav {
+  0%, 100% {
+    text-shadow: 0 0 10px rgba(255, 149, 0, 0.7),
+                 0 0 20px rgba(255, 149, 0, 0.4);
+    opacity: 1;
+  }
+  50% {
+    text-shadow: 0 0 15px rgba(255, 149, 0, 0.9),
+                 0 0 25px rgba(255, 149, 0, 0.5),
+                 0 0 35px rgba(255, 149, 0, 0.3);
+    opacity: 0.95;
+  }
+}
+
+/* ===================================================================
+   Responsive Adjustments
+   =================================================================== */
+
+@media (max-width: 768px) {
+  .navItem {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  .shortcutKey {
+    font-size: 10px;
+  }
+
+  .statusSection {
+    display: none; /* Hide status on tablet/mobile */
+  }
+
+  .separator {
+    padding: 0 1px;
+  }
+}
+
+@media (max-width: 480px) {
+  .navLabel {
+    display: none; /* Show only shortcut keys on very small screens */
+  }
+
+  .navItem {
+    padding: 4px 6px;
+    gap: 0;
+  }
+
+  .shortcutKey {
+    font-size: 12px;
+  }
+
+  .navItems {
+    padding-left: 4px;
+  }
+}
+
+/* ===================================================================
+   Accessibility
+   =================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .borderTop,
+  .borderBottom,
+  .borderChar,
+  .navItem.active {
+    animation: none;
+  }
+}
+
+/* Focus states for keyboard navigation */
+.navItem:focus {
+  outline: 1px solid var(--webtui-accent, #00ffff);
+  outline-offset: 2px;
+}
+
+.navItem:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.navItem:focus-visible {
+  outline: 1px solid var(--webtui-accent, #00ffff);
+  outline-offset: 2px;
+}

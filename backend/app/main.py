@@ -8,6 +8,7 @@ This module initializes the FastAPI application, configures middleware,
 registers routers, and sets up application lifecycle events.
 """
 
+import logging
 import os
 import time
 from contextlib import asynccontextmanager
