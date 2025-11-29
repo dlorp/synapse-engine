@@ -8,7 +8,7 @@
 
 > Interlinked cognition — thought in motion.
 
-**Status:** Ready for Prod ✅ | Metal Acceleration ✅ | CGRAG Operational ✅ | Multi Mode Workflows ✅
+**Status:** v5.1 Prod Ready ✅ | TUI Navigation ✅ | Metal Acceleration ✅ | CGRAG Operational ✅
 
 > **New to S.Y.N.A.P.S.E. ENGINE?** Start with [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md) for a high-level understanding of the project, team structure, and development context.
 
@@ -31,7 +31,14 @@ All runtime messages traverse the **NEURAL SUBSTRATE ORCHESTRATOR** — the mess
 🖼️ **Advanced Visualizations** - Interactive processing pipelines (ProcessingPipelinePanel with React Flow), time-series metrics (AdvancedMetricsPanel with Chart.js), system topology diagrams (SystemArchitectureDiagram)
 🎛️ **Dashboard Features** - Context window allocation display (ContextWindowPanel), advanced metrics panels, real-time event streaming (WebSocket)
 
-### What's New in v5.0
+### What's New in v5.1
+
+**TUI Navigation Overhaul:**
+- ✅ **Bottom Navigation Bar** - NERV-style double-border navigation replacing sidebar
+- ✅ **Keyboard Navigation** - Press 1-5 to navigate between pages instantly
+- ✅ **Glyph Icons** - Terminal-aesthetic icons (⌘ ◧ ◈ ⚙ ◎) for each section
+- ✅ **Phosphor Orange Breathing** - Animated border with 2s breathing cycle
+- ✅ **Real-Time Status** - Models, uptime, and query count in navigation bar
 
 **Phase 4 Dashboard Features - Complete:**
 - ✅ **ProcessingPipelinePanel** - Interactive React Flow visualization of query processing stages
@@ -836,8 +843,8 @@ GPLv3
 
 ---
 
-**Last Updated:** November 12, 2025
-**Version:** 5.0 (Prod Ready - Phase 4 Dashboard Complete)
+**Last Updated:** November 29, 2025
+**Version:** 5.1 (TUI Navigation Overhaul - Bottom NavBar)
 **Project Name:** S.Y.N.A.P.S.E. ENGINE (Scalable Yoked Network for Adaptive Praxial System Emergence) ✅
 **Host API:** Automatic Metal Server Management ✅
 **CGRAG Status:** Prod Ready ✅

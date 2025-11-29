@@ -59,6 +59,13 @@ class AggregatorHandler(logging.Handler):
         self.aggregator = aggregator
         self.loop: Optional[asyncio.AbstractEventLoop] = None
 
+    # Loggers to exclude from aggregation to prevent infinite loops
+    # event_bus logs "Event published" which would create recursive loop
+    EXCLUDED_LOGGERS = frozenset([
+        'app.services.event_bus',
+        'app.services.log_aggregator',
+    ])
+
     def emit(self, record: logging.LogRecord) -> None:
         """Handle log record by sending to LogAggregator asynchronously.
 
@@ -73,6 +80,11 @@ class AggregatorHandler(logging.Handler):
         Args:
             record: LogRecord instance from Python's logging system
         """
+        # Skip excluded loggers to prevent infinite recursion
+        # (event_bus logs "Event published" which would loop back)
+        if record.name in self.EXCLUDED_LOGGERS:
+            return
+
         # Get or detect event loop
         if self.loop is None:
             try:

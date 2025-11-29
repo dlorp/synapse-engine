@@ -51,11 +51,11 @@ backoff = retry_delay_seconds  # 2s, 2s, 2s...
 
 ## Configuration Files
 
-**Main config**: `/Users/dperez/Documents/Programming/SYNAPSE_ENGINE/config/default.yaml`
+**Main config**: `/Users/dperez/Documents/Programming/MAGI/config/default.yaml`
 
-**Schema**: `/Users/dperez/Documents/Programming/SYNAPSE_ENGINE/backend/app/models/config.py`
+**Schema**: `/Users/dperez/Documents/Programming/MAGI/backend/app/models/config.py`
 
-**Client**: `/Users/dperez/Documents/Programming/SYNAPSE_ENGINE/backend/app/services/llama_client.py`
+**Client**: `/Users/dperez/Documents/Programming/MAGI/backend/app/services/llama_client.py`
 
 ## Monitoring
 
