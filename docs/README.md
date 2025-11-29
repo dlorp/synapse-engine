@@ -1,78 +1,80 @@
-# S.Y.N.A.P.S.E. ENGINE Documentation Index
+# S.Y.N.A.P.S.E. ENGINE Documentation
 
 This directory contains all project documentation organized by category.
 
+**Last Updated:** 2025-11-29
+
+---
+
 ## Directory Structure
 
-### 📖 `/architecture` - System Architecture & Planning
-High-level architecture documents, specifications, and planning materials.
+```
+docs/
+├── architecture/     # System design & infrastructure
+├── features/         # Feature specifications
+├── guides/           # How-to guides & quickstarts
+├── reference/        # Style guides & API docs (NEW)
+├── implementation/   # Active phase work (phase3, phase4)
+├── components/       # Component documentation
+├── fixes/            # Recent bug fix documentation
+├── development/      # Development setup & notes
+├── testing/          # Test documentation
+└── archive/          # Historical documentation
+    ├── session-history/
+    ├── implementation-plans/
+    ├── research/
+    ├── migration/
+    ├── phase-1/
+    └── components/
+```
 
-- `PROJECT_SPECfINAL.md` - Complete project specification
-- `PROJECT_STATUS.md` - Current project status and roadmap
-- `IMPLEMENTATION_PLAN.md` - Detailed implementation plan
-- `DOCKER_INFRASTRUCTURE.md` - Docker infrastructure architecture
+---
 
-### 🛠️ `/development` - Development Notes & Session Logs
-Development session notes, technical investigations, and environment setup.
+## Quick Navigation
 
-- `SESSION1_COMPLETE.md` - First development session summary
-- `SESSION2_COMPLETE.md` - Second development session summary
-- `SESSION_NOTES.md` - Ongoing session notes (created as needed)
-- `VITE_ENV_VARS.md` - Vite environment variables guide
-- `frontend-timeout-implementation.md` - Timeout implementation details
-- `TIMEOUT_FIX_SUMMARY.md` - Timeout fix summary
-- `TIMEOUT_QUICK_REFERENCE.md` - Timeout quick reference
+| Need | Location |
+|------|----------|
+| **Starting the project?** | [guides/DOCKER_QUICKSTART.md](./guides/DOCKER_QUICKSTART.md) |
+| **System architecture?** | [architecture/PROJECT_SPECfINAL.md](./architecture/PROJECT_SPECfINAL.md) |
+| **Query modes?** | [features/MODES.md](./features/MODES.md) |
+| **UI styling?** | [reference/WEBTUI_STYLE_GUIDE.md](./reference/WEBTUI_STYLE_GUIDE.md) |
+| **Docker commands?** | [guides/DOCKER_QUICK_REFERENCE.md](./guides/DOCKER_QUICK_REFERENCE.md) |
+| **Recent development?** | [../SESSION_NOTES.md](../SESSION_NOTES.md) |
 
-### 📋 `/implementation` - Feature Implementation Details
-Detailed implementation documentation for completed features and phases.
+---
 
-- `CGRAG_IMPLEMENTATION.md` - CGRAG system implementation
-- `INTEGRATION_COMPLETE.md` - Integration completion summary
-- `QUERY_UI_COMPLETE.md` - Query UI implementation
-- `RESPONSE_DISPLAY_IMPROVEMENTS.md` - Response display improvements
-- `ADMIN_PAGE_COMPLETE.md` - Admin page implementation
-- `MODEL_MANAGEMENT_UI_COMPLETE.md` - Model management UI
-- `PHASE_2_COMPLETE.md` - Phase 2 completion summary
-- `PHASE4_COMPLETE.md` - Phase 4 completion summary
-- `PHASE_5_*.md` - Phase 5 documentation (checklist, structure, implementation, summary)
-- `PHASE6_*.md` - Phase 6 documentation (Docker, integration, file manifest)
-- `MIGRATION_GUIDE_PHASE6.md` - Migration guide for Phase 6
+## Agent-Referenced Paths
 
-### 📚 `/guides` - Quick Reference Guides
-User-facing guides and quick reference materials.
+The following paths are referenced by Claude Code agents and must exist:
 
-- `ADMIN_QUICK_REFERENCE.md` - Admin panel quick reference
-- `DOCKER_QUICKSTART.md` - Docker quickstart guide
-- `DOCKER_QUICK_REFERENCE.md` - Docker quick reference
-- `PROFILE_QUICK_REFERENCE.md` - Profile system quick reference
-- `QUICK_START_MODEL_MANAGEMENT.md` - Model management quickstart
+- `docs/guides/DOCKER_QUICK_REFERENCE.md` - DevOps, WebSocket agents
+- `docs/features/MODES.md` - Query Mode, CGRAG agents
+- `docs/architecture/*` - Security agent
+
+---
 
 ## Root-Level Documentation
 
 Files that remain in the project root:
 
-- `/README.md` - Main project README
-- `/CLAUDE.md` - Claude Code project instructions
-- `/.env.example` - Environment variables example
-- `/docker-compose.yml` - Docker Compose configuration
-
-## Finding What You Need
-
-**Starting the project?**
-→ See `/guides/DOCKER_QUICKSTART.md`
-
-**Want to understand the architecture?**
-→ See `/architecture/PROJECT_SPECfINAL.md`
-
-**Looking for implementation details?**
-→ See `/implementation/*`
-
-**Need a quick reference?**
-→ See `/guides/*`
-
-**Reviewing development history?**
-→ See `/development/SESSION*.md`
+| File | Purpose |
+|------|---------|
+| `/README.md` | Main project README |
+| `/CLAUDE.md` | Claude Code project instructions |
+| `/SESSION_NOTES.md` | Development log (recent 2 weeks) |
+| `/PROJECT_OVERVIEW.md` | High-level architecture |
+| `/ASCII_MASTER_GUIDE.md` | Terminal aesthetic design guide |
 
 ---
 
-**Last Updated:** 2025-11-03
+## Adding New Documentation
+
+1. **Root** - Only essential files (max 5)
+2. **architecture/** - System design documents
+3. **features/** - Feature specifications
+4. **guides/** - How-to guides and quickstarts
+5. **reference/** - Style guides and API docs
+6. **implementation/** - Active phase work
+7. **archive/** - Historical and completed work
+
+See [INDEX.md](./INDEX.md) for detailed directory contents.
