@@ -6,14 +6,6 @@
  * - Dense information displays
  */
 
-/* ============================================
-   MODEL MANAGEMENT PAGE CONTAINER - ALLOWS NATURAL EXPANSION
-   ============================================
-   SCROLLING: overflow: visible allows content to
-   expand naturally. RootLayout .main handles all
-   vertical scrolling.
-   ============================================ */
-
 .page {
   display: flex;
   flex-direction: column;
@@ -21,10 +13,8 @@
   animation: fade-in var(--transition-base);
   /* Removed max-width to allow ASCII borders to extend to browser edges */
   width: 100%;
-  overflow: visible; /* CRITICAL: Allow natural expansion, .main handles scrolling */
   margin: 0;
   padding: 0; /* CRITICAL: No padding so ASCII frames can extend edge-to-edge */
-  box-sizing: border-box;
 }
 
 .sectionContent {

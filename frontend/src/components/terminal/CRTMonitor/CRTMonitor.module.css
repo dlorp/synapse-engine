@@ -13,18 +13,12 @@
 
 /* ============================================
    CONTAINER - Outer frame with phosphor glow
-   ============================================
-   SCROLLING: overflow: visible allows content to
-   expand naturally. RootLayout .main handles all
-   vertical scrolling. This container must NOT
-   have overflow: auto or it will create duplicate
-   scrollbars.
    ============================================ */
 
 .crtContainer {
   position: relative;
   background: var(--webtui-background, #000000);
-  overflow: visible; /* CRITICAL: Allow content to expand, .main handles scrolling */
+  overflow: hidden;
 
   /* GPU acceleration */
   transform: translateZ(0);
@@ -87,17 +81,12 @@
 
 /* ============================================
    SCREEN - Inner content area
-   ============================================
-   SCROLLING: No min-height constraint to prevent
-   circular height dependencies. Content sizes
-   naturally and .main handles scrolling.
    ============================================ */
 
 .crtScreen {
   position: relative;
   width: 100%;
-  /* REMOVED: min-height: 100% - causes circular dependency and scroll thrashing */
-  overflow: visible; /* CRITICAL: Allow content to expand, .main handles scrolling */
+  height: 100%;
   z-index: 2;
 
   /* Allow content to be interactive */
@@ -127,10 +116,6 @@
 
 /* ============================================
    VIGNETTE OVERLAY - Darkened corners
-   ============================================
-   CRITICAL FIX: Reduced opacity to prevent
-   opaque black overlay. Changed from 0.6 to 0.4
-   maximum darkness and expanded transparent zone.
    ============================================ */
 
 .vignetteOverlay {
@@ -142,42 +127,38 @@
   pointer-events: none;
   z-index: 5;
 
-  /* Radial gradient from transparent center to dark edges - REDUCED darkness */
+  /* Radial gradient from transparent center to dark edges */
   background: radial-gradient(
     circle at center,
-    transparent 50%,
-    rgba(0, 0, 0, 0.15) 75%,
-    rgba(0, 0, 0, 0.4) 100%
+    transparent 40%,
+    rgba(0, 0, 0, 0.3) 70%,
+    rgba(0, 0, 0, 0.6) 100%
   );
 
   /* GPU acceleration */
   transform: translateZ(0);
 }
 
-/* Stronger vignette for intense mode - REDUCED from 0.7 to 0.5 max darkness */
+/* Stronger vignette for intense mode */
 .crtContainer.intense .vignetteOverlay {
   background: radial-gradient(
     circle at center,
-    transparent 40%,
-    rgba(0, 0, 0, 0.25) 70%,
-    rgba(0, 0, 0, 0.5) 100%
+    transparent 30%,
+    rgba(0, 0, 0, 0.4) 60%,
+    rgba(0, 0, 0, 0.7) 100%
   );
 }
 
 /* ============================================
    BLOOM LAYER - Content glow bleeding effect
-   ============================================
-   CRITICAL FIX: Removed bottom: 0 to prevent
-   dark overlay. Layer now sizes to content
-   naturally instead of trying to fill parent.
    ============================================ */
 
 .bloomLayer {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  /* REMOVED: right: 0; bottom: 0 - causes dark overlay when parent height is ambiguous */
+  right: 0;
+  bottom: 0;
   pointer-events: none;
   z-index: 1;
 
