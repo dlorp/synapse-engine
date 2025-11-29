@@ -75,6 +75,22 @@ const TierCard: React.FC<TierCardProps> = React.memo(({
     return (rate * 100).toFixed(1);
   };
 
+  // Generate breathing bar chart for performance visualization
+  // Uses ASCII_MASTER_GUIDE.md pattern: █ for filled, ░ for empty
+  const generateBarChart = (value: number, maxValue: number = 100, width: number = 20): string => {
+    const filled = Math.floor((value / maxValue) * width);
+    const empty = width - filled;
+    return '█'.repeat(filled) + '░'.repeat(empty);
+  };
+
+  // Calculate current performance values
+  const currentTokens = tokensPerSec[tokensPerSec.length - 1] || 0;
+  const currentLatency = latencyMs[latencyMs.length - 1] || 0;
+
+  // Normalize values for bar charts (0-100 scale)
+  const tokensPercent = Math.min((currentTokens / 100) * 100, 100); // Assume max 100 tok/s
+  const latencyPercent = Math.min((currentLatency / 1000) * 100, 100); // Assume max 1000ms
+
   return (
     <div className={styles.tierCard}>
       <div className={styles.tierHeader} style={{ color: tierColor }}>
@@ -92,10 +108,27 @@ const TierCard: React.FC<TierCardProps> = React.memo(({
         </div>
       </div>
 
+      {/* Breathing bar graphs for performance metrics */}
+      <div className={styles.barCharts}>
+        <div className={styles.barChart}>
+          <div className={styles.barLabel}>Tokens/sec</div>
+          <pre className={styles.breathingBar}>
+            {generateBarChart(tokensPercent, 100, 30)} {currentTokens.toFixed(1)}
+          </pre>
+        </div>
+
+        <div className={styles.barChart}>
+          <div className={styles.barLabel}>Latency</div>
+          <pre className={styles.breathingBar}>
+            {generateBarChart(100 - latencyPercent, 100, 30)} {currentLatency.toFixed(0)}ms
+          </pre>
+        </div>
+      </div>
+
       <div className={styles.sparklines}>
         <AsciiSparkline
           data={tokensPerSec}
-          label="Tokens/sec"
+          label="Tokens/sec trend"
           unit=" tok/s"
           color="#ff9500"
           height={3}
@@ -104,7 +137,7 @@ const TierCard: React.FC<TierCardProps> = React.memo(({
 
         <AsciiSparkline
           data={latencyMs}
-          label="Latency"
+          label="Latency trend"
           unit="ms"
           color="#ff9500"
           height={3}

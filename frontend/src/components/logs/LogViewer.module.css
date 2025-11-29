@@ -13,6 +13,13 @@
   position: relative;
 }
 
+/* Container wrapper for proper scrollbar containment */
+.logViewerWrapper {
+  position: relative;
+  max-width: calc(100% - 20px); /* Pull away from right edge */
+  margin-right: 20px; /* Create space for main scrollbar */
+}
+
 .logContainer {
   max-height: 600px;
   overflow-y: auto;
@@ -20,29 +27,36 @@
   background: var(--bg-primary);
   border: 2px solid var(--border-primary);
   padding: 0.75rem;
+  padding-right: 1rem; /* Add extra right padding */
+  margin-right: 8px; /* Pull scrollbar away from edge */
   font-family: var(--font-mono);
   font-size: var(--text-sm);
   line-height: var(--leading-tight);
   position: relative;
+  /* Add subtle inset shadow for depth */
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
-/* Custom scrollbar for log container */
+/* Custom scrollbar for log container - visually distinct */
 .logContainer::-webkit-scrollbar {
-  width: 10px;
+  width: 8px; /* Slightly thinner than main scrollbar */
 }
 
 .logContainer::-webkit-scrollbar-track {
-  background: var(--bg-panel);
+  background: rgba(0, 0, 0, 0.8); /* Darker track for contrast */
   border-left: 1px solid var(--border-secondary);
+  border-right: 1px solid var(--border-secondary); /* Add right border */
 }
 
 .logContainer::-webkit-scrollbar-thumb {
   background: var(--border-secondary);
   border: 1px solid var(--border-primary);
+  opacity: 0.8; /* Slightly transparent */
 }
 
 .logContainer::-webkit-scrollbar-thumb:hover {
   background: var(--border-primary);
+  opacity: 1;
 }
 
 /* Empty state */
@@ -129,6 +143,12 @@
 @media (max-width: 1200px) {
   .logContainer {
     max-height: 500px;
+    margin-right: 12px; /* More space on tablets */
+  }
+
+  .logViewerWrapper {
+    max-width: calc(100% - 24px);
+    margin-right: 24px;
   }
 }
 
@@ -136,6 +156,12 @@
   .logContainer {
     max-height: 400px;
     padding: 0.5rem;
+    margin-right: 8px; /* Maintain spacing on mobile */
+  }
+
+  .logViewerWrapper {
+    max-width: calc(100% - 16px);
+    margin-right: 16px;
   }
 
   .scrollToBottom {
