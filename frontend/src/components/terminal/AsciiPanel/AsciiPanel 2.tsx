@@ -27,7 +27,7 @@ export const AsciiPanel: React.FC<AsciiPanelProps> = ({
           {titleRight ? (
             <>
               <span className={styles.asciiPanelTitle}>
-                {`${'─ ' + title + ' '}${'─'.repeat(200)}`}
+                {`${'─ ' + title + ' '}${'─'.repeat(50)}`}
               </span>
               <span className={styles.asciiPanelTitleRight}>
                 {titleRight}

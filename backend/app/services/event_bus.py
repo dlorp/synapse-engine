@@ -337,7 +337,8 @@ class EventBus:
 
         try:
             # Send historical events on connection
-            for event in self._event_history:
+            # Create a copy to prevent "deque mutated during iteration" error
+            for event in list(self._event_history):
                 if self._should_send_event(event, event_types, min_severity):
                     try:
                         await asyncio.wait_for(
@@ -406,7 +407,7 @@ class EventBus:
                             # Non-blocking put with timeout (drop slow clients)
                             await asyncio.wait_for(
                                 subscriber_queue.put(event),
-                                timeout=0.1  # 100ms max per subscriber
+                                timeout=1.0  # 1 second max per subscriber (increased from 100ms)
                             )
                         except asyncio.TimeoutError:
                             # Subscriber is too slow - mark for removal

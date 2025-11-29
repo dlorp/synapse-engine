@@ -17,28 +17,23 @@
    CONNECTION STATUS INDICATORS
    ============================================ */
 
+/* Status styles - Match OrchestratorStatusPanel pattern for visual consistency */
 .statusConnected {
-  color: var(--webtui-success);
-  font-size: var(--webtui-font-size-small);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  color: var(--status-success);
+  font-weight: var(--font-semibold);
   animation: phosphor-pulse 2s ease-in-out infinite;
 }
 
 .statusConnecting,
 .statusReconnecting {
-  color: var(--webtui-warning);
-  font-size: var(--webtui-font-size-small);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  color: var(--status-warning);
+  font-weight: var(--font-semibold);
   animation: phosphor-pulse 1s ease-in-out infinite;
 }
 
 .statusDisconnected {
-  color: var(--webtui-error);
-  font-size: var(--webtui-font-size-small);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+  font-weight: var(--font-semibold);
 }
 
 /* ============================================
@@ -137,8 +132,7 @@
   font-family: var(--webtui-font-family);
   font-size: var(--webtui-font-size-base);
   line-height: var(--webtui-line-height);
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow-y: auto; /* Enable vertical scrolling for internal content */
   max-height: 300px; /* ~8 events at 14px font + 8px padding */
   padding: var(--webtui-spacing-sm);
   background: rgba(0, 0, 0, 0.5);
@@ -280,6 +274,52 @@
 
 .performance .message {
   color: var(--webtui-warning);
+}
+
+/* Pipeline events - Cyan/Green/Red based on state */
+.pipeline-stage-start .type,
+.pipeline-stage-start .message {
+  color: var(--webtui-processing);
+}
+
+.pipeline-stage-complete .type,
+.pipeline-stage-complete .message {
+  color: var(--webtui-success);
+}
+
+.pipeline-stage-failed .type,
+.pipeline-stage-failed .message {
+  color: var(--webtui-error);
+}
+
+.pipeline-complete .type,
+.pipeline-complete .message {
+  color: var(--webtui-success);
+}
+
+.pipeline-failed .type,
+.pipeline-failed .message {
+  color: var(--webtui-error);
+}
+
+/* Topology events - Orange/Amber */
+.topology-health-update .type,
+.topology-health-update .message {
+  color: var(--webtui-primary);
+}
+
+.topology-dataflow-update .type,
+.topology-dataflow-update .message {
+  color: var(--webtui-processing);
+}
+
+/* Log events - Gray/Secondary */
+.log .type {
+  color: var(--webtui-text-secondary);
+}
+
+.log .message {
+  color: var(--webtui-text-primary);
 }
 
 /* ============================================

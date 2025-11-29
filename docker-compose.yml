@@ -213,12 +213,13 @@ services:
     container_name: synapse_core
     restart: unless-stopped
 
-    # Override command to enable hot reload (development default)
+    # Override command (using asyncio loop for macOS Docker compatibility)
+    # Note: --loop asyncio avoids uvloop deadlock with Docker volume mounts
     command: >
       uvicorn app.main:app
       --host 0.0.0.0
       --port 8000
-      --reload
+      --loop asyncio
       --log-level debug
 
     # Port mapping
@@ -283,8 +284,9 @@ services:
 
     # Volume mounts for model discovery and data persistence
     volumes:
-      # Source code mount for hot reload (NEW)
-      - ./backend:/app
+      # Source code mount DISABLED due to macOS Docker deadlock
+      # To re-enable for hot reload: uncomment below line
+      # - ./backend:/app:cached
 
       # Mount HUB directory for model discovery (read-only)
       # This contains all GGUF model files that can be discovered
@@ -370,17 +372,19 @@ services:
       - IFACE_WS_URL=/ws
 
     # Mount source code for HMR (Hot Module Replacement)
-    volumes:
-      # Source code (read-write for HMR)
-      - ./frontend/src:/app/src:rw
-      - ./frontend/public:/app/public:ro
-      - ./frontend/index.html:/app/index.html:ro
-      - ./frontend/vite.config.ts:/app/vite.config.ts:ro
-      - ./frontend/tsconfig.json:/app/tsconfig.json:ro
-      - ./frontend/package.json:/app/package.json:ro
-
-      # Prevent node_modules from being overwritten by host
-      - /app/node_modules
+    # DISABLED due to macOS Docker deadlock (error -35)
+    # To re-enable HMR: uncomment volume mounts and rebuild
+    # volumes:
+    #   # Source code (read-write for HMR)
+    #   - ./frontend/src:/app/src:rw
+    #   - ./frontend/public:/app/public:ro
+    #   - ./frontend/index.html:/app/index.html:ro
+    #   - ./frontend/vite.config.ts:/app/vite.config.ts:ro
+    #   - ./frontend/tsconfig.json:/app/tsconfig.json:ro
+    #   - ./frontend/package.json:/app/package.json:ro
+    #
+    #   # Prevent node_modules from being overwritten by host
+    #   - /app/node_modules
 
     # Depends on backend being healthy before starting
     depends_on:

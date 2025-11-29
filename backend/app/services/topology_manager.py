@@ -358,7 +358,7 @@ class TopologyManager:
         if old_status is None or old_status.status != metrics.status:
             try:
                 event_bus = get_event_bus()
-                await event_bus.emit(
+                await event_bus.publish_event(
                     SystemEvent(
                         timestamp=time.time(),
                         type=EventType.MODEL_STATE,
