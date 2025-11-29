@@ -8,24 +8,13 @@
   padding: 0;
 }
 
-/* ============================================
-   SCROLLING HIERARCHY - CRITICAL
-   ============================================
-   Only .main (RootLayout) should scroll.
-   html/body/root locked to 100vh to prevent
-   multiple scrollbars.
-   ============================================ */
-
 html {
-  height: 100vh;
-  overflow: hidden; /* Prevent html-level scrollbar */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  height: 100vh; /* Lock to viewport height exactly */
-  overflow: hidden; /* Prevent body-level scrollbar */
+  min-height: 100vh;
   line-height: 1.5;
   text-rendering: optimizeLegibility;
 }
@@ -73,7 +62,5 @@ ol {
 }
 
 #root {
-  height: 100vh; /* Fill body exactly */
-  overflow: hidden; /* Prevent root-level scrollbar */
   isolation: isolate;
 }
