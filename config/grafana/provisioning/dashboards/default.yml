@@ -1,0 +1,73 @@
+# =============================================================================
+# Grafana Dashboard Provisioning Configuration
+# =============================================================================
+# Automatically loads dashboards from JSON files
+# Dashboards placed in /var/lib/grafana/dashboards will be auto-imported
+# =============================================================================
+
+apiVersion: 1
+
+providers:
+  # CGRAG Performance Dashboards
+  - name: 'CGRAG Dashboards'
+    orgId: 1
+    folder: 'CGRAG'
+    type: file
+    disableDeletion: false
+    editable: true
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards/cgrag
+
+  # System Dashboards
+  - name: 'System Dashboards'
+    orgId: 1
+    folder: 'System'
+    type: file
+    disableDeletion: false
+    editable: true
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards/system
+
+  # Model Dashboards
+  - name: 'Model Dashboards'
+    orgId: 1
+    folder: 'Models'
+    type: file
+    disableDeletion: false
+    editable: true
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards/models
+
+# =============================================================================
+# Notes:
+# =============================================================================
+# 1. Dashboard Organization:
+#    - CGRAG: Retrieval metrics, cache performance, hybrid search
+#    - System: CPU, memory, disk, network
+#    - Models: Inference time, throughput, queue depth
+#
+# 2. File Locations:
+#    - Dashboard JSON files go in: ./config/grafana/dashboards/<folder>/
+#    - Mounted to container at: /var/lib/grafana/dashboards/<folder>/
+#
+# 3. Dashboard Management:
+#    - editable: true allows saving changes from UI
+#    - allowUiUpdates: true syncs changes back to JSON files
+#    - updateIntervalSeconds: 30 checks for file changes every 30s
+#
+# 4. Creating New Dashboards:
+#    - Option A: Create in UI, export JSON to dashboards folder
+#    - Option B: Copy/modify existing dashboard JSON
+#    - Option C: Use Grafana API to provision programmatically
+#
+# 5. Version Control:
+#    - Dashboard JSON files are git-tracked
+#    - Changes in UI can be exported and committed
+#    - Rollback: revert JSON file and restart Grafana
+# =============================================================================

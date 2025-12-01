@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../../api/client';
+import { CGRAGIndexer } from '../../components/admin';
 import styles from './AdminPage.module.css';
 
 interface HealthComponent {
@@ -567,6 +568,9 @@ ${'─'.repeat(150)}`;
             )}
           </div>
       </div>
+
+      {/* CGRAG Vector Index Management */}
+      <CGRAGIndexer />
 
       {/* API Testing */}
       <div className={styles.asciiPanel}>

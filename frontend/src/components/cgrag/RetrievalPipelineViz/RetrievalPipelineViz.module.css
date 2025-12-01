@@ -1,0 +1,295 @@
+/* RetrievalPipelineViz.module.css - Terminal-aesthetic pipeline visualization */
+
+.container {
+  background: #0a0a0a;
+  border: 2px solid #ff9500;
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', monospace;
+  padding: 12px;
+  box-shadow: 0 0 10px rgba(255, 149, 0, 0.2);
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #ff9500;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.title {
+  color: #ff9500;
+  font-weight: 600;
+  flex: 1;
+}
+
+.status {
+  font-size: 11px;
+}
+
+.statusRunning {
+  color: #00ffff;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.statusComplete {
+  color: #00ff00;
+}
+
+.statusError {
+  color: #ff0000;
+}
+
+.time {
+  color: #ffb84d;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Progress bar */
+.progressBar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 149, 0, 0.1);
+  border-radius: 2px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff9500, #00ffff);
+  transition: width 0.3s ease;
+  box-shadow: 0 0 8px rgba(255, 149, 0, 0.5);
+}
+
+/* Stage flow */
+.stageFlow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  overflow-x: auto;
+  padding: 8px 0;
+}
+
+/* Stage node */
+.stageNode {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px;
+  background: rgba(255, 149, 0, 0.05);
+  border: 1px solid rgba(255, 149, 0, 0.3);
+  border-radius: 4px;
+  min-width: 80px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.stageNode:hover {
+  background: rgba(255, 149, 0, 0.1);
+  border-color: rgba(255, 149, 0, 0.5);
+}
+
+/* Stage states */
+.stagePending {
+  opacity: 0.4;
+  border-color: rgba(255, 149, 0, 0.2);
+}
+
+.stageActive {
+  background: rgba(0, 255, 255, 0.1);
+  border-color: #00ffff;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+}
+
+.stageComplete {
+  background: rgba(0, 255, 0, 0.05);
+  border-color: rgba(0, 255, 0, 0.5);
+}
+
+.stageError {
+  background: rgba(255, 0, 0, 0.1);
+  border-color: #ff0000;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+}
+
+/* Stage content */
+.stageStatus {
+  font-size: 16px;
+  color: #ff9500;
+  line-height: 1;
+}
+
+.stageActive .stageStatus {
+  color: #00ffff;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.stageComplete .stageStatus {
+  color: #00ff00;
+}
+
+.stageError .stageStatus {
+  color: #ff0000;
+}
+
+.stageLabel {
+  font-size: 10px;
+  color: #ff9500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.stageActive .stageLabel {
+  color: #00ffff;
+}
+
+.candidateCount {
+  font-size: 14px;
+  color: #ffffff;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.stageTime {
+  font-size: 9px;
+  color: #ffb84d;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Active pulse animation */
+.activePulse {
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border: 2px solid #00ffff;
+  border-radius: 4px;
+  animation: pulseGlow 1.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+/* Connector arrow */
+.connector {
+  color: rgba(255, 149, 0, 0.3);
+  font-size: 16px;
+  flex-shrink: 0;
+  transition: color 0.3s ease;
+}
+
+.connectorActive {
+  color: #ff9500;
+}
+
+/* Stage detail panel */
+.stageDetail {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 8px;
+  background: rgba(0, 255, 255, 0.05);
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+.detailIcon {
+  font-size: 14px;
+}
+
+.detailLabel {
+  color: #00ffff;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detailStatus {
+  color: #ffffff;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.detailError {
+  color: #ff0000;
+  flex: 1;
+}
+
+/* Error tooltip */
+.errorTooltip {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 8px;
+  padding: 6px 8px;
+  background: rgba(255, 0, 0, 0.95);
+  color: #ffffff;
+  font-size: 10px;
+  border-radius: 4px;
+  white-space: nowrap;
+  z-index: 10;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.errorTooltip::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-bottom-color: rgba(255, 0, 0, 0.95);
+}
+
+/* Pulse animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .stageFlow {
+    overflow-x: scroll;
+  }
+
+  .stageNode {
+    min-width: 70px;
+    padding: 6px;
+  }
+
+  .stageLabel {
+    font-size: 9px;
+  }
+
+  .candidateCount {
+    font-size: 12px;
+  }
+}

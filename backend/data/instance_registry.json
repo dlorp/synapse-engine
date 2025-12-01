@@ -1,0 +1,21 @@
+{
+  "instances": {
+    "qwen3_4p0b_q4km_fast:02": {
+      "instanceId": "qwen3_4p0b_q4km_fast:02",
+      "modelId": "qwen3_4p0b_q4km_fast",
+      "instanceNumber": 2,
+      "displayName": "Research Assistant",
+      "systemPrompt": "You are a thorough research assistant. Provide detailed answers.",
+      "webSearchEnabled": true,
+      "port": 8101,
+      "status": "stopped",
+      "createdAt": "2025-11-30T04:48:10.228288Z",
+      "updatedAt": null
+    }
+  },
+  "portRange": [
+    8100,
+    8199
+  ],
+  "lastUpdated": "2025-12-01T01:25:22.926531Z"
+}

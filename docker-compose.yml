@@ -120,10 +120,9 @@ services:
       # Disable logging of search queries for privacy
       - SEARXNG_LOG_QUERIES=false
 
-    # Volume for custom settings (optional)
-    # volumes:
-      # If you want to customize SearXNG settings, uncomment and create:
-      # - ./config/searxng:/etc/searxng:ro
+    # Volume for custom settings - enables JSON API format
+    volumes:
+      - ./config/searxng/settings.yml:/etc/searxng/settings.yml:ro
 
     # Health check - verify SearXNG is responding
     healthcheck:
@@ -251,9 +250,9 @@ services:
       # Metal Acceleration (Apple Silicon)
       # Set to 'true' to connect to native Metal-accelerated llama-servers
       # running on macOS host instead of launching subprocess
-      - NEURAL_USE_EXTERNAL=${NEURAL_USE_EXTERNAL:-true}
+      - USE_EXTERNAL_SERVERS=${USE_EXTERNAL_SERVERS:-true}
       # Host API URL for managing Metal servers
-      - NEURAL_ORCH_URL=${NEURAL_ORCH_URL:-http://synapse_host_api:9090}
+      - HOST_API_URL=${HOST_API_URL:-http://synapse_host_api:9090}
 
       # MEMEX (Redis) configuration
       - MEMEX_HOST=synapse_redis
@@ -291,6 +290,10 @@ services:
       # Mount HUB directory for model discovery (read-only)
       # This contains all GGUF model files that can be discovered
       - ${PRAXIS_MODEL_PATH}/:/models:ro
+
+      # Mount workspace directory for Code Chat file operations
+      # This allows the Code Chat agent to browse and modify project files
+      - ${WORKSPACE_PATH}:/workspace:rw
 
       # NOTE: llama-server binary built into Docker image (Stage 2 of Dockerfile)
       # This solves the macOS/Linux binary incompatibility issue
@@ -343,6 +346,56 @@ services:
       options:
         max-size: "50m"
         max-file: "5"
+
+  # ---------------------------------------------------------------------------
+  # Python Sandbox - Isolated Code Execution for Code Chat
+  # ---------------------------------------------------------------------------
+  synapse_sandbox:
+    build:
+      context: ./sandbox
+      dockerfile: Dockerfile
+
+    container_name: synapse_sandbox
+    restart: unless-stopped
+
+    # Security: Run as non-root with minimal capabilities
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+
+    # Read-only filesystem with tmpfs for temp files
+    read_only: true
+    tmpfs:
+      - /tmp:size=64M,mode=1777
+
+    # Health check
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+    networks:
+      - synapse_net
+
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
 
   # ---------------------------------------------------------------------------
   # Frontend - Vite Development Server with HMR

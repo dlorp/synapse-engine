@@ -157,6 +157,8 @@ async def get_models_status(
     including health state, performance metrics, aggregate statistics,
     and per-model time-series metrics for sparkline visualization.
 
+    Also includes models from server_manager (dynamic/external Metal servers).
+
     Args:
         model_manager: ModelManager instance (injected)
         logger_dep: Logger instance (injected)
@@ -167,8 +169,34 @@ async def get_models_status(
     """
     logger_dep.debug("Models status requested")
 
-    # Get real status from ModelManager
+    # Get real status from ModelManager (legacy static models)
     system_status = await model_manager.get_status()
+
+    # Also include models from server_manager (dynamic/external Metal servers)
+    if server_manager and server_manager.servers:
+        from app.models.model import ModelStatus, ModelState
+
+        existing_ids = {m.id for m in system_status.models}
+
+        for model_id, server_proc in server_manager.servers.items():
+            if model_id not in existing_ids:
+                # Create ModelStatus for this dynamic server
+                dynamic_status = ModelStatus(
+                    id=model_id,
+                    name=server_proc.model.get_display_name(),
+                    tier=str(server_proc.model.get_effective_tier()),
+                    port=server_proc.port,
+                    state=ModelState.ACTIVE if server_proc.is_ready else ModelState.OFFLINE,
+                    memory_used=0,  # Not tracked for external servers
+                    memory_total=16384,  # Assume 16GB total
+                    request_count=0,
+                    avg_response_time=0.0,
+                    last_active=datetime.now(timezone.utc),
+                    error_count=0,
+                    uptime_seconds=server_proc.get_uptime_seconds()
+                )
+                system_status.models.append(dynamic_status)
+                logger_dep.debug(f"Added dynamic model to status: {model_id}")
 
     logger_dep.info(
         "Models status retrieved",

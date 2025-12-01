@@ -1,0 +1,226 @@
+/* RAGTriadDisplay.module.css - RAG quality triad metrics */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Overall status */
+.overall {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px;
+  background: rgba(0, 255, 255, 0.05);
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+.overallScore {
+  font-size: 32px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.overallLevel {
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex: 1;
+}
+
+.overallTrend {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Three metrics grid */
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+/* Metric card */
+.metricCard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(255, 149, 0, 0.3);
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.metricCard:hover {
+  background: rgba(255, 149, 0, 0.05);
+  border-color: rgba(255, 149, 0, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(255, 149, 0, 0.2);
+}
+
+.metricHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.metricLabel {
+  font-size: 10px;
+  color: #ff9500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.metricAvg {
+  font-size: 9px;
+  color: #ffb84d;
+  font-variant-numeric: tabular-nums;
+}
+
+.metricScore {
+  font-size: 28px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.metricLevel {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.metricTrend {
+  margin-top: 4px;
+}
+
+.metricBar {
+  height: 6px;
+  background: rgba(255, 149, 0, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.metricBarFill {
+  height: 100%;
+  transition: width 0.5s ease;
+  border-radius: 3px;
+}
+
+/* Quality level colors */
+.excellent {
+  color: #00ff00;
+}
+
+.excellent .metricBarFill {
+  background: linear-gradient(90deg, #00ff00, #00cc00);
+  box-shadow: 0 0 8px rgba(0, 255, 0, 0.5);
+}
+
+.good {
+  color: #00ffff;
+}
+
+.good .metricBarFill {
+  background: linear-gradient(90deg, #00ffff, #00cccc);
+  box-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
+}
+
+.fair {
+  color: #ffaa00;
+}
+
+.fair .metricBarFill {
+  background: linear-gradient(90deg, #ffaa00, #ff9500);
+  box-shadow: 0 0 8px rgba(255, 170, 0, 0.5);
+}
+
+.poor {
+  color: #ff0000;
+}
+
+.poor .metricBarFill {
+  background: linear-gradient(90deg, #ff0000, #cc0000);
+  box-shadow: 0 0 8px rgba(255, 0, 0, 0.5);
+}
+
+/* Trend colors */
+.trendImproving {
+  color: #00ff00;
+}
+
+.trendDeclining {
+  color: #ff0000;
+}
+
+.trendStable {
+  color: #ffaa00;
+}
+
+/* Explanation */
+.explanation {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 149, 0, 0.2);
+  border-radius: 4px;
+  font-size: 10px;
+}
+
+.explanationItem {
+  display: flex;
+  gap: 8px;
+}
+
+.explanationLabel {
+  color: #00ffff;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: 80px;
+}
+
+.explanationText {
+  color: #ffffff;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .overall {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 768px) {
+  .metricScore {
+    font-size: 24px;
+  }
+
+  .overallScore {
+    font-size: 28px;
+  }
+
+  .explanation {
+    font-size: 9px;
+  }
+
+  .explanationLabel {
+    min-width: 70px;
+  }
+}

@@ -1,0 +1,378 @@
+/**
+ * InstanceCard Styles - Terminal aesthetic with phosphor orange branding
+ * Matches ModelCard design patterns for consistency
+ */
+
+/* ============================================
+   INSTANCE CARD CONTAINER
+   ============================================ */
+
+.instanceCard {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(255, 149, 0, 0.3);
+  background: rgba(0, 0, 0, 0.4);
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', monospace;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.instanceCard:hover {
+  border-color: rgba(255, 149, 0, 0.5);
+  box-shadow: 0 0 10px rgba(255, 149, 0, 0.2);
+}
+
+.instanceCard[data-running="true"] {
+  border-color: #ff9500;
+  box-shadow: 0 0 15px rgba(255, 149, 0, 0.3);
+}
+
+.instanceCard[data-status="error"] {
+  border-color: #ff0000;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+}
+
+/* ============================================
+   HEADER ROW
+   ============================================ */
+
+.header {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid rgba(255, 149, 0, 0.15);
+}
+
+.displayName {
+  font-size: 0.9rem;
+  color: #ff9500;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 5px rgba(255, 149, 0, 0.5);
+}
+
+.instanceId {
+  padding: 0.15rem 0.5rem;
+  border: 1px solid rgba(255, 149, 0, 0.4);
+  background: rgba(255, 149, 0, 0.1);
+  font-size: 0.65rem;
+  color: rgba(255, 149, 0, 0.8);
+  letter-spacing: 0.03em;
+}
+
+.statusSection {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.statusDot {
+  font-size: 0.9rem;
+}
+
+.statusActive {
+  color: #00ff00;
+  animation: breathePulse 1.8s ease-in-out infinite;
+}
+
+.statusStarting,
+.statusStopping {
+  color: #ffff00;
+  animation: blink 0.5s ease-in-out infinite;
+}
+
+.statusStopped {
+  color: rgba(255, 149, 0, 0.3);
+}
+
+.statusError {
+  color: #ff0000;
+}
+
+.statusLabel {
+  color: rgba(255, 149, 0, 0.7);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ============================================
+   INFO ROW
+   ============================================ */
+
+.infoRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.75rem;
+  border-bottom: 1px solid rgba(255, 149, 0, 0.1);
+}
+
+.infoItem {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.infoLabel {
+  color: rgba(255, 149, 0, 0.6);
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.65rem;
+}
+
+.infoValue {
+  color: #ff9500;
+  font-weight: 600;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.infoDivider {
+  color: rgba(255, 149, 0, 0.3);
+}
+
+.webSearchBadge {
+  padding: 0.1rem 0.4rem;
+  border: 1px solid #00ffff;
+  background: rgba(0, 255, 255, 0.1);
+  color: #00ffff;
+  font-size: 0.6rem;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+}
+
+/* ============================================
+   ACTIONS ROW
+   ============================================ */
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem;
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid rgba(255, 149, 0, 0.3);
+  background: rgba(255, 149, 0, 0.05);
+  color: #ff9500;
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 1;
+}
+
+.actionButton:hover:not(:disabled) {
+  background: rgba(255, 149, 0, 0.15);
+  border-color: #ff9500;
+  box-shadow: 0 0 8px rgba(255, 149, 0, 0.3);
+}
+
+.actionButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.buttonIcon {
+  font-size: 0.9rem;
+}
+
+.buttonLabel {
+  font-size: 0.65rem;
+  font-weight: 600;
+}
+
+/* Details Button */
+.detailsButton {
+  flex: 0.8;
+}
+
+/* Start Button */
+.startButton {
+  border-color: #00ff00;
+  color: #00ff00;
+}
+
+.startButton:hover:not(:disabled) {
+  background: rgba(0, 255, 0, 0.15);
+  border-color: #00ff00;
+  box-shadow: 0 0 8px rgba(0, 255, 0, 0.4);
+}
+
+/* Stop Button */
+.stopButton {
+  border-color: #ff9500;
+  color: #ff9500;
+  animation: breathePulse 1.8s ease-in-out infinite;
+}
+
+.stopButton:hover:not(:disabled) {
+  background: rgba(255, 149, 0, 0.2);
+  border-color: #ff9500;
+  box-shadow: 0 0 8px rgba(255, 149, 0, 0.6);
+}
+
+/* Edit Button */
+.editButton {
+  border-color: #00ffff;
+  color: #00ffff;
+  flex: 0.7;
+}
+
+.editButton:hover:not(:disabled) {
+  background: rgba(0, 255, 255, 0.15);
+  border-color: #00ffff;
+  box-shadow: 0 0 8px rgba(0, 255, 255, 0.4);
+}
+
+/* Delete Button */
+.deleteButton {
+  border-color: rgba(255, 0, 0, 0.4);
+  color: rgba(255, 0, 0, 0.7);
+  flex: 0.7;
+}
+
+.deleteButton:hover:not(:disabled) {
+  background: rgba(255, 0, 0, 0.1);
+  border-color: #ff0000;
+  color: #ff0000;
+  box-shadow: 0 0 8px rgba(255, 0, 0, 0.4);
+}
+
+/* Confirm Delete Button */
+.confirmDeleteButton {
+  border-color: #ff0000;
+  background: rgba(255, 0, 0, 0.2);
+  color: #ff0000;
+  animation: blink 0.3s ease-in-out infinite;
+  flex: 0.7;
+}
+
+/* ============================================
+   DETAILS SECTION
+   ============================================ */
+
+.detailsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-top: 1px solid rgba(255, 149, 0, 0.15);
+  background: rgba(0, 0, 0, 0.2);
+  animation: slideDown 0.2s ease-out;
+}
+
+.detailGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.detailLabel {
+  color: rgba(255, 149, 0, 0.6);
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.65rem;
+}
+
+.detailValue {
+  color: #ff9500;
+  font-size: 0.75rem;
+}
+
+.systemPromptPreview {
+  color: rgba(255, 149, 0, 0.8);
+  font-size: 0.75rem;
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 149, 0, 0.2);
+  max-height: 80px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 300px;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+}
+
+@keyframes breathePulse {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+  .header {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .instanceId,
+  .statusSection {
+    justify-self: start;
+  }
+
+  .infoRow {
+    flex-wrap: wrap;
+  }
+
+  .actions {
+    flex-wrap: wrap;
+  }
+
+  .actionButton {
+    flex: 1 1 45%;
+  }
+}

@@ -81,6 +81,12 @@ class QueryRequest(BaseModel):
         description="Sampling temperature for generation"
     )
 
+    preset_id: Optional[str] = Field(
+        default=None,
+        alias="presetId",
+        description="Preset ID for system prompt (e.g., 'SYNAPSE_ANALYST')"
+    )
+
     # Council mode configuration
     council_adversarial: bool = Field(
         default=False,
@@ -166,11 +172,24 @@ class QueryRequest(BaseModel):
         description="Specific model ID for CON position in debate mode (optional, requires councilProModel)"
     )
 
+    council_preset_overrides: Optional[Dict[str, str]] = Field(
+        default=None,
+        alias="councilPresetOverrides",
+        description="Per-participant preset overrides for council mode. Key is participant role (pro/con/moderator), value is preset ID."
+    )
+
     # Benchmark mode configuration
     benchmark_serial: bool = Field(
         default=False,
         alias="benchmarkSerial",
         description="Execute models sequentially (vs parallel) to conserve VRAM"
+    )
+
+    # Multi-instance model support
+    instance_id: Optional[str] = Field(
+        default=None,
+        alias="instanceId",
+        description="Specific instance ID to use for this query (e.g., 'model_id:01'). If specified, uses the instance's system prompt and web search settings."
     )
 
     model_config = ConfigDict(

@@ -1,0 +1,322 @@
+/**
+ * CreateInstanceModal Styles - Terminal aesthetic modal
+ * Follows CreateContextModal patterns for consistency
+ */
+
+/* ============================================
+   MODAL OVERLAY
+   ============================================ */
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ============================================
+   MODAL CONTAINER
+   ============================================ */
+
+.modal {
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideUp 0.2s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   FORM
+   ============================================ */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 0.5rem;
+}
+
+/* ============================================
+   FORM GROUP
+   ============================================ */
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: rgba(255, 149, 0, 0.8);
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.required {
+  color: #ff0000;
+  margin-left: 0.25rem;
+}
+
+.charCount {
+  font-size: 0.65rem;
+  font-weight: normal;
+  color: rgba(255, 149, 0, 0.5);
+}
+
+/* ============================================
+   INPUT / SELECT / TEXTAREA
+   ============================================ */
+
+.input,
+.select,
+.textarea {
+  padding: 0.75rem;
+  border: 1px solid rgba(255, 149, 0, 0.3);
+  background: rgba(0, 0, 0, 0.4);
+  color: #ff9500;
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', monospace;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  outline: none;
+  border-color: #ff9500;
+  box-shadow: 0 0 10px rgba(255, 149, 0, 0.3);
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: rgba(255, 149, 0, 0.4);
+}
+
+.select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ff9500' d='M2 4l4 4 4-4z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2.5rem;
+}
+
+.select option {
+  background: #000;
+  color: #ff9500;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.inputError {
+  border-color: #ff0000;
+}
+
+.inputError:focus {
+  border-color: #ff0000;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+}
+
+/* ============================================
+   CHECKBOX
+   ============================================ */
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+
+.checkbox {
+  appearance: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 1px solid rgba(255, 149, 0, 0.5);
+  background: rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.checkbox:checked {
+  border-color: #00ffff;
+  background: rgba(0, 255, 255, 0.2);
+}
+
+.checkbox:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #00ffff;
+  font-size: 0.9rem;
+}
+
+.checkbox:focus {
+  outline: none;
+  box-shadow: 0 0 8px rgba(255, 149, 0, 0.4);
+}
+
+.checkboxText {
+  color: rgba(255, 149, 0, 0.8);
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ============================================
+   HELPER TEXT
+   ============================================ */
+
+.hintText {
+  color: rgba(255, 149, 0, 0.5);
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+}
+
+/* Read-only value (for edit modal) */
+.readOnlyValue {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid rgba(255, 149, 0, 0.2);
+  background: rgba(0, 0, 0, 0.3);
+  color: rgba(255, 149, 0, 0.7);
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', monospace;
+  font-size: 0.85rem;
+}
+
+.errorText {
+  color: #ff0000;
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+}
+
+/* ============================================
+   BANNERS
+   ============================================ */
+
+.errorBanner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid #ff0000;
+  background: rgba(255, 0, 0, 0.1);
+}
+
+.errorIcon {
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ff0000;
+  color: #ff0000;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.errorMessage {
+  color: #ff0000;
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+}
+
+.successBanner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid #00ff00;
+  background: rgba(0, 255, 0, 0.1);
+}
+
+.successIcon {
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #00ff00;
+  color: #00ff00;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.successMessage {
+  color: #00ff00;
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+}
+
+/* ============================================
+   ACTIONS
+   ============================================ */
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 149, 0, 0.2);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 600px) {
+  .modal {
+    width: 95%;
+    max-height: 95vh;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .actions button {
+    width: 100%;
+  }
+}

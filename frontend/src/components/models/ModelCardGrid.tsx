@@ -14,6 +14,7 @@ import React, { useMemo } from 'react';
 import { ModelCard } from './ModelCard';
 import type { DiscoveredModel } from '@/types/models';
 import type { ModelMetrics } from '@/hooks/useModelMetrics';
+import type { InstanceConfig, CreateInstanceRequest } from '@/types/instances';
 import styles from './ModelCardGrid.module.css';
 
 export interface ModelCardGridProps {
@@ -21,11 +22,17 @@ export interface ModelCardGridProps {
   expandedSettings: Record<string, boolean>;
   modelMetrics?: Record<string, ModelMetrics>;
   runningModels?: Set<string>;
+  instancesByModel?: Record<string, InstanceConfig[]>;
   onToggleSettings: (modelId: string) => void;
   onToggleEnable?: (modelId: string, enabled: boolean) => void;
   onStartModel?: (modelId: string) => void;
   onStopModel?: (modelId: string) => void;
   onRestartModel?: (modelId: string) => void;
+  onCreateInstance?: (modelId: string, config: CreateInstanceRequest) => Promise<void>;
+  onEditInstance?: (instanceId: string) => void;
+  onDeleteInstance?: (instanceId: string) => Promise<void>;
+  onStartInstance?: (instanceId: string) => Promise<void>;
+  onStopInstance?: (instanceId: string) => Promise<void>;
   renderSettingsPanel: (model: DiscoveredModel) => React.ReactNode;
 }
 
@@ -34,11 +41,17 @@ export const ModelCardGrid: React.FC<ModelCardGridProps> = ({
   expandedSettings,
   modelMetrics = {},
   runningModels = new Set(),
+  instancesByModel = {},
   onToggleSettings,
   onToggleEnable,
   onStartModel,
   onStopModel,
   onRestartModel,
+  onCreateInstance,
+  onEditInstance,
+  onDeleteInstance,
+  onStartInstance,
+  onStopInstance,
   renderSettingsPanel
 }) => {
   // Convert models object to sorted array
@@ -82,11 +95,14 @@ export const ModelCardGrid: React.FC<ModelCardGridProps> = ({
           metrics={modelMetrics[model.modelId]}
           isRunning={runningModels.has(model.modelId)}
           isExpanded={expandedSettings[model.modelId]}
+          instances={instancesByModel[model.modelId] || []}
           onToggleSettings={onToggleSettings}
           onToggleEnable={onToggleEnable}
-          onStart={onStartModel}
-          onStop={onStopModel}
-          onRestart={onRestartModel}
+          onCreateInstance={onCreateInstance}
+          onEditInstance={onEditInstance}
+          onDeleteInstance={onDeleteInstance}
+          onStartInstance={onStartInstance}
+          onStopInstance={onStopInstance}
           renderSettingsPanel={renderSettingsPanel}
         />
       ))}

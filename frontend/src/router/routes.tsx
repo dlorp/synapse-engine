@@ -5,6 +5,7 @@ import { ModelManagementPage } from '@/pages/ModelManagementPage';
 import { MetricsPage } from '@/pages/MetricsPage';
 import { SettingsPage } from '@/pages/SettingsPage';
 import { AdminPage } from '@/pages/AdminPage/AdminPage';
+import { CodeChatPage } from '@/pages/CodeChatPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 import WebTUITest from '@/examples/WebTUITest';
 import { CSSTestPage } from '@/pages/CSSTestPage';
@@ -41,6 +42,10 @@ export const router = createBrowserRouter([
       {
         path: 'admin',
         element: <AdminPage />,
+      },
+      {
+        path: 'code-chat',
+        element: <CodeChatPage />,
       },
       {
         path: 'webtui-test',

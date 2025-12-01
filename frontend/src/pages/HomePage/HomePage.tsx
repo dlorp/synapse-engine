@@ -48,6 +48,7 @@ export const HomePage: React.FC = () => {
   const [currentQueryMode, setCurrentQueryMode] = useState<QueryMode>('two-stage');
   const [queryMode, setQueryMode] = useState<QueryMode>('two-stage');
   const [modeConfig, setModeConfig] = useState<ModeConfig>({});
+  const [selectedPreset, setSelectedPreset] = useState('SYNAPSE_ANALYST');
   const { data: modelStatus } = useModelStatus();
   const queryMutation = useQuerySubmit();
 
@@ -60,6 +61,12 @@ export const HomePage: React.FC = () => {
   const dotMatrixEffects = useMemo(() => ['pulsate' as const], []);
 
   const handleQuerySubmit = (query: string, options: any) => {
+    // CRITICAL: Clear previous response to prevent showing stale data
+    setLatestResponse(null);
+
+    // Debug logging for response investigation
+    console.log('[HomePage] Submitting query:', query.substring(0, 100));
+
     // Track the query mode for timer expected time display
     setCurrentQueryMode(queryMode);
 
@@ -90,10 +97,13 @@ export const HomePage: React.FC = () => {
       },
       {
         onSuccess: (data) => {
+          // Debug logging for response investigation
+          console.log('[HomePage] Response received for query:', data.query?.substring(0, 50));
+          console.log('[HomePage] Response preview:', data.response?.substring(0, 100));
           setLatestResponse(data);
         },
         onError: (error: any) => {
-          console.error('Query failed:', error);
+          console.error('[HomePage] Query failed:', error);
           // TODO: Implement toast notification system
         },
       }
@@ -156,6 +166,7 @@ export const HomePage: React.FC = () => {
               <ModeSelector
                 currentMode={queryMode}
                 onModeChange={handleModeChange}
+                queryPreset={selectedPreset}
               />
               <QueryInput
                 onSubmit={handleQuerySubmit}
@@ -190,7 +201,7 @@ export const HomePage: React.FC = () => {
             </Panel>
           )}
 
-          <ResponseDisplay response={latestResponse} />
+          {latestResponse && <ResponseDisplay response={latestResponse} />}
           </div>
         </div>
 

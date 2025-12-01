@@ -16,7 +16,16 @@ import {
   useUpdateModelRuntimeSettings,
   useExternalServerStatus,
 } from '@/hooks/useModelManagement';
+import {
+  useInstanceList,
+  useCreateInstance,
+  useDeleteInstance,
+  useStartInstance,
+  useStopInstance,
+} from '@/hooks/useInstances';
 import type { RuntimeSettingsUpdateRequest } from '@/types/models';
+import type { InstanceConfig } from '@/types/instances';
+import { EditInstanceModal } from '@/components/instances/EditInstanceModal';
 import styles from './ModelManagementPage.module.css';
 
 /**
@@ -47,12 +56,20 @@ export const ModelManagementPage: React.FC = () => {
   const updatePortMutation = useUpdateModelPort();
   const updateSettingsMutation = useUpdateModelRuntimeSettings();
 
+  // Instance management
+  const { data: instanceList } = useInstanceList();
+  const createInstanceMutation = useCreateInstance();
+  const deleteInstanceMutation = useDeleteInstance();
+  const startInstanceMutation = useStartInstance();
+  const stopInstanceMutation = useStopInstance();
+
   const [isRescanning, setIsRescanning] = useState(false);
   const [isStartingAll, setIsStartingAll] = useState(false);
   const [isStoppingAll, setIsStoppingAll] = useState(false);
   const [operationError, setOperationError] = useState<string | null>(null);
   const [operationSuccess, setOperationSuccess] = useState<string | null>(null);
   const [expandedSettings, setExpandedSettings] = useState<Record<string, boolean>>({});
+  const [editingInstance, setEditingInstance] = useState<InstanceConfig | null>(null);
 
   // Phase 3: Calculate running model IDs set for ModelCardGrid
   // IMPORTANT: This useMemo MUST be called before early returns to maintain consistent hook order
@@ -65,6 +82,20 @@ export const ModelManagementPage: React.FC = () => {
     });
     return ids;
   }, [serverStatus]);
+
+  // Group instances by model ID
+  const instancesByModel = React.useMemo(() => {
+    const map: Record<string, InstanceConfig[]> = {};
+
+    instanceList?.instances.forEach((instance) => {
+      if (!map[instance.modelId]) {
+        map[instance.modelId] = [];
+      }
+      map[instance.modelId].push(instance);
+    });
+
+    return map;
+  }, [instanceList]);
 
   /**
    * Trigger a re-scan of the HUB directory for new models
@@ -217,6 +248,72 @@ export const ModelManagementPage: React.FC = () => {
       }
     },
     [updateSettingsMutation]
+  );
+
+  // Instance handlers
+  const handleCreateInstance = useCallback(
+    async (modelId: string, config: import('@/types/instances').CreateInstanceRequest) => {
+      try {
+        await createInstanceMutation.mutateAsync(config);
+        setOperationSuccess('Instance created successfully');
+        setTimeout(() => setOperationSuccess(null), 3000);
+      } catch (err) {
+        setOperationError(err instanceof Error ? err.message : 'Failed to create instance');
+      }
+    },
+    [createInstanceMutation]
+  );
+
+  const handleDeleteInstance = useCallback(
+    async (instanceId: string) => {
+      try {
+        await deleteInstanceMutation.mutateAsync(instanceId);
+        setOperationSuccess('Instance deleted successfully');
+        setTimeout(() => setOperationSuccess(null), 3000);
+      } catch (err) {
+        setOperationError(err instanceof Error ? err.message : 'Failed to delete instance');
+      }
+    },
+    [deleteInstanceMutation]
+  );
+
+  const handleStartInstance = useCallback(
+    async (instanceId: string) => {
+      try {
+        await startInstanceMutation.mutateAsync(instanceId);
+        setOperationSuccess('Instance started successfully');
+        setTimeout(() => setOperationSuccess(null), 3000);
+      } catch (err) {
+        setOperationError(err instanceof Error ? err.message : 'Failed to start instance');
+      }
+    },
+    [startInstanceMutation]
+  );
+
+  const handleStopInstance = useCallback(
+    async (instanceId: string) => {
+      try {
+        await stopInstanceMutation.mutateAsync(instanceId);
+        setOperationSuccess('Instance stopped successfully');
+        setTimeout(() => setOperationSuccess(null), 3000);
+      } catch (err) {
+        setOperationError(err instanceof Error ? err.message : 'Failed to stop instance');
+      }
+    },
+    [stopInstanceMutation]
+  );
+
+  const handleEditInstance = useCallback(
+    (instanceId: string) => {
+      // Find the instance from the list and open edit modal
+      const instance = instanceList?.instances.find(i => i.instanceId === instanceId);
+      if (instance) {
+        setEditingInstance(instance);
+      } else {
+        setOperationError('Instance not found');
+      }
+    },
+    [instanceList]
   );
 
   /**
@@ -779,11 +876,17 @@ export const ModelManagementPage: React.FC = () => {
             expandedSettings={expandedSettings}
             modelMetrics={modelMetrics}
             runningModels={runningModelIds}
+            instancesByModel={instancesByModel}
             onToggleSettings={handleToggleSettings}
             onToggleEnable={handleToggleEnable}
             onStartModel={handleStartModel}
             onStopModel={handleStopModel}
             onRestartModel={handleRestartModel}
+            onCreateInstance={handleCreateInstance}
+            onEditInstance={handleEditInstance}
+            onDeleteInstance={handleDeleteInstance}
+            onStartInstance={handleStartInstance}
+            onStopInstance={handleStopInstance}
             renderSettingsPanel={(model) => {
               // Check if this model's server is running
               const serverInfo = serverStatus?.servers.find((s) => s.modelId === model.modelId);
@@ -818,6 +921,16 @@ export const ModelManagementPage: React.FC = () => {
         modelIds={Object.keys(registry.models)}
         maxLines={500}
       />
+
+      {/* Edit Instance Modal */}
+      {editingInstance && (
+        <EditInstanceModal
+          instance={editingInstance}
+          modelDisplayName={registry?.models[editingInstance.modelId]?.filename}
+          onClose={() => setEditingInstance(null)}
+          onSuccess={() => setEditingInstance(null)}
+        />
+      )}
     </div>
   );
 };

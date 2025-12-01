@@ -1,0 +1,333 @@
+# =============================================================================
+# CGRAG Alert Rules - S.Y.N.A.P.S.E. ENGINE
+# =============================================================================
+# Alert rules for CGRAG performance anomalies and degradation
+#
+# Alert Severity Levels:
+# - critical: Immediate action required (service degradation)
+# - warning: Attention needed (performance degradation)
+# - info: Informational (trends and patterns)
+#
+# Alert Channels:
+# - Email: critical alerts
+# - Slack: warning alerts
+# - Logs: info alerts
+# =============================================================================
+
+groups:
+  - name: cgrag_performance
+    interval: 30s
+    rules:
+      # -----------------------------------------------------------------------
+      # Retrieval Latency Alerts
+      # -----------------------------------------------------------------------
+      - alert: CGRAGRetrievalLatencyHigh
+        expr: |
+          histogram_quantile(0.95,
+            rate(cgrag_retrieval_latency_seconds_bucket[5m])
+          ) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+          component: cgrag
+          metric: retrieval_latency
+        annotations:
+          summary: "CGRAG retrieval latency exceeds 100ms (p95)"
+          description: |
+            95th percentile retrieval latency is {{ $value | humanizeDuration }}.
+            Target: <100ms
+            Current: {{ $value | humanizeDuration }}
+            This may indicate:
+            - High index fragmentation
+            - Slow disk I/O
+            - Inefficient query embeddings
+            - Reranker model overload
+
+      - alert: CGRAGRetrievalLatencyCritical
+        expr: |
+          histogram_quantile(0.95,
+            rate(cgrag_retrieval_latency_seconds_bucket[5m])
+          ) > 0.2
+        for: 1m
+        labels:
+          severity: critical
+          component: cgrag
+          metric: retrieval_latency
+        annotations:
+          summary: "CGRAG retrieval latency critically high (>200ms p95)"
+          description: |
+            95th percentile retrieval latency is {{ $value | humanizeDuration }}.
+            Target: <100ms
+            Current: {{ $value | humanizeDuration }}
+            IMMEDIATE ACTION REQUIRED:
+            1. Check FAISS/Qdrant health
+            2. Verify reranker model availability
+            3. Review disk I/O metrics
+            4. Consider index optimization
+
+      # -----------------------------------------------------------------------
+      # Cache Performance Alerts
+      # -----------------------------------------------------------------------
+      - alert: CGRAGCacheHitRateLow
+        expr: |
+          (
+            rate(cgrag_cache_hit_total[5m]) /
+            (rate(cgrag_cache_hit_total[5m]) + rate(cgrag_cache_miss_total[5m]))
+          ) < 0.7
+        for: 5m
+        labels:
+          severity: warning
+          component: cgrag
+          metric: cache_hit_rate
+        annotations:
+          summary: "CGRAG cache hit rate below 70%"
+          description: |
+            Cache hit rate is {{ $value | humanizePercentage }}.
+            Target: >70%
+            Current: {{ $value | humanizePercentage }}
+            Possible causes:
+            - Cache TTL too short
+            - High query diversity
+            - Insufficient cache memory
+            - Cache key generation issues
+            Recommendation: Review cache configuration and increase Redis memory
+
+      - alert: CGRAGCacheDisabled
+        expr: |
+          (
+            rate(cgrag_cache_hit_total[5m]) +
+            rate(cgrag_cache_miss_total[5m])
+          ) == 0
+        for: 2m
+        labels:
+          severity: warning
+          component: cgrag
+          metric: cache_availability
+        annotations:
+          summary: "CGRAG cache appears disabled or unreachable"
+          description: |
+            No cache operations detected for 2 minutes.
+            This significantly impacts performance.
+            Check:
+            1. Redis connectivity
+            2. CGRAG cache configuration (RECALL_EMBEDDING_CACHE)
+            3. Backend logs for cache errors
+
+      # -----------------------------------------------------------------------
+      # Embedding Generation Alerts
+      # -----------------------------------------------------------------------
+      - alert: CGRAGEmbeddingGenerationSlow
+        expr: |
+          histogram_quantile(0.95,
+            rate(cgrag_embedding_generation_seconds_bucket[5m])
+          ) > 0.05
+        for: 3m
+        labels:
+          severity: warning
+          component: cgrag
+          metric: embedding_generation
+        annotations:
+          summary: "CGRAG embedding generation slow (>50ms p95)"
+          description: |
+            95th percentile embedding generation time: {{ $value | humanizeDuration }}.
+            Target: <50ms
+            Current: {{ $value | humanizeDuration }}
+            Possible causes:
+            - CPU resource contention
+            - Large batch sizes
+            - Model not loaded in memory
+            Consider:
+            - Increasing CPU allocation
+            - Using GPU acceleration
+            - Reducing batch size
+
+      # -----------------------------------------------------------------------
+      # Hybrid Search Alerts
+      # -----------------------------------------------------------------------
+      - alert: CGRAGHybridSearchImbalance
+        expr: |
+          abs(
+            rate(cgrag_hybrid_vector_search_seconds[5m]) -
+            rate(cgrag_hybrid_bm25_search_seconds[5m])
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: info
+          component: cgrag
+          metric: hybrid_search
+        annotations:
+          summary: "CGRAG hybrid search components imbalanced"
+          description: |
+            Vector search and BM25 search times are significantly different.
+            Vector: {{ with query "rate(cgrag_hybrid_vector_search_seconds[5m])" }}{{ . | first | value | humanizeDuration }}{{ end }}
+            BM25: {{ with query "rate(cgrag_hybrid_bm25_search_seconds[5m])" }}{{ . | first | value | humanizeDuration }}{{ end }}
+            This may indicate:
+            - One search method is bottleneck
+            - Inefficient fusion algorithm
+            - Index optimization needed
+
+      # -----------------------------------------------------------------------
+      # Reranker Alerts
+      # -----------------------------------------------------------------------
+      - alert: CGRAGRerankerLatencyHigh
+        expr: |
+          histogram_quantile(0.95,
+            rate(cgrag_reranker_latency_seconds_bucket[5m])
+          ) > 0.3
+        for: 2m
+        labels:
+          severity: warning
+          component: cgrag
+          metric: reranker_latency
+        annotations:
+          summary: "CGRAG reranker latency high (>300ms p95)"
+          description: |
+            95th percentile reranker latency: {{ $value | humanizeDuration }}.
+            Target: <300ms
+            Current: {{ $value | humanizeDuration }}
+            Reranker is adding significant overhead.
+            Check:
+            - Reranker model size and resource allocation
+            - Batch size for reranking
+            - CPU/GPU availability
+            Consider: Using faster reranker model or increasing resources
+
+      - alert: CGRAGRerankerUnavailable
+        expr: |
+          rate(cgrag_reranker_errors_total[5m]) > 0.1
+        for: 1m
+        labels:
+          severity: critical
+          component: cgrag
+          metric: reranker_availability
+        annotations:
+          summary: "CGRAG reranker experiencing errors"
+          description: |
+            Reranker error rate: {{ $value }} errors/sec.
+            This will significantly degrade retrieval accuracy.
+            Immediate actions:
+            1. Check reranker model health
+            2. Verify model file integrity
+            3. Review backend logs for error details
+            4. Consider fallback to vector-only retrieval
+
+      # -----------------------------------------------------------------------
+      # Knowledge Graph Alerts
+      # -----------------------------------------------------------------------
+      - alert: CGRAGKnowledgeGraphStale
+        expr: |
+          time() - cgrag_knowledge_graph_last_update_timestamp > 86400
+        for: 1h
+        labels:
+          severity: info
+          component: cgrag
+          metric: knowledge_graph
+        annotations:
+          summary: "Knowledge graph not updated in 24+ hours"
+          description: |
+            Last update: {{ $value | humanizeTimestamp }}.
+            Consider refreshing knowledge graph to incorporate:
+            - New documents
+            - Updated code
+            - Recent chat history
+
+      - alert: CGRAGKnowledgeGraphQuerySlow
+        expr: |
+          histogram_quantile(0.95,
+            rate(cgrag_knowledge_graph_query_seconds_bucket[5m])
+          ) > 0.05
+        for: 3m
+        labels:
+          severity: warning
+          component: cgrag
+          metric: knowledge_graph_query
+        annotations:
+          summary: "Knowledge graph query latency high (>50ms p95)"
+          description: |
+            95th percentile KG query time: {{ $value | humanizeDuration }}.
+            Target: <50ms
+            Current: {{ $value | humanizeDuration }}
+            Large or complex graph may need optimization:
+            - Index entity relationships
+            - Prune low-relevance edges
+            - Consider graph partitioning
+
+  - name: cgrag_capacity
+    interval: 60s
+    rules:
+      # -----------------------------------------------------------------------
+      # Index Size Alerts
+      # -----------------------------------------------------------------------
+      - alert: CGRAGIndexSizeLarge
+        expr: cgrag_index_size_bytes > 5e9  # 5GB
+        for: 5m
+        labels:
+          severity: info
+          component: cgrag
+          metric: index_size
+        annotations:
+          summary: "CGRAG index size exceeds 5GB"
+          description: |
+            Index size: {{ $value | humanize1024 }}.
+            Large indexes may impact:
+            - Retrieval latency
+            - Memory usage
+            - Backup/restore time
+            Consider:
+            - Archiving old documents
+            - Increasing index sharding
+            - Optimizing chunk size
+
+      # -----------------------------------------------------------------------
+      # Throughput Alerts
+      # -----------------------------------------------------------------------
+      - alert: CGRAGHighQueryVolume
+        expr: |
+          rate(cgrag_retrieval_total[5m]) > 100
+        for: 5m
+        labels:
+          severity: info
+          component: cgrag
+          metric: query_volume
+        annotations:
+          summary: "CGRAG query volume high (>100/sec)"
+          description: |
+            Current query rate: {{ $value }} queries/sec.
+            High query volume detected.
+            Monitor:
+            - Cache hit rate (should be high)
+            - Retrieval latency (should stay low)
+            - Resource utilization
+            Consider scaling if latency degrades.
+
+# =============================================================================
+# Notes:
+# =============================================================================
+# 1. Alert Tuning:
+#    - Thresholds based on CGRAG performance targets
+#    - for: duration prevents flapping alerts
+#    - expr: PromQL query defining alert condition
+#
+# 2. Histogram Metrics:
+#    - Use histogram_quantile() for latency percentiles
+#    - _bucket suffix contains histogram buckets
+#    - p95 used for SLO monitoring
+#
+# 3. Rate Calculations:
+#    - rate() for counters (per-second rate)
+#    - [5m] window balances responsiveness and stability
+#
+# 4. Alert Routing (configure in Alertmanager):
+#    - critical: PagerDuty, email, Slack
+#    - warning: Slack, email
+#    - info: Email digest, logs
+#
+# 5. Runbook Links:
+#    - Add runbook_url annotation for incident response
+#    - Example: "https://docs.synapse.engine/runbooks/cgrag-latency"
+#
+# 6. Customization:
+#    - Adjust thresholds based on your environment
+#    - Add business-specific alerts (e.g., query patterns)
+#    - Integrate with incident management tools
+# =============================================================================

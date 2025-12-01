@@ -9,6 +9,9 @@ pydantic-settings==2.6.0
 # HTTP client
 httpx==0.28.1
 
+# Async file operations (Code Chat)
+aiofiles==24.1.0
+
 # Caching
 redis==5.2.0
 

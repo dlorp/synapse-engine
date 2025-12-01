@@ -46,27 +46,54 @@ function hasReasoningPatterns(text: string): boolean {
 }
 
 /**
- * Parse response to detect reasoning/thinking sections from models like DeepSeek R1.
+ * Parse response to detect reasoning/thinking sections from models like DeepSeek R1, Qwen3.
  * Separates verbose reasoning from the final answer.
  *
- * Uses aggressive detection for reasoning models:
- * - Length heuristic: If >800 chars, treat first 70% as thinking
- * - Pattern detection: Look for reasoning indicators
- * - Delimiter detection: Look for explicit answer markers
+ * Detection strategies (in priority order):
+ * 1. <think> tags - explicit thinking markers used by DeepSeek R1
+ * 2. Reasoning pattern detection - "Let me think", "I need to", etc.
+ * 3. Delimiter patterns - "Answer:", "In conclusion:", etc.
+ * 4. Length heuristic with reasoning indicators
  */
 function parseResponse(response: string): ParsedResponse {
-  // Look for common answer delimiters
-  const answerPatterns = [
-    /(?:^|\n)(?:Final )?Answer:\s*/i,
-    /(?:^|\n)In conclusion:\s*/i,
-    /(?:^|\n)Therefore:\s*/i,
-    /(?:^|\n)So,?\s+(?:in summary|to summarize)\b/i,
-    /(?:^|\n)To summarize:\s*/i,
-    /(?:^|\n)Summary:\s*/i,
-    /(?:^|\n)The answer is:\s*/i,
+  // PRIORITY 1: Check for <think> tags (DeepSeek R1 format)
+  const thinkMatch = response.match(/<think>([\s\S]*?)<\/think>/i);
+  if (thinkMatch) {
+    const thinking = thinkMatch[1].trim();
+    const answer = response.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+    if (thinking.length > 50 && answer.length > 0) {
+      return { thinking, answer };
+    }
+  }
+
+  // PRIORITY 2: Detect reasoning patterns at the START of response
+  // This catches models like Qwen3 that start with "Okay, I need to..." or "Let me think..."
+  const reasoningStartPatterns = [
+    /^(Okay,?\s+(?:I need to|let me|so|first|let's))/i,
+    /^(Let me (?:think|start|figure|analyze|consider))/i,
+    /^(I need to (?:figure out|think about|consider|analyze))/i,
+    /^(First,?\s+(?:I|let me|we))/i,
+    /^(Hmm\.?\s+)/i,
+    /^(Alright,?\s+(?:so|let me|I))/i,
+    /^(So,?\s+(?:I need|let me|the user))/i,
+    /^(To (?:answer|address|figure out|solve) this)/i,
   ];
 
-  // Try to split on delimiter patterns first
+  const startsWithReasoning = reasoningStartPatterns.some(pattern => pattern.test(response));
+
+  // PRIORITY 3: Look for common answer delimiters
+  const answerPatterns = [
+    /(?:^|\n)(?:Final )?Answer:\s*/i,
+    /(?:^|\n)In conclusion:?\s*/i,
+    /(?:^|\n)Therefore:?\s*/i,
+    /(?:^|\n)So,?\s+(?:in summary|to summarize|the answer)\b/i,
+    /(?:^|\n)To summarize:?\s*/i,
+    /(?:^|\n)Summary:\s*/i,
+    /(?:^|\n)The answer is:?\s*/i,
+    /(?:^|\n)In short:?\s*/i,
+    /(?:^|\n)(?:Based on|Given) (?:this|the above|my analysis):?\s*/i,
+  ];
+
   for (const pattern of answerPatterns) {
     const match = response.match(pattern);
     if (match && match.index !== undefined) {
@@ -74,43 +101,65 @@ function parseResponse(response: string): ParsedResponse {
       const thinking = response.slice(0, match.index).trim();
       const answer = response.slice(splitIndex).trim();
 
-      // Only split if thinking section is substantial (>200 chars)
-      if (thinking.length > 200) {
+      if (thinking.length > 100) {
         return { thinking, answer };
       }
     }
   }
 
-  // AGGRESSIVE HEURISTIC: For long responses (>800 chars), automatically split
-  // This catches DeepSeek R1's verbose reasoning that doesn't use delimiters
-  if (response.length > 800) {
-    // Check if text has reasoning patterns
-    const hasReasoning = hasReasoningPatterns(response);
+  // PRIORITY 4: If response starts with reasoning and is long, split it
+  if (startsWithReasoning && response.length > 300) {
+    // Look for transition to answer in the latter half
+    const searchStart = Math.floor(response.length * 0.4);
+    const latterHalf = response.slice(searchStart);
 
-    if (hasReasoning) {
-      // Split at 70% point - first 70% is thinking, last 30% is answer
-      const splitPoint = Math.floor(response.length * 0.7);
-      const textUpToSplit = response.slice(0, splitPoint);
+    // Look for conclusion indicators
+    const conclusionPatterns = [
+      /\n\n(?:So |Therefore |Thus |In conclusion|Based on|Given this|The answer|To answer)/i,
+      /\n\n(?:Current|Today's|The weather|The date|Here's|For |To summarize)/i,
+      /\.\s*(?:So,? |Therefore,? |Thus,? |In summary,? )/i,
+    ];
 
-      // Find the last paragraph break before split point for clean break
-      const lastParagraph = textUpToSplit.lastIndexOf('\n\n');
-      if (lastParagraph > 300) {
-        return {
-          thinking: response.slice(0, lastParagraph).trim(),
-          answer: response.slice(lastParagraph).trim(),
-        };
+    for (const pattern of conclusionPatterns) {
+      const match = latterHalf.match(pattern);
+      if (match && match.index !== undefined) {
+        const actualIndex = searchStart + match.index;
+        const thinking = response.slice(0, actualIndex).trim();
+        const answer = response.slice(actualIndex).trim();
+
+        if (thinking.length > 100 && answer.length > 50) {
+          return { thinking, answer };
+        }
       }
+    }
 
-      // If no paragraph break, find last sentence break
-      const lastSentence = textUpToSplit.lastIndexOf('. ');
-      if (lastSentence > 300) {
-        return {
-          thinking: response.slice(0, lastSentence + 1).trim(),
-          answer: response.slice(lastSentence + 1).trim(),
-        };
-      }
+    // If no clear conclusion found, use paragraph-based split
+    const lastParagraph = response.lastIndexOf('\n\n');
+    if (lastParagraph > response.length * 0.3 && lastParagraph < response.length * 0.9) {
+      return {
+        thinking: response.slice(0, lastParagraph).trim(),
+        answer: response.slice(lastParagraph).trim(),
+      };
+    }
 
-      // Fallback: use the split point directly
+    // Fallback: treat entire response as thinking with a generic answer note
+    if (response.length > 500) {
+      return {
+        thinking: response,
+        answer: "[Model provided reasoning but no clear final answer. See thinking process above.]",
+      };
+    }
+  }
+
+  // PRIORITY 5: Long responses with reasoning indicators - more aggressive split
+  if (response.length > 400 && hasReasoningPatterns(response)) {
+    // Split at paragraph boundaries in the second half
+    const midpoint = Math.floor(response.length * 0.5);
+    const searchText = response.slice(midpoint);
+    const paragraphBreak = searchText.indexOf('\n\n');
+
+    if (paragraphBreak > 0) {
+      const splitPoint = midpoint + paragraphBreak;
       return {
         thinking: response.slice(0, splitPoint).trim(),
         answer: response.slice(splitPoint).trim(),
@@ -118,7 +167,7 @@ function parseResponse(response: string): ParsedResponse {
     }
   }
 
-  // No split needed - show everything as answer
+  // Short responses or no reasoning detected - no split needed
   return { thinking: null, answer: response };
 }
 
