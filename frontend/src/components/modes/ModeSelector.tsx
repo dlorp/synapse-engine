@@ -18,11 +18,13 @@ export interface ModeConfig {
   councilModeratorModel?: string;
   councilProModel?: string;
   councilConModel?: string;
+  councilPresetOverrides?: Record<string, string>;
 }
 
 interface ModeSelectorProps {
   currentMode: QueryMode;
   onModeChange: (mode: QueryMode, config?: ModeConfig) => void;
+  queryPreset?: string;
 }
 
 interface ModeDefinition {
@@ -61,7 +63,8 @@ const MODES: ModeDefinition[] = [
 
 export const ModeSelector: React.FC<ModeSelectorProps> = ({
   currentMode,
-  onModeChange
+  onModeChange,
+  queryPreset = 'SYNAPSE_ANALYST'
 }) => {
   const [isAdversarial, setIsAdversarial] = useState(false);
   const [benchmarkSerial, setBenchmarkSerial] = useState(false);
@@ -80,8 +83,22 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
   const [councilProModel, setCouncilProModel] = useState('');
   const [councilConModel, setCouncilConModel] = useState('');
 
+  // Preset override state
+  const [presetOverrides, setPresetOverrides] = useState<Record<string, string>>({});
+
   const handleModeClick = (modeId: QueryMode) => {
     onModeChange(modeId);
+  };
+
+  const handlePresetOverride = (role: string, presetId: string) => {
+    setPresetOverrides(prev => {
+      if (presetId === 'inherited') {
+        // Remove override - use inherited
+        const { [role]: _, ...rest } = prev;
+        return rest;
+      }
+      return { ...prev, [role]: presetId };
+    });
   };
 
   const handleAdversarialChange = (checked: boolean) => {
@@ -98,7 +115,8 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
       councilModeratorActive,
       councilModeratorModel: councilModeratorModel || undefined,
       councilProModel: councilProModel || undefined,
-      councilConModel: councilConModel || undefined
+      councilConModel: councilConModel || undefined,
+      councilPresetOverrides: Object.keys(presetOverrides).length > 0 ? presetOverrides : undefined
     });
   };
 
@@ -115,7 +133,8 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
       councilModeratorActive,
       councilModeratorModel: councilModeratorModel || undefined,
       councilProModel: councilProModel || undefined,
-      councilConModel: councilConModel || undefined
+      councilConModel: councilConModel || undefined,
+      councilPresetOverrides: Object.keys(presetOverrides).length > 0 ? presetOverrides : undefined
     });
   };
 
@@ -360,6 +379,95 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
 
               <div className={styles.modelHint}>
                 Auto-select will use the most powerful available model
+              </div>
+            </div>
+          )}
+
+          {/* Preset Configuration Section */}
+          {isAdversarial && (
+            <div className={styles.configSection}>
+              <h4 className={styles.sectionTitle}>Preset Configuration</h4>
+
+              <div className={styles.presetInfo}>
+                <span className={styles.presetLabel}>Query Preset:</span>
+                <span className={styles.presetValue}>{queryPreset}</span>
+              </div>
+
+              <div className={styles.participantPresets}>
+                {/* PRO Participant Preset */}
+                <div className={styles.configOption}>
+                  <label className={styles.configLabel}>PRO Preset</label>
+                  <select
+                    value={presetOverrides.pro || 'inherited'}
+                    onChange={(e) => {
+                      handlePresetOverride('pro', e.target.value);
+                      updateCouncilConfig();
+                    }}
+                    className={styles.select}
+                  >
+                    <option value="inherited">INHERITED ({queryPreset})</option>
+                    <option value="SYNAPSE_ANALYST">SYNAPSE_ANALYST</option>
+                    <option value="SYNAPSE_CODER">SYNAPSE_CODER</option>
+                    <option value="SYNAPSE_CREATIVE">SYNAPSE_CREATIVE</option>
+                    <option value="SYNAPSE_RESEARCH">SYNAPSE_RESEARCH</option>
+                    <option value="SYNAPSE_JUDGE">SYNAPSE_JUDGE</option>
+                  </select>
+                  {presetOverrides.pro && (
+                    <span className={styles.overrideIndicator}>(Override)</span>
+                  )}
+                </div>
+
+                {/* CON Participant Preset */}
+                <div className={styles.configOption}>
+                  <label className={styles.configLabel}>CON Preset</label>
+                  <select
+                    value={presetOverrides.con || 'inherited'}
+                    onChange={(e) => {
+                      handlePresetOverride('con', e.target.value);
+                      updateCouncilConfig();
+                    }}
+                    className={styles.select}
+                  >
+                    <option value="inherited">INHERITED ({queryPreset})</option>
+                    <option value="SYNAPSE_ANALYST">SYNAPSE_ANALYST</option>
+                    <option value="SYNAPSE_CODER">SYNAPSE_CODER</option>
+                    <option value="SYNAPSE_CREATIVE">SYNAPSE_CREATIVE</option>
+                    <option value="SYNAPSE_RESEARCH">SYNAPSE_RESEARCH</option>
+                    <option value="SYNAPSE_JUDGE">SYNAPSE_JUDGE</option>
+                  </select>
+                  {presetOverrides.con && (
+                    <span className={styles.overrideIndicator}>(Override)</span>
+                  )}
+                </div>
+
+                {/* Moderator Preset (only if moderator enabled) */}
+                {councilModerator && (
+                  <div className={styles.configOption}>
+                    <label className={styles.configLabel}>Moderator Preset</label>
+                    <select
+                      value={presetOverrides.moderator || 'inherited'}
+                      onChange={(e) => {
+                        handlePresetOverride('moderator', e.target.value);
+                        updateCouncilConfig();
+                      }}
+                      className={styles.select}
+                    >
+                      <option value="inherited">INHERITED ({queryPreset})</option>
+                      <option value="SYNAPSE_ANALYST">SYNAPSE_ANALYST</option>
+                      <option value="SYNAPSE_CODER">SYNAPSE_CODER</option>
+                      <option value="SYNAPSE_CREATIVE">SYNAPSE_CREATIVE</option>
+                      <option value="SYNAPSE_RESEARCH">SYNAPSE_RESEARCH</option>
+                      <option value="SYNAPSE_JUDGE">SYNAPSE_JUDGE (Recommended)</option>
+                    </select>
+                    {presetOverrides.moderator && (
+                      <span className={styles.overrideIndicator}>(Override)</span>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className={styles.presetHint}>
+                Participants inherit query preset by default. Override to customize behavior.
               </div>
             </div>
           )}

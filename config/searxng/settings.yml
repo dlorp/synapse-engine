@@ -1,0 +1,28 @@
+# SearXNG settings for S.Y.N.A.P.S.E. ENGINE
+# Enables JSON API for programmatic access
+
+use_default_settings: true
+
+server:
+  secret_key: "d7c40a0f740839b45d19079dffd38545efe539309956598c0be98556630c68f0"
+  limiter: false  # Disable rate limiting for internal API use
+  image_proxy: true
+  method: "POST"
+
+search:
+  safe_search: 0
+  autocomplete: ""
+  default_lang: "auto"
+  formats:
+    - html
+    - json  # Enable JSON API format
+
+ui:
+  static_use_hash: true
+  default_theme: simple
+  results_on_new_tab: false
+
+general:
+  debug: false
+  instance_name: "S.Y.N.A.P.S.E. RECALL"
+  enable_metrics: true

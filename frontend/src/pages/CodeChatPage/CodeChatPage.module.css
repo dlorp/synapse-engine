@@ -1,0 +1,517 @@
+/**
+ * CodeChatPage Styles - Terminal Aesthetic Code Chat Interface
+ *
+ * Dense, information-rich layout with phosphor orange terminal styling.
+ * Implements the S.Y.N.A.P.S.E. ENGINE design system with monospace fonts,
+ * bordered panels, and state-based color coding.
+ */
+
+/* ============================================================================
+   Page Layout
+   ============================================================================ */
+
+.page {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  min-height: 100vh;
+}
+
+/* ============================================================================
+   Configuration Panel
+   ============================================================================ */
+
+.configPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-md);
+}
+
+.configRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+}
+
+.configLabel {
+  min-width: 120px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  font-weight: var(--font-semibold);
+  letter-spacing: 0.5px;
+}
+
+.configValue {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.workspacePath {
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--bg-input);
+  border: 1px solid var(--border-secondary);
+  border-radius: var(--border-radius);
+}
+
+.projectType {
+  color: var(--text-accent);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  padding: var(--space-xs) var(--space-sm);
+  background: rgba(0, 255, 255, 0.1);
+  border: 1px solid var(--border-accent);
+}
+
+.gitIndicator {
+  color: var(--phosphor-orange);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  padding: var(--space-xs) var(--space-sm);
+  background: rgba(255, 149, 0, 0.1);
+  border: 1px solid var(--border-primary);
+}
+
+.contextName {
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--bg-input);
+  border: 1px solid var(--border-secondary);
+}
+
+.notSelected {
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+.presetSelect {
+  flex: 1;
+  min-width: 300px;
+  background: var(--bg-input);
+  color: var(--text-primary);
+  border: 1px solid var(--border-secondary);
+  padding: var(--space-xs) var(--space-sm);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.presetSelect:hover {
+  border-color: var(--border-primary);
+}
+
+.presetSelect:focus {
+  border-color: var(--border-primary);
+  box-shadow: 0 0 8px rgba(255, 149, 0, 0.3);
+}
+
+.presetSelect:disabled {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox {
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  accent-color: var(--phosphor-orange);
+}
+
+.checkbox:disabled {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+}
+
+/* ============================================================================
+   State Indicator Bar
+   ============================================================================ */
+
+.stateBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-panel);
+  border: 2px solid var(--border-primary);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+}
+
+.stateIndicator {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.stateActions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.stepCount {
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+}
+
+/* State-specific colors */
+.stateIdle {
+  color: var(--text-dim);
+}
+
+.statePlanning {
+  color: var(--text-accent);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.stateExecuting {
+  color: var(--phosphor-orange);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.stateObserving {
+  color: var(--text-accent);
+}
+
+.stateCompleted {
+  color: var(--phosphor-orange);
+}
+
+.stateError {
+  color: var(--text-error);
+  animation: pulse 0.8s ease-in-out infinite;
+}
+
+.stateCancelled {
+  color: var(--text-neutral);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* ============================================================================
+   Query Input
+   ============================================================================ */
+
+.inputSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.queryTextarea {
+  width: 100%;
+  min-height: 120px;
+  background: var(--bg-input);
+  color: var(--text-primary);
+  border: 2px solid var(--border-secondary);
+  padding: var(--space-md);
+  font-family: var(--font-mono);
+  font-size: var(--text-md);
+  line-height: var(--leading-normal);
+  resize: vertical;
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.queryTextarea:hover {
+  border-color: var(--border-primary);
+}
+
+.queryTextarea:focus {
+  border-color: var(--border-primary);
+  box-shadow: 0 0 12px rgba(255, 149, 0, 0.3);
+}
+
+.queryTextarea:disabled {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+}
+
+.queryTextarea::placeholder {
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+.inputActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+}
+
+/* ============================================================================
+   Error Display
+   ============================================================================ */
+
+.errorMessage {
+  padding: var(--space-md);
+  color: var(--text-error);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  background: rgba(255, 0, 0, 0.05);
+  border: 1px solid var(--border-error);
+}
+
+.errorMessage pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ============================================================================
+   Context Preview
+   ============================================================================ */
+
+.contextPreview {
+  padding: var(--space-md);
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.contextText {
+  margin: 0;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  line-height: var(--leading-relaxed);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ============================================================================
+   ReAct Steps Container
+   ============================================================================ */
+
+.stepsContainer {
+  width: 100%;
+}
+
+.stepsInner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+/* ============================================================================
+   Answer Panel
+   ============================================================================ */
+
+.answerPanel {
+  padding: var(--space-md);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: var(--text-md);
+  line-height: var(--leading-relaxed);
+}
+
+.markdown {
+  all: unset;
+  display: block;
+}
+
+.markdown h1,
+.markdown h2,
+.markdown h3,
+.markdown h4,
+.markdown h5,
+.markdown h6 {
+  color: var(--phosphor-orange);
+  font-weight: var(--font-bold);
+  margin: var(--space-md) 0 var(--space-sm) 0;
+  line-height: var(--leading-tight);
+}
+
+.markdown h1 { font-size: var(--text-xl); }
+.markdown h2 { font-size: var(--text-lg); }
+.markdown h3 { font-size: var(--text-md); }
+
+.markdown p {
+  margin: var(--space-sm) 0;
+  color: var(--text-primary);
+}
+
+.markdown code {
+  background: var(--bg-input);
+  color: var(--text-accent);
+  padding: 2px 6px;
+  border: 1px solid var(--border-secondary);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+}
+
+.markdown pre {
+  background: var(--bg-input);
+  border: 1px solid var(--border-secondary);
+  padding: var(--space-md);
+  overflow-x: auto;
+  margin: var(--space-sm) 0;
+}
+
+.markdown pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--text-primary);
+}
+
+.markdown ul,
+.markdown ol {
+  margin: var(--space-sm) 0;
+  padding-left: var(--space-xl);
+  color: var(--text-primary);
+}
+
+.markdown li {
+  margin: var(--space-xs) 0;
+}
+
+.markdown a {
+  color: var(--text-accent);
+  text-decoration: underline;
+  transition: color var(--transition-fast);
+}
+
+.markdown a:hover {
+  color: var(--phosphor-orange);
+}
+
+.markdown blockquote {
+  border-left: 3px solid var(--border-primary);
+  padding-left: var(--space-md);
+  margin: var(--space-md) 0;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* ============================================================================
+   Modal Placeholders (Phase 2)
+   ============================================================================ */
+
+.modalPlaceholder {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal);
+  backdrop-filter: blur(4px);
+}
+
+.modalContent {
+  max-width: 600px;
+  width: 90%;
+  padding: var(--space-lg);
+  background: var(--bg-primary);
+  border: 2px solid var(--border-primary);
+  box-shadow: 0 0 20px rgba(255, 149, 0, 0.4);
+}
+
+.modalContent p {
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  margin: var(--space-sm) 0;
+}
+
+/* ============================================================================
+   Responsive
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  .page {
+    padding: var(--space-sm);
+  }
+
+  .configRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .configLabel {
+    min-width: auto;
+  }
+
+  .presetSelect {
+    min-width: 100%;
+  }
+
+  .stateBar {
+    flex-direction: column;
+    gap: var(--space-sm);
+    align-items: flex-start;
+  }
+
+  .stepsInner {
+    max-height: 400px;
+  }
+}
+
+/* ============================================================================
+   Pending Action Confirmation
+   ============================================================================ */
+
+.pendingActionContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  margin: var(--space-md) 0;
+  animation: slideIn 0.3s ease-out;
+}
+
+.confirmationButtons {
+  display: flex;
+  gap: var(--space-md);
+  justify-content: center;
+  padding: var(--space-md);
+  background: var(--bg-panel);
+  border: 2px solid var(--border-primary);
+  border-top: none;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

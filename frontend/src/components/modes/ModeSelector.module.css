@@ -64,16 +64,17 @@
 .modeLabel {
   font-size: 0.85rem; /* Smaller to fit better without cramping */
   font-weight: 700;
-  color: var(--text-primary);
+  color: #ff9500; /* Full phosphor orange - no opacity */
   margin-bottom: 0.5rem; /* Spacing to description */
   letter-spacing: 0.15em; /* More letter spacing to reduce cramping */
   line-height: 1.4; /* Better line height */
   text-decoration: none; /* No underlines */
+  text-shadow: 0 0 8px rgba(255, 149, 0, 0.5); /* Subtle glow */
 }
 
 .modeDescription {
   font-size: 0.7rem;
-  color: var(--text-secondary);
+  color: rgba(255, 149, 0, 0.8); /* 80% opacity instead of 60% */
   line-height: 1.6; /* More breathing room */
   margin: 0; /* Remove margin for perfect centering */
   text-decoration: none; /* No underlines */
@@ -332,4 +333,73 @@
   .modelSelectionGrid {
     grid-template-columns: 1fr;
   }
+}
+
+/* Code Chat Button - Special navigation button */
+.codeChatButton {
+  border-color: var(--text-accent);
+  background: linear-gradient(135deg, rgba(0, 255, 255, 0.05) 0%, transparent 50%);
+}
+
+.codeChatButton:hover {
+  border-color: var(--text-accent);
+  background: linear-gradient(135deg, rgba(0, 255, 255, 0.15) 0%, rgba(0, 255, 255, 0.05) 50%);
+  box-shadow: 0 0 12px rgba(0, 255, 255, 0.3);
+}
+
+.codeChatButton .modeLabel {
+  color: var(--text-accent);
+}
+
+.navigateHint {
+  font-size: 0.6rem;
+  color: var(--text-accent);
+  opacity: 0.7;
+  margin-top: 0.5rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* =============================================
+   PRESET CONFIGURATION STYLES
+   ============================================= */
+
+.presetInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--webtui-spacing-sm);
+  padding: var(--webtui-spacing-sm);
+  background: rgba(255, 149, 0, 0.05);
+  border: 1px solid rgba(255, 149, 0, 0.2);
+  margin-bottom: var(--webtui-spacing-md);
+}
+
+.presetLabel {
+  color: var(--text-muted);
+  font-size: var(--webtui-font-size-small);
+}
+
+.presetValue {
+  color: var(--webtui-primary);
+  font-weight: 500;
+}
+
+.participantPresets {
+  display: flex;
+  flex-direction: column;
+  gap: var(--webtui-spacing-sm);
+}
+
+.overrideIndicator {
+  color: var(--webtui-accent);
+  font-size: 10px;
+  margin-left: var(--webtui-spacing-xs);
+}
+
+.presetHint {
+  color: var(--text-muted);
+  font-size: 11px;
+  margin-top: var(--webtui-spacing-sm);
+  padding: var(--webtui-spacing-xs);
+  border-left: 2px solid var(--webtui-primary);
 }

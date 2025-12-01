@@ -17,6 +17,10 @@
   font-family: 'JetBrains Mono', 'IBM Plex Mono', monospace;
   transition: all 0.2s ease;
   position: relative;
+  /* Prevent card from exceeding grid cell bounds */
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .modelCardCompact:hover {
@@ -295,6 +299,11 @@
   padding: 1rem 0.75rem;
   background: rgba(0, 0, 0, 0.3);
   animation: slideDown 0.2s ease-out;
+  /* Prevent settings panel from breaking card layout */
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 /* ============================================
@@ -346,4 +355,382 @@
   .statDivider {
     display: none;
   }
+}
+
+/* =============================================
+   INSTANCE SECTION STYLES
+   ============================================= */
+
+.instanceSection {
+  margin-top: var(--webtui-spacing-md);
+  padding-top: var(--webtui-spacing-md);
+  border-top: 1px solid var(--webtui-primary);
+}
+
+.instanceSectionHeader {
+  color: var(--webtui-primary);
+  font-family: var(--webtui-font-family);
+  font-size: var(--webtui-font-size-small);
+  margin: 0 0 var(--webtui-spacing-sm) 0;
+  white-space: pre;
+  overflow: hidden;
+}
+
+.instanceCard {
+  margin-bottom: var(--webtui-spacing-sm);
+  border: 1px solid rgba(255, 149, 0, 0.3);
+  background: rgba(0, 0, 0, 0.3);
+  animation: breathePulse 2s ease-in-out infinite;
+}
+
+.instanceHeader {
+  color: var(--webtui-primary);
+  font-family: var(--webtui-font-family);
+  font-size: 11px;
+  margin: 0;
+  padding: var(--webtui-spacing-xs) var(--webtui-spacing-sm);
+  background: rgba(255, 149, 0, 0.1);
+  white-space: pre;
+  overflow: hidden;
+}
+
+.instanceContent {
+  padding: var(--webtui-spacing-sm);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--webtui-spacing-sm);
+}
+
+.instanceInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--webtui-spacing-xs);
+  flex: 1;
+  min-width: 200px;
+}
+
+.instanceName {
+  color: var(--webtui-text);
+  font-weight: 500;
+}
+
+.instancePort {
+  color: var(--webtui-accent);
+  font-size: var(--webtui-font-size-small);
+}
+
+.instanceMeta {
+  flex: 1;
+  min-width: 150px;
+}
+
+.instancePreset {
+  color: var(--webtui-text-muted);
+  font-size: var(--webtui-font-size-small);
+}
+
+.instanceActions {
+  display: flex;
+  gap: var(--webtui-spacing-xs);
+}
+
+.instanceButton {
+  background: transparent;
+  border: 1px solid var(--webtui-primary);
+  color: var(--webtui-primary);
+  padding: var(--webtui-spacing-xs) var(--webtui-spacing-sm);
+  font-family: var(--webtui-font-family);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.instanceButton:hover {
+  background: rgba(255, 149, 0, 0.1);
+  box-shadow: 0 0 8px rgba(255, 149, 0, 0.3);
+}
+
+.stopButton {
+  border-color: #ff4444;
+  color: #ff4444;
+}
+
+.stopButton:hover {
+  background: rgba(255, 68, 68, 0.1);
+  box-shadow: 0 0 8px rgba(255, 68, 68, 0.3);
+}
+
+.startButton {
+  border-color: #44ff44;
+  color: #44ff44;
+}
+
+.startButton:hover {
+  background: rgba(68, 255, 68, 0.1);
+  box-shadow: 0 0 8px rgba(68, 255, 68, 0.3);
+}
+
+.deleteButton {
+  border-color: #ff4444;
+  color: #ff4444;
+}
+
+.deleteButton:hover {
+  background: rgba(255, 68, 68, 0.1);
+  box-shadow: 0 0 8px rgba(255, 68, 68, 0.3);
+}
+
+.addInstanceButton {
+  width: 100%;
+  background: transparent;
+  border: 1px dashed var(--webtui-primary);
+  color: var(--webtui-primary);
+  padding: var(--webtui-spacing-sm);
+  font-family: var(--webtui-font-family);
+  font-size: var(--webtui-font-size-small);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: var(--webtui-spacing-sm);
+}
+
+.addInstanceButton:hover {
+  background: rgba(255, 149, 0, 0.1);
+  border-style: solid;
+  box-shadow: 0 0 10px rgba(255, 149, 0, 0.3);
+}
+
+/* =============================================
+   INLINE INSTANCE EDIT FORM
+   ============================================= */
+
+.instanceEditForm {
+  margin-top: var(--webtui-spacing-sm);
+  border-top: 1px solid rgba(0, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.5);
+  animation: slideDown 0.2s ease-out;
+}
+
+.instanceEditHeader {
+  padding: var(--webtui-spacing-sm);
+  background: rgba(0, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+}
+
+.instanceEditTitle {
+  color: #00ffff;
+  font-family: var(--webtui-font-family);
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.instanceEditContent {
+  padding: var(--webtui-spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--webtui-spacing-md);
+}
+
+/* Form Groups */
+.instanceFormGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.instanceFormLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: rgba(255, 149, 0, 0.8);
+  font-family: var(--webtui-font-family);
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.instanceFormRequired {
+  color: #ff0000;
+  margin-left: 0.25rem;
+}
+
+.instanceFormCharCount {
+  font-size: 10px;
+  font-weight: normal;
+  color: rgba(255, 149, 0, 0.5);
+}
+
+/* Inputs */
+.instanceFormInput,
+.instanceFormSelect,
+.instanceFormTextarea {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid rgba(255, 149, 0, 0.3);
+  background: rgba(0, 0, 0, 0.4);
+  color: #ff9500;
+  font-family: var(--webtui-font-family);
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.instanceFormInput:focus,
+.instanceFormSelect:focus,
+.instanceFormTextarea:focus {
+  outline: none;
+  border-color: #ff9500;
+  box-shadow: 0 0 10px rgba(255, 149, 0, 0.3);
+}
+
+.instanceFormInput::placeholder,
+.instanceFormTextarea::placeholder {
+  color: rgba(255, 149, 0, 0.4);
+}
+
+.instanceFormSelect {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ff9500' d='M2 4l4 4 4-4z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2.5rem;
+}
+
+.instanceFormSelect option {
+  background: #000;
+  color: #ff9500;
+}
+
+.instanceFormTextarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.instanceFormInputError {
+  border-color: #ff0000;
+}
+
+.instanceFormInputError:focus {
+  border-color: #ff0000;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+}
+
+.instanceFormError {
+  color: #ff0000;
+  font-family: var(--webtui-font-family);
+  font-size: 10px;
+}
+
+/* Checkbox */
+.instanceFormCheckboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+
+.instanceFormCheckbox {
+  appearance: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 1px solid rgba(255, 149, 0, 0.5);
+  background: rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.instanceFormCheckbox:checked {
+  border-color: #00ffff;
+  background: rgba(0, 255, 255, 0.2);
+}
+
+.instanceFormCheckbox:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #00ffff;
+  font-size: 0.9rem;
+}
+
+.instanceFormCheckbox:focus {
+  outline: none;
+  box-shadow: 0 0 8px rgba(255, 149, 0, 0.4);
+}
+
+.instanceFormCheckboxText {
+  color: rgba(255, 149, 0, 0.8);
+  font-family: var(--webtui-font-family);
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Error Banner */
+.instanceFormErrorBanner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid #ff0000;
+  background: rgba(255, 0, 0, 0.1);
+}
+
+.instanceFormErrorIcon {
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ff0000;
+  color: #ff0000;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.instanceFormErrorMessage {
+  color: #ff0000;
+  font-family: var(--webtui-font-family);
+  font-size: 11px;
+}
+
+/* Actions */
+.instanceFormActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 149, 0, 0.2);
+}
+
+.instanceFormCancelButton {
+  border-color: rgba(255, 149, 0, 0.5);
+  color: rgba(255, 149, 0, 0.7);
+}
+
+.instanceFormCancelButton:hover {
+  background: rgba(255, 149, 0, 0.1);
+  border-color: #ff9500;
+  box-shadow: 0 0 8px rgba(255, 149, 0, 0.3);
+}
+
+.instanceFormSaveButton {
+  border-color: #00ffff;
+  color: #00ffff;
+}
+
+.instanceFormSaveButton:hover:not(:disabled) {
+  background: rgba(0, 255, 255, 0.15);
+  border-color: #00ffff;
+  box-shadow: 0 0 8px rgba(0, 255, 255, 0.4);
+}
+
+.instanceFormSaveButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }

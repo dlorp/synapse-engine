@@ -17,6 +17,7 @@ from typing import Dict, List, Optional
 
 import httpx
 import psutil
+import redis
 
 from app.core.logging import get_logger
 from app.models.topology import (
@@ -532,12 +533,11 @@ class TopologyManager:
 
         # Check CGRAG/FAISS availability
         try:
-            # Try to import and check if index exists
-            from pathlib import Path
-            project_root = Path(__file__).parent.parent.parent.parent
-            index_path = project_root / "data" / "faiss_indexes" / "docs.index"
+            # Use the same path function as CGRAG service for consistency
+            from app.services.cgrag import get_cgrag_index_paths
+            _, index_path, metadata_path = get_cgrag_index_paths("docs")
 
-            if index_path.exists():
+            if index_path.exists() and metadata_path.exists():
                 await self.update_component_health(
                     "faiss_index",
                     HealthMetrics(
@@ -566,6 +566,73 @@ class TopologyManager:
                 )
         except Exception as e:
             logger.debug(f"CGRAG health check failed: {e}")
+
+        # Check Redis health
+        try:
+            redis_host = os.environ.get("MEMEX_HOST", "synapse_redis")
+            redis_password = os.environ.get("MEMEX_PASSWORD", "change_this_secure_redis_password")
+            redis_port = int(os.environ.get("MEMEX_PORT", "6379"))
+
+            r = redis.Redis(
+                host=redis_host,
+                port=redis_port,
+                password=redis_password,
+                socket_timeout=2.0
+            )
+
+            if r.ping():
+                # Get Redis info for metadata
+                info = r.info()
+                keys_count = r.dbsize()
+                memory_used_mb = info.get("used_memory", 0) / (1024 * 1024)
+
+                await self.update_component_health(
+                    "redis_cache",
+                    HealthMetrics(
+                        component_id="redis_cache",
+                        status="healthy",
+                        uptime_seconds=info.get("uptime_in_seconds", 0),
+                        memory_usage_mb=round(memory_used_mb, 2),
+                        cpu_percent=0.0,
+                        error_rate=0.0,
+                        avg_latency_ms=0.0,
+                        last_check=datetime.utcnow()
+                    )
+                )
+                # Update metadata with keys count
+                if "redis_cache" in self.nodes:
+                    self.nodes["redis_cache"].metadata["keys_count"] = keys_count
+            else:
+                await self.update_component_health(
+                    "redis_cache",
+                    HealthMetrics(
+                        component_id="redis_cache",
+                        status="offline",
+                        uptime_seconds=0,
+                        memory_usage_mb=0.0,
+                        cpu_percent=0.0,
+                        error_rate=0.0,
+                        avg_latency_ms=0.0,
+                        last_check=datetime.utcnow()
+                    )
+                )
+            r.close()
+        except Exception as e:
+            logger.debug(f"Redis health check failed: {e}")
+            # Mark as offline if we can't connect
+            await self.update_component_health(
+                "redis_cache",
+                HealthMetrics(
+                    component_id="redis_cache",
+                    status="offline",
+                    uptime_seconds=0,
+                    memory_usage_mb=0.0,
+                    cpu_percent=0.0,
+                    error_rate=0.0,
+                    avg_latency_ms=0.0,
+                    last_check=datetime.utcnow()
+                )
+            )
 
         # Event bus (always healthy if we're running)
         try:

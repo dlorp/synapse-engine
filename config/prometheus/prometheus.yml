@@ -1,0 +1,215 @@
+# =============================================================================
+# Prometheus Configuration - S.Y.N.A.P.S.E. ENGINE
+# =============================================================================
+# Monitoring configuration for CGRAG performance, model metrics, and system health
+#
+# Key Metrics Collected:
+# - CGRAG: Retrieval latency, cache hit rate, embedding generation time
+# - Models: Inference time, token throughput, queue depth
+# - System: CPU, memory, disk I/O
+# - Redis: Cache operations, memory usage, connection pool
+#
+# Scrape Intervals:
+# - 15s default for responsive alerting
+# - 5s for critical real-time metrics (CGRAG retrieval)
+# =============================================================================
+
+global:
+  # How frequently to scrape targets by default
+  scrape_interval: 15s
+
+  # How long until a scrape request times out
+  scrape_timeout: 10s
+
+  # How frequently to evaluate rules
+  evaluation_interval: 15s
+
+  # Labels to attach to all time series or alerts
+  external_labels:
+    monitor: 'synapse-engine'
+    environment: 'development'
+
+# Alertmanager configuration (optional - for production)
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets:
+#           - alertmanager:9093
+
+# Load rules once and periodically evaluate them
+rule_files:
+  - '/etc/prometheus/rules/cgrag_alerts.yml'
+  - '/etc/prometheus/rules/model_alerts.yml'
+  - '/etc/prometheus/rules/system_alerts.yml'
+
+# Scrape configuration for all targets
+scrape_configs:
+  # ---------------------------------------------------------------------------
+  # Prometheus self-monitoring
+  # ---------------------------------------------------------------------------
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'
+
+  # ---------------------------------------------------------------------------
+  # S.Y.N.A.P.S.E. Core (FastAPI Backend)
+  # ---------------------------------------------------------------------------
+  - job_name: 'synapse_core'
+    # High frequency for CGRAG real-time metrics
+    scrape_interval: 5s
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['synapse_core:8000']
+        labels:
+          service: 'core'
+          component: 'orchestrator'
+
+    # Relabel to extract CGRAG-specific metrics
+    metric_relabel_configs:
+      # Keep CGRAG retrieval latency histogram
+      - source_labels: [__name__]
+        regex: 'cgrag_retrieval_latency_seconds.*'
+        action: keep
+
+      # Keep CGRAG cache metrics
+      - source_labels: [__name__]
+        regex: 'cgrag_cache_.*'
+        action: keep
+
+      # Keep embedding generation metrics
+      - source_labels: [__name__]
+        regex: 'cgrag_embedding_.*'
+        action: keep
+
+      # Keep hybrid search metrics
+      - source_labels: [__name__]
+        regex: 'cgrag_hybrid_.*'
+        action: keep
+
+      # Keep reranker metrics
+      - source_labels: [__name__]
+        regex: 'cgrag_reranker_.*'
+        action: keep
+
+      # Keep knowledge graph metrics
+      - source_labels: [__name__]
+        regex: 'cgrag_knowledge_graph_.*'
+        action: keep
+
+      # Keep all other metrics (model, query, system)
+      - source_labels: [__name__]
+        regex: '(model_.*|query_.*|system_.*|http_.*|redis_.*)'
+        action: keep
+
+  # ---------------------------------------------------------------------------
+  # Redis Exporter (Cache & Session Storage)
+  # ---------------------------------------------------------------------------
+  - job_name: 'redis'
+    scrape_interval: 10s
+    static_configs:
+      - targets: ['redis-exporter:9121']
+        labels:
+          service: 'redis'
+          component: 'cache'
+
+  # ---------------------------------------------------------------------------
+  # Qdrant (Vector Database - if enabled)
+  # ---------------------------------------------------------------------------
+  - job_name: 'qdrant'
+    scrape_interval: 10s
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['synapse_qdrant:6333']
+        labels:
+          service: 'qdrant'
+          component: 'vector-db'
+
+    # Only scrape if Qdrant is enabled
+    # This job will fail gracefully if Qdrant is not running
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: synapse_qdrant:6333
+
+  # ---------------------------------------------------------------------------
+  # Node Exporter (System Metrics - optional for production)
+  # ---------------------------------------------------------------------------
+  # - job_name: 'node'
+  #   scrape_interval: 30s
+  #   static_configs:
+  #     - targets: ['node-exporter:9100']
+  #       labels:
+  #         service: 'node-exporter'
+  #         component: 'system'
+
+# =============================================================================
+# Storage Configuration
+# =============================================================================
+storage:
+  # TSDB (Time Series Database) settings
+  tsdb:
+    # Keep metrics for 30 days (720 hours)
+    retention.time: 30d
+
+    # Maximum storage size (10GB)
+    retention.size: 10GB
+
+    # Compress old blocks
+    wal_compression: true
+
+# =============================================================================
+# Remote Write (optional - for long-term storage)
+# =============================================================================
+# remote_write:
+#   - url: "http://cortex:9009/api/prom/push"
+#     queue_config:
+#       capacity: 10000
+#       max_shards: 200
+#       min_shards: 1
+#       max_samples_per_send: 5000
+#       batch_send_deadline: 5s
+
+# =============================================================================
+# Notes:
+# =============================================================================
+# 1. Metrics Exposition:
+#    - Backend exposes metrics at /metrics endpoint
+#    - Uses prometheus-client library (Python)
+#    - Custom metrics prefixed with "cgrag_"
+#
+# 2. CGRAG Metrics:
+#    - cgrag_retrieval_latency_seconds: Histogram of retrieval times
+#    - cgrag_cache_hit_total: Counter of cache hits
+#    - cgrag_cache_miss_total: Counter of cache misses
+#    - cgrag_embedding_generation_seconds: Time to generate embeddings
+#    - cgrag_hybrid_search_seconds: Hybrid search execution time
+#    - cgrag_reranker_latency_seconds: Reranker model latency
+#    - cgrag_knowledge_graph_nodes: Number of entities in graph
+#
+# 3. Alert Rules:
+#    - Defined in /etc/prometheus/rules/*.yml
+#    - Trigger notifications for anomalies
+#    - Example: Cache hit rate <70%, retrieval latency >100ms
+#
+# 4. Grafana Integration:
+#    - Prometheus as data source
+#    - Pre-built dashboards in /config/grafana/dashboards/
+#    - Access via http://localhost:3000
+#
+# 5. Performance Tuning:
+#    - Scrape interval: Lower = more data, higher load
+#    - Retention: Longer = more storage needed
+#    - Compression: Reduces disk usage by ~50%
+#
+# 6. Production Recommendations:
+#    - Enable remote write for long-term storage
+#    - Add node-exporter for system metrics
+#    - Configure alertmanager for notifications
+#    - Use TLS for scrape endpoints
+#    - Increase retention for compliance
+# =============================================================================

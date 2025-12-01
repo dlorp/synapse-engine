@@ -1,0 +1,318 @@
+/* ===================================================================
+   ContextSelector Modal - Terminal-styled CGRAG index picker
+   ================================================================== */
+
+/* Overlay */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal);
+  animation: overlay-fade-in var(--transition-fast);
+}
+
+@keyframes overlay-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Modal Container */
+.modal {
+  width: 90%;
+  max-width: 800px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  animation: modal-slide-in var(--transition-base);
+}
+
+@keyframes modal-slide-in {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Content Container */
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  min-height: 0; /* Allow flex shrinking */
+}
+
+/* Header */
+.header {
+  font-size: var(--text-md);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid var(--border-secondary);
+}
+
+/* Loading State */
+.loading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-xl);
+  justify-content: center;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.loadingSpinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border-primary);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spinner-rotate 1s linear infinite;
+}
+
+@keyframes spinner-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error State */
+.error {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-lg);
+  background: rgba(255, 0, 0, 0.05);
+  border: 1px solid var(--border-error);
+  color: var(--text-error);
+  font-size: var(--text-sm);
+  font-family: var(--font-mono);
+}
+
+.errorIcon {
+  font-weight: var(--font-bold);
+  color: var(--text-error);
+}
+
+/* Empty State */
+.empty {
+  padding: var(--space-xl);
+  text-align: center;
+  color: var(--text-tertiary);
+  font-size: var(--text-sm);
+  font-style: italic;
+}
+
+/* Context List */
+.contextList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: var(--space-xs);
+}
+
+/* Context Item */
+.contextItem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-family: var(--font-mono);
+}
+
+.contextItem:hover {
+  background: rgba(255, 149, 0, 0.05);
+  border-color: var(--border-primary);
+}
+
+.contextItem:focus-visible {
+  outline: 2px solid var(--border-accent);
+  outline-offset: 2px;
+}
+
+.contextItem.selected {
+  background: rgba(255, 149, 0, 0.1);
+  border-color: var(--border-primary);
+  box-shadow: 0 0 8px rgba(255, 149, 0, 0.2);
+}
+
+/* Radio Button */
+.radio {
+  font-family: var(--font-mono);
+  font-size: var(--text-md);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+  min-width: 28px;
+  text-align: center;
+  user-select: none;
+  flex-shrink: 0;
+  line-height: var(--leading-tight);
+  margin-top: 2px; /* Align with first line of text */
+}
+
+.contextItem.selected .radio {
+  color: var(--text-accent);
+  text-shadow: 0 0 4px var(--text-accent);
+}
+
+/* Context Info Container */
+.contextInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-width: 0; /* Allow text truncation */
+}
+
+/* Context Main Row (name + chunk count) */
+.contextMain {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+/* Context Name */
+.contextName {
+  font-size: var(--text-md);
+  font-weight: var(--font-semibold);
+  color: var(--text-secondary);
+  transition: color var(--transition-fast);
+}
+
+.contextItem.selected .contextName {
+  color: var(--text-primary);
+}
+
+.contextItem:hover .contextName {
+  color: var(--text-primary);
+}
+
+/* Chunk Count Badge */
+.chunkCount {
+  font-size: var(--text-sm);
+  font-weight: var(--font-normal);
+  color: var(--text-accent);
+  font-family: var(--font-mono);
+}
+
+/* Context Metadata */
+.contextMeta {
+  font-size: var(--text-xs);
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  line-height: var(--leading-tight);
+}
+
+/* None Option - Special Styling */
+.noneOption {
+  margin-top: var(--space-sm);
+  border-style: dashed;
+  border-color: var(--border-neutral);
+}
+
+.noneOption:hover {
+  border-color: var(--border-primary);
+  border-style: solid;
+}
+
+.noneOption.selected {
+  border-style: solid;
+}
+
+.noneOption .contextName {
+  font-style: italic;
+  color: var(--text-tertiary);
+}
+
+.noneOption.selected .contextName,
+.noneOption:hover .contextName {
+  color: var(--text-primary);
+}
+
+/* Action Buttons */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border-secondary);
+  flex-wrap: wrap;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .modal {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .contextList {
+    max-height: 300px;
+  }
+
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .actions button {
+    width: 100%;
+  }
+
+  .contextMain {
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+}
+
+/* High Contrast Accessibility */
+@media (prefers-contrast: high) {
+  .contextItem {
+    border-width: 2px;
+  }
+
+  .contextItem.selected {
+    border-width: 3px;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .modal,
+  .contextItem,
+  .radio,
+  .contextName {
+    animation: none;
+    transition: none;
+  }
+
+  .loadingSpinner {
+    animation: none;
+    border-top-color: var(--border-primary);
+  }
+}

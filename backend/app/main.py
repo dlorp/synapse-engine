@@ -28,7 +28,7 @@ from app.core.logging import (
     get_logger,
     ServiceTag
 )
-from app.routers import health, models, query, admin, settings, proxy, events, orchestrator, metrics, pipeline, context, timeseries, topology, logs
+from app.routers import health, models, query, admin, settings, proxy, events, orchestrator, metrics, pipeline, context, timeseries, topology, logs, code_chat, instances, cgrag
 from app.services.llama_server_manager import LlamaServerManager
 from app.services.model_discovery import ModelDiscoveryService
 from app.services.profile_manager import ProfileManager
@@ -41,6 +41,7 @@ from app.services.topology_manager import init_topology_manager, get_topology_ma
 from app.services.cache_metrics import init_cache_metrics, get_cache_metrics
 from app.services.health_monitor import init_health_monitor, get_health_monitor
 from app.services.log_aggregator import init_log_aggregator, get_log_aggregator
+from app.services.instance_manager import init_instance_manager, InstanceManager
 from app.core.logging_handler import AggregatorHandler
 from app.models.discovered_model import ModelRegistry
 
@@ -53,6 +54,7 @@ server_manager: Optional[LlamaServerManager] = None
 profile_manager: Optional[ProfileManager] = None
 discovery_service: Optional[ModelDiscoveryService] = None
 websocket_manager: Optional[WebSocketManager] = None
+instance_manager: Optional[InstanceManager] = None
 
 # Global CGRAG retriever (preloaded at startup)
 _cgrag_retriever: Optional[object] = None
@@ -78,7 +80,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         None
     """
     global model_registry, server_manager, profile_manager, discovery_service
-    global websocket_manager, _cgrag_retriever
+    global websocket_manager, _cgrag_retriever, instance_manager
 
     # Startup
     logger = get_logger(__name__)
@@ -200,10 +202,20 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         profiles_dir = project_root / "config" / "profiles"
         profile_manager = ProfileManager(profiles_dir=profiles_dir)
 
+        # Initialize instance manager for multi-instance support
+        instance_registry_path = Path("data/instance_registry.json")
+        instance_manager = init_instance_manager(
+            registry_path=instance_registry_path,
+            model_registry=model_registry,
+            server_manager=server_manager
+        )
+        logger.info(f"Instance manager initialized with {len(instance_manager.registry.instances)} instances")
+
         # Expose services globally for routers
         from app.routers import models as models_router
         from app.routers import query as query_router
         from app.routers import proxy as proxy_router
+        from app.routers import instances as instances_router
         from app.services.model_selector import ModelSelector
 
         models_router.model_registry = model_registry
@@ -211,14 +223,19 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         models_router.profile_manager = profile_manager
         models_router.discovery_service = discovery_service
 
+        # Expose instance manager to instances router
+        instances_router.instance_manager = instance_manager
+
         # Expose model_registry to query router for council mode
         query_router.model_registry = model_registry
 
         # Initialize and expose model selector for query routing
-        query_router.model_selector = ModelSelector(
+        model_selector = ModelSelector(
             registry=model_registry,
             server_manager=server_manager
         )
+        query_router.model_selector = model_selector
+        app.state.model_selector = model_selector  # Also expose via app.state for code_chat
         logger.info("ModelSelector initialized for query routing")
 
         # Expose server_manager to proxy router for reverse proxy
@@ -530,6 +547,9 @@ app.include_router(context.router, tags=["context"])
 app.include_router(timeseries.router, tags=["timeseries"])
 app.include_router(topology.router, tags=["topology"])
 app.include_router(logs.router, tags=["logs"])
+app.include_router(code_chat.router, tags=["code-chat"])
+app.include_router(instances.router, tags=["instances"])
+app.include_router(cgrag.router, tags=["cgrag"])
 
 
 # Root endpoint

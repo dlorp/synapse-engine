@@ -1,0 +1,419 @@
+{
+  "dashboard": {
+    "title": "CGRAG Performance Overview",
+    "description": "Comprehensive dashboard for CGRAG retrieval performance, cache efficiency, and system health",
+    "tags": ["cgrag", "performance", "retrieval"],
+    "timezone": "browser",
+    "schemaVersion": 38,
+    "version": 1,
+    "refresh": "5s",
+    "time": {
+      "from": "now-15m",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+        "type": "graph",
+        "title": "Retrieval Latency (p95, p99)",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(cgrag_retrieval_latency_seconds_bucket[5m]))",
+            "legendFormat": "p95",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.99, rate(cgrag_retrieval_latency_seconds_bucket[5m]))",
+            "legendFormat": "p99",
+            "refId": "B"
+          }
+        ],
+        "yaxes": [
+          {"format": "s", "label": "Latency", "show": true},
+          {"show": false}
+        ],
+        "xaxis": {"mode": "time", "show": true},
+        "lines": true,
+        "fill": 1,
+        "linewidth": 2,
+        "points": false,
+        "pointradius": 5,
+        "bars": false,
+        "stack": false,
+        "percentage": false,
+        "legend": {"show": true, "values": true, "current": true, "avg": true, "max": true},
+        "nullPointMode": "null",
+        "tooltip": {"shared": true, "sort": 0, "value_type": "individual"},
+        "thresholds": [
+          {"value": 0.1, "colorMode": "critical", "op": "gt", "fill": true, "line": true}
+        ]
+      },
+      {
+        "id": 2,
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+        "type": "graph",
+        "title": "Cache Hit Rate",
+        "targets": [
+          {
+            "expr": "rate(cgrag_cache_hit_total[5m]) / (rate(cgrag_cache_hit_total[5m]) + rate(cgrag_cache_miss_total[5m]))",
+            "legendFormat": "Hit Rate",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {"format": "percentunit", "label": "Hit Rate", "show": true, "min": 0, "max": 1},
+          {"show": false}
+        ],
+        "xaxis": {"mode": "time", "show": true},
+        "lines": true,
+        "fill": 3,
+        "linewidth": 2,
+        "points": false,
+        "bars": false,
+        "stack": false,
+        "legend": {"show": true, "values": true, "current": true, "avg": true},
+        "tooltip": {"shared": true, "sort": 0, "value_type": "individual"},
+        "thresholds": [
+          {"value": 0.7, "colorMode": "custom", "op": "lt", "fill": true, "line": true, "fillColor": "rgba(255, 165, 0, 0.2)", "lineColor": "rgb(255, 165, 0)"}
+        ]
+      },
+      {
+        "id": 3,
+        "gridPos": {"h": 6, "w": 6, "x": 0, "y": 8},
+        "type": "stat",
+        "title": "Current Cache Hit Rate",
+        "targets": [
+          {
+            "expr": "rate(cgrag_cache_hit_total[5m]) / (rate(cgrag_cache_hit_total[5m]) + rate(cgrag_cache_miss_total[5m]))",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "graphMode": "area",
+          "colorMode": "value",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "reduceOptions": {
+            "values": false,
+            "calcs": ["lastNotNull"],
+            "fields": ""
+          },
+          "text": {},
+          "textMode": "auto"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percentunit",
+            "min": 0,
+            "max": 1,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": null, "color": "red"},
+                {"value": 0.7, "color": "orange"},
+                {"value": 0.85, "color": "green"}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 4,
+        "gridPos": {"h": 6, "w": 6, "x": 6, "y": 8},
+        "type": "stat",
+        "title": "Avg Retrieval Latency (p95)",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(cgrag_retrieval_latency_seconds_bucket[5m]))",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "graphMode": "area",
+          "colorMode": "value",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "reduceOptions": {
+            "values": false,
+            "calcs": ["lastNotNull"],
+            "fields": ""
+          }
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "decimals": 3,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": null, "color": "green"},
+                {"value": 0.1, "color": "orange"},
+                {"value": 0.2, "color": "red"}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 5,
+        "gridPos": {"h": 6, "w": 6, "x": 12, "y": 8},
+        "type": "stat",
+        "title": "Query Rate",
+        "targets": [
+          {
+            "expr": "rate(cgrag_retrieval_total[5m])",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "graphMode": "area",
+          "colorMode": "value",
+          "orientation": "auto",
+          "reduceOptions": {
+            "values": false,
+            "calcs": ["lastNotNull"],
+            "fields": ""
+          }
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "reqps",
+            "decimals": 2,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": null, "color": "green"},
+                {"value": 50, "color": "yellow"},
+                {"value": 100, "color": "red"}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 6,
+        "gridPos": {"h": 6, "w": 6, "x": 18, "y": 8},
+        "type": "stat",
+        "title": "Index Size",
+        "targets": [
+          {
+            "expr": "cgrag_index_size_bytes",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "graphMode": "none",
+          "colorMode": "value",
+          "orientation": "auto",
+          "reduceOptions": {
+            "values": false,
+            "calcs": ["lastNotNull"],
+            "fields": ""
+          }
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "bytes",
+            "decimals": 2,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": null, "color": "green"},
+                {"value": 5000000000, "color": "yellow"},
+                {"value": 10000000000, "color": "red"}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 7,
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 14},
+        "type": "graph",
+        "title": "Embedding Generation Time",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(cgrag_embedding_generation_seconds_bucket[5m]))",
+            "legendFormat": "p95",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.5, rate(cgrag_embedding_generation_seconds_bucket[5m]))",
+            "legendFormat": "p50 (median)",
+            "refId": "B"
+          }
+        ],
+        "yaxes": [
+          {"format": "s", "label": "Time", "show": true},
+          {"show": false}
+        ],
+        "xaxis": {"mode": "time", "show": true},
+        "lines": true,
+        "fill": 1,
+        "linewidth": 2,
+        "legend": {"show": true, "values": true, "current": true, "avg": true},
+        "thresholds": [
+          {"value": 0.05, "colorMode": "critical", "op": "gt", "fill": true, "line": true}
+        ]
+      },
+      {
+        "id": 8,
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 14},
+        "type": "graph",
+        "title": "Hybrid Search Components",
+        "targets": [
+          {
+            "expr": "rate(cgrag_hybrid_vector_search_seconds[5m])",
+            "legendFormat": "Vector Search",
+            "refId": "A"
+          },
+          {
+            "expr": "rate(cgrag_hybrid_bm25_search_seconds[5m])",
+            "legendFormat": "BM25 Search",
+            "refId": "B"
+          },
+          {
+            "expr": "rate(cgrag_hybrid_fusion_seconds[5m])",
+            "legendFormat": "Fusion (RRF)",
+            "refId": "C"
+          }
+        ],
+        "yaxes": [
+          {"format": "s", "label": "Time", "show": true},
+          {"show": false}
+        ],
+        "xaxis": {"mode": "time", "show": true},
+        "lines": true,
+        "fill": 0,
+        "linewidth": 2,
+        "legend": {"show": true, "values": true, "current": true, "avg": true},
+        "stack": false
+      },
+      {
+        "id": 9,
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 22},
+        "type": "graph",
+        "title": "Reranker Performance",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(cgrag_reranker_latency_seconds_bucket[5m]))",
+            "legendFormat": "Reranker Latency (p95)",
+            "refId": "A"
+          },
+          {
+            "expr": "rate(cgrag_reranker_errors_total[5m])",
+            "legendFormat": "Reranker Errors",
+            "refId": "B"
+          }
+        ],
+        "yaxes": [
+          {"format": "s", "label": "Latency", "show": true},
+          {"format": "short", "label": "Errors", "show": true}
+        ],
+        "seriesOverrides": [
+          {"alias": "Reranker Errors", "yaxis": 2, "color": "red", "fill": 3}
+        ],
+        "xaxis": {"mode": "time", "show": true},
+        "lines": true,
+        "fill": 1,
+        "linewidth": 2,
+        "legend": {"show": true, "values": true, "current": true, "max": true}
+      },
+      {
+        "id": 10,
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 22},
+        "type": "graph",
+        "title": "Knowledge Graph Metrics",
+        "targets": [
+          {
+            "expr": "cgrag_knowledge_graph_nodes",
+            "legendFormat": "Entities (Nodes)",
+            "refId": "A"
+          },
+          {
+            "expr": "cgrag_knowledge_graph_edges",
+            "legendFormat": "Relationships (Edges)",
+            "refId": "B"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(cgrag_knowledge_graph_query_seconds_bucket[5m]))",
+            "legendFormat": "Query Latency (p95)",
+            "refId": "C"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Count", "show": true},
+          {"format": "s", "label": "Latency", "show": true}
+        ],
+        "seriesOverrides": [
+          {"alias": "Query Latency (p95)", "yaxis": 2, "color": "purple"}
+        ],
+        "xaxis": {"mode": "time", "show": true},
+        "lines": true,
+        "fill": 1,
+        "linewidth": 2,
+        "legend": {"show": true, "values": true, "current": true}
+      },
+      {
+        "id": 11,
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 30},
+        "type": "table",
+        "title": "Top Slow Queries",
+        "targets": [
+          {
+            "expr": "topk(10, cgrag_retrieval_latency_seconds{quantile=\"0.99\"})",
+            "format": "table",
+            "instant": true,
+            "refId": "A"
+          }
+        ],
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {"Time": true, "__name__": true},
+              "indexByName": {},
+              "renameByName": {
+                "Value": "Latency (s)",
+                "query_hash": "Query Hash"
+              }
+            }
+          }
+        ],
+        "options": {
+          "showHeader": true,
+          "sortBy": [{"displayName": "Latency (s)", "desc": true}]
+        }
+      }
+    ],
+    "annotations": {
+      "list": [
+        {
+          "name": "Deployments",
+          "datasource": "Prometheus",
+          "enable": true,
+          "expr": "changes(cgrag_index_last_update_timestamp[5m]) > 0",
+          "iconColor": "rgba(0, 211, 255, 1)",
+          "tagKeys": "version"
+        }
+      ]
+    },
+    "templating": {
+      "list": [
+        {
+          "name": "interval",
+          "type": "interval",
+          "query": "5s,10s,30s,1m,5m,15m,30m,1h",
+          "current": {"text": "5s", "value": "5s"},
+          "hide": 0,
+          "label": "Interval",
+          "auto": true,
+          "auto_count": 30,
+          "auto_min": "10s"
+        }
+      ]
+    }
+  },
+  "overwrite": true
+}

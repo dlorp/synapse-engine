@@ -10,7 +10,8 @@ import time
 from collections import defaultdict
 from enum import Enum
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Dict, Optional
+import json
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -55,6 +56,7 @@ from app.models.context import ContextAllocationRequest, CGRAGArtifact as Contex
 from app.services.metrics_aggregator import get_metrics_aggregator
 from app.models.timeseries import MetricType
 from app.services.topology_manager import get_topology_manager
+from app.services.instance_manager import get_instance_manager
 from typing import Optional, List
 
 
@@ -826,6 +828,54 @@ Consensus Answer:"""
     )
 
 
+def get_participant_preset(
+    role: str,
+    default_preset_id: Optional[str],
+    overrides: Optional[Dict[str, str]]
+) -> Optional[str]:
+    """Get effective preset for a council participant.
+
+    Args:
+        role: Participant role (pro, con, moderator)
+        default_preset_id: Base preset from query request
+        overrides: Per-participant override map
+
+    Returns:
+        Effective preset ID for this participant
+    """
+    if overrides and role in overrides:
+        return overrides[role]
+    return default_preset_id
+
+
+def load_preset_system_prompt(preset_id: Optional[str]) -> str:
+    """Load system prompt from preset configuration.
+
+    Args:
+        preset_id: Preset identifier
+
+    Returns:
+        System prompt string, or empty string if not found
+    """
+    if not preset_id:
+        return ""
+
+    try:
+        presets_path = Path(__file__).parent.parent / "data" / "custom_presets.json"
+        if presets_path.exists():
+            with open(presets_path, 'r') as f:
+                presets = json.load(f)
+            if preset_id in presets and 'system_prompt' in presets[preset_id]:
+                return presets[preset_id]['system_prompt']
+    except Exception as e:
+        # Use module-level logger
+        import logging
+        logger_preset = logging.getLogger(__name__)
+        logger_preset.warning(f"Failed to load preset {preset_id}: {e}")
+
+    return ""
+
+
 async def _process_debate_mode(
     request: QueryRequest,
     model_manager,
@@ -1025,6 +1075,26 @@ async def _process_debate_mode(
     )
 
     logger.info(f"Using personas: {personas}")
+
+    # =================================================================
+    # APPLY PRESET SYSTEM PROMPTS (if configured)
+    # =================================================================
+    # Get effective preset for PRO and CON participants
+    pro_preset_id = get_participant_preset("pro", request.preset_id, request.council_preset_overrides)
+    con_preset_id = get_participant_preset("con", request.preset_id, request.council_preset_overrides)
+
+    # Load system prompts and prepend to personas
+    if pro_preset_id:
+        pro_system_prompt = load_preset_system_prompt(pro_preset_id)
+        if pro_system_prompt and participants[0] in personas:
+            personas[participants[0]] = f"{pro_system_prompt}\n\n{personas[participants[0]]}"
+            logger.info(f"Applied preset {pro_preset_id} to PRO participant {participants[0]}")
+
+    if con_preset_id:
+        con_system_prompt = load_preset_system_prompt(con_preset_id)
+        if con_system_prompt and participants[1] in personas:
+            personas[participants[1]] = f"{con_system_prompt}\n\n{personas[participants[1]]}"
+            logger.info(f"Applied preset {con_preset_id} to CON participant {participants[1]}")
 
     # =================================================================
     # DETERMINE MODERATOR MODEL (if active moderation enabled)
@@ -1288,6 +1358,37 @@ async def process_query(
     # Record topology flow - query entering orchestrator
     await record_topology_flow(query_id, "orchestrator")
 
+    # ========================================================================
+    # MULTI-INSTANCE SUPPORT: Lookup instance configuration if specified
+    # ========================================================================
+    instance_config = None
+    instance_system_prompt = None
+    if request.instance_id:
+        try:
+            instance_manager = get_instance_manager()
+            instance_config = instance_manager.get_instance(request.instance_id)
+            if instance_config:
+                instance_system_prompt = instance_config.system_prompt
+                logger.info(
+                    f"Using instance {request.instance_id} for query {query_id}",
+                    extra={
+                        "query_id": query_id,
+                        "instance_id": request.instance_id,
+                        "has_system_prompt": bool(instance_system_prompt),
+                        "instance_web_search": instance_config.web_search_enabled
+                    }
+                )
+            else:
+                logger.warning(
+                    f"Instance {request.instance_id} not found, continuing without instance config",
+                    extra={"query_id": query_id, "instance_id": request.instance_id}
+                )
+        except Exception as e:
+            logger.warning(
+                f"Failed to lookup instance {request.instance_id}: {e}, continuing without instance config",
+                extra={"query_id": query_id, "instance_id": request.instance_id, "error": str(e)}
+            )
+
     try:
         # ====================================================================
         # MODE-BASED QUERY ROUTING
@@ -1326,10 +1427,15 @@ async def process_query(
                 )
 
             # Web search (if enabled)
+            # Logic: Request overrides instance - if request enables, use it;
+            # otherwise fall back to instance config if available
             web_search_results = []
             web_search_time_ms = 0.0
+            effective_web_search = request.use_web_search or (
+                instance_config is not None and instance_config.web_search_enabled
+            )
 
-            if request.use_web_search:
+            if effective_web_search:
                 try:
                     logger.info(f"🔍 Web search enabled for query {query_id}")
                     web_search_start = time.time()
@@ -1374,7 +1480,13 @@ async def process_query(
             # CGRAG retrieval for Stage 1
             cgrag_artifacts = []
             cgrag_result = None
-            stage1_full_prompt = request.query
+            cgrag_context_text = None  # Initialize to prevent unbound variable error
+            # Default prompt (may be overwritten with context below)
+            # Include instance system prompt if available
+            if instance_system_prompt:
+                stage1_full_prompt = f"{instance_system_prompt}\n\n{request.query}"
+            else:
+                stage1_full_prompt = request.query
             cgrag_start_time = time.time()
 
             if request.use_context:
@@ -1507,7 +1619,12 @@ async def process_query(
             # Build final prompt
             if context_parts:
                 combined_context = "\n\n===\n\n".join(context_parts)
+                # Include instance system prompt at the beginning if available
+                system_prompt_section = ""
+                if instance_system_prompt:
+                    system_prompt_section = f"{instance_system_prompt}\n\n===\n\n"
                 stage1_full_prompt = (
+                    f"{system_prompt_section}"
                     f"{combined_context}\n\n"
                     f"===\n\n"
                     f"Question: {request.query}\n\n"
@@ -1818,10 +1935,15 @@ Refined Response:"""
                 )
 
             # Web search (if enabled) - simple mode
+            # Logic: Request overrides instance - if request enables, use it;
+            # otherwise fall back to instance config if available
             web_search_results = []
             web_search_time_ms = 0.0
+            effective_web_search = request.use_web_search or (
+                instance_config is not None and instance_config.web_search_enabled
+            )
 
-            if request.use_web_search:
+            if effective_web_search:
                 try:
                     logger.info(f"🔍 Web search enabled for query {query_id} (simple mode)")
                     web_search_start = time.time()
@@ -1862,7 +1984,12 @@ Refined Response:"""
             cgrag_artifacts = []
             cgrag_result = None
             cgrag_context_text = None
-            full_prompt = request.query
+            # Default prompt (may be overwritten with context below)
+            # Include instance system prompt if available
+            if instance_system_prompt:
+                full_prompt = f"{instance_system_prompt}\n\n{request.query}"
+            else:
+                full_prompt = request.query
             cgrag_start_time = time.time()
 
             async with tracker.stage("cgrag") as cgrag_metadata:
@@ -2008,7 +2135,12 @@ Refined Response:"""
             # Build final prompt
             if context_parts:
                 combined_context = "\n\n===\n\n".join(context_parts)
+                # Include instance system prompt at the beginning if available
+                system_prompt_section = ""
+                if instance_system_prompt:
+                    system_prompt_section = f"{instance_system_prompt}\n\n===\n\n"
                 full_prompt = (
+                    f"{system_prompt_section}"
                     f"{combined_context}\n\n"
                     f"===\n\n"
                     f"Question: {request.query}\n\n"
@@ -2219,12 +2351,21 @@ Refined Response:"""
             # =================================================================
             # Phase B: Context & Prompt Building
             # =================================================================
-            initial_prompt = request.query
+            # Default prompt (may be overwritten with context below)
+            # Include instance system prompt if available
+            if instance_system_prompt:
+                initial_prompt = f"{instance_system_prompt}\n\n{request.query}"
+            else:
+                initial_prompt = request.query
             cgrag_artifacts = []
             web_search_results = []
 
             # Web search (if enabled)
-            if request.use_web_search:
+            # Logic: Request overrides instance
+            effective_web_search = request.use_web_search or (
+                instance_config is not None and instance_config.web_search_enabled
+            )
+            if effective_web_search:
                 try:
                     logger.info(f"🔍 Web search enabled for benchmark query {query_id}")
                     web_search_start = time.time()
@@ -2314,15 +2455,27 @@ Refined Response:"""
                     logger.warning(f"⚠️ CGRAG retrieval failed for benchmark query {query_id}: {e}")
 
             # Build final prompt with web search and CGRAG context
+            # Build final prompt with context (include system prompt at beginning)
+            system_prompt_section = ""
+            if instance_system_prompt:
+                system_prompt_section = f"{instance_system_prompt}\n\n===\n\n"
+
             if web_search_results:
                 web_context = "\n\n".join([
                     f"[{i+1}] {result.title}\n{result.snippet}\nSource: {result.url}"
                     for i, result in enumerate(web_search_results)
                 ])
-                initial_prompt = f"Web Search Results:\n{web_context}\n\nQuestion: {request.query}"
+                initial_prompt = f"{system_prompt_section}Web Search Results:\n{web_context}\n\nQuestion: {request.query}"
+            elif instance_system_prompt:
+                # If only system prompt (no web results), still prepend it
+                initial_prompt = f"{system_prompt_section}Question: {request.query}"
 
             if cgrag_context_text:
-                initial_prompt = f"Context:\n{cgrag_context_text}\n\n{initial_prompt}"
+                # Prepend CGRAG context (after system prompt if present)
+                if instance_system_prompt and not web_search_results:
+                    initial_prompt = f"{system_prompt_section}Context:\n{cgrag_context_text}\n\nQuestion: {request.query}"
+                else:
+                    initial_prompt = f"Context:\n{cgrag_context_text}\n\n{initial_prompt}"
 
             # =================================================================
             # Phase C: Model Execution
@@ -2350,8 +2503,11 @@ Refined Response:"""
                         response_text = result.get("content", "")
                         response_time_ms = int((time.time() - model_start) * 1000)
 
-                        # Estimate VRAM usage
-                        quantization_str = model.quantization.value.upper() if model.quantization else "Q4_K_M"
+                        # Estimate VRAM usage (handle both string and enum quantization values)
+                        if model.quantization:
+                            quantization_str = model.quantization.upper() if isinstance(model.quantization, str) else model.quantization.value.upper()
+                        else:
+                            quantization_str = "Q4_K_M"
                         estimated_vram = runtime_settings.estimate_vram_per_model(
                             model_size_b=model.size_params or 8.0,
                             quantization=quantization_str
@@ -2462,8 +2618,11 @@ Refined Response:"""
                             token_count = result.get("tokens_generated", len(response_text.split()))
                             char_count = len(response_text)
 
-                            # Estimate VRAM
-                            quantization_str = model.quantization.value.upper() if model.quantization else "Q4_K_M"
+                            # Estimate VRAM (handle both string and enum quantization values)
+                            if model.quantization:
+                                quantization_str = model.quantization.upper() if isinstance(model.quantization, str) else model.quantization.value.upper()
+                            else:
+                                quantization_str = "Q4_K_M"
                             estimated_vram = runtime_settings.estimate_vram_per_model(
                                 model_size_b=model.size_params or 8.0,
                                 quantization=quantization_str

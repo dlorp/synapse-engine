@@ -13,10 +13,11 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { key: '1', icon: '⌘', path: '/', label: 'QUERY' },
-  { key: '2', icon: '◧', path: '/model-management', label: 'MODELS' },
-  { key: '3', icon: '◈', path: '/metrics', label: 'METRICS' },
-  { key: '4', icon: '⚙', path: '/settings', label: 'SETTINGS' },
-  { key: '5', icon: '◎', path: '/admin', label: 'ADMIN' },
+  { key: '2', icon: '▣', path: '/code-chat', label: 'CODE' },
+  { key: '3', icon: '◧', path: '/model-management', label: 'MODELS' },
+  { key: '4', icon: '◈', path: '/metrics', label: 'METRICS' },
+  { key: '5', icon: '⚙', path: '/settings', label: 'SETTINGS' },
+  { key: '6', icon: '◎', path: '/admin', label: 'ADMIN' },
 ];
 
 export const BottomNavBar: React.FC = () => {

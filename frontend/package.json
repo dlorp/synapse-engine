@@ -23,6 +23,7 @@
     "react": "^18.3.1",
     "react-chartjs-2": "^5.3.1",
     "react-dom": "^18.3.1",
+    "react-markdown": "^10.1.0",
     "react-router-dom": "^6.26.2",
     "react-toastify": "^10.0.0",
     "reactflow": "^11.11.4",
@@ -30,6 +31,8 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.56.1",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/asciichart": "^1.5.8",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
@@ -39,6 +42,7 @@
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.11",
+    "jsdom": "^27.0.1",
     "typescript": "^5.5.3",
     "vite": "^5.4.5",
     "vitest": "^2.1.1"

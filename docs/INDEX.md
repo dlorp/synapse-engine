@@ -51,12 +51,20 @@ Current operational guides for development and testing:
 
 ---
 
-## Reference ([reference/](./reference/)) - NEW
+## Reference ([reference/](./reference/))
 
 Style guides and API reference documentation:
 
 - **WEBTUI_STYLE_GUIDE.md** - Complete WebTUI styling guide
 - **WEBTUI_INTEGRATION_GUIDE.md** - WebTUI integration patterns
+
+---
+
+## Plans ([plans/](./plans/)) - Active Implementation Plans
+
+Current feature implementation plans:
+
+- **[CODE_CHAT_IMPLEMENTATION.md](./plans/CODE_CHAT_IMPLEMENTATION.md)** - Code Chat mode with ReAct agent, workspace/context selection, MCP tools
 
 ---
 

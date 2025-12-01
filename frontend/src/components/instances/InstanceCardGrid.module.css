@@ -1,0 +1,103 @@
+/**
+ * InstanceCardGrid Styles - Responsive grid layout
+ * Matches ModelCardGrid patterns for consistency
+ */
+
+.gridContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ============================================
+   MODEL GROUP
+   ============================================ */
+
+.modelGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.groupHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 149, 0, 0.3);
+}
+
+.groupName {
+  color: #ff9500;
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.groupCount {
+  color: rgba(255, 149, 0, 0.6);
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ============================================
+   RESPONSIVE GRID
+   ============================================ */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 1200px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  text-align: center;
+  border: 1px dashed rgba(255, 149, 0, 0.3);
+  background: rgba(0, 0, 0, 0.2);
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', monospace;
+}
+
+.emptyIcon {
+  font-size: 2rem;
+  color: rgba(255, 149, 0, 0.4);
+  margin-bottom: 1rem;
+}
+
+.emptyText {
+  color: rgba(255, 149, 0, 0.7);
+  font-size: 0.9rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
+}
+
+.emptyHint {
+  color: rgba(255, 149, 0, 0.5);
+  font-size: 0.75rem;
+}

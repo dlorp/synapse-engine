@@ -1,0 +1,18 @@
+# =============================================================================
+# S.Y.N.A.P.S.E. ENGINE Sandbox Dependencies
+# =============================================================================
+# Only safe packages that don't provide filesystem or network access
+
+# Web server
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+
+# Data science (safe)
+numpy==1.26.3
+pandas==2.1.4
+matplotlib==3.8.2
+sympy==1.12
+scipy==1.11.4
+
+# Utilities (safe)
+pydantic==2.5.3

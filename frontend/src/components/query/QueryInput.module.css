@@ -103,6 +103,13 @@
   gap: 20px; /* Increased spacing between checkboxes */
 }
 
+.actionGroup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto; /* Push to right side */
+}
+
 .checkbox {
   display: flex;
   align-items: center;
@@ -188,6 +195,100 @@
   margin-top: 16px;
   padding-top: 16px;
   border-top: 1px solid var(--border-secondary, #333);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.systemPromptSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.systemPromptLabel {
+  color: var(--text-primary, #ff9500);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.systemPromptPreview {
+  background: #000000;
+  border: 1px solid rgba(255, 149, 0, 0.3);
+  padding: 12px;
+  max-height: 150px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 149, 0, 0.5) transparent;
+}
+
+.systemPromptPreview::-webkit-scrollbar {
+  width: 6px;
+}
+
+.systemPromptPreview::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.systemPromptPreview::-webkit-scrollbar-thumb {
+  background: rgba(255, 149, 0, 0.4);
+  border-radius: 3px;
+}
+
+.systemPromptPreview::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 149, 0, 0.6);
+}
+
+.systemPromptText {
+  color: rgba(255, 149, 0, 0.85);
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 11px;
+  line-height: 1.6;
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  background: transparent;
+}
+
+.systemPromptEmpty {
+  color: var(--text-secondary, #666);
+  font-size: 11px;
+  font-style: italic;
+  text-align: center;
+  padding: 20px;
+}
+
+.systemPromptTextarea {
+  width: 100%;
+  min-height: 120px;
+  background: #000000;
+  border: 1px solid var(--border-secondary, #333);
+  color: var(--phosphor-orange, #ff9500);
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 11px;
+  line-height: 1.5;
+  padding: 12px;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.systemPromptTextarea:focus {
+  border-color: var(--phosphor-orange, #ff9500);
+}
+
+.systemPromptTextarea:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.systemPromptTextarea::placeholder {
+  color: var(--text-secondary, #666);
+  font-style: italic;
+}
+
+.slidersRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
@@ -256,7 +357,13 @@
     align-items: stretch;
   }
 
-  .advanced {
+  .actionGroup {
+    flex-wrap: wrap;
+    margin-left: 0;
+    justify-content: flex-end;
+  }
+
+  .slidersRow {
     grid-template-columns: 1fr;
   }
 }

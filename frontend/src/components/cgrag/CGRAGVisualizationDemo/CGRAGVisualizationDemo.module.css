@@ -1,0 +1,60 @@
+/* CGRAGVisualizationDemo.module.css - Demo layout styles */
+
+.demo {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+  background: #000000;
+  min-height: 100vh;
+}
+
+.info {
+  font-size: 12px;
+  color: #00ffff;
+  line-height: 1.6;
+  padding: 12px;
+  background: rgba(0, 255, 255, 0.05);
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.twoColumn {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.chunks {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .twoColumn {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .demo {
+    padding: 12px;
+    gap: 16px;
+  }
+
+  .twoColumn {
+    gap: 16px;
+  }
+
+  .column {
+    gap: 16px;
+  }
+}

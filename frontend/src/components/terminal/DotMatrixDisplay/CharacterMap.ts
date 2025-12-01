@@ -455,9 +455,9 @@ export const LED_CONFIG = {
   charWidth: 5,             // Character width in LED pixels
   charHeight: 7,            // Character height in LED pixels
   charSpacing: 2,           // Space between characters in LED pixels
-  glowIntensity: 8,         // Phosphor glow blur radius
+  glowIntensity: 14,        // Phosphor glow blur radius (increased for vibrant glow)
   color: '#ff9500',         // Phosphor orange
-  backgroundIntensity: 0.08, // Dim glow for "off" pixels (full grid visibility)
+  backgroundIntensity: 0.12, // Dim glow for "off" pixels (slightly increased for LED visibility)
 } as const;
 
 /**

@@ -1,0 +1,107 @@
+# =============================================================================
+# Grafana Data Source Provisioning - Prometheus
+# =============================================================================
+# Automatically configures Prometheus as a data source in Grafana
+# No manual configuration needed in Grafana UI
+# =============================================================================
+
+apiVersion: 1
+
+datasources:
+  # Prometheus - Primary metrics data source
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: false
+    jsonData:
+      # Query timeout
+      httpMethod: POST
+      timeInterval: "15s"
+
+      # Custom query parameters
+      customQueryParameters: ""
+
+      # Prometheus version
+      prometheusType: Prometheus
+      prometheusVersion: "2.48.0"
+
+      # Exemplars (for tracing integration)
+      exemplarTraceIdDestinations: []
+
+      # Disable metrics lookup (performance optimization)
+      disableMetricsLookup: false
+
+      # Cache timeout
+      incrementalQuerying: false
+      incrementalQueryOverlapWindow: "10m"
+
+    # Organization settings
+    orgId: 1
+
+    # Version (for tracking config changes)
+    version: 1
+
+    # Access control
+    secureJsonFields: {}
+
+  # Redis - Optional data source for direct Redis queries
+  - name: Redis
+    type: redis-datasource
+    access: proxy
+    url: synapse_redis:6379
+    isDefault: false
+    editable: false
+    jsonData:
+      # Client type
+      client: standalone
+
+      # Pool size
+      poolSize: 5
+
+      # Timeout
+      timeout: 10
+
+      # Ping interval
+      pingInterval: 0
+
+      # Pipeline window
+      pipelineWindow: 0
+
+    # Redis password (from environment)
+    secureJsonData:
+      password: ${MEMEX_PASSWORD}
+
+    # Organization settings
+    orgId: 1
+
+    # Version
+    version: 1
+
+# =============================================================================
+# Notes:
+# =============================================================================
+# 1. Data Source Types:
+#    - Prometheus: Time-series metrics (primary)
+#    - Redis: Direct cache inspection (optional)
+#
+# 2. Access Mode:
+#    - proxy: Grafana backend queries Prometheus (recommended)
+#    - direct: Browser queries Prometheus (requires CORS)
+#
+# 3. Query Optimization:
+#    - httpMethod: POST supports longer queries
+#    - timeInterval: Aligns with Prometheus scrape_interval
+#    - incrementalQuerying: Reduces query load for dashboards
+#
+# 4. Security:
+#    - editable: false prevents manual changes
+#    - secureJsonData: Encrypts sensitive fields
+#    - Password sourced from environment variable
+#
+# 5. Troubleshooting:
+#    - Check Grafana logs: docker-compose logs grafana
+#    - Verify Prometheus reachable: curl http://prometheus:9090/-/healthy
+#    - Test query: http://localhost:3000/explore
+# =============================================================================
