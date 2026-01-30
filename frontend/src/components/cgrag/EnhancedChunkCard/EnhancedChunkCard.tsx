@@ -35,9 +35,9 @@ const formatScore = (score: number): string => {
  * Get score color class.
  */
 const getScoreColor = (score: number): string => {
-  if (score >= 0.7) return styles.scoreHigh;
-  if (score >= 0.4) return styles.scoreMed;
-  return styles.scoreLow;
+  if (score >= 0.7) return styles.scoreHigh ?? '';
+  if (score >= 0.4) return styles.scoreMed ?? '';
+  return styles.scoreLow ?? '';
 };
 
 /**
@@ -84,7 +84,7 @@ export const EnhancedChunkCard: React.FC<EnhancedChunkCardProps> = ({
 
   // Calculate rank change
   const rankChange = chunk.rerankingScore
-    ? chunk.rerankingScore.initialRank - chunk.rerankingScore.finalRank
+    ? chunk.rerankingScore.initialRank - (chunk.rerankingScore.finalRank ?? chunk.rerankingScore.initialRank)
     : 0;
 
   return (
@@ -114,9 +114,7 @@ export const EnhancedChunkCard: React.FC<EnhancedChunkCardProps> = ({
 
       {/* Chunk text */}
       <div
-        className={clsx(styles.text, {
-          [styles.codeText]: chunk.language,
-        })}
+        className={clsx(styles.text, chunk.language && styles.codeText)}
       >
         {chunk.language && (
           <div className={styles.languageTag}>{chunk.language}</div>
@@ -194,10 +192,11 @@ export const EnhancedChunkCard: React.FC<EnhancedChunkCardProps> = ({
                 <div className={styles.scoreItem}>
                   <span className={styles.scoreKey}>Rank Δ:</span>
                   <span
-                    className={clsx(styles.scoreValue, {
-                      [styles.rankImproved]: rankChange > 0,
-                      [styles.rankDeclined]: rankChange < 0,
-                    })}
+                    className={clsx(
+                      styles.scoreValue,
+                      rankChange > 0 && styles.rankImproved,
+                      rankChange < 0 && styles.rankDeclined
+                    )}
                   >
                     {rankChange > 0 ? '+' : ''}
                     {rankChange}

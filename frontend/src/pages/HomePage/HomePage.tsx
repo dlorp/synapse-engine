@@ -50,7 +50,7 @@ export const HomePage: React.FC = () => {
   const [currentQueryMode, setCurrentQueryMode] = useState<QueryMode>('two-stage');
   const [queryMode, setQueryMode] = useState<QueryMode>('two-stage');
   const [modeConfig, setModeConfig] = useState<ModeConfig>({});
-  const [selectedPreset, setSelectedPreset] = useState('SYNAPSE_ANALYST');
+  const [selectedPreset, _setSelectedPreset] = useState('SYNAPSE_ANALYST');
   const { data: modelStatus } = useModelStatus();
   const queryMutation = useQuerySubmit();
   
@@ -90,11 +90,6 @@ export const HomePage: React.FC = () => {
         temperature: options.temperature,
         councilAdversarial: modeConfig.adversarial || false,
         benchmarkSerial: modeConfig.serial || false,
-        // Multi-chat dialogue configuration
-        councilMaxTurns: modeConfig.maxTurns,
-        councilDynamicTermination: modeConfig.dynamicTermination,
-        councilPersonaProfile: modeConfig.personaProfile,
-        councilPersonas: modeConfig.personas,
         // Moderator configuration
         councilModerator: modeConfig.councilModerator || false,
         councilModeratorActive: modeConfig.councilModeratorActive || false,
@@ -274,7 +269,7 @@ export const HomePage: React.FC = () => {
         {/* Orchestrator Status & Live Events - 2 Column Grid */}
         <div className={styles.dashboardGrid}>
           <OrchestratorStatusPanel />
-          <LiveEventFeed maxEvents={8} />
+          <LiveEventFeed />
         </div>
 
         {/* Processing Pipeline Visualization */}
