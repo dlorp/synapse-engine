@@ -4,10 +4,15 @@ This module implements query expansion for the PARTIAL relevance category in CRA
 Uses local synonym mappings (no external API calls) for privacy-preserving expansion.
 """
 
+import json
 import logging
-from typing import List, Set
+from pathlib import Path
+from typing import List, Optional, Set
 
 logger = logging.getLogger(__name__)
+
+# Default path for custom synonyms (relative to backend/)
+DEFAULT_SYNONYMS_PATH = Path(__file__).parent.parent.parent / "data" / "synonyms.json"
 
 
 class QueryExpander:
@@ -18,8 +23,7 @@ class QueryExpander:
     augment the original query with related terms, then re-retrieval is performed.
     """
 
-    # Domain-specific synonym mappings
-    # TODO: Load from configuration file (backend/data/synonyms.json) for extensibility
+    # Domain-specific synonym mappings (defaults, can be extended via synonyms.json)
     SYNONYMS = {
         # Programming concepts
         'function': ['method', 'procedure', 'routine', 'callable'],
@@ -66,13 +70,30 @@ class QueryExpander:
         'deploy': ['deployment', 'release', 'publish']
     }
 
-    def __init__(self, max_synonyms_per_term: int = 2):
+    def __init__(
+        self,
+        max_synonyms_per_term: int = 2,
+        synonyms_path: Optional[str] = None,
+        auto_load: bool = True
+    ):
         """Initialize query expander.
 
         Args:
             max_synonyms_per_term: Maximum synonyms to add per keyword
+            synonyms_path: Optional path to custom synonyms.json file
+            auto_load: If True, auto-load from default path if it exists
         """
         self.max_synonyms = max_synonyms_per_term
+
+        # Auto-load custom synonyms from file if it exists
+        load_path = Path(synonyms_path) if synonyms_path else DEFAULT_SYNONYMS_PATH
+
+        if auto_load and load_path.exists():
+            try:
+                self._load_synonyms_file(load_path)
+            except Exception as e:
+                logger.warning(f"Failed to load synonyms from {load_path}: {e}")
+
         logger.info(
             f"Initialized QueryExpander: max_synonyms={max_synonyms_per_term}, "
             f"synonym_dict_size={len(self.SYNONYMS)}"
@@ -132,6 +153,34 @@ class QueryExpander:
         self.SYNONYMS[term.lower()] = synonyms
         logger.info(f"[EXPAND] Added synonym mapping: '{term}' -> {synonyms}")
 
+    def _load_synonyms_file(self, path: Path) -> int:
+        """Internal method to load synonyms from a file path.
+
+        Args:
+            path: Path object to the synonyms file
+
+        Returns:
+            Number of synonym mappings loaded
+
+        Raises:
+            FileNotFoundError: If file doesn't exist
+            ValueError: If JSON format is invalid
+        """
+        with open(path, 'r', encoding='utf-8') as f:
+            synonyms = json.load(f)
+
+        # Validate format
+        if not isinstance(synonyms, dict):
+            raise ValueError("Synonym file must contain a JSON object")
+
+        # Merge with existing synonyms
+        self.SYNONYMS.update(synonyms)
+
+        logger.info(
+            f"[EXPAND] Loaded {len(synonyms)} synonym mappings from {path}"
+        )
+        return len(synonyms)
+
     def load_synonyms_from_file(self, filepath: str):
         """Load synonym mappings from JSON file.
 
@@ -148,27 +197,11 @@ class QueryExpander:
             FileNotFoundError: If file doesn't exist
             ValueError: If JSON format is invalid
         """
-        import json
-        from pathlib import Path
-
         path = Path(filepath)
         if not path.exists():
             raise FileNotFoundError(f"Synonym file not found: {filepath}")
 
         try:
-            with open(path, 'r', encoding='utf-8') as f:
-                synonyms = json.load(f)
-
-            # Validate format
-            if not isinstance(synonyms, dict):
-                raise ValueError("Synonym file must contain a JSON object")
-
-            # Merge with existing synonyms
-            self.SYNONYMS.update(synonyms)
-
-            logger.info(
-                f"[EXPAND] Loaded {len(synonyms)} synonym mappings from {filepath}"
-            )
-
+            self._load_synonyms_file(path)
         except json.JSONDecodeError as e:
             raise ValueError(f"Invalid JSON in synonym file: {e}")
