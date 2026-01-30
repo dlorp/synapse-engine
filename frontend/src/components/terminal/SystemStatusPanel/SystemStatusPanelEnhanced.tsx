@@ -259,7 +259,7 @@ export const SystemStatusPanelEnhanced: React.FC<SystemStatusPanelEnhancedProps>
             </span>
             {modelStatus.cacheHitRate < 0.5 && (
               <StatusIndicator
-                status="warning"
+                status="error"
                 showDot
                 size="sm"
                 className={styles.inlineStatus}

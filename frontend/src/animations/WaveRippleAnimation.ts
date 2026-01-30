@@ -236,7 +236,6 @@ export class WaveRippleAnimation {
    * Update configuration
    */
   public updateConfig(config: Partial<WaveRippleConfig>): void {
-    const wasAutoGenerating = this.config.autoGenerate;
     this.config = { ...this.config, ...config };
 
     // Restart auto-generation if settings changed

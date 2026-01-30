@@ -25,9 +25,9 @@ import styles from './OrchestratorStatusPanel.module.css';
  */
 const getTierColorClass = (tier: ModelTierLabel): string => {
   switch (tier) {
-    case 'Q2': return styles.tierQ2;
-    case 'Q3': return styles.tierQ3;
-    case 'Q4': return styles.tierQ4;
+    case 'Q2': return styles.tierQ2 ?? '';
+    case 'Q3': return styles.tierQ3 ?? '';
+    case 'Q4': return styles.tierQ4 ?? '';
     default: return '';
   }
 };
@@ -37,9 +37,9 @@ const getTierColorClass = (tier: ModelTierLabel): string => {
  */
 const getComplexityColorClass = (complexity: ComplexityLevel): string => {
   switch (complexity) {
-    case 'SIMPLE': return styles.complexitySimple;
-    case 'MODERATE': return styles.complexityModerate;
-    case 'COMPLEX': return styles.complexityComplex;
+    case 'SIMPLE': return styles.complexitySimple ?? '';
+    case 'MODERATE': return styles.complexityModerate ?? '';
+    case 'COMPLEX': return styles.complexityComplex ?? '';
     default: return '';
   }
 };
@@ -48,12 +48,12 @@ const getComplexityColorClass = (complexity: ComplexityLevel): string => {
  * Format tier name for display
  */
 const formatTierName = (tier: ModelTierLabel): string => {
-  const names = {
+  const names: Record<ModelTierLabel, string> = {
     Q2: 'Q2 FAST',
     Q3: 'Q3 BALANCED',
     Q4: 'Q4 DEEP',
   };
-  return names[tier];
+  return names[tier] ?? tier;
 };
 
 /**

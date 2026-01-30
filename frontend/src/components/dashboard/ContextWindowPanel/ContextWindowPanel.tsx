@@ -77,7 +77,7 @@ const ContextAllocationView: React.FC<{ allocation: ContextAllocation }> = ({ al
       user_query: 'USER QUERY',
       response_budget: 'RESPONSE BUDGET',
     };
-    return labels[component] || component.toUpperCase();
+    return labels[component] ?? component.toUpperCase();
   };
 
   /**
@@ -93,9 +93,9 @@ const ContextAllocationView: React.FC<{ allocation: ContextAllocation }> = ({ al
    * Get CSS class for utilization color coding
    */
   const getUtilizationColor = (percentage: number): string => {
-    if (percentage < 60) return styles.utilizationLow;
-    if (percentage < 80) return styles.utilizationMedium;
-    return styles.utilizationHigh;
+    if (percentage < 60) return styles.utilizationLow ?? '';
+    if (percentage < 80) return styles.utilizationMedium ?? '';
+    return styles.utilizationHigh ?? '';
   };
 
   return (

@@ -45,7 +45,8 @@ export interface PresetEditorProps {
 /** Available model tiers */
 const TIERS: ModelTier[] = ['fast', 'balanced', 'powerful'];
 
-/** All tool names */
+/** All tool names (kept for reference) */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ALL_TOOLS: ToolName[] = [
   'read_file',
   'write_file',
@@ -203,7 +204,7 @@ export const PresetEditor: React.FC<PresetEditorProps> = ({
       name: name.trim(),
       description: description.trim(),
       planningTier,
-      toolConfigs,
+      toolConfigs: toolConfigs as Record<ToolName, ToolModelConfig>,
       isCustom: true,
     };
 

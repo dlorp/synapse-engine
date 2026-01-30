@@ -63,7 +63,7 @@ export const SettingsPage: React.FC = () => {
   }, [settingsResponse?.settings, pendingChanges]);
 
   // VRAM estimate based on current GPU settings
-  const { data: vramEstimate } = useVRAMEstimate(
+  const { data: _vramEstimate } = useVRAMEstimate(
     8.0, // Assuming 8B model (could be made dynamic)
     'Q4_K_M' // Could be made dynamic based on model selection
   );
@@ -241,6 +241,7 @@ export const SettingsPage: React.FC = () => {
   /**
    * Discard pending changes
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleDiscard = useCallback(() => {
     setPendingChanges({});
     setValidationErrors({});
@@ -255,6 +256,7 @@ export const SettingsPage: React.FC = () => {
   /**
    * Set max GPU offload preset
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleMaxGPUOffload = useCallback(() => {
     handleFieldChange('n_gpu_layers', 99);
   }, [handleFieldChange]);
