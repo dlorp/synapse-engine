@@ -9,7 +9,7 @@ import { CRTMonitor } from '@/components/terminal';
  */
 export const SpinnerTestPage: React.FC = () => {
   return (
-    <CRTMonitor intensity="high">
+    <CRTMonitor intensity="intense">
       <div style={{
         minHeight: '100vh',
         background: '#000',
