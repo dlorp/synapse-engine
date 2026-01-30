@@ -45,8 +45,7 @@ export interface PresetEditorProps {
 /** Available model tiers */
 const TIERS: ModelTier[] = ['fast', 'balanced', 'powerful'];
 
-/** All tool names (kept for reference) */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+/* All tool names (kept for reference, may be used in future expansion)
 const ALL_TOOLS: ToolName[] = [
   'read_file',
   'write_file',
@@ -67,6 +66,7 @@ const ALL_TOOLS: ToolName[] = [
   'get_references',
   'get_project_info',
 ];
+*/
 
 /** Human-readable tool names */
 const TOOL_LABELS: Record<ToolName, string> = {
