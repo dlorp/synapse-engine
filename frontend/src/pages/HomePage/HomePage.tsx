@@ -23,7 +23,9 @@
  * - Event bus emitting system events via /ws/events WebSocket
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
+import { toast } from 'react-toastify';
+import { useRescanModels, useToggleEnabled, useModelRegistry } from '@/hooks/useModelManagement';
 import {
   Panel,
   AsciiPanel,
@@ -51,6 +53,11 @@ export const HomePage: React.FC = () => {
   const [selectedPreset, setSelectedPreset] = useState('SYNAPSE_ANALYST');
   const { data: modelStatus } = useModelStatus();
   const queryMutation = useQuerySubmit();
+  
+  // Quick action mutations
+  const rescanMutation = useRescanModels();
+  const toggleEnabledMutation = useToggleEnabled();
+  const { data: modelRegistry } = useModelRegistry();
 
   // Calculate number of available models (active, idle, or processing = ready to use)
   const activeModels = modelStatus?.models.filter(
@@ -104,7 +111,10 @@ export const HomePage: React.FC = () => {
         },
         onError: (error: any) => {
           console.error('[HomePage] Query failed:', error);
-          // TODO: Implement toast notification system
+          toast.error(`✗ Query failed: ${error?.message || 'Unknown error'}`, {
+            position: 'bottom-right',
+            autoClose: 5000,
+          });
         },
       }
     );
@@ -118,20 +128,76 @@ export const HomePage: React.FC = () => {
   };
 
   // Quick action handlers
-  const handleRescan = async () => {
-    // TODO: Implement API call to /api/admin/discover or /api/models/rescan
-    console.log('Rescanning models...');
-  };
+  const handleRescan = useCallback(async () => {
+    toast.info('↻ Rescanning models...', { position: 'bottom-right', autoClose: 2000 });
+    try {
+      await rescanMutation.mutateAsync();
+      toast.success('✓ Model rescan complete', { position: 'bottom-right', autoClose: 3000 });
+    } catch (error: any) {
+      toast.error(`✗ Rescan failed: ${error?.message || 'Unknown error'}`, {
+        position: 'bottom-right',
+        autoClose: 5000,
+      });
+    }
+  }, [rescanMutation]);
 
-  const handleEnableAll = async () => {
-    // TODO: Implement API call to enable all models
-    console.log('Enabling all models...');
-  };
+  const handleEnableAll = useCallback(async () => {
+    if (!modelRegistry?.models) {
+      toast.warning('⚠ No models in registry', { position: 'bottom-right', autoClose: 3000 });
+      return;
+    }
+    
+    const disabledModels = Object.entries(modelRegistry.models)
+      .filter(([_, model]) => !model.enabled)
+      .map(([id]) => id);
+    
+    if (disabledModels.length === 0) {
+      toast.info('ℹ All models already enabled', { position: 'bottom-right', autoClose: 2000 });
+      return;
+    }
+    
+    toast.info(`⚡ Enabling ${disabledModels.length} models...`, { position: 'bottom-right', autoClose: 2000 });
+    try {
+      await Promise.all(
+        disabledModels.map(modelId => toggleEnabledMutation.mutateAsync({ modelId, enabled: true }))
+      );
+      toast.success(`✓ Enabled ${disabledModels.length} models`, { position: 'bottom-right', autoClose: 3000 });
+    } catch (error: any) {
+      toast.error(`✗ Failed to enable some models: ${error?.message || 'Unknown error'}`, {
+        position: 'bottom-right',
+        autoClose: 5000,
+      });
+    }
+  }, [modelRegistry, toggleEnabledMutation]);
 
-  const handleDisableAll = async () => {
-    // TODO: Implement API call to disable all models
-    console.log('Disabling all models...');
-  };
+  const handleDisableAll = useCallback(async () => {
+    if (!modelRegistry?.models) {
+      toast.warning('⚠ No models in registry', { position: 'bottom-right', autoClose: 3000 });
+      return;
+    }
+    
+    const enabledModels = Object.entries(modelRegistry.models)
+      .filter(([_, model]) => model.enabled)
+      .map(([id]) => id);
+    
+    if (enabledModels.length === 0) {
+      toast.info('ℹ All models already disabled', { position: 'bottom-right', autoClose: 2000 });
+      return;
+    }
+    
+    toast.warning(`⏸ Disabling ${enabledModels.length} models...`, { position: 'bottom-right', autoClose: 2000 });
+    try {
+      await Promise.all(
+        enabledModels.map(modelId => toggleEnabledMutation.mutateAsync({ modelId, enabled: false }))
+      );
+      toast.success(`✓ Disabled ${enabledModels.length} models`, { position: 'bottom-right', autoClose: 3000 });
+    } catch (error: any) {
+      toast.error(`✗ Failed to disable some models: ${error?.message || 'Unknown error'}`, {
+        position: 'bottom-right',
+        autoClose: 5000,
+      });
+    }
+  }, [modelRegistry, toggleEnabledMutation]);
 
   // Memoize reactive object to prevent animation restarts on re-renders
   const dotMatrixReactive = useMemo(
