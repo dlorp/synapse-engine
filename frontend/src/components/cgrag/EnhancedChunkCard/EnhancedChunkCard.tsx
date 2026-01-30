@@ -12,6 +12,7 @@
 
 import React, { useMemo } from 'react';
 import clsx from 'clsx';
+import { Highlight, themes, Language } from 'prism-react-renderer';
 import { EnhancedChunk } from '../../../types/cgrag';
 import styles from './EnhancedChunkCard.module.css';
 
@@ -40,13 +41,26 @@ const getScoreColor = (score: number): string => {
 };
 
 /**
- * Syntax highlight code (basic implementation).
- * In production, integrate with highlight.js or Prism.
+ * Map common language names to Prism language identifiers.
  */
-const highlightCode = (text: string, language?: string): string => {
-  // For now, return as-is
-  // TODO: Integrate highlight.js or Prism for proper syntax highlighting
-  return text;
+const mapLanguage = (lang?: string): Language => {
+  if (!lang) return 'plain' as Language;
+  
+  const languageMap: Record<string, Language> = {
+    'js': 'javascript',
+    'ts': 'typescript',
+    'py': 'python',
+    'rb': 'ruby',
+    'yml': 'yaml',
+    'sh': 'bash',
+    'shell': 'bash',
+    'zsh': 'bash',
+    'dockerfile': 'docker',
+    'md': 'markdown',
+  };
+  
+  const normalized = lang.toLowerCase();
+  return (languageMap[normalized] || normalized) as Language;
 };
 
 export const EnhancedChunkCard: React.FC<EnhancedChunkCardProps> = ({
@@ -65,12 +79,8 @@ export const EnhancedChunkCard: React.FC<EnhancedChunkCardProps> = ({
     return parts.join(' › ');
   }, [chunk.breadcrumb]);
 
-  // Highlight code if language specified
-  const displayText = useMemo(() => {
-    return chunk.language
-      ? highlightCode(chunk.text, chunk.language)
-      : chunk.text;
-  }, [chunk.text, chunk.language]);
+  // Get mapped language for Prism
+  const prismLanguage = useMemo(() => mapLanguage(chunk.language), [chunk.language]);
 
   // Calculate rank change
   const rankChange = chunk.rerankingScore
@@ -111,7 +121,27 @@ export const EnhancedChunkCard: React.FC<EnhancedChunkCardProps> = ({
         {chunk.language && (
           <div className={styles.languageTag}>{chunk.language}</div>
         )}
-        <pre className={styles.textContent}>{displayText}</pre>
+        {chunk.language ? (
+          <Highlight
+            theme={themes.nightOwl}
+            code={chunk.text}
+            language={prismLanguage}
+          >
+            {({ className, style, tokens, getLineProps, getTokenProps }) => (
+              <pre className={clsx(className, styles.textContent)} style={{ ...style, margin: 0, background: 'transparent' }}>
+                {tokens.map((line, i) => (
+                  <div key={i} {...getLineProps({ line })}>
+                    {line.map((token, key) => (
+                      <span key={key} {...getTokenProps({ token })} />
+                    ))}
+                  </div>
+                ))}
+              </pre>
+            )}
+          </Highlight>
+        ) : (
+          <pre className={styles.textContent}>{chunk.text}</pre>
+        )}
       </div>
 
       {/* Score breakdown */}
