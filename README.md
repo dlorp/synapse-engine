@@ -1,6 +1,7 @@
 
 # S.Y.N.A.P.S.E. ENGINE 
 
+[![CI](https://github.com/dlorp/synapse-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/dlorp/synapse-engine/actions/workflows/ci.yml)
 
 ![til](docs/features/synapseEngine.gif)
 
