@@ -110,10 +110,10 @@ See: LIVE_EVENT_FEED_INTEGRATION.md for detailed instructions
       </div>
 
       {/* Status Info */}
+      <div style={{ marginTop: '24px', maxWidth: '800px' }}>
       <Panel
         title="COMPONENT STATUS"
         variant="default"
-        style={{ marginTop: '24px', maxWidth: '800px' }}
       >
         <div style={{ color: '#ff9500', fontFamily: 'JetBrains Mono, monospace' }}>
           <p>WebSocket URL: ws://{window.location.host}/ws/events</p>
@@ -127,12 +127,13 @@ See: LIVE_EVENT_FEED_INTEGRATION.md for detailed instructions
           </p>
         </div>
       </Panel>
+      </div>
 
       {/* Troubleshooting Panel */}
+      <div style={{ marginTop: '24px', maxWidth: '800px' }}>
       <Panel
         title="TROUBLESHOOTING"
         variant="warning"
-        style={{ marginTop: '24px', maxWidth: '800px' }}
       >
         <div
           style={{
@@ -182,6 +183,7 @@ See: LIVE_EVENT_FEED_INTEGRATION.md for detailed instructions
           </ol>
         </div>
       </Panel>
+      </div>
     </div>
   );
 };

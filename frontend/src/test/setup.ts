@@ -7,10 +7,10 @@
 import { vi } from 'vitest';
 
 // Mock fetch globally
-global.fetch = vi.fn();
+(globalThis as any).fetch = vi.fn();
 
 // Mock WebSocket globally
-global.WebSocket = vi.fn(() => ({
+(globalThis as any).WebSocket = vi.fn(() => ({
   send: vi.fn(),
   close: vi.fn(),
   addEventListener: vi.fn(),
