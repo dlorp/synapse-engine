@@ -27,9 +27,9 @@ const formatScore = (score: number): string => {
  * Get color class based on score.
  */
 const getScoreColor = (score: number): string => {
-  if (score >= 0.7) return styles.scoreHigh;
-  if (score >= 0.4) return styles.scoreMed;
-  return styles.scoreLow;
+  if (score >= 0.7) return styles.scoreHigh ?? '';
+  if (score >= 0.4) return styles.scoreMed ?? '';
+  return styles.scoreLow ?? '';
 };
 
 /**
@@ -101,14 +101,14 @@ export const HybridSearchPanel: React.FC<HybridSearchPanelProps> = ({
             <span className={clsx(styles.avgValue, styles.vectorColor)}>
               {formatScore(metrics.avgVectorScore)}%
             </span>
-            <ScoreBar score={metrics.avgVectorScore} color={styles.vectorBar} />
+            <ScoreBar score={metrics.avgVectorScore} color={styles.vectorBar ?? ''} />
           </div>
           <div className={styles.avgRow}>
             <span className={styles.avgLabel}>AVG BM25</span>
             <span className={clsx(styles.avgValue, styles.bm25Color)}>
               {formatScore(metrics.avgBm25Score)}%
             </span>
-            <ScoreBar score={metrics.avgBm25Score} color={styles.bm25Bar} />
+            <ScoreBar score={metrics.avgBm25Score} color={styles.bm25Bar ?? ''} />
           </div>
         </div>
 
@@ -122,7 +122,7 @@ export const HybridSearchPanel: React.FC<HybridSearchPanelProps> = ({
             <span className={styles.colScore}>FUSION</span>
           </div>
 
-          {metrics.topResults.slice(0, 5).map((result, index) => (
+          {metrics.topResults.slice(0, 5).map((result) => (
             <div key={result.chunkId} className={styles.tableRow}>
               <span className={styles.colRank}>#{result.finalRank}</span>
               <span className={styles.colId} title={result.chunkId}>
