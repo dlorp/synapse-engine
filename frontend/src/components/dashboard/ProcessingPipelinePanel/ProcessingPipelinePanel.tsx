@@ -79,13 +79,13 @@ const PipelineFlow: React.FC<{ status: PipelineStatus }> = ({ status }) => {
   const getStageColor = (stage: PipelineStage): string => {
     switch (stage.status) {
       case 'pending':
-        return styles.stagePending;
+        return styles.stagePending ?? '';
       case 'active':
-        return styles.stageActive;
+        return styles.stageActive ?? '';
       case 'completed':
-        return styles.stageCompleted;
+        return styles.stageCompleted ?? '';
       case 'failed':
-        return styles.stageFailed;
+        return styles.stageFailed ?? '';
     }
   };
 
@@ -199,8 +199,9 @@ export const ProcessingPipelinePanel: React.FC = () => {
       return response.json();
     },
     enabled: !!latestQueryId,
-    refetchInterval: (data) => {
+    refetchInterval: (query) => {
       // Stop polling if pipeline is completed or failed
+      const data = query.state.data;
       if (data?.overall_status === 'completed' || data?.overall_status === 'failed') {
         return false;
       }

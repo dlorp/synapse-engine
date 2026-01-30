@@ -44,9 +44,9 @@ export const ModelCardGrid: React.FC<ModelCardGridProps> = ({
   instancesByModel = {},
   onToggleSettings,
   onToggleEnable,
-  onStartModel,
-  onStopModel,
-  onRestartModel,
+  onStartModel: _onStartModel,
+  onStopModel: _onStopModel,
+  onRestartModel: _onRestartModel,
   onCreateInstance,
   onEditInstance,
   onDeleteInstance,
@@ -69,7 +69,7 @@ export const ModelCardGrid: React.FC<ModelCardGridProps> = ({
       const bTier = b.tierOverride || b.assignedTier;
 
       // Sort by tier first
-      const tierDiff = tierOrder[aTier] - tierOrder[bTier];
+      const tierDiff = (tierOrder[aTier] ?? 0) - (tierOrder[bTier] ?? 0);
       if (tierDiff !== 0) return tierDiff;
 
       // Then sort alphabetically by filename

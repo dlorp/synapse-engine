@@ -31,7 +31,7 @@ interface ApiModelPreset {
 }
 
 const transformPreset = (apiPreset: ApiModelPreset): ModelPreset => {
-  const toolConfigs: Record<ToolName, ToolModelConfig> = {};
+  const toolConfigs: Partial<Record<ToolName, ToolModelConfig>> = {};
 
   // Transform tool_configs from snake_case to camelCase
   for (const [toolName, config] of Object.entries(apiPreset.tool_configs)) {
@@ -47,7 +47,7 @@ const transformPreset = (apiPreset: ApiModelPreset): ModelPreset => {
     description: apiPreset.description,
     systemPrompt: apiPreset.system_prompt,
     planningTier: apiPreset.planning_tier as 'fast' | 'balanced' | 'powerful',
-    toolConfigs,
+    toolConfigs: toolConfigs as Record<ToolName, ToolModelConfig>,
     isCustom: apiPreset.is_custom,
   };
 };
@@ -351,7 +351,7 @@ export const useQuickPresets = () => {
     // Ensure exactly 6 presets
     const normalized = presets.slice(0, 6);
     while (normalized.length < 6) {
-      normalized.push(DEFAULT_QUICK_PRESETS[normalized.length]);
+      normalized.push(DEFAULT_QUICK_PRESETS[normalized.length] ?? 'SYNAPSE_DEFAULT');
     }
 
     setQuickPresetsState(normalized);

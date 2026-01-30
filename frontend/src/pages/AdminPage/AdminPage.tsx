@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../../api/client';
 import { CGRAGIndexer } from '../../components/admin';
@@ -90,8 +90,8 @@ const generateLineChart = (values: number[], width: number = 60, height: number 
     const threshold = min + (range * y / (height - 1));
 
     for (let x = 0; x < Math.min(values.length, width); x++) {
-      const value = values[x];
-      const nextValue = x < values.length - 1 ? values[x + 1] : value;
+      const value = values[x] ?? 0;
+      const nextValue = x < values.length - 1 ? (values[x + 1] ?? 0) : value;
 
       if (value >= threshold && nextValue >= threshold) {
         line += '─';
@@ -292,20 +292,20 @@ ${'─'.repeat(150)}`;
             <pre className={styles.asciiFrame}>
 {(() => {
   const FRAME_WIDTH = 70;
-  const cpuVal = metricsHistory.cpu[metricsHistory.cpu.length - 1].toFixed(0).padStart(2);
-  const memVal = metricsHistory.memory[metricsHistory.memory.length - 1].toFixed(0).padStart(2);
-  const diskVal = metricsHistory.diskIO[metricsHistory.diskIO.length - 1].toFixed(0).padStart(2);
-  const netVal = metricsHistory.network[metricsHistory.network.length - 1].toFixed(0).padStart(2);
+  const cpuVal = (metricsHistory.cpu[metricsHistory.cpu.length - 1] ?? 0).toFixed(0).padStart(2);
+  const memVal = (metricsHistory.memory[metricsHistory.memory.length - 1] ?? 0).toFixed(0).padStart(2);
+  const diskVal = (metricsHistory.diskIO[metricsHistory.diskIO.length - 1] ?? 0).toFixed(0).padStart(2);
+  const netVal = (metricsHistory.network[metricsHistory.network.length - 1] ?? 0).toFixed(0).padStart(2);
 
   const cpuSparkline = generateSparkline(metricsHistory.cpu);
   const memSparkline = generateSparkline(metricsHistory.memory);
   const diskSparkline = generateSparkline(metricsHistory.diskIO);
   const netSparkline = generateSparkline(metricsHistory.network);
 
-  const cpuBar = generateBarChart(metricsHistory.cpu[metricsHistory.cpu.length - 1], 100, 10);
-  const memBar = generateBarChart(metricsHistory.memory[metricsHistory.memory.length - 1], 100, 10);
-  const diskBar = generateBarChart(metricsHistory.diskIO[metricsHistory.diskIO.length - 1], 100, 10);
-  const netBar = generateBarChart(metricsHistory.network[metricsHistory.network.length - 1], 100, 10);
+  const cpuBar = generateBarChart(metricsHistory.cpu[metricsHistory.cpu.length - 1] ?? 0, 100, 10);
+  const memBar = generateBarChart(metricsHistory.memory[metricsHistory.memory.length - 1] ?? 0, 100, 10);
+  const diskBar = generateBarChart(metricsHistory.diskIO[metricsHistory.diskIO.length - 1] ?? 0, 100, 10);
+  const netBar = generateBarChart(metricsHistory.network[metricsHistory.network.length - 1] ?? 0, 100, 10);
 
   const header = '─ SYSTEM METRICS (LIVE) ';
 
@@ -330,13 +330,13 @@ ${'─'.repeat(150)}`;
 
   return `${header}${'─'.repeat(150)}
 ${padLine('', FRAME_WIDTH)}
-${padLine(`150│${chartLines[0].padEnd(60)}`, FRAME_WIDTH)}
-${padLine(`   │${chartLines[1].padEnd(60)}`, FRAME_WIDTH)}
-${padLine(`100│${chartLines[2].padEnd(60)}`, FRAME_WIDTH)}
-${padLine(`   │${chartLines[3].padEnd(60)}`, FRAME_WIDTH)}
-${padLine(` 50│${chartLines[4].padEnd(60)}`, FRAME_WIDTH)}
-${padLine(`   │${chartLines[5].padEnd(60)}`, FRAME_WIDTH)}
-${padLine(`  0│${chartLines[6].padEnd(60)}`, FRAME_WIDTH)}
+${padLine(`150│${(chartLines[0] ?? '').padEnd(60)}`, FRAME_WIDTH)}
+${padLine(`   │${(chartLines[1] ?? '').padEnd(60)}`, FRAME_WIDTH)}
+${padLine(`100│${(chartLines[2] ?? '').padEnd(60)}`, FRAME_WIDTH)}
+${padLine(`   │${(chartLines[3] ?? '').padEnd(60)}`, FRAME_WIDTH)}
+${padLine(` 50│${(chartLines[4] ?? '').padEnd(60)}`, FRAME_WIDTH)}
+${padLine(`   │${(chartLines[5] ?? '').padEnd(60)}`, FRAME_WIDTH)}
+${padLine(`  0│${(chartLines[6] ?? '').padEnd(60)}`, FRAME_WIDTH)}
 ${padLine(`   └${'─'.repeat(55)}`, FRAME_WIDTH)}
 ${padLine('     0s      60s     120s     180s     240s', FRAME_WIDTH)}
 ${padLine('', FRAME_WIDTH)}
@@ -662,13 +662,14 @@ ${'─'.repeat(150)}`;
         <pre className={styles.asciiFrame}>
 {(() => {
   const FRAME_WIDTH = 70;
-  const q2State = health?.components.servers?.servers?.find((s: any) => s.tier === 'Q2')?.state === 'running' ? '█████████' : '░░░░░░░░░';
-  const q3State = health?.components.servers?.servers?.find((s: any) => s.tier === 'Q3')?.state === 'running' ? '█████████' : '░░░░░░░░░';
-  const q4State = health?.components.servers?.servers?.find((s: any) => s.tier === 'Q4')?.state === 'running' ? '█████████' : '░░░░░░░░░';
+  const servers = health?.components.servers?.servers as any[] | undefined;
+  const q2State = servers?.find((s: any) => s.tier === 'Q2')?.state === 'running' ? '█████████' : '░░░░░░░░░';
+  const q3State = servers?.find((s: any) => s.tier === 'Q3')?.state === 'running' ? '█████████' : '░░░░░░░░░';
+  const q4State = servers?.find((s: any) => s.tier === 'Q4')?.state === 'running' ? '█████████' : '░░░░░░░░░';
 
-  const q2Active = health?.components.servers?.servers?.filter((s: any) => s.tier === 'Q2' && s.state === 'running').length || 0;
-  const q3Active = health?.components.servers?.servers?.filter((s: any) => s.tier === 'Q3' && s.state === 'running').length || 0;
-  const q4Active = health?.components.servers?.servers?.filter((s: any) => s.tier === 'Q4' && s.state === 'running').length || 0;
+  const q2Active = servers?.filter((s: any) => s.tier === 'Q2' && s.state === 'running').length ?? 0;
+  const q3Active = servers?.filter((s: any) => s.tier === 'Q3' && s.state === 'running').length ?? 0;
+  const q4Active = servers?.filter((s: any) => s.tier === 'Q4' && s.state === 'running').length ?? 0;
 
   const controlStatus = restartServers.isPending ? '⚡ RESTARTING' : stopServers.isPending ? '⚠ STOPPING ' : '◉ READY     ';
 

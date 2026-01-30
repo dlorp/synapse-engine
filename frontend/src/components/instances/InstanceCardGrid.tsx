@@ -50,10 +50,12 @@ export const InstanceCardGrid: React.FC<InstanceCardGridProps> = ({
     const groups: Record<string, InstanceConfig[]> = {};
 
     for (const instance of sortedInstances) {
-      if (!groups[instance.modelId]) {
-        groups[instance.modelId] = [];
+      const modelGroup = groups[instance.modelId];
+      if (!modelGroup) {
+        groups[instance.modelId] = [instance];
+      } else {
+        modelGroup.push(instance);
       }
-      groups[instance.modelId].push(instance);
     }
 
     return Object.entries(groups).map(([modelId, instances]) => ({

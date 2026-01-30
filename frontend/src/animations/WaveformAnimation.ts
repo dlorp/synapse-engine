@@ -191,14 +191,14 @@ export class WaveformAnimation {
     // Draw smooth curve through points
     for (let i = 0; i < this.dataPoints.length; i++) {
       const x = i * pointSpacing;
-      const y = this.valueToY(this.dataPoints[i], min, max);
+      const y = this.valueToY(this.dataPoints[i] ?? 0, min, max);
 
       if (i === 0) {
         this.ctx.moveTo(x, y);
       } else if (this.config.smoothing && i < this.dataPoints.length - 1) {
         // Smooth curve using quadratic bezier
         const prevX = (i - 1) * pointSpacing;
-        const prevY = this.valueToY(this.dataPoints[i - 1], min, max);
+        const prevY = this.valueToY(this.dataPoints[i - 1] ?? 0, min, max);
         const midX = (prevX + x) / 2;
         const midY = (prevY + y) / 2;
         this.ctx.quadraticCurveTo(prevX, prevY, midX, midY);
@@ -229,7 +229,7 @@ export class WaveformAnimation {
 
     for (let i = 0; i < this.dataPoints.length; i++) {
       const x = i * barWidth;
-      const y = this.valueToY(this.dataPoints[i], min, max);
+      const y = this.valueToY(this.dataPoints[i] ?? 0, min, max);
       const barHeight = Math.abs(zeroY - y);
 
       this.ctx.fillRect(x, Math.min(y, zeroY), barWidth * 0.8, barHeight);
@@ -263,7 +263,7 @@ export class WaveformAnimation {
     // Draw top edge
     for (let i = 0; i < this.dataPoints.length; i++) {
       const x = i * pointSpacing;
-      const y = this.valueToY(this.dataPoints[i], min, max);
+      const y = this.valueToY(this.dataPoints[i] ?? 0, min, max);
 
       if (i === 0) {
         this.ctx.lineTo(x, y);

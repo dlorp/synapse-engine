@@ -7,7 +7,6 @@
 
 import React from 'react';
 import { CRTMonitor } from '../components/terminal';
-import type { CRTIntensity, ScanlineSpeed } from '../components/terminal';
 
 export const CRTEffectsDemo: React.FC = () => {
   return (

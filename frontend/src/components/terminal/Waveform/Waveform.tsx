@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useImperativeHandle, forwardRef } from 'react';
+import { useEffect, useRef, useState, useImperativeHandle, forwardRef } from 'react';
 import { WaveformAnimation } from '@/animations/WaveformAnimation';
 import styles from './Waveform.module.css';
 

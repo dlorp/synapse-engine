@@ -41,13 +41,13 @@ const getQualityLevel = (
 const getQualityColor = (level: string): string => {
   switch (level) {
     case 'excellent':
-      return styles.excellent;
+      return styles.excellent ?? '';
     case 'good':
-      return styles.good;
+      return styles.good ?? '';
     case 'fair':
-      return styles.fair;
+      return styles.fair ?? '';
     case 'poor':
-      return styles.poor;
+      return styles.poor ?? '';
     default:
       return '';
   }
@@ -77,11 +77,11 @@ const getTrendColor = (trend?: RAGQualityTrend): string => {
   if (!trend) return '';
   switch (trend.trend) {
     case 'improving':
-      return styles.trendImproving;
+      return styles.trendImproving ?? '';
     case 'declining':
-      return styles.trendDeclining;
+      return styles.trendDeclining ?? '';
     case 'stable':
-      return styles.trendStable;
+      return styles.trendStable ?? '';
     default:
       return '';
   }

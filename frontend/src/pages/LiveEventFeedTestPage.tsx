@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { LiveEventFeed } from '../components/dashboard/LiveEventFeed';
 import { Panel } from '../components/terminal/Panel/Panel';
 import '../assets/styles/main.css';
@@ -21,7 +21,7 @@ import '../assets/styles/main.css';
  * 3. Observe component behavior with/without WebSocket backend
  */
 const LiveEventFeedTestPage: React.FC = () => {
-  const [mockEventCount, setMockEventCount] = useState(0);
+  const [_mockEventCount] = useState(0);
 
   /**
    * Instructions for testing

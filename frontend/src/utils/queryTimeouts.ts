@@ -8,7 +8,7 @@
  */
 
 export type ModelTier = 'Q2' | 'Q3' | 'Q4';
-export type QueryMode = 'two-stage' | 'simple' | 'council' | 'debate' | 'chat';
+export type QueryMode = 'two-stage' | 'simple' | 'council' | 'benchmark';
 
 /**
  * Tier-specific timeout configuration (in milliseconds)
@@ -33,8 +33,7 @@ export const MODE_TIMEOUTS: Record<QueryMode, number> = {
   'two-stage': 90000,  // Two-stage: Q2 + Q4 = ~90s
   'simple': 45000,     // Single Q2 model = ~45s
   'council': 120000,   // Multiple models discussing = ~120s
-  'debate': 150000,    // Extended multi-model debate = ~150s
-  'chat': 180000,      // Multi-turn conversation = ~180s
+  'benchmark': 180000, // Benchmark comparison = ~180s
 };
 
 /**
@@ -44,8 +43,7 @@ export const MODE_TO_TIER: Record<QueryMode, ModelTier> = {
   'two-stage': 'Q3',  // Default to middle tier
   'simple': 'Q2',     // Fast tier
   'council': 'Q4',    // Complex multi-model tier
-  'debate': 'Q4',     // Complex multi-model tier
-  'chat': 'Q4',       // Complex multi-model tier
+  'benchmark': 'Q4',  // Benchmark multi-model tier
 };
 
 /**
