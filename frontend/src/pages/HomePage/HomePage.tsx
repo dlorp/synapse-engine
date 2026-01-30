@@ -24,6 +24,7 @@
  */
 
 import React, { useState, useMemo } from 'react';
+import { toast } from 'react-toastify';
 import {
   Panel,
   AsciiPanel,
@@ -104,7 +105,10 @@ export const HomePage: React.FC = () => {
         },
         onError: (error: any) => {
           console.error('[HomePage] Query failed:', error);
-          // TODO: Implement toast notification system
+          toast.error(`✗ Query failed: ${error?.message || 'Unknown error'}`, {
+            position: 'bottom-right',
+            autoClose: 5000,
+          });
         },
       }
     );
@@ -120,16 +124,19 @@ export const HomePage: React.FC = () => {
   // Quick action handlers
   const handleRescan = async () => {
     // TODO: Implement API call to /api/admin/discover or /api/models/rescan
+    toast.info('↻ Rescanning models...', { position: 'bottom-right', autoClose: 2000 });
     console.log('Rescanning models...');
   };
 
   const handleEnableAll = async () => {
     // TODO: Implement API call to enable all models
+    toast.info('⚡ Enabling all models...', { position: 'bottom-right', autoClose: 2000 });
     console.log('Enabling all models...');
   };
 
   const handleDisableAll = async () => {
     // TODO: Implement API call to disable all models
+    toast.warning('⏸ Disabling all models...', { position: 'bottom-right', autoClose: 2000 });
     console.log('Disabling all models...');
   };
 
