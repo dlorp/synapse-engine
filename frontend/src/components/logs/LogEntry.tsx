@@ -36,15 +36,15 @@ export const LogEntry: React.FC<LogEntryProps> = ({ log, index = 0 }) => {
     switch (level) {
       case 'ERROR':
       case 'CRITICAL':
-        return styles.levelError;
+        return styles.levelError ?? '';
       case 'WARNING':
-        return styles.levelWarning;
+        return styles.levelWarning ?? '';
       case 'INFO':
-        return styles.levelInfo;
+        return styles.levelInfo ?? '';
       case 'DEBUG':
-        return styles.levelDebug;
+        return styles.levelDebug ?? '';
       default:
-        return styles.levelDefault;
+        return styles.levelDefault ?? '';
     }
   }, []);
 
@@ -64,7 +64,7 @@ export const LogEntry: React.FC<LogEntryProps> = ({ log, index = 0 }) => {
       minute: '2-digit',
       second: '2-digit',
       fractionalSecondDigits: 3,
-    });
+    } as Intl.DateTimeFormatOptions);
   }, []);
 
   /**
@@ -167,7 +167,7 @@ export const LogEntry: React.FC<LogEntryProps> = ({ log, index = 0 }) => {
       {expanded && hasExtra && (
         <div className={styles.logExtra}>
           <div className={styles.extraHeader}>METADATA:</div>
-          {Object.entries(log.extra).map(([key, value]) => (
+          {Object.entries(log.extra ?? {}).map(([key, value]) => (
             <div key={key} className={styles.extraItem}>
               <span className={styles.extraKey}>{key}:</span>
               <span className={styles.extraValue}>
