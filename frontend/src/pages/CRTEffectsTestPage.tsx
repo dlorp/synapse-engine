@@ -39,7 +39,8 @@ const CRTEffectsTestPage: React.FC = () => {
       </h1>
 
       {/* Control Panel */}
-      <Panel title="EFFECT CONTROLS" style={{ marginBottom: '40px' }}>
+      <div style={{ marginBottom: '40px' }}>
+      <Panel title="EFFECT CONTROLS">
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
           {/* Bloom Intensity */}
           <div>
@@ -79,13 +80,13 @@ const CRTEffectsTestPage: React.FC = () => {
               CRT Intensity
             </label>
             <div style={{ display: 'flex', gap: '8px' }}>
-              <Button onClick={() => setCrtIntensity('subtle')} variant={crtIntensity === 'subtle' ? 'primary' : 'default'}>
+              <Button onClick={() => setCrtIntensity('subtle')} variant={crtIntensity === 'subtle' ? 'primary' : 'secondary'}>
                 Subtle
               </Button>
-              <Button onClick={() => setCrtIntensity('medium')} variant={crtIntensity === 'medium' ? 'primary' : 'default'}>
+              <Button onClick={() => setCrtIntensity('medium')} variant={crtIntensity === 'medium' ? 'primary' : 'secondary'}>
                 Medium
               </Button>
-              <Button onClick={() => setCrtIntensity('intense')} variant={crtIntensity === 'intense' ? 'primary' : 'default'}>
+              <Button onClick={() => setCrtIntensity('intense')} variant={crtIntensity === 'intense' ? 'primary' : 'secondary'}>
                 Intense
               </Button>
             </div>
@@ -97,13 +98,13 @@ const CRTEffectsTestPage: React.FC = () => {
               Scanline Speed
             </label>
             <div style={{ display: 'flex', gap: '8px' }}>
-              <Button onClick={() => setScanlineSpeed('slow')} variant={scanlineSpeed === 'slow' ? 'primary' : 'default'}>
+              <Button onClick={() => setScanlineSpeed('slow')} variant={scanlineSpeed === 'slow' ? 'primary' : 'secondary'}>
                 Slow
               </Button>
-              <Button onClick={() => setScanlineSpeed('medium')} variant={scanlineSpeed === 'medium' ? 'primary' : 'default'}>
+              <Button onClick={() => setScanlineSpeed('medium')} variant={scanlineSpeed === 'medium' ? 'primary' : 'secondary'}>
                 Medium
               </Button>
-              <Button onClick={() => setScanlineSpeed('fast')} variant={scanlineSpeed === 'fast' ? 'primary' : 'default'}>
+              <Button onClick={() => setScanlineSpeed('fast')} variant={scanlineSpeed === 'fast' ? 'primary' : 'secondary'}>
                 Fast
               </Button>
             </div>
@@ -146,6 +147,7 @@ const CRTEffectsTestPage: React.FC = () => {
           </div>
         </div>
       </Panel>
+      </div>
 
       {/* CRT Monitor Demo */}
       <div style={{ marginBottom: '40px' }}>
@@ -167,13 +169,11 @@ const CRTEffectsTestPage: React.FC = () => {
           enableScanlines={enableScanlines}
           scanlineSpeed={scanlineSpeed}
         >
-          <Panel title="SYSTEM STATUS" style={{ minHeight: '200px' }}>
+          <div style={{ minHeight: '200px' }}>
+          <Panel title="SYSTEM STATUS">
             <div style={{ padding: '20px' }}>
               <DotMatrixDisplay
                 text="NEURAL SUBSTRATE ONLINE"
-                fontSize={24}
-                charSpacing={1.2}
-                lineHeight={1.5}
               />
               <div style={{ marginTop: '20px', color: '#ff9500', fontFamily: 'monospace' }}>
                 <p>Bloom Intensity: {bloomIntensity.toFixed(2)}</p>
@@ -185,6 +185,7 @@ const CRTEffectsTestPage: React.FC = () => {
               </div>
             </div>
           </Panel>
+          </div>
         </CRTMonitor>
       </div>
 
@@ -211,7 +212,8 @@ const CRTEffectsTestPage: React.FC = () => {
       </div>
 
       {/* Terminal Spinner Showcase */}
-      <Panel title="TERMINAL SPINNER SHOWCASE" style={{ marginBottom: '40px' }}>
+      <div style={{ marginBottom: '40px' }}>
+      <Panel title="TERMINAL SPINNER SHOWCASE">
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '30px', padding: '20px' }}>
           {/* Arc Style */}
           <div style={{ textAlign: 'center' }}>
@@ -278,6 +280,7 @@ const CRTEffectsTestPage: React.FC = () => {
           </div>
         </div>
       </Panel>
+      </div>
 
       {/* Inline Usage Examples */}
       <Panel title="INLINE USAGE EXAMPLES">
@@ -298,7 +301,8 @@ const CRTEffectsTestPage: React.FC = () => {
       </Panel>
 
       {/* Performance Metrics */}
-      <Panel title="PERFORMANCE METRICS" style={{ marginTop: '40px' }}>
+      <div style={{ marginTop: '40px' }}>
+      <Panel title="PERFORMANCE METRICS">
         <div style={{ color: '#00ffff', fontFamily: 'monospace', padding: '20px' }}>
           <p>✓ All animations running at 60fps</p>
           <p>✓ GPU acceleration enabled (transform: translate3d)</p>
@@ -308,6 +312,7 @@ const CRTEffectsTestPage: React.FC = () => {
           <p>✓ TypeScript strict mode compliant</p>
         </div>
       </Panel>
+      </div>
     </div>
   );
 };

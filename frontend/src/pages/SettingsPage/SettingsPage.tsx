@@ -238,10 +238,7 @@ export const SettingsPage: React.FC = () => {
     });
   }, [resetMutation, refetch]);
 
-  /**
-   * Discard pending changes
-   */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  /* Discard pending changes (reserved for future use)
   const handleDiscard = useCallback(() => {
     setPendingChanges({});
     setValidationErrors({});
@@ -252,14 +249,13 @@ export const SettingsPage: React.FC = () => {
       setPortRangeEnd(registry.portRange[1]);
     }
   }, [registry]);
+  */
 
-  /**
-   * Set max GPU offload preset
-   */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  /* Set max GPU offload preset (reserved for future use)
   const handleMaxGPUOffload = useCallback(() => {
     handleFieldChange('n_gpu_layers', 99);
   }, [handleFieldChange]);
+  */
 
   // Format context size display
   const formatCtxSize = (size: number): string => {
