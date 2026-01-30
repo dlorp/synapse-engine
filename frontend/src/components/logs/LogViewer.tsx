@@ -37,7 +37,7 @@ export interface LogViewerProps {
 /**
  * LogViewer - Main log viewer component with real-time updates and filtering
  */
-export const LogViewer: React.FC<LogViewerProps> = ({ modelIds = [], maxLines = 500 }) => {
+export const LogViewer: React.FC<LogViewerProps> = ({ maxLines = 500 }) => {
   const { events } = useSystemEventsContext();
 
   // Log state
@@ -127,9 +127,9 @@ export const LogViewer: React.FC<LogViewerProps> = ({ modelIds = [], maxLines = 
       by_level: byLevel,
       buffer_size: maxLines,
       oldest_timestamp:
-        logs.length > 0 ? String(logs[0].timestamp) : undefined,
+        logs.length > 0 ? String(logs[0]?.timestamp) : undefined,
       newest_timestamp:
-        logs.length > 0 ? String(logs[logs.length - 1].timestamp) : undefined,
+        logs.length > 0 ? String(logs[logs.length - 1]?.timestamp) : undefined,
     };
   }, [logs, maxLines]);
 

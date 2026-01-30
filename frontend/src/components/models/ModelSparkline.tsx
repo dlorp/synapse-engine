@@ -48,13 +48,10 @@ const METRIC_CONFIG = {
 export const ModelSparkline: React.FC<ModelSparklineProps> = React.memo(({
   data,
   metricType,
-  modelId,
+  modelId: _modelId,
   className
 }) => {
   const config = METRIC_CONFIG[metricType];
-
-  // Generate unique key for React reconciliation
-  const key = `${modelId}-${metricType}`;
 
   return (
     <div className={`${styles.modelSparkline} ${className || ''}`} data-metric={metricType}>

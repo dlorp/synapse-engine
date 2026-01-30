@@ -108,7 +108,10 @@ export class DotMatrixAnimation {
 
     for (let i = 0; i < this.config.text.length; i++) {
       this.cumulativePixelOffsets.push(cumulative);
-      cumulative += this.getEffectivePixelCount(this.config.text[i]);
+      const char = this.config.text[i];
+      if (char !== undefined) {
+        cumulative += this.getEffectivePixelCount(char);
+      }
     }
   }
 
@@ -240,7 +243,7 @@ export class DotMatrixAnimation {
           charIndex,
           row,
           col,
-          rowPattern[col],
+          rowPattern[col] ?? false,
           elapsed
         );
 
@@ -290,8 +293,9 @@ export class DotMatrixAnimation {
 
     // Calculate total animation duration using effective pixels (accounts for space compression)
     const lastCharIndex = this.config.text.length - 1;
-    const totalPixels = lastCharIndex >= 0
-      ? this.cumulativePixelOffsets[lastCharIndex] + this.getEffectivePixelCount(this.config.text[lastCharIndex])
+    const lastChar = this.config.text[lastCharIndex];
+    const totalPixels = lastCharIndex >= 0 && lastChar !== undefined
+      ? (this.cumulativePixelOffsets[lastCharIndex] ?? 0) + this.getEffectivePixelCount(lastChar)
       : 0;
     const totalDuration = totalPixels * this.msPerPixel;
 

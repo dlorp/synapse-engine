@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useImperativeHandle, forwardRef } from 'react';
+import { useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 import { RadialGaugeAnimation } from '@/animations/RadialGaugeAnimation';
 import styles from './RadialGauge.module.css';
 

@@ -253,28 +253,33 @@ export const CGRAGVisualizationDemo: React.FC = () => {
         const activeIndex = newPipeline.stages.findIndex((s) => s.status === 'active');
 
         if (activeIndex !== -1) {
-          // Complete active stage
-          newPipeline.stages[activeIndex] = {
-            ...newPipeline.stages[activeIndex],
-            status: 'complete',
-            candidateCount: Math.floor(Math.random() * 20) + 10,
-            executionTimeMs: Math.floor(Math.random() * 50) + 10,
-            completedAt: new Date().toISOString(),
-          };
-
-          // Activate next stage
-          if (activeIndex + 1 < newPipeline.stages.length) {
-            newPipeline.stages[activeIndex + 1] = {
-              ...newPipeline.stages[activeIndex + 1],
-              status: 'active',
-              startedAt: new Date().toISOString(),
+          const activeStage = newPipeline.stages[activeIndex];
+          const nextStage = newPipeline.stages[activeIndex + 1];
+          
+          if (activeStage) {
+            // Complete active stage
+            newPipeline.stages[activeIndex] = {
+              ...activeStage,
+              status: 'complete',
+              candidateCount: Math.floor(Math.random() * 20) + 10,
+              executionTimeMs: Math.floor(Math.random() * 50) + 10,
+              completedAt: new Date().toISOString(),
             };
-            newPipeline.currentStage = newPipeline.stages[activeIndex + 1].stage;
-          } else {
-            newPipeline.status = 'complete';
-          }
 
-          newPipeline.totalTimeMs += newPipeline.stages[activeIndex].executionTimeMs || 0;
+            // Activate next stage
+            if (nextStage) {
+              newPipeline.stages[activeIndex + 1] = {
+                ...nextStage,
+                status: 'active',
+                startedAt: new Date().toISOString(),
+              };
+              newPipeline.currentStage = nextStage.stage;
+            } else {
+              newPipeline.status = 'complete';
+            }
+
+            newPipeline.totalTimeMs += newPipeline.stages[activeIndex]?.executionTimeMs || 0;
+          }
         }
 
         return { ...prev, pipeline: newPipeline };

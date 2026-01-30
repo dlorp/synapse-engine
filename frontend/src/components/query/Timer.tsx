@@ -20,9 +20,7 @@ const getExpectedTimeHint = (mode: QueryMode): string => {
       return '<8s';
     case 'council':
       return '<20s';
-    case 'debate':
-      return '<25s';
-    case 'chat':
+    case 'benchmark':
       return '<30s';
     default:
       return '<5s'; // Default estimate

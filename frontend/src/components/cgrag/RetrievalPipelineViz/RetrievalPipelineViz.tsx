@@ -9,7 +9,6 @@ import React, { useMemo } from 'react';
 import clsx from 'clsx';
 import {
   RetrievalPipeline,
-  PipelineStage,
   RetrievalStage,
   StageStatus,
 } from '../../../types/cgrag';
@@ -126,10 +125,10 @@ export const RetrievalPipelineViz: React.FC<RetrievalPipelineVizProps> = ({
               {/* Stage node */}
               <div
                 className={clsx(styles.stageNode, {
-                  [styles.stageActive]: isActive,
-                  [styles.stageComplete]: isComplete,
-                  [styles.stageError]: isError,
-                  [styles.stagePending]: stage.status === 'pending',
+                  [styles.stageActive ?? '']: isActive,
+                  [styles.stageComplete ?? '']: isComplete,
+                  [styles.stageError ?? '']: isError,
+                  [styles.stagePending ?? '']: stage.status === 'pending',
                 })}
               >
                 {/* Status indicator */}
@@ -165,7 +164,7 @@ export const RetrievalPipelineViz: React.FC<RetrievalPipelineVizProps> = ({
               {index < pipeline.stages.length - 1 && (
                 <div
                   className={clsx(styles.connector, {
-                    [styles.connectorActive]: isComplete,
+                    [styles.connectorActive ?? '']: isComplete,
                   })}
                 >
                   →

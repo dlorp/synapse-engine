@@ -84,14 +84,14 @@ export class MatrixRainAnimation {
   private generateCharColumn(): string[] {
     const length = this.rowCount + 10; // Extra for trailing effect
     return Array.from({ length }, () =>
-      MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)]
+      MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)] ?? 'A'
     );
   }
 
   private randomizeCharacter(column: RainColumn, index: number): void {
     // Randomly change characters for dynamic effect
     if (Math.random() < 0.05) {
-      column.chars[index] = MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)];
+      column.chars[index] = MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)] ?? 'A';
     }
   }
 
@@ -144,7 +144,7 @@ export class MatrixRainAnimation {
           if (y >= 0 && y <= this.canvas.height) {
             this.randomizeCharacter(column, charIndex);
             this.drawCharacter(
-              column.chars[charIndex],
+              column.chars[charIndex] ?? 'A',
               column.x + this.columnWidth / 2,
               y,
               alpha

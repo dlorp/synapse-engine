@@ -285,7 +285,7 @@ export const ModelCard: React.FC<ModelCardProps> = React.memo(({
   onToggleSettings,
   onToggleEnable,
   onCreateInstance,
-  onEditInstance,
+  onEditInstance: _onEditInstance,
   onDeleteInstance,
   onStartInstance,
   onStopInstance,
