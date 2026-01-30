@@ -55,7 +55,7 @@ export const AsciiSparkline: React.FC<AsciiSparklineProps> = ({
 
     const min = Math.min(...data);
     const max = Math.max(...data);
-    const current = data[data.length - 1];
+    const current = data[data.length - 1] ?? 0;
 
     return { min, max, current };
   }, [data]);

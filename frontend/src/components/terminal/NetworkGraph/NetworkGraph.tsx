@@ -12,7 +12,7 @@
  * - Reduced motion support
  */
 
-import React, { useRef, useEffect, useCallback, useMemo } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import { TerminalEffect } from '../TerminalEffect';
 import styles from './NetworkGraph.module.css';
 
@@ -98,6 +98,7 @@ export const NetworkGraph: React.FC<NetworkGraphProps> = ({
     // Apply forces
     for (let i = 0; i < simNodes.length; i++) {
       const nodeA = simNodes[i];
+      if (!nodeA) continue;
 
       // Center force (gravity toward center)
       const dx = centerX - nodeA.x;
@@ -108,6 +109,7 @@ export const NetworkGraph: React.FC<NetworkGraphProps> = ({
       // Repulsion between nodes
       for (let j = i + 1; j < simNodes.length; j++) {
         const nodeB = simNodes[j];
+        if (!nodeB) continue;
         const dx = nodeB.x - nodeA.x;
         const dy = nodeB.y - nodeA.y;
         const dist = Math.sqrt(dx * dx + dy * dy);

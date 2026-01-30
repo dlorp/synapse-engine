@@ -58,7 +58,7 @@ function hasReasoningPatterns(text: string): boolean {
 function parseResponse(response: string): ParsedResponse {
   // PRIORITY 1: Check for <think> tags (DeepSeek R1 format)
   const thinkMatch = response.match(/<think>([\s\S]*?)<\/think>/i);
-  if (thinkMatch) {
+  if (thinkMatch && thinkMatch[1]) {
     const thinking = thinkMatch[1].trim();
     const answer = response.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
     if (thinking.length > 50 && answer.length > 0) {
@@ -177,7 +177,7 @@ export const ResponseDisplay: React.FC<ResponseDisplayProps> = ({
   const [showThinking, setShowThinking] = useState(false);
   const [showFullResponse, setShowFullResponse] = useState(false);
 
-  const parsedResponse = useMemo(() => {
+  const parsedResponse = useMemo<ParsedResponse | null>(() => {
     if (!response) return null;
     return parseResponse(response.response);
   }, [response]);

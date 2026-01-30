@@ -14,7 +14,6 @@
  */
 
 import React, { useMemo } from 'react';
-import { Input } from '@/components/terminal/Input';
 import { Button } from '@/components/terminal/Button';
 import type { LogLevel, LogStats } from '@/types/logs';
 import styles from './LogFilters.module.css';

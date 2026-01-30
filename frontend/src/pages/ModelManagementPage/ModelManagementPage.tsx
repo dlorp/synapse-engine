@@ -1,7 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { AsciiPanel } from '@/components/terminal';
-import { StatusIndicator } from '@/components/terminal';
 import { ModelCardGrid } from '@/components/models/ModelCardGrid';
 import { ModelSettings } from '@/components/models/ModelSettings';
 import { useModelMetrics } from '@/hooks/useModelMetrics';
@@ -88,10 +87,12 @@ export const ModelManagementPage: React.FC = () => {
     const map: Record<string, InstanceConfig[]> = {};
 
     instanceList?.instances.forEach((instance) => {
-      if (!map[instance.modelId]) {
-        map[instance.modelId] = [];
+      const existing = map[instance.modelId];
+      if (!existing) {
+        map[instance.modelId] = [instance];
+      } else {
+        existing.push(instance);
       }
-      map[instance.modelId].push(instance);
     });
 
     return map;
@@ -252,7 +253,7 @@ export const ModelManagementPage: React.FC = () => {
 
   // Instance handlers
   const handleCreateInstance = useCallback(
-    async (modelId: string, config: import('@/types/instances').CreateInstanceRequest) => {
+    async (_modelId: string, config: import('@/types/instances').CreateInstanceRequest) => {
       try {
         await createInstanceMutation.mutateAsync(config);
         setOperationSuccess('Instance created successfully');

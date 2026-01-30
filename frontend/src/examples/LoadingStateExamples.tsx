@@ -9,7 +9,7 @@ import { TerminalSpinner, Panel } from '@/components/terminal';
 
 // Example 1: Simple loading state
 export const SimpleLoadingExample: React.FC = () => {
-  const [isLoading, setIsLoading] = React.useState(true);
+  const [isLoading] = React.useState(true);
 
   return (
     <div style={{ padding: '20px', fontFamily: 'JetBrains Mono, monospace' }}>
@@ -32,7 +32,7 @@ export const SimpleLoadingExample: React.FC = () => {
 
 // Example 2: Multi-stage loading with different spinners
 export const MultiStageLoadingExample: React.FC = () => {
-  const [stage, setStage] = React.useState<'idle' | 'connecting' | 'processing' | 'complete'>('connecting');
+  const [stage] = React.useState<'idle' | 'connecting' | 'processing' | 'complete'>('connecting');
 
   return (
     <Panel title="QUERY PROCESSING">
@@ -172,8 +172,8 @@ export const ModelGridExample: React.FC = () => {
 
 // Example 5: Data fetch with retry
 export const DataFetchExample: React.FC = () => {
-  const [status, setStatus] = React.useState<'loading' | 'error' | 'success'>('loading');
-  const [retryCount, setRetryCount] = React.useState(0);
+  const [status] = React.useState<'loading' | 'error' | 'success'>('loading');
+  const [retryCount] = React.useState(0);
 
   return (
     <div style={{

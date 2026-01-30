@@ -156,7 +156,7 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
 
   const getShortName = (presetId: string): string => {
     const match = presetId.match(/^SYNAPSE_(.+)$/);
-    return match ? match[1] : presetId;
+    return match && match[1] ? match[1] : presetId;
   };
 
   const handleSelect = (presetId: string) => {
@@ -195,7 +195,7 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
               aria-selected={isSelected}
               title={getPresetDescription(presetId)}
             >
-              <span className={styles.optionKey}>[{keyInfo?.key.toUpperCase()}]</span>
+              <span className={styles.optionKey}>[{keyInfo?.key.toUpperCase() ?? '?'}]</span>
               <span className={styles.optionLabel}>{keyInfo?.display || getShortName(presetId)}</span>
               {isSelected && <span className={styles.checkmark}>●</span>}
             </button>

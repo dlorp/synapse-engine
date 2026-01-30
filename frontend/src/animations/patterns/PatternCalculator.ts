@@ -142,7 +142,12 @@ export class PatternCalculator {
       // Fisher-Yates shuffle with seeded random
       for (let i = positions.length - 1; i > 0; i--) {
         const j = Math.floor(rng.next() * (i + 1));
-        [positions[i], positions[j]] = [positions[j], positions[i]];
+        const posI = positions[i];
+        const posJ = positions[j];
+        if (posI !== undefined && posJ !== undefined) {
+          positions[i] = posJ;
+          positions[j] = posI;
+        }
       }
 
       this.randomCache.set(charIndex, positions);

@@ -29,11 +29,11 @@ const BLOCK_CHARS = ['▁', '▂', '▃', '▄', '▅', '▆', '▇', '█'];
  * Map a value to a block character based on min/max range
  */
 const valueToBlock = (value: number, min: number, max: number): string => {
-  if (max === min) return BLOCK_CHARS[0]; // All values same
+  if (max === min) return BLOCK_CHARS[0] ?? '▁'; // All values same
 
   const normalized = (value - min) / (max - min);
   const index = Math.floor(normalized * (BLOCK_CHARS.length - 1));
-  return BLOCK_CHARS[Math.max(0, Math.min(index, BLOCK_CHARS.length - 1))];
+  return BLOCK_CHARS[Math.max(0, Math.min(index, BLOCK_CHARS.length - 1))] ?? '▁';
 };
 
 export const Sparkline: React.FC<SparklineProps> = ({

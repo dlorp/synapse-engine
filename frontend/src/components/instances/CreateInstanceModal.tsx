@@ -16,7 +16,7 @@ import { AsciiPanel } from '@/components/terminal/AsciiPanel/AsciiPanel';
 import { Button } from '@/components/terminal/Button/Button';
 import { useModelRegistry } from '@/hooks/useModelManagement';
 import { useCreateInstance, useSystemPromptPresets } from '@/hooks/useInstances';
-import type { CreateInstanceRequest, SystemPromptPreset } from '@/types/instances';
+import type { CreateInstanceRequest } from '@/types/instances';
 import type { DiscoveredModel } from '@/types/models';
 import styles from './CreateInstanceModal.module.css';
 
