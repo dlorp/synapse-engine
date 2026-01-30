@@ -349,11 +349,31 @@ class MetricsCollector:
         # Get FAISS index size
         faiss_index_size = self._get_faiss_index_size()
 
-        # Get Redis cache size (estimate)
-        redis_cache_size = 0  # TODO: Integrate with Redis
+        # Get Redis cache key count from cache metrics
+        # Note: Actual Redis key count requires async get_cache_size() call
+        # Using request count as a proxy metric for cache activity
+        redis_cache_size = 0
+        try:
+            from app.services.cache_metrics import get_cache_metrics
+            cache_metrics = get_cache_metrics()
+            redis_cache_size = cache_metrics._total_requests
+        except RuntimeError:
+            # Cache metrics not initialized yet
+            pass
+        except Exception as e:
+            logger.debug(f"Failed to get Redis cache metrics: {e}")
 
-        # Get active WebSocket connections
-        active_connections = 0  # TODO: Get from WebSocket manager
+        # Get active WebSocket connections from event bus
+        active_connections = 0
+        try:
+            from app.services.event_bus import get_event_bus
+            event_bus_stats = get_event_bus().get_stats()
+            active_connections = event_bus_stats.get("active_subscribers", 0)
+        except RuntimeError:
+            # EventBus not initialized yet
+            pass
+        except Exception as e:
+            logger.debug(f"Failed to get WebSocket connection count: {e}")
 
         # Get thread pool status
         # Using asyncio event loop thread pool
