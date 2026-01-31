@@ -257,6 +257,7 @@ export function useCodeChat(): UseCodeChatResult {
       let buffer = '';
 
       // Read stream until done
+      // eslint-disable-next-line no-constant-condition
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
