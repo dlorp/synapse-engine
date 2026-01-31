@@ -6,7 +6,6 @@ Code Chat agentic coding assistant.
 Phase: Code Chat Implementation (Session 5)
 """
 
-import asyncio
 import os
 import tempfile
 from pathlib import Path
@@ -15,8 +14,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from app.models.code_chat import ToolName, ToolResult
-from app.services.code_chat.tools.base import BaseTool, ToolRegistry, SecurityError
+from app.models.code_chat import ToolName
+from app.services.code_chat.tools.base import ToolRegistry
 from app.services.code_chat.tools.file_ops import (
     ReadFileTool,
     WriteFileTool,

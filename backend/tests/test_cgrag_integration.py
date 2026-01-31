@@ -25,8 +25,8 @@ async def test_cgrag_integration():
     metadata_path = project_root / "data" / "faiss_indexes" / "docs_metadata.pkl"
 
     if not index_path.exists() or not metadata_path.exists():
-        print(f"   ❌ Index files not found!")
-        print(f"   Run: python -m app.cli.index_docs ../docs")
+        print("   ❌ Index files not found!")
+        print("   Run: python -m app.cli.index_docs ../docs")
         return False
 
     print(f"   ✓ Index exists: {index_path}")
@@ -51,7 +51,7 @@ async def test_cgrag_integration():
     print(f"   ✓ Retrieval time: {result.retrieval_time_ms:.2f}ms")
 
     if len(result.artifacts) == 0:
-        print(f"   ❌ No artifacts retrieved!")
+        print("   ❌ No artifacts retrieved!")
         return False
 
     # Test 3: Test query endpoint integration
@@ -76,26 +76,26 @@ async def test_cgrag_integration():
             data = response.json()
             metadata = data.get("metadata", {})
 
-            print(f"   ✓ Query successful")
+            print("   ✓ Query successful")
             print(f"   ✓ Model: {metadata.get('model_id')}")
             print(f"   ✓ CGRAG artifacts: {metadata.get('cgrag_artifacts')}")
             print(f"   ✓ Processing time: {metadata.get('processing_time_ms'):.2f}ms")
 
             if metadata.get('cgrag_artifacts', 0) == 0:
-                print(f"   ⚠ Warning: No CGRAG artifacts used in query")
+                print("   ⚠ Warning: No CGRAG artifacts used in query")
 
             # Show artifact details
             artifacts_info = metadata.get('cgrag_artifacts_info', [])
             if artifacts_info:
-                print(f"\n   Artifact Details:")
+                print("\n   Artifact Details:")
                 for i, artifact in enumerate(artifacts_info[:3], 1):
                     print(f"      {i}. {Path(artifact['file_path']).name} "
                           f"(relevance: {artifact['relevance_score']:.3f}, "
                           f"tokens: {artifact['token_count']})")
 
         except httpx.ConnectError:
-            print(f"   ❌ Cannot connect to backend (http://localhost:8000)")
-            print(f"   Make sure the backend is running: uvicorn app.main:app")
+            print("   ❌ Cannot connect to backend (http://localhost:8000)")
+            print("   Make sure the backend is running: uvicorn app.main:app")
             return False
 
     # Test 4: Performance check

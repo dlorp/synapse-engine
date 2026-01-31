@@ -21,7 +21,6 @@ Usage:
 import argparse
 import asyncio
 import sys
-from typing import Any, Dict
 
 import httpx
 
@@ -67,7 +66,7 @@ class APITester:
         pass_rate = (self.passed / total * 100) if total > 0 else 0
 
         print(f"\n{'='*70}")
-        print(f"  TEST SUMMARY")
+        print("  TEST SUMMARY")
         print(f"{'='*70}")
         print(f"  Total:  {total}")
         print(f"  Passed: {self.passed}")
@@ -478,7 +477,7 @@ class APITester:
     async def run_all_tests(self) -> None:
         """Run all API endpoint tests."""
         print("\n" + "="*70)
-        print(f"  S.Y.N.A.P.S.E. ENGINE Model Management API Test Suite")
+        print("  S.Y.N.A.P.S.E. ENGINE Model Management API Test Suite")
         print(f"  Base URL: {self.base_url}")
         print("="*70)
 
