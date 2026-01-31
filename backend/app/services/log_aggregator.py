@@ -18,7 +18,6 @@ Task: Comprehensive Log Aggregation and Streaming System
 """
 
 import asyncio
-import json
 import time
 from collections import deque
 from datetime import datetime

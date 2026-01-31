@@ -15,8 +15,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import List, Optional
 
-from fastapi import APIRouter, Body, HTTPException, status
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, HTTPException, status
 
 from app.core.dependencies import LoggerDependency, ModelManagerDependency
 from app.core.exceptions import SynapseException
@@ -41,7 +40,6 @@ from app.models.api import (
     TierUpdateResponse,
 )
 from app.models.discovered_model import DiscoveredModel, ModelRegistry, ModelTier
-from app.models.model import SystemStatus
 from app.models.model_metrics import ModelMetrics
 from app.models.profile import ModelProfile
 from app.services.llama_server_manager import LlamaServerManager

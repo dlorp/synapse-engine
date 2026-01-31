@@ -24,7 +24,6 @@ from typing import Optional
 
 import httpx
 from fastapi import APIRouter, HTTPException, Request, Response, status
-from fastapi.responses import StreamingResponse
 
 logger = logging.getLogger(__name__)
 

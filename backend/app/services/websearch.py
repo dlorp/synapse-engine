@@ -5,10 +5,9 @@ a free and open metasearch engine. Implements result parsing, relevance scoring,
 and integration with CGRAG context retrieval.
 """
 
-import asyncio
 import logging
 import time
-from typing import Dict, List, Optional
+from typing import List, Optional
 from urllib.parse import urljoin
 
 import httpx

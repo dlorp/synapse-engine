@@ -102,7 +102,7 @@ class LlamaCppClient:
                 }
             else:
                 self._logger.warning(
-                    f"Health check returned non-200 status",
+                    "Health check returned non-200 status",
                     extra={
                         'base_url': self.base_url,
                         'status_code': response.status_code
@@ -117,7 +117,7 @@ class LlamaCppClient:
         except httpx.TimeoutException:
             elapsed_ms = (asyncio.get_event_loop().time() - start_time) * 1000
             self._logger.warning(
-                f"Health check timeout",
+                "Health check timeout",
                 extra={'base_url': self.base_url}
             )
             return {
@@ -129,7 +129,7 @@ class LlamaCppClient:
         except httpx.ConnectError as e:
             elapsed_ms = (asyncio.get_event_loop().time() - start_time) * 1000
             self._logger.warning(
-                f"Health check connection failed",
+                "Health check connection failed",
                 extra={'base_url': self.base_url, 'error': str(e)}
             )
             return {
@@ -141,7 +141,7 @@ class LlamaCppClient:
         except Exception as e:
             elapsed_ms = (asyncio.get_event_loop().time() - start_time) * 1000
             self._logger.error(
-                f"Health check unexpected error",
+                "Health check unexpected error",
                 extra={'base_url': self.base_url, 'error': str(e)},
                 exc_info=True
             )
@@ -198,7 +198,7 @@ class LlamaCppClient:
                 }
             else:
                 self._logger.debug(
-                    f"Stats endpoint returned non-200 status",
+                    "Stats endpoint returned non-200 status",
                     extra={
                         'base_url': self.base_url,
                         'status_code': response.status_code
@@ -212,7 +212,7 @@ class LlamaCppClient:
 
         except httpx.TimeoutException:
             self._logger.debug(
-                f"Stats request timeout",
+                "Stats request timeout",
                 extra={'base_url': self.base_url}
             )
             return {
@@ -223,7 +223,7 @@ class LlamaCppClient:
 
         except httpx.ConnectError as e:
             self._logger.debug(
-                f"Stats request connection failed",
+                "Stats request connection failed",
                 extra={'base_url': self.base_url, 'error': str(e)}
             )
             return {
@@ -234,7 +234,7 @@ class LlamaCppClient:
 
         except Exception as e:
             self._logger.debug(
-                f"Stats request unexpected error",
+                "Stats request unexpected error",
                 extra={'base_url': self.base_url, 'error': str(e)}
             )
             return {
@@ -314,7 +314,7 @@ class LlamaCppClient:
                     data = response.json()
 
                     self._logger.info(
-                        f"Completion generated successfully",
+                        "Completion generated successfully",
                         extra={
                             'base_url': self.base_url,
                             'tokens_predicted': data.get('tokens_predicted', 0),
@@ -333,7 +333,7 @@ class LlamaCppClient:
                 else:
                     error_msg = f"HTTP {response.status_code}: {response.text}"
                     self._logger.warning(
-                        f"Completion request failed",
+                        "Completion request failed",
                         extra={
                             'base_url': self.base_url,
                             'status_code': response.status_code,
@@ -358,7 +358,7 @@ class LlamaCppClient:
 
             except httpx.TimeoutException as e:
                 self._logger.warning(
-                    f"Completion request timeout",
+                    "Completion request timeout",
                     extra={
                         'base_url': self.base_url,
                         'attempt': attempt + 1,
@@ -369,7 +369,7 @@ class LlamaCppClient:
 
             except httpx.ConnectError as e:
                 self._logger.warning(
-                    f"Completion request connection failed",
+                    "Completion request connection failed",
                     extra={
                         'base_url': self.base_url,
                         'attempt': attempt + 1,
@@ -380,7 +380,7 @@ class LlamaCppClient:
 
             except Exception as e:
                 self._logger.error(
-                    f"Completion request unexpected error",
+                    "Completion request unexpected error",
                     extra={
                         'base_url': self.base_url,
                         'attempt': attempt + 1,
