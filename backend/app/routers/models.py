@@ -21,6 +21,7 @@ from fastapi.responses import JSONResponse
 from app.core.dependencies import LoggerDependency, ModelManagerDependency
 from app.core.exceptions import SynapseException
 from app.models.api import (
+    BulkEnabledUpdateResponse,
     EnabledUpdateRequest,
     EnabledUpdateResponse,
     PortRangeUpdateRequest,
@@ -664,6 +665,108 @@ async def toggle_model_enabled(
         enabled=request.enabled,
         restart_required=False,
         server_status="registry_updated"
+    )
+
+
+@router.post(
+    "/enable-all",
+    response_model=BulkEnabledUpdateResponse,
+    response_model_by_alias=True
+)
+async def enable_all_models() -> BulkEnabledUpdateResponse:
+    """Enable all discovered models in the registry.
+
+    This is a bulk operation that enables all models without starting servers.
+    Use 'START ALL ENABLED' to start servers after enabling.
+
+    Returns:
+        Confirmation with count of models updated
+
+    Raises:
+        HTTPException: 503 if services not initialized, 500 if save fails
+    """
+    logger.info("Bulk enable requested for all models")
+
+    registry = _get_registry()
+    discovery = _get_discovery_service()
+
+    models_updated = 0
+    for model in registry.models.values():
+        if not model.enabled:
+            model.enabled = True
+            models_updated += 1
+
+    # Save registry
+    try:
+        registry_path = Path(os.getenv("REGISTRY_PATH", "data/model_registry.json"))
+        discovery.save_registry(registry, registry_path)
+        logger.info(f"Bulk enable completed: {models_updated} models enabled")
+    except Exception as e:
+        logger.error(f"Failed to save registry: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={
+                "error": "RegistrySaveFailed",
+                "message": f"Failed to save registry: {str(e)}"
+            }
+        )
+
+    return BulkEnabledUpdateResponse(
+        message=f"All models enabled ({models_updated} updated)",
+        models_updated=models_updated,
+        enabled=True,
+        timestamp=datetime.now(timezone.utc).isoformat()
+    )
+
+
+@router.post(
+    "/disable-all",
+    response_model=BulkEnabledUpdateResponse,
+    response_model_by_alias=True
+)
+async def disable_all_models() -> BulkEnabledUpdateResponse:
+    """Disable all discovered models in the registry.
+
+    This is a bulk operation that disables all models without stopping servers.
+    Running servers continue until explicitly stopped.
+
+    Returns:
+        Confirmation with count of models updated
+
+    Raises:
+        HTTPException: 503 if services not initialized, 500 if save fails
+    """
+    logger.info("Bulk disable requested for all models")
+
+    registry = _get_registry()
+    discovery = _get_discovery_service()
+
+    models_updated = 0
+    for model in registry.models.values():
+        if model.enabled:
+            model.enabled = False
+            models_updated += 1
+
+    # Save registry
+    try:
+        registry_path = Path(os.getenv("REGISTRY_PATH", "data/model_registry.json"))
+        discovery.save_registry(registry, registry_path)
+        logger.info(f"Bulk disable completed: {models_updated} models disabled")
+    except Exception as e:
+        logger.error(f"Failed to save registry: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={
+                "error": "RegistrySaveFailed",
+                "message": f"Failed to save registry: {str(e)}"
+            }
+        )
+
+    return BulkEnabledUpdateResponse(
+        message=f"All models disabled ({models_updated} updated)",
+        models_updated=models_updated,
+        enabled=False,
+        timestamp=datetime.now(timezone.utc).isoformat()
     )
 
 
