@@ -6,9 +6,6 @@ via REST API and SSE streaming.
 Phase: Code Chat Implementation (Session 5)
 """
 
-import asyncio
-import json
-from typing import AsyncGenerator
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -18,8 +15,6 @@ from app.models.code_chat import (
     WorkspaceListResponse,
     WorkspaceValidation,
     DirectoryInfo,
-    ContextInfo,
-    ModelPreset,
     PRESETS,
 )
 

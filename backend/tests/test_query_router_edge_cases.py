@@ -13,7 +13,6 @@ Date: 2025-11-30
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 from pathlib import Path
-from typing import Optional
 
 from app.models.discovered_model import DiscoveredModel, QuantizationLevel, ModelTier
 from app.models.instance import InstanceConfig
@@ -30,7 +29,6 @@ class TestCGRAGContextEdgeCases:
 
         This tests the fix for the unbound variable error on line 1414.
         """
-        from app.routers.query import router
         from fastapi.testclient import TestClient
         from app.main import app
 

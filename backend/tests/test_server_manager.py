@@ -74,7 +74,7 @@ async def test_server_manager():
         max_startup_time=60,  # 1 minute timeout for testing
         readiness_check_interval=2
     )
-    print(f"✅ Manager initialized")
+    print("✅ Manager initialized")
     print(f"   Binary: {manager.llama_server_path}")
     print(f"   Host: {manager.host}")
     print(f"   Max startup time: {manager.max_startup_time}s")
@@ -88,7 +88,7 @@ async def test_server_manager():
 
         server = await manager.start_server(test_model)
 
-        print(f"✅ Server started successfully!")
+        print("✅ Server started successfully!")
         print(f"   PID: {server.pid}")
         print(f"   Port: {server.port}")
         print(f"   Ready: {server.is_ready}")
@@ -99,7 +99,7 @@ async def test_server_manager():
         print("[5/6] Checking status...")
         status = manager.get_status_summary()
 
-        print(f"Status Summary:")
+        print("Status Summary:")
         print(f"   Total servers: {status['total_servers']}")
         print(f"   Ready servers: {status['ready_servers']}")
         print(f"   Running servers: {status['running_servers']}")
@@ -107,7 +107,7 @@ async def test_server_manager():
 
         if status['servers']:
             server_info = status['servers'][0]
-            print(f"Server Details:")
+            print("Server Details:")
             print(f"   Model: {server_info['display_name']}")
             print(f"   PID: {server_info['pid']}")
             print(f"   Port: {server_info['port']}")
@@ -128,10 +128,10 @@ async def test_server_manager():
         print("Testing server lookup...")
         found_server = manager.get_server(test_model.model_id)
         if found_server:
-            print(f"✅ Server lookup successful")
+            print("✅ Server lookup successful")
             print(f"   Found: {found_server.model.get_display_name()}")
         else:
-            print(f"❌ Server lookup failed")
+            print("❌ Server lookup failed")
         print()
 
         # Check if running
@@ -142,12 +142,12 @@ async def test_server_manager():
         # Stop server
         print("[6/6] Stopping server gracefully...")
         await manager.stop_server(test_model.model_id, timeout=10)
-        print(f"✅ Server stopped")
+        print("✅ Server stopped")
         print()
 
         # Verify stopped
         final_status = manager.get_status_summary()
-        print(f"Final status:")
+        print("Final status:")
         print(f"   Total servers: {final_status['total_servers']}")
         print()
 
@@ -195,7 +195,7 @@ async def test_concurrent_startup():
     ]
 
     if len(available_fast_models) < 2:
-        print(f"❌ Not enough fast models in registry")
+        print("❌ Not enough fast models in registry")
         print(f"   Found: {available_fast_models}")
         print("   Skipping concurrent test")
         return
@@ -230,7 +230,7 @@ async def test_concurrent_startup():
 
         print("[3/3] Stopping all servers...")
         await manager.stop_all(timeout=10)
-        print(f"✅ All servers stopped")
+        print("✅ All servers stopped")
         print()
 
         print("✅ Concurrent startup test passed!")

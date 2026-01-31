@@ -49,7 +49,7 @@ async def main():
         max_artifacts=10
     )
 
-    print(f"\nRetrieval Results:")
+    print("\nRetrieval Results:")
     print(f"  Artifacts: {len(result.artifacts)}")
     print(f"  Tokens used: {result.tokens_used}")
     print(f"  Retrieval time: {result.retrieval_time_ms:.2f}ms")
@@ -57,7 +57,7 @@ async def main():
     print(f"  Top scores: {result.top_scores[:5]}")
 
     # Print top artifacts
-    print(f"\nTop Artifacts:")
+    print("\nTop Artifacts:")
     for i, artifact in enumerate(result.artifacts[:3]):
         print(f"\n  Artifact {i+1}:")
         print(f"    File: {artifact.file_path}")

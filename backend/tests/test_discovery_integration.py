@@ -7,7 +7,7 @@ and validates the complete discovery workflow.
 
 from pathlib import Path
 from app.services.model_discovery import ModelDiscoveryService
-from app.models.discovered_model import ModelTier, QuantizationLevel
+from app.models.discovered_model import ModelTier
 
 
 def test_discovery_integration():
@@ -22,8 +22,8 @@ def test_discovery_integration():
     # Check if scan path exists, if not, skip test
     if not scan_path.exists():
         print(f"\n⚠️  Scan path does not exist: {scan_path}")
-        print(f"   This test requires a local model directory")
-        print(f"   Skipping test (not a failure)")
+        print("   This test requires a local model directory")
+        print("   Skipping test (not a failure)")
         import pytest
         pytest.skip("Scan path does not exist - requires local model directory")
 
@@ -33,12 +33,12 @@ def test_discovery_integration():
         powerful_threshold=14.0,
         fast_threshold=7.0
     )
-    print(f"\n✓ Service initialized")
+    print("\n✓ Service initialized")
     print(f"  Scan path: {scan_path}")
 
     # Discover models
     registry = service.discover_models()
-    print(f"\n✓ Discovery complete")
+    print("\n✓ Discovery complete")
     print(f"  Total models: {len(registry.models)}")
 
     # Test tier filtering
@@ -97,13 +97,13 @@ def test_discovery_integration():
 
     # Test loading
     loaded_registry = service.load_registry(output_path)
-    print(f"✓ Registry loaded successfully")
+    print("✓ Registry loaded successfully")
     assert len(loaded_registry.models) == len(registry.models)
     print(f"  Verified: {len(loaded_registry.models)} models")
 
     # Cleanup
     output_path.unlink()
-    print(f"✓ Test file cleaned up")
+    print("✓ Test file cleaned up")
 
     # Final validation
     print("\n" + "=" * 70)
