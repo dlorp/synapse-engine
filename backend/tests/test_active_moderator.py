@@ -7,7 +7,6 @@ models go off-topic.
 """
 
 import requests
-import json
 import time
 
 
@@ -72,13 +71,13 @@ def test_active_moderator(
         moderator_interjections = metadata.get("councilModeratorInterjections", 0)
 
         print(f"✅ Request completed in {elapsed_time:.2f}s")
-        print(f"\n📊 Results:")
+        print("\n📊 Results:")
         print(f"  Total turns: {len(council_turns)}")
         print(f"  Moderator interjections: {moderator_interjections}")
         print(f"  Termination reason: {metadata.get('councilTerminationReason', 'N/A')}")
 
         # Show turn-by-turn breakdown
-        print(f"\n📝 Turn-by-turn breakdown:")
+        print("\n📝 Turn-by-turn breakdown:")
         for i, turn in enumerate(council_turns, 1):
             speaker = turn.get("speakerId", "Unknown")
             content_preview = turn.get("content", "")[:100] + "..."
@@ -91,7 +90,7 @@ def test_active_moderator(
                 print(f"    Preview: {content_preview}")
 
         # Validation
-        print(f"\n✓ Validation:")
+        print("\n✓ Validation:")
         if expected_interjections > 0:
             if moderator_interjections >= expected_interjections:
                 print(f"  ✅ Got expected interjections (>= {expected_interjections})")
@@ -103,7 +102,7 @@ def test_active_moderator(
         if moderator_turns:
             print(f"  ✅ Found {len(moderator_turns)} moderator turns in conversation")
         else:
-            print(f"  ⚠️  No moderator turns found (may be expected if debate stayed on track)")
+            print("  ⚠️  No moderator turns found (may be expected if debate stayed on track)")
 
         return True
 

@@ -127,7 +127,7 @@ def test_profile_with_registry():
             print(f"✅ All {len(profile.enabled_models)} models are valid")
 
             # Show which models are enabled
-            print(f"\nEnabled models:")
+            print("\nEnabled models:")
             for model_id in profile.enabled_models:
                 model = registry.models[model_id]
                 print(f"  • {model.get_display_name()}")
@@ -135,10 +135,10 @@ def test_profile_with_registry():
                 print(f"    - Size: {model.size_params}B params")
                 print(f"    - Quantization: {model.quantization}")
                 if model.is_effectively_thinking():
-                    print(f"    - ⚡ Reasoning model")
+                    print("    - ⚡ Reasoning model")
 
             # Show tier routing
-            print(f"\nTier routing configuration:")
+            print("\nTier routing configuration:")
             for tier in profile.tier_config:
                 print(f"  • {tier.name.upper()}: complexity ≤ {tier.max_score}, "
                       f"target {tier.expected_time_seconds}s")
@@ -147,13 +147,13 @@ def test_profile_with_registry():
 
             # Show special configs
             if profile.two_stage.enabled:
-                print(f"\n⚡ Two-stage processing enabled:")
+                print("\n⚡ Two-stage processing enabled:")
                 print(f"  Stage 1: {profile.two_stage.stage1_tier} "
                       f"(max {profile.two_stage.stage1_max_tokens} tokens)")
                 print(f"  Stage 2: {profile.two_stage.stage2_tier} (full response)")
 
             if profile.load_balancing.enabled:
-                print(f"\n⚖️  Load balancing enabled:")
+                print("\n⚖️  Load balancing enabled:")
                 print(f"  Strategy: {profile.load_balancing.strategy}")
                 print(f"  Health check: every {profile.load_balancing.health_check_interval}s")
 
@@ -187,7 +187,7 @@ def test_profile_tier_matching():
 
             # Check if model tier exists in profile
             if model.get_effective_tier() in tier_names:
-                print(f"    ✅ Tier match found")
+                print("    ✅ Tier match found")
             else:
                 print(f"    ⚠️  Model tier '{model.get_effective_tier()}' not in profile tier config")
 

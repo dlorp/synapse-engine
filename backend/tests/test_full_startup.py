@@ -31,7 +31,7 @@ async def test_startup():
     # Load config
     try:
         config = load_config()
-        print(f"✅ Configuration loaded")
+        print("✅ Configuration loaded")
         print(f"   Environment: {config.environment}")
     except Exception as e:
         print(f"❌ Failed to load configuration: {e}")
@@ -40,7 +40,7 @@ async def test_startup():
     # Create startup service
     try:
         service = StartupService(config, profile_name="development")
-        print(f"✅ StartupService created")
+        print("✅ StartupService created")
     except Exception as e:
         print(f"❌ Failed to create StartupService: {e}")
         return False
@@ -92,7 +92,7 @@ async def test_startup():
             # Check health again
             if service.server_manager:
                 status = service.server_manager.get_status_summary()
-                print(f"\nFinal Status:")
+                print("\nFinal Status:")
                 print(f"  Ready servers: {status['ready_servers']}/{status['total_servers']}")
 
         # Shutdown
