@@ -20,7 +20,6 @@ Author: Backend Architect
 Phase: 1 - LiveEventFeed Backend (Task 1.4)
 """
 
-import time
 from typing import Optional
 
 from app.core.logging import get_logger
@@ -32,8 +31,7 @@ from app.models.events import (
     CGRAGEvent,
     CacheEvent,
     ErrorEvent,
-    PerformanceEvent,
-    SystemEvent
+    PerformanceEvent
 )
 from app.services.event_bus import get_event_bus
 

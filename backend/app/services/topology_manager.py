@@ -11,7 +11,6 @@ Phase: 4 - Dashboard Features (Component 4)
 import asyncio
 import os
 import time
-from collections import defaultdict
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 

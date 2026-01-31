@@ -11,7 +11,7 @@ from fastapi import APIRouter, HTTPException
 from pathlib import Path
 import asyncio
 from datetime import datetime
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any
 import platform
 import sys
 import os
@@ -19,7 +19,6 @@ import httpx
 import time
 
 from app.core.logging import get_logger
-from app.core.exceptions import SynapseException
 from app.models.api import ExternalServerStatusResponse, ExternalServerItem
 
 logger = get_logger(__name__)

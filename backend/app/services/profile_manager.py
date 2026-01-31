@@ -6,7 +6,7 @@ and managing model configuration profiles from YAML files.
 
 import logging
 from pathlib import Path
-from typing import List, Optional
+from typing import List
 import yaml
 
 from app.models.profile import ModelProfile

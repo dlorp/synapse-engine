@@ -12,7 +12,7 @@ import yaml
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from app.core.exceptions import ConfigurationError
-from app.models.config import AppConfig, ModelConfig
+from app.models.config import AppConfig
 
 
 class Settings(BaseSettings):

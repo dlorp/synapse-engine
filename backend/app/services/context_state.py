@@ -13,11 +13,10 @@ Feature: Context Window Allocation Viewer
 
 import asyncio
 import time
-from datetime import datetime
 from typing import Dict, Optional
 
 from app.core.logging import get_logger
-from app.models.context import ContextAllocation, ContextAllocationRequest, ContextComponent, CGRAGArtifact
+from app.models.context import ContextAllocation, ContextAllocationRequest, ContextComponent
 from app.services.token_counter import get_token_counter
 
 logger = get_logger(__name__)

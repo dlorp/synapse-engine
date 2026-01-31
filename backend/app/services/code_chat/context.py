@@ -8,14 +8,13 @@ Author: CGRAG Specialist
 Phase: Code Chat Implementation (Phase 1.1)
 """
 
-import asyncio
 import json
 import logging
 import pickle
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Set
+from typing import List, Optional
 
 import faiss
 from pydantic import BaseModel, Field
