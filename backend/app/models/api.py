@@ -141,6 +141,31 @@ class EnabledUpdateResponse(BaseModel):
     )
 
 
+class BulkEnabledUpdateResponse(BaseModel):
+    """Response from bulk enable/disable operation."""
+
+    message: str = Field(..., description="Human-readable success message")
+    models_updated: int = Field(
+        ...,
+        description="Number of models updated",
+        alias="modelsUpdated"
+    )
+    enabled: bool = Field(..., description="New enabled status for all models")
+    timestamp: str = Field(..., description="ISO timestamp of operation")
+
+    model_config = ConfigDict(
+        populate_by_name=True,
+        json_schema_extra={
+            "example": {
+                "message": "All models enabled successfully",
+                "modelsUpdated": 5,
+                "enabled": True,
+                "timestamp": "2025-01-15T10:30:00Z"
+            }
+        }
+    )
+
+
 class RescanResponse(BaseModel):
     """Response from model rescan operation."""
 
