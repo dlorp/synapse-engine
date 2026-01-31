@@ -324,17 +324,12 @@ class MetricsCollector:
         Returns:
             ResourceMetrics with current system state
         """
-        # Get VRAM metrics (GPU memory)
-        vram_used = 0.0
-        vram_total = 0.0
-        vram_percent = 0.0
-
-        # Try to get GPU metrics (works on systems with nvidia-smi or similar)
-        # For now, use placeholder values
-        # TODO: Integrate with GPU monitoring library
-        vram_used = 8.5  # GB
-        vram_total = 24.0  # GB
-        vram_percent = (vram_used / vram_total) * 100 if vram_total > 0 else 0.0
+        # Get VRAM/GPU metrics (cross-platform)
+        from app.services.gpu_monitor import get_gpu_metrics
+        vram_used, vram_total, vram_percent, gpu_name = get_gpu_metrics()
+        
+        if gpu_name:
+            logger.debug(f"GPU metrics from: {gpu_name}")
 
         # Get CPU metrics
         cpu_percent = psutil.cpu_percent(interval=0.1)
