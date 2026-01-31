@@ -96,14 +96,14 @@ class StartupService:
             logger.info(f"✅ {len(self.enabled_models)} models enabled")
 
             # Step 4: Launch servers
-            logger.info(f"[4/5] Launching servers")
+            logger.info("[4/5] Launching servers")
             await self._launch_servers()
-            logger.info(f"✅ Servers launched")
+            logger.info("✅ Servers launched")
 
             # Step 5: Health check
             logger.info("[5/5] Health check")
             health_status = await self._health_check()
-            logger.info(f"✅ Health check complete")
+            logger.info("✅ Health check complete")
 
             # Summary
             logger.info("=" * 70)

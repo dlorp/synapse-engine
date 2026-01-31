@@ -4,7 +4,6 @@ This module implements the logic for analyzing query complexity
 and determining the appropriate model tier for processing.
 """
 
-import logging
 from typing import List
 
 from app.core.logging import get_logger

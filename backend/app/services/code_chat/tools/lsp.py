@@ -20,9 +20,8 @@ import asyncio
 import json
 import logging
 import re
-import subprocess
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Optional, Any
 
 from app.models.code_chat import ToolName, ToolResult
 from app.services.code_chat.tools.base import BaseTool, SecurityError
@@ -1086,7 +1085,7 @@ class GetProjectInfoTool(BaseTool):
 
         scripts = info.get('scripts', {})
         if scripts:
-            lines.append(f"\nScripts:")
+            lines.append("\nScripts:")
             for name, cmd in list(scripts.items())[:5]:  # Show first 5
                 lines.append(f"  - {name}: {cmd}")
             if len(scripts) > 5:
@@ -1094,7 +1093,7 @@ class GetProjectInfoTool(BaseTool):
 
         entry_points = info.get('entry_points', [])
         if entry_points:
-            lines.append(f"\nEntry Points:")
+            lines.append("\nEntry Points:")
             for ep in entry_points:
                 lines.append(f"  - {ep}")
 

@@ -8,7 +8,6 @@ Author: Backend Architect
 Phase: 1 - LiveEventFeed Backend (Task 1.4)
 """
 
-from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, Literal, Optional
 

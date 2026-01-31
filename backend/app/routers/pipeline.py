@@ -9,7 +9,6 @@ Feature: Processing Pipeline Visualization
 """
 
 from fastapi import APIRouter, HTTPException, status
-from typing import Optional
 
 from app.core.logging import get_logger
 from app.models.pipeline import PipelineStatus

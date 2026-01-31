@@ -12,7 +12,6 @@ Phase: Code Chat Implementation (Session 3)
 """
 
 import asyncio
-import json
 import logging
 from typing import List, Optional
 from uuid import uuid4
@@ -23,11 +22,9 @@ from fastapi.responses import StreamingResponse
 from app.models.code_chat import (
     WorkspaceListResponse,
     WorkspaceValidation,
-    DirectoryInfo,
     ContextInfo,
     CreateContextRequest,
     ModelPreset,
-    PRESETS,
     CodeChatRequest,
     CodeChatStreamEvent,
 )

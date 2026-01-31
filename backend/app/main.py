@@ -8,6 +8,7 @@ This module initializes the FastAPI application, configures middleware,
 registers routers, and sets up application lifecycle events.
 """
 
+import asyncio
 import logging
 import os
 import time
@@ -19,7 +20,7 @@ from fastapi import FastAPI, Request, Response, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.core.config import load_config, get_config
+from app.core.config import load_config
 from app.core.exceptions import SynapseException
 from app.core.logging import (
     setup_logging,
@@ -38,9 +39,9 @@ from app.services.pipeline_state import init_pipeline_state_manager, get_pipelin
 from app.services.context_state import init_context_state_manager, get_context_state_manager
 from app.services.metrics_aggregator import init_metrics_aggregator, get_metrics_aggregator
 from app.services.topology_manager import init_topology_manager, get_topology_manager
-from app.services.cache_metrics import init_cache_metrics, get_cache_metrics
+from app.services.cache_metrics import init_cache_metrics
 from app.services.health_monitor import init_health_monitor, get_health_monitor
-from app.services.log_aggregator import init_log_aggregator, get_log_aggregator
+from app.services.log_aggregator import init_log_aggregator
 from app.services.instance_manager import init_instance_manager, InstanceManager
 from app.core.logging_handler import AggregatorHandler
 from app.models.discovered_model import ModelRegistry
@@ -92,7 +93,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         # Load configuration
         config = load_config()
         logger.info(
-            f"prx: Configuration loaded successfully",
+            "prx: Configuration loaded successfully",
             extra={
                 'environment': config.environment,
                 'model_count': len(config.models)

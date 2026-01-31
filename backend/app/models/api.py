@@ -4,7 +4,6 @@ This module defines Pydantic models for validating API requests and
 responses in the model management REST API.
 """
 
-from datetime import datetime
 from typing import List, Optional
 
 from pydantic import BaseModel, Field, ConfigDict

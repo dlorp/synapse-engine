@@ -829,7 +829,7 @@ Rules:
                 raise Exception("LLM returned empty response")
 
             logger.info(
-                f"LLM response generated successfully",
+                "LLM response generated successfully",
                 extra={
                     'tier': tier,
                     'model_id': model.model_id,

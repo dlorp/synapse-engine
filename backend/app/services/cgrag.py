@@ -6,13 +6,12 @@ generation, and token budget management for context retrieval.
 """
 
 import asyncio
-import json
 import logging
 import pickle
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import List, Optional, Tuple
 from uuid import uuid4
 
 import faiss
