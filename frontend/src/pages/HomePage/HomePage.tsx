@@ -119,18 +119,48 @@ export const HomePage: React.FC = () => {
 
   // Quick action handlers
   const handleRescan = async () => {
-    // TODO: Implement API call to /api/admin/discover or /api/models/rescan
-    console.log('Rescanning models...');
+    try {
+      const response = await fetch('/api/models/rescan', { method: 'POST' });
+      if (!response.ok) {
+        const error = await response.json();
+        console.error('Rescan failed:', error);
+        return;
+      }
+      const data = await response.json();
+      console.log('Rescan completed:', data.message);
+    } catch (err) {
+      console.error('Rescan error:', err);
+    }
   };
 
   const handleEnableAll = async () => {
-    // TODO: Implement API call to enable all models
-    console.log('Enabling all models...');
+    try {
+      const response = await fetch('/api/models/enable-all', { method: 'POST' });
+      if (!response.ok) {
+        const error = await response.json();
+        console.error('Enable all failed:', error);
+        return;
+      }
+      const data = await response.json();
+      console.log('Enable all completed:', data.message);
+    } catch (err) {
+      console.error('Enable all error:', err);
+    }
   };
 
   const handleDisableAll = async () => {
-    // TODO: Implement API call to disable all models
-    console.log('Disabling all models...');
+    try {
+      const response = await fetch('/api/models/disable-all', { method: 'POST' });
+      if (!response.ok) {
+        const error = await response.json();
+        console.error('Disable all failed:', error);
+        return;
+      }
+      const data = await response.json();
+      console.log('Disable all completed:', data.message);
+    } catch (err) {
+      console.error('Disable all error:', err);
+    }
   };
 
   // Memoize reactive object to prevent animation restarts on re-renders
