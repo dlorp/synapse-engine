@@ -10,11 +10,11 @@ import time
 from collections import defaultdict
 from enum import Enum
 from pathlib import Path
-from typing import Annotated, Dict, Optional
+from typing import Dict, Optional
 import json
 from uuid import uuid4
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 
 from app.core.dependencies import (
     ConfigDependency,
@@ -31,7 +31,6 @@ from app.models.query import (
     ArtifactInfo,
     QueryComplexity,
     QueryMetadata,
-    QueryMode,
     QueryRequest,
     QueryResponse
 )
@@ -42,13 +41,10 @@ from app.services.llama_client import LlamaCppClient
 from app.models.discovered_model import ModelRegistry
 from app.services import runtime_settings as settings_service
 from app.services.model_selector import ModelSelector
-from app.services.llama_server_manager import LlamaServerManager
 from app.services.orchestrator_status import get_orchestrator_status_service
 from app.services.event_emitter import (
     emit_query_route_event,
-    emit_cgrag_event,
-    emit_error_event,
-    emit_performance_event
+    emit_cgrag_event
 )
 from app.services.pipeline_tracker import PipelineTracker
 from app.services.context_state import get_context_state_manager

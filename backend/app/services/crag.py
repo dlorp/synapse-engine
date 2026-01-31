@@ -8,12 +8,16 @@ This module implements the main CRAG orchestration layer that combines:
 Based on research from Russian Adaptive RAG and Korean AutoRAG frameworks.
 """
 
-import asyncio
+from __future__ import annotations
+
 import logging
 import time
-from typing import List, Optional
+from typing import TYPE_CHECKING, List
 
 from pydantic import BaseModel, Field
+
+if TYPE_CHECKING:
+    from app.services.cgrag import CGRAGRetriever
 
 logger = logging.getLogger(__name__)
 

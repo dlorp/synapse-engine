@@ -4,7 +4,7 @@ import time
 from datetime import datetime, timezone
 from typing import List
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 
 from app.core.dependencies import ConfigDependency, LoggerDependency
 from app.models.model import HealthCheckResponse, ModelHealth

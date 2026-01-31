@@ -5,7 +5,7 @@ from typing import List, Dict, Optional, TYPE_CHECKING, Callable, Awaitable
 from datetime import datetime
 
 if TYPE_CHECKING:
-    from app.services.models import ModelManager
+    pass
 
 logger = logging.getLogger(__name__)
 
