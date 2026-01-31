@@ -7,7 +7,6 @@ The service maintains an in-memory circular buffer of recent routing decisions
 and computes real-time statistics for visualization in the frontend.
 """
 
-import time
 from collections import deque
 from datetime import datetime, timezone
 from threading import Lock

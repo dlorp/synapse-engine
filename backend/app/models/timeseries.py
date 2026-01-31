@@ -5,9 +5,8 @@ supporting historical data queries with flexible time ranges, filtering,
 and aggregation for Chart.js visualizations.
 """
 
-from datetime import datetime
 from enum import Enum
-from typing import Any, Literal, Optional
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 

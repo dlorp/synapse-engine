@@ -15,7 +15,6 @@ Phase: 4 - Selective Server Launcher
 import asyncio
 import logging
 import subprocess
-import signal
 import threading
 import httpx
 import os
@@ -499,7 +498,7 @@ class LlamaServerManager:
                     pass
 
                 raise SynapseException(
-                    f"Server process died during startup",
+                    "Server process died during startup",
                     details={
                         "model_id": server.model.model_id,
                         "uptime": server.get_uptime_seconds()

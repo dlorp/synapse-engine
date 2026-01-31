@@ -18,20 +18,13 @@ Phase: 1 - LiveEventFeed Backend (Task 1.4)
 import asyncio
 import time
 from collections import deque
-from datetime import datetime
-from typing import AsyncIterator, Deque, List, Optional, Set
+from typing import AsyncIterator, Deque, Optional, Set
 
 from app.core.logging import get_logger
 from app.models.events import (
     EventSeverity,
     EventType,
-    SystemEvent,
-    QueryRouteEvent,
-    ModelStateEvent,
-    CGRAGEvent,
-    CacheEvent,
-    ErrorEvent,
-    PerformanceEvent
+    SystemEvent
 )
 
 logger = get_logger(__name__)
@@ -377,9 +370,9 @@ class EventBus:
             async with self._lock:
                 if subscriber_queue in self._subscribers:
                     self._subscribers.discard(subscriber_queue)
-                    logger.info(f"Subscriber removed from set")
+                    logger.info("Subscriber removed from set")
                 else:
-                    logger.warning(f"Subscriber queue not found in set during cleanup")
+                    logger.warning("Subscriber queue not found in set during cleanup")
 
             remaining = len(self._subscribers)
             logger.info(f"Subscriber disconnected (remaining: {remaining})")

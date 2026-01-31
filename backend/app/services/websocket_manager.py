@@ -16,7 +16,6 @@ Phase: 3 - WebSocket Log Streaming
 import asyncio
 import logging
 from collections import defaultdict, deque
-from datetime import datetime
 from typing import Dict, List, Optional, Deque
 
 from fastapi import WebSocket

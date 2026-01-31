@@ -8,12 +8,10 @@ The service maintains thread-safe circular buffers of time-series data and
 provides real-time statistics for visualization in the frontend.
 """
 
-import asyncio
-import os
 import psutil
 import time
 from collections import defaultdict, deque
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from pathlib import Path
 from threading import Lock
 from typing import Deque, Optional
@@ -33,9 +31,7 @@ from app.models.metrics import (
     NetworkThroughputMetrics,
     RoutingDecisionMatrix,
     AccuracyMetrics,
-    ModelAvailability,
-    TierName,
-    ComplexityLevel
+    ModelAvailability
 )
 
 

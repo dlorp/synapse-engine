@@ -14,7 +14,6 @@ Phase: Production Metrics Implementation
 """
 
 import asyncio
-import time
 from datetime import datetime
 from typing import Optional, Dict, List
 
@@ -196,7 +195,7 @@ class HealthMonitor:
                     await self._emit_degraded_alert(components)
                     self.degraded_since = datetime.utcnow()
                     logger.warning(
-                        f"System health DEGRADED",
+                        "System health DEGRADED",
                         extra={'components': components}
                     )
 
