@@ -1,6 +1,5 @@
 """Tests for GPU monitoring utilities."""
 
-import platform
 import subprocess
 from unittest.mock import patch, MagicMock
 
@@ -12,7 +11,6 @@ from app.services.gpu_monitor import (
     _get_nvidia_metrics,
     _get_apple_silicon_metrics,
     get_gpu_metrics,
-    get_detailed_gpu_info,
     is_gpu_available,
 )
 
@@ -82,7 +80,6 @@ class TestGPUDetection:
 
     def test_gpu_type_caching(self):
         """Test that GPU type detection is cached."""
-        import app.services.gpu_monitor as gpu_mod
         
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(

@@ -9,7 +9,6 @@ Tests cover:
 
 import pytest
 from unittest.mock import Mock, AsyncMock, patch
-from datetime import datetime
 
 from app.services.crag_evaluator import CRAGEvaluator, RelevanceScore
 from app.services.query_expander import QueryExpander

@@ -7,7 +7,6 @@ Author: Backend Architect
 Phase: Code Chat Implementation (LSP Tools)
 """
 
-import asyncio
 import pytest
 from pathlib import Path
 import tempfile
