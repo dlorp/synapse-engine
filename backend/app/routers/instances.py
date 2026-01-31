@@ -20,7 +20,6 @@ from app.core.exceptions import SynapseException
 from app.models.instance import (
     InstanceConfig,
     InstanceListResponse,
-    InstanceResponse,
     CreateInstanceRequest,
     UpdateInstanceRequest,
     SystemPromptPresetsResponse,

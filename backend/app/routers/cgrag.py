@@ -7,8 +7,6 @@ Author: Backend Architect
 Feature: CGRAG Index Management
 """
 
-import asyncio
-import os
 from pathlib import Path
 from typing import Optional
 

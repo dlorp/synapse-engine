@@ -62,7 +62,7 @@ async def main() -> int:
         chunk_size = config.cgrag.indexing.chunk_size
         chunk_overlap = config.cgrag.indexing.chunk_overlap
 
-    print(f"Configuration:")
+    print("Configuration:")
     print(f"  Embedding model: {embedding_model}")
     print(f"  Chunk size: {chunk_size} tokens")
     print(f"  Chunk overlap: {chunk_overlap} tokens")

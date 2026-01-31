@@ -10,7 +10,6 @@ import argparse
 import logging
 import sys
 from pathlib import Path
-from typing import List
 
 from app.models.discovered_model import DiscoveredModel, ModelRegistry, ModelTier
 from app.services.model_discovery import ModelDiscoveryService
@@ -112,7 +111,7 @@ def print_statistics(registry: ModelRegistry, gguf_count: int) -> None:
     balanced_count = len(registry.get_by_tier(ModelTier.BALANCED))
     powerful_count = len(registry.get_by_tier(ModelTier.POWERFUL))
 
-    print(f"\n  Tier Distribution:")
+    print("\n  Tier Distribution:")
     print(f"    FAST:      {fast_count:2d} models")
     print(f"    BALANCED:  {balanced_count:2d} models")
     print(f"    POWERFUL:  {powerful_count:2d} models")

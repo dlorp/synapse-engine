@@ -4,7 +4,6 @@ This module defines Pydantic models for orchestrator telemetry data,
 including routing decisions, complexity distribution, and tier utilization.
 """
 
-from datetime import datetime
 from typing import Literal
 
 from pydantic import BaseModel, Field

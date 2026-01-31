@@ -7,7 +7,6 @@ Implements standardized health check endpoints:
 """
 
 import time
-from typing import Optional
 
 from fastapi import APIRouter, Request, Response
 

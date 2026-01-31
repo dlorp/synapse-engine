@@ -21,7 +21,6 @@ import logging
 import difflib
 from pathlib import Path
 from typing import List, Optional
-from datetime import datetime
 
 from app.models.code_chat import ToolName, ToolResult, DiffLine, DiffPreview
 from app.services.code_chat.tools.base import BaseTool, SecurityError
