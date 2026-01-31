@@ -33,11 +33,7 @@ export function withTerminalEffect<P extends object>(
     terminalEffect,
     ...props
   }) => {
-    // If no effect config provided, just render the component as-is
-    if (!terminalEffect) {
-      return <WrappedComponent {...(props as P)} />;
-    }
-
+    // Extract config values with defaults (always execute to maintain hook order)
     const {
       enableScanLines = false,
       scanLineSpeed = 'normal',
@@ -53,9 +49,9 @@ export function withTerminalEffect<P extends object>(
       enableDataStream = false,
       effectIntensity = 1,
       className,
-    } = terminalEffect;
+    } = terminalEffect ?? {};
 
-    // Build grid class
+    // Build grid class (hooks must be called unconditionally)
     const gridClass = React.useMemo(() => {
       if (!enableGrid) return null;
       if (animatedGrid) return 'dot-matrix-bg-animated';
@@ -85,6 +81,11 @@ export function withTerminalEffect<P extends object>(
         return 'phosphor-glow-orange';
       }
     }, [enablePhosphorGlow, phosphorColor, staticGlow]);
+
+    // If no effect config provided, just render the component as-is
+    if (!terminalEffect) {
+      return <WrappedComponent {...(props as P)} />;
+    }
 
     return (
       <div
