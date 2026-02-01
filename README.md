@@ -853,8 +853,6 @@ GPLv3
 
 ---
 
-**Last Updated:** November 29, 2025
-**Version:** 5.1 (TUI Navigation Overhaul - Bottom NavBar)
 **Project Name:** S.Y.N.A.P.S.E. ENGINE (Scalable Yoked Network for Adaptive Praxial System Emergence) ✅
 **Host API:** Automatic Metal Server Management ✅
 **CGRAG Status:** Prod Ready ✅
