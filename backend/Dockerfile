@@ -81,7 +81,7 @@ RUN cmake -B build \
     -DGGML_BLAS=OFF \
     -DLLAMA_CURL=OFF \
     -DGGML_OPENMP=ON && \
-    cmake --build build --config Release --target llama-server -j $(nproc)
+    cmake --build build --config Release --target llama-server -j 1
 
 # =============================================================================
 # Stage 3: Runtime
