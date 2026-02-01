@@ -20,9 +20,15 @@ from app.models.metrics import (
     TierMetricsResponse,
     ResourceMetrics,
     RoutingMetrics,
-    MetricsUpdate
+    MetricsUpdate,
+    HistoricalMetrics,
+    ContextUtilization
 )
 from app.services.metrics_collector import get_metrics_collector
+
+# Application start time for uptime calculation (set during startup)
+import time
+_app_start_time: float = time.time()
 
 
 logger = get_logger(__name__)
@@ -342,6 +348,219 @@ async def get_routing_metrics() -> RoutingMetrics:
     )
 
     return metrics
+
+
+@router.get(
+    "/historical",
+    response_model=HistoricalMetrics,
+    summary="Get lifetime/historical metrics",
+    description="""
+    Retrieve aggregate metrics since system startup.
+
+    Returns lifetime statistics including:
+    - Total requests and errors
+    - Error rate percentage
+    - Latency percentiles (avg, P95, P99)
+    - System uptime (days/hours)
+    - Cache performance (hits, misses, hit rate)
+
+    **Use Case:** Historical Metrics Panel showing system lifetime statistics
+
+    **Performance Target:** <100ms response time
+    """,
+    responses={
+        200: {
+            "description": "Historical metrics retrieved successfully",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "totalRequests": 125000,
+                        "totalErrors": 125,
+                        "errorRate": 0.1,
+                        "avgLatencyMs": 2350.5,
+                        "p95LatencyMs": 4230.9,
+                        "p99LatencyMs": 5877.5,
+                        "uptimeDays": 45,
+                        "uptimeHours": 12,
+                        "uptimeSeconds": 3931200,
+                        "totalCacheHits": 87500,
+                        "totalCacheMisses": 37500,
+                        "cacheHitRate": 70.0
+                    }
+                }
+            }
+        }
+    }
+)
+async def get_historical_metrics() -> HistoricalMetrics:
+    """Get lifetime/historical metrics since system startup.
+
+    Aggregates data from metrics collector and cache metrics to provide
+    a comprehensive view of system performance since startup.
+
+    Returns:
+        HistoricalMetrics with lifetime statistics
+    """
+    collector = get_metrics_collector()
+
+    # Calculate uptime from app start time
+    uptime_seconds = int(time.time() - _app_start_time)
+    uptime_days = uptime_seconds // 86400
+    uptime_hours = (uptime_seconds % 86400) // 3600
+
+    # Get tier metrics for aggregate statistics
+    tier_metrics = collector.get_tier_metrics()
+
+    # Calculate totals across all tiers
+    total_requests = sum(t.request_count for t in tier_metrics.tiers)
+    total_errors = 0
+    total_latency = 0.0
+    latency_samples = []
+
+    for tier in tier_metrics.tiers:
+        # Estimate errors from error rate
+        tier_errors = int(tier.request_count * tier.error_rate)
+        total_errors += tier_errors
+        # Collect latency samples for percentile calculation
+        latency_samples.extend(tier.latency_ms)
+
+    # Calculate error rate
+    error_rate = (total_errors / total_requests * 100) if total_requests > 0 else 0.0
+
+    # Calculate latency statistics
+    if latency_samples:
+        avg_latency = sum(latency_samples) / len(latency_samples)
+        sorted_latencies = sorted(latency_samples)
+        p95_idx = int(len(sorted_latencies) * 0.95)
+        p99_idx = int(len(sorted_latencies) * 0.99)
+        p95_latency = sorted_latencies[min(p95_idx, len(sorted_latencies) - 1)]
+        p99_latency = sorted_latencies[min(p99_idx, len(sorted_latencies) - 1)]
+    else:
+        avg_latency = 0.0
+        p95_latency = 0.0
+        p99_latency = 0.0
+
+    # Get cache metrics
+    total_cache_hits = 0
+    total_cache_misses = 0
+    try:
+        from app.services.cache_metrics import get_cache_metrics
+        cache_metrics = get_cache_metrics()
+        total_cache_hits = cache_metrics._cache_hits
+        total_cache_misses = cache_metrics._cache_misses
+    except (RuntimeError, AttributeError):
+        # Cache metrics not initialized or no attributes
+        pass
+
+    cache_total = total_cache_hits + total_cache_misses
+    cache_hit_rate = (total_cache_hits / cache_total * 100) if cache_total > 0 else 0.0
+
+    logger.debug(
+        "Historical metrics retrieved",
+        extra={
+            'total_requests': total_requests,
+            'total_errors': total_errors,
+            'uptime_days': uptime_days
+        }
+    )
+
+    return HistoricalMetrics(
+        total_requests=total_requests,
+        total_errors=total_errors,
+        error_rate=round(error_rate, 2),
+        avg_latency_ms=round(avg_latency, 2),
+        p95_latency_ms=round(p95_latency, 2),
+        p99_latency_ms=round(p99_latency, 2),
+        uptime_days=uptime_days,
+        uptime_hours=uptime_hours,
+        uptime_seconds=uptime_seconds,
+        total_cache_hits=total_cache_hits,
+        total_cache_misses=total_cache_misses,
+        cache_hit_rate=round(cache_hit_rate, 2)
+    )
+
+
+@router.get(
+    "/context-utilization",
+    response_model=ContextUtilization,
+    summary="Get context window utilization",
+    description="""
+    Retrieve real-time context window utilization across active queries.
+
+    Returns aggregate statistics including:
+    - Average utilization percentage
+    - Total tokens currently in use
+    - Total context window capacity
+    - Number of active queries with context allocation
+
+    **Use Case:** System Status Panel context utilization metric
+
+    **Performance Target:** <50ms response time
+    """,
+    responses={
+        200: {
+            "description": "Context utilization retrieved successfully",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "percentage": 65.5,
+                        "tokensUsed": 52400,
+                        "tokensTotal": 80000,
+                        "activeQueries": 10
+                    }
+                }
+            }
+        }
+    }
+)
+async def get_context_utilization() -> ContextUtilization:
+    """Get real-time context window utilization.
+
+    Aggregates context allocation data from all active queries to provide
+    a real-time view of context window usage.
+
+    Returns:
+        ContextUtilization with aggregate statistics
+    """
+    try:
+        from app.services.context_state import get_context_state_manager
+        context_manager = get_context_state_manager()
+        stats = context_manager.get_stats()
+
+        # Calculate aggregate stats from tracked allocations
+        total_allocations = stats.get("total_allocations", 0)
+        avg_utilization = stats.get("avg_utilization_percentage", 0.0)
+
+        # Estimate tokens based on average context window size
+        # Assumes 8192 tokens default context window per query
+        default_context_size = 8192
+        tokens_total = total_allocations * default_context_size if total_allocations > 0 else default_context_size
+        tokens_used = int((avg_utilization / 100) * tokens_total)
+
+        logger.debug(
+            "Context utilization retrieved",
+            extra={
+                'percentage': avg_utilization,
+                'active_queries': total_allocations
+            }
+        )
+
+        return ContextUtilization(
+            percentage=round(avg_utilization, 1),
+            tokens_used=tokens_used,
+            tokens_total=tokens_total,
+            active_queries=total_allocations
+        )
+
+    except RuntimeError:
+        # Context state manager not initialized
+        logger.warning("Context state manager not initialized, returning defaults")
+        return ContextUtilization(
+            percentage=0.0,
+            tokens_used=0,
+            tokens_total=8192,
+            active_queries=0
+        )
 
 
 @router.websocket("/ws")

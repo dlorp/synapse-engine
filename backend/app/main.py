@@ -165,6 +165,19 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         await metrics_aggregator.start()
         logger.info("Metrics aggregator initialized and started")
 
+        # Configure model name resolver for metrics aggregator
+        # This allows the aggregator to resolve model IDs to display names
+        from app.services.metrics_aggregator import set_model_name_resolver
+
+        def resolve_model_display_name(model_id: str) -> str:
+            """Resolve model ID to display name from registry."""
+            if model_registry and model_id in model_registry.models:
+                return model_registry.models[model_id].get_display_name()
+            return model_id
+
+        set_model_name_resolver(resolve_model_display_name)
+        logger.info("Model name resolver configured for metrics aggregator")
+
         # Initialize topology manager for system architecture visualization
         topology_manager = init_topology_manager()
         await topology_manager.start()

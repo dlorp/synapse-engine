@@ -33,6 +33,43 @@ from app.models.timeseries import (
 
 logger = get_logger(__name__)
 
+# Model name resolver callback type
+ModelNameResolver = Optional[callable]
+_model_name_resolver: ModelNameResolver = None
+
+
+def set_model_name_resolver(resolver: callable) -> None:
+    """Set the model name resolver callback.
+
+    The resolver should accept a model_id string and return a display name string.
+    This allows the metrics aggregator to resolve model IDs to human-readable names
+    without directly depending on the model registry.
+
+    Args:
+        resolver: Callable that takes model_id and returns display_name
+    """
+    global _model_name_resolver
+    _model_name_resolver = resolver
+    logger.info("Model name resolver configured")
+
+
+def _resolve_model_name(model_id: str) -> str:
+    """Resolve model ID to display name using configured resolver.
+
+    Args:
+        model_id: Model identifier
+
+    Returns:
+        Display name if resolver is configured and finds the model,
+        otherwise returns the model_id as-is
+    """
+    if _model_name_resolver is not None:
+        try:
+            return _model_name_resolver(model_id)
+        except Exception as e:
+            logger.debug(f"Failed to resolve model name for {model_id}: {e}")
+    return model_id
+
 
 @dataclass
 class MetricDataPoint:
@@ -390,7 +427,7 @@ class MetricsAggregator:
                 models.append(
                     ModelBreakdown(
                         model_id=model_id,
-                        display_name=model_id,  # TODO: Get from registry
+                        display_name=_resolve_model_name(model_id),
                         tier=tier,  # type: ignore
                         data_points=[
                             TimeSeriesPoint(

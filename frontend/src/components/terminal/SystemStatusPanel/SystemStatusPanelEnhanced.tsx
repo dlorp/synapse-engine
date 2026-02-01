@@ -21,6 +21,7 @@ import { DotMatrixPanel } from '../DotMatrixPanel';
 import { StatusIndicator } from '../StatusIndicator';
 import { AsciiSectionHeader } from '@/components/terminal/AsciiSectionHeader';
 import { ModelStatusResponse } from '@/types/models';
+import { useContextUtilization } from '@/hooks/useContextUtilization';
 import styles from './SystemStatusPanel.module.css';
 
 export interface SystemStatusPanelEnhancedProps {
@@ -63,17 +64,9 @@ const calculateSystemUptime = (models: any[]): number => {
 };
 
 /**
- * Calculate context window utilization (placeholder - needs backend data)
+ * Default context utilization values when hook data is unavailable
  */
-const calculateContextUtilization = (models: any[]): { percentage: number; tokensUsed: number; tokensTotal: number } => {
-  // TODO: Implement when backend provides context window data
-  // For now, estimate based on active queries
-  const activeModels = models.filter((m) => m.state === 'processing');
-  const percentage = Math.min(100, activeModels.length * 15); // Rough estimate
-  const tokensTotal = 8000; // Default context window
-  const tokensUsed = Math.round((percentage / 100) * tokensTotal);
-  return { percentage, tokensUsed, tokensTotal };
-};
+const DEFAULT_CONTEXT_UTILIZATION = { percentage: 0, tokensUsed: 0, tokensTotal: 8192 };
 
 export const SystemStatusPanelEnhanced: React.FC<SystemStatusPanelEnhancedProps> = ({
   modelStatus,
@@ -86,6 +79,9 @@ export const SystemStatusPanelEnhanced: React.FC<SystemStatusPanelEnhancedProps>
   isLoading = false,
 }) => {
   const navigate = useNavigate();
+
+  // Fetch context utilization from backend
+  const { data: contextData } = useContextUtilization();
 
   // Calculate derived metrics
   const activeModels = useMemo(() => {
@@ -105,10 +101,17 @@ export const SystemStatusPanelEnhanced: React.FC<SystemStatusPanelEnhancedProps>
     [modelStatus.models]
   );
 
-  const contextUtilization = useMemo(
-    () => calculateContextUtilization(modelStatus.models),
-    [modelStatus.models]
-  );
+  // Use backend context utilization data or fallback to defaults
+  const contextUtilization = useMemo(() => {
+    if (contextData) {
+      return {
+        percentage: contextData.percentage,
+        tokensUsed: contextData.tokensUsed,
+        tokensTotal: contextData.tokensTotal,
+      };
+    }
+    return DEFAULT_CONTEXT_UTILIZATION;
+  }, [contextData]);
 
   // Quick Actions Footer Component
   const QuickActionsFooter = () => (
