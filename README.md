@@ -849,7 +849,7 @@ docker exec synapse_core netstat -tulpn | grep llama-server
 
 ## License
 
-GPLv3
+[PolyForm NonCommercial 1.0.0](LICENSE) — free for personal and non-commercial use
 
 ---
 
