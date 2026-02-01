@@ -25,7 +25,7 @@
  */
 
 import React, { useState } from 'react';
-import { useHistoricalMetrics, HistoricalMetrics } from '@/hooks/useHistoricalMetrics';
+import { useHistoricalMetrics } from '@/hooks/useHistoricalMetrics';
 import { TerminalSpinner } from '@/components/terminal';
 import styles from './HistoricalMetricsPanel.module.css';
 
