@@ -16,35 +16,18 @@
  * - Color-coded error rates
  *
  * State Management:
- * - Uses useQueryMetrics(), useResourceMetrics() for data
- * - Calculates lifetime totals from available data
+ * - Uses useHistoricalMetrics() hook for backend data
  * - Handles loading, error, and no-data states
  *
  * Performance:
- * - Memoized calculations
  * - GPU-accelerated CSS transforms
  * - Debounced toggle animation
  */
 
-import React, { useState, useMemo } from 'react';
-import { useQueryMetrics } from '@/hooks/useQueryMetrics';
-import { useResourceMetrics } from '@/hooks/useResourceMetrics';
+import React, { useState } from 'react';
+import { useHistoricalMetrics } from '@/hooks/useHistoricalMetrics';
 import { TerminalSpinner } from '@/components/terminal';
 import styles from './HistoricalMetricsPanel.module.css';
-
-interface HistoricalMetrics {
-  totalRequests: number;
-  totalErrors: number;
-  errorRate: number;
-  avgLatencyMs: number;
-  p95LatencyMs: number;
-  p99LatencyMs: number;
-  uptimeDays: number;
-  uptimeHours: number;
-  totalCacheHits: number;
-  totalCacheMisses: number;
-  cacheHitRate: number;
-}
 
 /**
  * Format number with commas for readability
@@ -74,54 +57,7 @@ const formatUptime = (days: number, hours: number): string => {
 
 export const HistoricalMetricsPanel: React.FC = () => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const { data: queryMetrics, isLoading: queryLoading, error: queryError } = useQueryMetrics();
-  const { data: resourceMetrics, isLoading: resourceLoading, error: resourceError } = useResourceMetrics();
-
-  // Calculate historical metrics from available data
-  const historicalMetrics = useMemo((): HistoricalMetrics | null => {
-    // TODO: Backend integration - Replace with actual lifetime metrics endpoint
-    // Current implementation uses real-time data as placeholder
-    // Expected endpoint: GET /api/metrics/historical
-    // Expected response: { totalRequests, totalErrors, ... }
-
-    if (!queryMetrics && !resourceMetrics) {
-      return null;
-    }
-
-    // Mock/placeholder calculation using available data
-    // Replace with actual historical data when backend endpoint is ready
-    const totalRequests = queryMetrics?.totalQueries || 0;
-    const totalErrors = Math.floor(totalRequests * 0.001); // Placeholder: 0.1% error rate
-    const errorRate = totalRequests > 0 ? (totalErrors / totalRequests) * 100 : 0;
-
-    // Placeholder latency percentiles (backend should provide these)
-    const avgLatencyMs = queryMetrics?.avgLatencyMs || 0;
-    const p95LatencyMs = avgLatencyMs * 1.8; // Placeholder: ~1.8x avg
-    const p99LatencyMs = avgLatencyMs * 2.5; // Placeholder: ~2.5x avg
-
-    // Placeholder uptime (backend should track process start time)
-    const uptimeDays = 45;
-    const uptimeHours = 12;
-
-    // Placeholder cache metrics (backend should track lifetime cache stats)
-    const totalCacheHits = Math.floor(totalRequests * 0.7);
-    const totalCacheMisses = totalRequests - totalCacheHits;
-    const cacheHitRate = totalRequests > 0 ? (totalCacheHits / totalRequests) * 100 : 0;
-
-    return {
-      totalRequests,
-      totalErrors,
-      errorRate,
-      avgLatencyMs,
-      p95LatencyMs,
-      p99LatencyMs,
-      uptimeDays,
-      uptimeHours,
-      totalCacheHits,
-      totalCacheMisses,
-      cacheHitRate,
-    };
-  }, [queryMetrics, resourceMetrics]);
+  const { data: historicalMetrics, isLoading, error } = useHistoricalMetrics();
 
   // Toggle expand/collapse
   const handleToggle = () => {
@@ -129,7 +65,6 @@ export const HistoricalMetricsPanel: React.FC = () => {
   };
 
   // Loading state
-  const isLoading = queryLoading || resourceLoading;
   if (isLoading) {
     return (
       <div className={styles.panel}>
@@ -148,7 +83,6 @@ export const HistoricalMetricsPanel: React.FC = () => {
   }
 
   // Error state
-  const error = queryError || resourceError;
   if (error) {
     return (
       <div className={styles.panel}>

@@ -392,3 +392,149 @@ class MetricsUpdate(BaseModel):
     queries: QueryMetrics = Field(..., description="Query metrics")
     resources: ResourceMetrics = Field(..., description="Resource metrics")
     routing: RoutingMetrics = Field(..., description="Routing metrics")
+
+
+class HistoricalMetrics(BaseModel):
+    """Lifetime/historical metrics since system startup.
+
+    Provides aggregate statistics for the Historical Metrics Panel,
+    including total requests, errors, latency percentiles, uptime,
+    and cache performance.
+
+    Attributes:
+        total_requests: Total requests processed since startup
+        total_errors: Total errors encountered
+        error_rate: Error rate percentage (0-100)
+        avg_latency_ms: Average latency in milliseconds
+        p95_latency_ms: 95th percentile latency
+        p99_latency_ms: 99th percentile latency
+        uptime_days: System uptime in days
+        uptime_hours: Remaining hours after days
+        uptime_seconds: Total uptime in seconds
+        total_cache_hits: Total cache hits
+        total_cache_misses: Total cache misses
+        cache_hit_rate: Cache hit rate percentage (0-100)
+    """
+
+    total_requests: int = Field(
+        ...,
+        ge=0,
+        alias="totalRequests",
+        description="Total requests processed since startup"
+    )
+    total_errors: int = Field(
+        ...,
+        ge=0,
+        alias="totalErrors",
+        description="Total errors encountered"
+    )
+    error_rate: float = Field(
+        ...,
+        ge=0.0,
+        le=100.0,
+        alias="errorRate",
+        description="Error rate percentage"
+    )
+    avg_latency_ms: float = Field(
+        ...,
+        ge=0.0,
+        alias="avgLatencyMs",
+        description="Average latency in milliseconds"
+    )
+    p95_latency_ms: float = Field(
+        ...,
+        ge=0.0,
+        alias="p95LatencyMs",
+        description="95th percentile latency"
+    )
+    p99_latency_ms: float = Field(
+        ...,
+        ge=0.0,
+        alias="p99LatencyMs",
+        description="99th percentile latency"
+    )
+    uptime_days: int = Field(
+        ...,
+        ge=0,
+        alias="uptimeDays",
+        description="System uptime in days"
+    )
+    uptime_hours: int = Field(
+        ...,
+        ge=0,
+        le=23,
+        alias="uptimeHours",
+        description="Remaining hours after days"
+    )
+    uptime_seconds: int = Field(
+        ...,
+        ge=0,
+        alias="uptimeSeconds",
+        description="Total uptime in seconds"
+    )
+    total_cache_hits: int = Field(
+        ...,
+        ge=0,
+        alias="totalCacheHits",
+        description="Total cache hits"
+    )
+    total_cache_misses: int = Field(
+        ...,
+        ge=0,
+        alias="totalCacheMisses",
+        description="Total cache misses"
+    )
+    cache_hit_rate: float = Field(
+        ...,
+        ge=0.0,
+        le=100.0,
+        alias="cacheHitRate",
+        description="Cache hit rate percentage"
+    )
+
+    class Config:
+        """Pydantic model configuration."""
+        populate_by_name = True
+
+
+class ContextUtilization(BaseModel):
+    """Real-time context window utilization metrics.
+
+    Provides aggregate context window statistics across all active queries
+    for the System Status Panel.
+
+    Attributes:
+        percentage: Average context utilization percentage (0-100)
+        tokens_used: Total tokens currently in use across active queries
+        tokens_total: Total context window capacity across active models
+        active_queries: Number of queries with tracked context allocation
+    """
+
+    percentage: float = Field(
+        ...,
+        ge=0.0,
+        le=100.0,
+        description="Average context utilization percentage"
+    )
+    tokens_used: int = Field(
+        ...,
+        ge=0,
+        alias="tokensUsed",
+        description="Total tokens currently in use"
+    )
+    tokens_total: int = Field(
+        ...,
+        ge=0,
+        alias="tokensTotal",
+        description="Total context window capacity"
+    )
+    active_queries: int = Field(
+        ...,
+        ge=0,
+        alias="activeQueries",
+        description="Number of active queries with context allocation"
+    )
+
+    class Config:
+        """Pydantic model configuration."""
+        populate_by_name = True
