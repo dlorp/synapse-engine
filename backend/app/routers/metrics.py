@@ -414,7 +414,6 @@ async def get_historical_metrics() -> HistoricalMetrics:
     # Calculate totals across all tiers
     total_requests = sum(t.request_count for t in tier_metrics.tiers)
     total_errors = 0
-    total_latency = 0.0
     latency_samples = []
 
     for tier in tier_metrics.tiers:

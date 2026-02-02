@@ -319,11 +319,12 @@ class CGRAGIndexer:
             # Run encoding in thread pool to avoid blocking event loop
             loop = asyncio.get_event_loop()
             # Create a partial function with show_progress_bar parameter
-            encode_fn = lambda: self.encoder.encode(
-                batch_texts,
-                show_progress_bar=False,
-                convert_to_numpy=True
-            )
+            def encode_fn():
+                return self.encoder.encode(
+                            batch_texts,
+                            show_progress_bar=False,
+                            convert_to_numpy=True
+                        )
             batch_embeddings = await loop.run_in_executor(None, encode_fn)
             all_embeddings.append(batch_embeddings)
 
@@ -522,11 +523,12 @@ class CGRAGRetriever:
 
         # Embed query
         loop = asyncio.get_event_loop()
-        encode_fn = lambda: self.indexer.encoder.encode(
-            [query],
-            show_progress_bar=False,
-            convert_to_numpy=True
-        )
+        def encode_fn():
+            return self.indexer.encoder.encode(
+                    [query],
+                    show_progress_bar=False,
+                    convert_to_numpy=True
+                )
         query_embedding = await loop.run_in_executor(None, encode_fn)
         query_embedding = query_embedding[0].reshape(1, -1)
 

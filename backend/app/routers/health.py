@@ -90,7 +90,7 @@ async def readiness_probe(request: Request, response: Response) -> HealthRespons
         )
         redis_client.ping()
         components["memex"] = "ready"
-    except Exception as e:
+    except Exception:
         components["memex"] = "unavailable"
         overall_status = "degraded"
 

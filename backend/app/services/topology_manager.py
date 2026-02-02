@@ -635,7 +635,7 @@ class TopologyManager:
 
         # Event bus (always healthy if we're running)
         try:
-            event_bus = get_event_bus()
+            get_event_bus()
             await self.update_component_health(
                 "event_bus",
                 HealthMetrics(

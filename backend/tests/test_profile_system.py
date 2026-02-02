@@ -107,10 +107,10 @@ def test_profile_structure():
     # Test development profile
     print("\n--- Development Profile ---")
     dev = manager.load_profile("development")
-    assert dev.two_stage.enabled == True
+    assert dev.two_stage.enabled
     assert dev.two_stage.stage1_tier == "fast"
     assert dev.two_stage.stage2_tier == "powerful"
-    assert dev.load_balancing.enabled == False
+    assert not dev.load_balancing.enabled
     print(f"✅ Two-stage config: stage1={dev.two_stage.stage1_tier}, "
           f"stage2={dev.two_stage.stage2_tier}, "
           f"max_tokens={dev.two_stage.stage1_max_tokens}")
@@ -118,8 +118,8 @@ def test_profile_structure():
     # Test production profile
     print("\n--- Production Profile ---")
     prod = manager.load_profile("production")
-    assert prod.two_stage.enabled == False
-    assert prod.load_balancing.enabled == True
+    assert not prod.two_stage.enabled
+    assert prod.load_balancing.enabled
     assert prod.load_balancing.strategy == "round_robin"
     print(f"✅ Load balancing: strategy={prod.load_balancing.strategy}, "
           f"interval={prod.load_balancing.health_check_interval}s")

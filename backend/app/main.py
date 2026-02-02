@@ -184,7 +184,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         logger.info("Topology manager initialized and started")
 
         # Initialize cache metrics tracker for production monitoring
-        cache_metrics = init_cache_metrics()
+        init_cache_metrics()
         logger.info("Cache metrics tracker initialized")
 
         # Initialize health monitor for degraded status alerts
