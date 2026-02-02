@@ -53,7 +53,7 @@ from app.services.metrics_aggregator import get_metrics_aggregator
 from app.models.timeseries import MetricType
 from app.services.topology_manager import get_topology_manager
 from app.services.instance_manager import get_instance_manager
-from typing import Optional, List
+from typing import List
 
 
 router = APIRouter()
@@ -445,7 +445,7 @@ async def _process_consensus_mode(
     Returns:
         QueryResponse with consensus answer and metadata
     """
-    council_start = time.time()
+    time.time()
 
     # =================================================================
     # CGRAG & Web Search (reuse existing logic)
@@ -460,7 +460,7 @@ async def _process_consensus_mode(
     if request.use_web_search:
         try:
             logger.info(f"🔍 Web search enabled for council query {query_id}")
-            web_search_start = time.time()
+            time.time()
 
             # Get SearXNG client
             import os
@@ -906,12 +906,11 @@ async def _process_debate_mode(
     """
     from app.services.dialogue_engine import dialogue_engine
     from app.services.persona_manager import persona_manager
-    debate_start = time.time()
+    time.time()
 
     # =================================================================
     # CGRAG & Web Search (reuse existing logic - same as consensus)
     # =================================================================
-    base_query = request.query
     cgrag_artifacts = []
     web_search_results = []
     web_search_time_ms = 0.0
@@ -920,7 +919,7 @@ async def _process_debate_mode(
     if request.use_web_search:
         try:
             logger.info(f"🔍 Web search enabled for debate query {query_id}")
-            web_search_start = time.time()
+            time.time()
 
             # Get SearXNG client
             import os
@@ -1434,7 +1433,7 @@ async def process_query(
             if effective_web_search:
                 try:
                     logger.info(f"🔍 Web search enabled for query {query_id}")
-                    web_search_start = time.time()
+                    time.time()
 
                     # Get SearXNG client
                     import os
@@ -1942,7 +1941,7 @@ Refined Response:"""
             if effective_web_search:
                 try:
                     logger.info(f"🔍 Web search enabled for query {query_id} (simple mode)")
-                    web_search_start = time.time()
+                    time.time()
 
                     # Get SearXNG client
                     import os
@@ -2364,7 +2363,7 @@ Refined Response:"""
             if effective_web_search:
                 try:
                     logger.info(f"🔍 Web search enabled for benchmark query {query_id}")
-                    web_search_start = time.time()
+                    time.time()
 
                     # Get SearXNG client
                     import os

@@ -187,7 +187,7 @@ class InstanceManager:
             SynapseException: If model not found or no ports available
         """
         # Validate base model exists
-        model = self._get_base_model(request.model_id)
+        self._get_base_model(request.model_id)
 
         # Generate instance_id
         instance_num = self.registry.get_next_instance_number(request.model_id)

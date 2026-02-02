@@ -25,12 +25,13 @@ from typing import Optional
 import httpx
 from fastapi import APIRouter, HTTPException, Request, Response, status
 
+from app.services.llama_server_manager import LlamaServerManager
+
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/proxy", tags=["proxy"])
 
 # Global server manager (set by main.py)
-from app.services.llama_server_manager import LlamaServerManager
 server_manager: Optional[LlamaServerManager] = None
 
 

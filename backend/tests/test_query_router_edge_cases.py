@@ -152,7 +152,7 @@ class TestQuantizationValueEdgeCases:
 
     def test_quantization_none_handling(self):
         """Test that None quantization values are handled with default."""
-        model_with_none = DiscoveredModel(
+        DiscoveredModel(
             model_id="test-model-none",
             file_path="/test/model.gguf",
             filename="model.gguf",

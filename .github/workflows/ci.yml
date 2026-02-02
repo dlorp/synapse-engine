@@ -28,10 +28,12 @@ jobs:
           pip install pytest pytest-asyncio ruff
 
       - name: Run ruff linter
-        run: ruff check app tests --output-format=github || true
+        run: ruff check app tests --output-format=github
 
       - name: Run tests
-        run: pytest tests/ -v --tb=short || true
+        env:
+          PYTHONPATH: ${{ github.workspace }}/backend
+        run: pytest tests/ -v --tb=short
 
   frontend:
     runs-on: ubuntu-latest

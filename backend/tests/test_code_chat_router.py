@@ -197,7 +197,7 @@ class TestWorkspacesEndpoint:
         """Test that list_workspaces calls required services."""
         from app.routers.code_chat import list_workspaces
 
-        result = await list_workspaces(path="/workspace")
+        await list_workspaces(path="/workspace")
 
         mock_services['validate_path'].assert_called_once_with("/workspace")
         mock_services['list_directories'].assert_called_once()
