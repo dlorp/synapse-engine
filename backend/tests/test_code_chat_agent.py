@@ -91,13 +91,13 @@ class TestCodeChatModels:
             use_cgrag=True,
             use_web_search=False,
             max_iterations=10,
-            preset="quality"
+            preset="SYNAPSE_ANALYST"
         )
         assert request.context_name == "project_docs"
         assert request.use_cgrag is True
         assert request.use_web_search is False
         assert request.max_iterations == 10
-        assert request.preset == "quality"
+        assert request.preset == "SYNAPSE_ANALYST"
 
     def test_agent_state_enum(self):
         """Test AgentState enum values."""

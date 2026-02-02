@@ -371,7 +371,7 @@ class CodeChatRequest(BaseModel):
         description="Maximum ReAct loop iterations"
     )
     preset: str = Field(
-        default="balanced",
+        default="SYNAPSE_DEFAULT",
         description="Named preset to use"
     )
     tool_overrides: Optional[Dict[str, ToolModelConfig]] = Field(
