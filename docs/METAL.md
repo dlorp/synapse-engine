@@ -26,27 +26,13 @@ llama-server --version  # Verify Metal support
 
 ### 2. Configure SSH
 
+Run the automated setup script:
+
 ```bash
-# Generate key
-ssh-keygen -t ed25519 -f ~/.ssh/synapse_host_api -N ""
-
-# Add to authorized_keys with command restriction
-echo "command=\"/opt/homebrew/bin/bash /path/to/synapse-engine/scripts/ssh-wrapper.sh\" $(cat ~/.ssh/synapse_host_api.pub)" >> ~/.ssh/authorized_keys
-
-# Copy to host-api directory
-mkdir -p host-api/.ssh
-cp ~/.ssh/synapse_host_api host-api/.ssh/id_ed25519
-cp ~/.ssh/synapse_host_api.pub host-api/.ssh/id_ed25519.pub
-
-# Create SSH config
-cat > host-api/.ssh/config <<EOF
-Host mac-host
-    HostName host.docker.internal
-    User $USER
-    IdentityFile ~/.ssh/id_ed25519
-    StrictHostKeyChecking no
-EOF
+./scripts/setup-ssh-automation.sh
 ```
+
+This generates a restricted SSH key that can only execute start/stop commands.
 
 ### 3. Enable in docker-compose.yml
 
