@@ -80,7 +80,7 @@ config = EffectConfig.for_refresh()
 config = EffectConfig(
     frame_rate=30,
     max_frames=60,
-    primary_colors=("3B60E4", "50D8D7"),  # dlorp branding
+    primary_colors=("3B60E4", "50D8D7"),  # synapse branding
     enabled=True,  # Set False to disable all animations
 )
 ```
