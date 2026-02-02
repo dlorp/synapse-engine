@@ -9,13 +9,13 @@ Distributed orchestration platform for local language models.
 ---
 
 ![Synapse Engine in action](docs/features/synapseEngine.gif)
-*Multiple LLMs collaborating in real-time — this is what AI orchestration looks like.*
+*Multiple LLMs collaborating in real-time - this is what AI orchestration looks like.*
 
 ---
 
 ## What is this?
 
-Synapse Engine coordinates multiple local LLMs into a unified inference system. Instead of running models one at a time, it orchestrates them across performance tiers—fast models for initial processing, powerful models for refinement—with sub-100ms contextual retrieval built in.
+Synapse Engine coordinates multiple local LLMs into a unified inference system. Instead of running models one at a time, it orchestrates them across performance tiers-fast models for initial processing, powerful models for refinement-with sub-100ms contextual retrieval built in.
 
 It runs entirely on your hardware. No API keys, no cloud dependencies, no data leaving your machine.
 
@@ -25,8 +25,8 @@ It runs entirely on your hardware. No API keys, no cloud dependencies, no data l
 - **Query modes**: Simple, Two-Stage, Council (Consensus/Debate), Benchmark
 - **CGRAG**: Sub-100ms contextual retrieval with FAISS
 - **Metal acceleration** for Apple Silicon (2-3x faster inference)
-- **WebUI-first design** — full control in the browser, no YAML wrangling
-- **Dynamic model control** — start/stop models without Docker restarts
+- **WebUI-first design** - full control in the browser, no YAML wrangling
+- **Dynamic model control** - start/stop models without Docker restarts
 
 ## Quick Start
 
@@ -86,10 +86,10 @@ For 2-3x faster inference on Apple Silicon, enable Metal acceleration via the Ho
 
 Full documentation is available in the [Wiki](https://github.com/dlorp/synapse-engine/wiki):
 
-- [Docker Quick Start](https://github.com/dlorp/synapse-engine/wiki/guides/DOCKER_QUICKSTART) — Installation and setup
-- [Model Management](https://github.com/dlorp/synapse-engine/wiki/guides/QUICK_START_MODEL_MANAGEMENT) — Using the web interface
-- [Query Modes](https://github.com/dlorp/synapse-engine/wiki/features/MODES) — Available processing modes
-- [Troubleshooting](https://github.com/dlorp/synapse-engine/wiki/guides/TROUBLESHOOTING) — Common issues and solutions
+- [Docker Quick Start](https://github.com/dlorp/synapse-engine/wiki/guides/DOCKER_QUICKSTART) - Installation and setup
+- [Model Management](https://github.com/dlorp/synapse-engine/wiki/guides/QUICK_START_MODEL_MANAGEMENT) - Using the web interface
+- [Query Modes](https://github.com/dlorp/synapse-engine/wiki/features/MODES) - Available processing modes
+- [Troubleshooting](https://github.com/dlorp/synapse-engine/wiki/guides/TROUBLESHOOTING) - Common issues and solutions
 
 ## Contributing
 
@@ -97,4 +97,4 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for gui
 
 ## License
 
-[PolyForm NonCommercial 1.0.0](LICENSE) — free for personal and non-commercial use
+[PolyForm NonCommercial 1.0.0](LICENSE) - free for personal and non-commercial use
