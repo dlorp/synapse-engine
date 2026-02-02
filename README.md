@@ -10,17 +10,17 @@ Distributed orchestration platform for local language models.
 
 ## What is this?
 
-Synapse Engine coordinates multiple local LLMs into a unified inference system. Instead of running models one at a time, it orchestrates them across performance tiers—fast models for initial processing, powerful models for refinement—with sub-100ms contextual retrieval built in.
+Synapse Engine coordinates multiple local LLMs into a unified inference system. Instead of running models one at a time, it orchestrates them across performance tiers-fast models for initial processing, powerful models for refinement-with sub-100ms contextual retrieval built in.
 
 It runs entirely on your hardware. No API keys, no cloud dependencies, no data leaving your machine.
 
 ## Features
 
-- **Multi-Model Orchestration** — Coordinate models across FAST/BALANCED/POWERFUL tiers
-- **Query Modes** — Simple, Two-Stage, Council (Consensus/Debate), Benchmark
-- **CGRAG** — Sub-100ms contextual retrieval with FAISS
-- **Metal Acceleration** — Apple Silicon GPU support via Host API
-- **WebUI-First** — Full control in browser, no config files to edit
+- **Multi-Model Orchestration** - Coordinate models across FAST/BALANCED/POWERFUL tiers
+- **Query Modes** - Simple, Two-Stage, Council (Consensus/Debate), Benchmark
+- **CGRAG** - Sub-100ms contextual retrieval with FAISS
+- **Metal Acceleration** - Apple Silicon GPU support via Host API
+- **WebUI-First** - Full control in browser, no config files to edit
 
 ## Quick Start
 
@@ -53,11 +53,11 @@ Ready in ~5 seconds. No models loaded by default.
 
 ## Query Modes
 
-- **Simple** — Single model, direct response
-- **Two-Stage** — FAST tier + CGRAG retrieval → BALANCED/POWERFUL refinement
-- **Council (Consensus)** — Multiple models collaborate toward agreement
-- **Council (Debate)** — Models argue positions, then synthesize
-- **Benchmark** — Compare responses from all enabled models
+- **Simple** - Single model, direct response
+- **Two-Stage** - FAST tier + CGRAG retrieval → BALANCED/POWERFUL refinement
+- **Council (Consensus)** - Multiple models collaborate toward agreement
+- **Council (Debate)** - Models argue positions, then synthesize
+- **Benchmark** - Compare responses from all enabled models
 
 ## Usage
 
@@ -87,7 +87,7 @@ brew install llama.cpp
 # Configure SSH (see docs/METAL.md)
 ```
 
-Then click "START ALL ENABLED" in WebUI—Host API handles the rest.
+Then click "START ALL ENABLED" in WebUI-Host API handles the rest.
 
 ## Configuration
 
@@ -114,11 +114,11 @@ USE_EXTERNAL_SERVERS=true  # Enable Metal acceleration
 
 ## Documentation
 
-- [Metal Acceleration](docs/METAL.md) — Apple Silicon GPU setup
-- [Architecture](docs/ARCHITECTURE.md) — System design and model tiers
-- [CGRAG](docs/CGRAG.md) — Document indexing and retrieval
-- [Security](docs/SECURITY.md) — Localhost binding, reverse proxy setup
-- [API Reference](docs/API.md) — Complete endpoint documentation
+- [Metal Acceleration](docs/METAL.md) - Apple Silicon GPU setup
+- [Architecture](docs/ARCHITECTURE.md) - System design and model tiers
+- [CGRAG](docs/CGRAG.md) - Document indexing and retrieval
+- [Security](docs/SECURITY.md) - Localhost binding, reverse proxy setup
+- [API Reference](docs/API.md) - Complete endpoint documentation
 
 ## Contributing
 
