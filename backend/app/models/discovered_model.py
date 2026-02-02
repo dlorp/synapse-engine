@@ -18,6 +18,7 @@ class QuantizationLevel(str, Enum):
 
     Ordered from lowest to highest precision/size.
     """
+
     Q2_K = "q2_k"
     Q2_K_S = "q2_k_s"
     Q3_K = "q3_k"
@@ -44,6 +45,7 @@ class ModelTier(str, Enum):
     BALANCED: Medium-precision models for moderate queries (<5s target)
     POWERFUL: High-precision/reasoning models for complex queries (<15s target)
     """
+
     FAST = "fast"
     BALANCED = "balanced"
     POWERFUL = "powerful"
@@ -62,34 +64,46 @@ class DiscoveredModel(BaseModel):
 
     # Model identity
     family: str = Field(description="Model family (qwen, deepseek, llama, etc.)")
-    version: Optional[str] = Field(default=None, description="Model version (2.5, 3, etc.)")
-    size_params: float = Field(description="Model size in billions of parameters", alias="sizeParams")
+    version: Optional[str] = Field(
+        default=None, description="Model version (2.5, 3, etc.)"
+    )
+    size_params: float = Field(
+        description="Model size in billions of parameters", alias="sizeParams"
+    )
     quantization: QuantizationLevel = Field(description="Quantization level")
 
     # Capabilities
     is_thinking_model: bool = Field(
         default=False,
         description="Auto-detected reasoning/thinking model (r1, o1, etc.)",
-        alias="isThinkingModel"
+        alias="isThinkingModel",
     )
     thinking_override: Optional[bool] = Field(
         default=None,
         description="User override for thinking model status",
-        alias="thinkingOverride"
+        alias="thinkingOverride",
     )
-    is_instruct: bool = Field(default=False, description="Instruction-tuned model", alias="isInstruct")
-    is_coder: bool = Field(default=False, description="Code-specialized model", alias="isCoder")
+    is_instruct: bool = Field(
+        default=False, description="Instruction-tuned model", alias="isInstruct"
+    )
+    is_coder: bool = Field(
+        default=False, description="Code-specialized model", alias="isCoder"
+    )
 
     # Tier assignment
-    assigned_tier: ModelTier = Field(description="Auto-assigned performance tier", alias="assignedTier")
+    assigned_tier: ModelTier = Field(
+        description="Auto-assigned performance tier", alias="assignedTier"
+    )
     tier_override: Optional[ModelTier] = Field(
         default=None,
         description="User override for tier assignment",
-        alias="tierOverride"
+        alias="tierOverride",
     )
 
     # Runtime configuration
-    port: Optional[int] = Field(default=None, description="Assigned llama.cpp server port")
+    port: Optional[int] = Field(
+        default=None, description="Assigned llama.cpp server port"
+    )
     enabled: bool = Field(default=False, description="Whether model is enabled for use")
 
     # Per-model runtime overrides (Phase 2)
@@ -99,28 +113,28 @@ class DiscoveredModel(BaseModel):
         ge=0,
         le=999,
         description="Per-model GPU layers override (None = use global setting)",
-        alias="nGpuLayers"
+        alias="nGpuLayers",
     )
     ctx_size: Optional[int] = Field(
         default=None,
         ge=512,
         le=131072,
         description="Per-model context size override (None = use global setting)",
-        alias="ctxSize"
+        alias="ctxSize",
     )
     n_threads: Optional[int] = Field(
         default=None,
         ge=1,
         le=128,
         description="Per-model thread count override (None = use global setting)",
-        alias="nThreads"
+        alias="nThreads",
     )
     batch_size: Optional[int] = Field(
         default=None,
         ge=1,
         le=4096,
         description="Per-model batch size override (None = use global setting)",
-        alias="batchSize"
+        alias="batchSize",
     )
 
     # Generated identifier
@@ -148,7 +162,11 @@ class DiscoveredModel(BaseModel):
             parts.append("(Instruct)")
 
         # Handle both enum and string values (Pydantic may convert)
-        quant_str = self.quantization if isinstance(self.quantization, str) else self.quantization.value
+        quant_str = (
+            self.quantization
+            if isinstance(self.quantization, str)
+            else self.quantization.value
+        )
         parts.append(quant_str.upper())
 
         return " ".join(parts)
@@ -175,7 +193,7 @@ class DiscoveredModel(BaseModel):
 
     model_config = ConfigDict(
         use_enum_values=True,
-        populate_by_name=True  # Accept both snake_case and camelCase
+        populate_by_name=True,  # Accept both snake_case and camelCase
     )
 
 
@@ -187,23 +205,24 @@ class ModelRegistry(BaseModel):
     """
 
     models: Dict[str, DiscoveredModel] = Field(
-        default_factory=dict,
-        description="Map of model_id to DiscoveredModel"
+        default_factory=dict, description="Map of model_id to DiscoveredModel"
     )
-    scan_path: str = Field(description="Directory path that was scanned", alias="scanPath")
+    scan_path: str = Field(
+        description="Directory path that was scanned", alias="scanPath"
+    )
     last_scan: str = Field(description="ISO timestamp of last scan", alias="lastScan")
     port_range: Tuple[int, int] = Field(
         default=(8080, 8099),
         description="Available port range for llama.cpp servers",
-        alias="portRange"
+        alias="portRange",
     )
     tier_thresholds: Dict[str, float] = Field(
         default_factory=lambda: {
             "powerful_min": 14.0,  # 14B+ parameters for POWERFUL tier
-            "fast_max": 7.0        # <7B parameters for FAST tier (with low quant)
+            "fast_max": 7.0,  # <7B parameters for FAST tier (with low quant)
         },
         description="Parameter count thresholds for tier assignment",
-        alias="tierThresholds"
+        alias="tierThresholds",
     )
 
     def get_by_tier(self, tier: ModelTier) -> List[DiscoveredModel]:
@@ -239,8 +258,7 @@ class ModelRegistry(BaseModel):
             Model assigned to port, or None if not found
         """
         return next(
-            (model for model in self.models.values() if model.port == port),
-            None
+            (model for model in self.models.values() if model.port == port), None
         )
 
     def get_available_ports(self) -> List[int]:
@@ -250,9 +268,7 @@ class ModelRegistry(BaseModel):
             List of port numbers not currently assigned
         """
         assigned_ports = {
-            model.port
-            for model in self.models.values()
-            if model.port is not None
+            model.port for model in self.models.values() if model.port is not None
         }
         return [
             port
@@ -288,5 +304,5 @@ class ModelRegistry(BaseModel):
 
     model_config = ConfigDict(
         use_enum_values=True,
-        populate_by_name=True  # Accept both snake_case and camelCase
+        populate_by_name=True,  # Accept both snake_case and camelCase
     )

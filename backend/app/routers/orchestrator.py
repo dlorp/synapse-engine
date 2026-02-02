@@ -44,20 +44,20 @@ router = APIRouter(prefix="/api/orchestrator")
                                 "tier": "Q2",
                                 "utilizationPercent": 75,
                                 "activeRequests": 2,
-                                "totalProcessed": 1250
+                                "totalProcessed": 1250,
                             },
                             {
                                 "tier": "Q3",
                                 "utilizationPercent": 50,
                                 "activeRequests": 1,
-                                "totalProcessed": 680
+                                "totalProcessed": 680,
                             },
                             {
                                 "tier": "Q4",
                                 "utilizationPercent": 25,
                                 "activeRequests": 0,
-                                "totalProcessed": 320
-                            }
+                                "totalProcessed": 320,
+                            },
                         ],
                         "recentDecisions": [
                             {
@@ -66,22 +66,22 @@ router = APIRouter(prefix="/api/orchestrator")
                                 "tier": "Q2",
                                 "complexity": "SIMPLE",
                                 "timestamp": "2025-11-08T10:30:00Z",
-                                "score": 1.2
+                                "score": 1.2,
                             }
                         ],
                         "complexityDistribution": {
                             "simple": 45,
                             "moderate": 35,
-                            "complex": 20
+                            "complex": 20,
                         },
                         "totalDecisions": 2250,
                         "avgDecisionTimeMs": 12.5,
-                        "timestamp": "2025-11-08T10:35:00Z"
+                        "timestamp": "2025-11-08T10:35:00Z",
                     }
                 }
-            }
+            },
         }
-    }
+    },
 )
 async def get_orchestrator_status() -> OrchestratorStatusResponse:
     """Get current orchestrator status.
@@ -98,9 +98,9 @@ async def get_orchestrator_status() -> OrchestratorStatusResponse:
     logger.debug(
         "Orchestrator status retrieved",
         extra={
-            'total_decisions': status.total_decisions,
-            'avg_decision_time_ms': status.avg_decision_time_ms
-        }
+            "total_decisions": status.total_decisions,
+            "avg_decision_time_ms": status.avg_decision_time_ms,
+        },
     )
 
     return status

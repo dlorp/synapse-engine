@@ -41,13 +41,16 @@ class CRAGResult(BaseModel):
         length_adequacy: Content sufficiency score
         diversity: Source diversity score
     """
+
     artifacts: List  # List[DocumentChunk]
     tokens_used: int
     retrieval_time_ms: float
     crag_decision: str = Field(..., description="RELEVANT | PARTIAL | IRRELEVANT")
     crag_score: float = Field(..., ge=0.0, le=1.0)
     correction_applied: bool
-    correction_strategy: str = Field(..., description="query_expansion | web_search | none")
+    correction_strategy: str = Field(
+        ..., description="query_expansion | web_search | none"
+    )
     original_artifacts_count: int
     web_search_used: bool = False
     cache_hit: bool = False
@@ -86,9 +89,9 @@ class CRAGOrchestrator:
 
     def __init__(
         self,
-        cgrag_retriever: 'CGRAGRetriever',
+        cgrag_retriever: "CGRAGRetriever",
         enable_web_search: bool = True,
-        enable_query_expansion: bool = True
+        enable_query_expansion: bool = True,
     ):
         """Initialize CRAG orchestrator.
 
@@ -113,10 +116,7 @@ class CRAGOrchestrator:
         )
 
     async def retrieve(
-        self,
-        query: str,
-        token_budget: int = 8000,
-        max_artifacts: int = 20
+        self, query: str, token_budget: int = 8000, max_artifacts: int = 20
     ) -> CRAGResult:
         """Retrieve with corrective RAG workflow.
 
@@ -145,9 +145,7 @@ class CRAGOrchestrator:
         # Step 1: Initial CGRAG retrieval
         logger.info(f"[CRAG] Initial retrieval: query='{query[:50]}...'")
         cgrag_result = await self.cgrag_retriever.retrieve(
-            query=query,
-            token_budget=token_budget,
-            max_artifacts=max_artifacts
+            query=query, token_budget=token_budget, max_artifacts=max_artifacts
         )
 
         logger.debug(
@@ -160,7 +158,7 @@ class CRAGOrchestrator:
         relevance_eval = await self.evaluator.evaluate(
             query=query,
             artifacts=cgrag_result.artifacts,
-            relevance_scores=cgrag_result.top_scores
+            relevance_scores=cgrag_result.top_scores,
         )
 
         logger.info(
@@ -196,14 +194,12 @@ class CRAGOrchestrator:
                 expanded_result = await self.cgrag_retriever.retrieve(
                     query=expanded_query,
                     token_budget=token_budget,
-                    max_artifacts=max_artifacts
+                    max_artifacts=max_artifacts,
                 )
 
                 # Merge original + expanded results
                 final_artifacts = self._merge_artifacts(
-                    cgrag_result.artifacts,
-                    expanded_result.artifacts,
-                    token_budget
+                    cgrag_result.artifacts, expanded_result.artifacts, token_budget
                 )
 
                 correction_applied = True
@@ -216,7 +212,9 @@ class CRAGOrchestrator:
                 )
 
             except Exception as e:
-                logger.error(f"[CRAG] Query expansion failed: {e}. Using original artifacts.")
+                logger.error(
+                    f"[CRAG] Query expansion failed: {e}. Using original artifacts."
+                )
                 correction_strategy = "none"
 
         elif relevance_eval.category == "IRRELEVANT" and self.augmenter:
@@ -233,10 +231,14 @@ class CRAGOrchestrator:
                     web_search_used = True
                     logger.info(f"[CRAG] Retrieved {len(web_chunks)} web results")
                 else:
-                    logger.warning("[CRAG] Web search returned no results, using original artifacts")
+                    logger.warning(
+                        "[CRAG] Web search returned no results, using original artifacts"
+                    )
 
             except Exception as e:
-                logger.error(f"[CRAG] Web search failed: {e}. Using original artifacts.")
+                logger.error(
+                    f"[CRAG] Web search failed: {e}. Using original artifacts."
+                )
 
         else:
             # Correction disabled or failed - use original artifacts
@@ -244,8 +246,7 @@ class CRAGOrchestrator:
 
         # Calculate final token usage
         tokens_used = sum(
-            self._estimate_tokens(chunk.content)
-            for chunk in final_artifacts
+            self._estimate_tokens(chunk.content) for chunk in final_artifacts
         )
 
         elapsed_ms = (time.time() - start_time) * 1000
@@ -280,14 +281,14 @@ class CRAGOrchestrator:
             keyword_overlap=relevance_eval.keyword_overlap,
             semantic_coherence=relevance_eval.semantic_coherence,
             length_adequacy=relevance_eval.length_adequacy,
-            diversity=relevance_eval.diversity
+            diversity=relevance_eval.diversity,
         )
 
     def _merge_artifacts(
         self,
         original: List,  # List[DocumentChunk]
         expanded: List,  # List[DocumentChunk]
-        token_budget: int
+        token_budget: int,
     ) -> List:  # List[DocumentChunk]
         """Merge original and expanded artifacts using deduplication.
 

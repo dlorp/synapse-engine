@@ -84,19 +84,16 @@ class RunPythonTool(BaseTool):
     parameter_schema: Dict[str, Any] = {
         "type": "object",
         "properties": {
-            "code": {
-                "type": "string",
-                "description": "Python code to execute"
-            },
+            "code": {"type": "string", "description": "Python code to execute"},
             "timeout": {
                 "type": "integer",
                 "description": "Execution timeout in seconds (1-30, default 30)",
                 "minimum": 1,
                 "maximum": 30,
-                "default": 30
-            }
+                "default": 30,
+            },
         },
-        "required": ["code"]
+        "required": ["code"],
     }
     requires_confirmation = False  # Sandbox is secure
 
@@ -115,11 +112,7 @@ class RunPythonTool(BaseTool):
 
         # Validate input
         if not code or not code.strip():
-            return ToolResult(
-                success=False,
-                output="",
-                error="No code provided"
-            )
+            return ToolResult(success=False, output="", error="No code provided")
 
         # Log execution attempt
         code_preview = code[:100] + "..." if len(code) > 100 else code
@@ -129,21 +122,21 @@ class RunPythonTool(BaseTool):
             # Call sandbox service
             async with httpx.AsyncClient(timeout=timeout + 10) as client:
                 response = await client.post(
-                    f"{SANDBOX_URL}/execute",
-                    json={
-                        "code": code,
-                        "timeout": timeout
-                    }
+                    f"{SANDBOX_URL}/execute", json={"code": code, "timeout": timeout}
                 )
 
                 # Check for HTTP errors
                 if response.status_code != 200:
-                    error_detail = response.text[:500] if response.text else "Unknown error"
-                    logger.error(f"Sandbox returned {response.status_code}: {error_detail}")
+                    error_detail = (
+                        response.text[:500] if response.text else "Unknown error"
+                    )
+                    logger.error(
+                        f"Sandbox returned {response.status_code}: {error_detail}"
+                    )
                     return ToolResult(
                         success=False,
                         output="",
-                        error=f"Sandbox error ({response.status_code}): {error_detail}"
+                        error=f"Sandbox error ({response.status_code}): {error_detail}",
                     )
 
                 # Parse response
@@ -156,7 +149,9 @@ class RunPythonTool(BaseTool):
                 if error:
                     logger.warning(f"Sandbox execution failed: {error[:200]}")
                 else:
-                    logger.info(f"Sandbox execution succeeded in {execution_time:.1f}ms")
+                    logger.info(
+                        f"Sandbox execution succeeded in {execution_time:.1f}ms"
+                    )
 
                 return ToolResult(
                     success=error is None,
@@ -164,8 +159,8 @@ class RunPythonTool(BaseTool):
                     error=error,
                     metadata={
                         "execution_time_ms": execution_time,
-                        "code_length": len(code)
-                    }
+                        "code_length": len(code),
+                    },
                 )
 
         except httpx.TimeoutException:
@@ -173,7 +168,7 @@ class RunPythonTool(BaseTool):
             return ToolResult(
                 success=False,
                 output="",
-                error=f"Sandbox execution timed out after {timeout} seconds"
+                error=f"Sandbox execution timed out after {timeout} seconds",
             )
 
         except httpx.ConnectError:
@@ -181,23 +176,19 @@ class RunPythonTool(BaseTool):
             return ToolResult(
                 success=False,
                 output="",
-                error="Sandbox service unavailable. Is synapse_sandbox container running?"
+                error="Sandbox service unavailable. Is synapse_sandbox container running?",
             )
 
         except httpx.HTTPError as e:
             logger.error(f"HTTP error communicating with sandbox: {e}")
             return ToolResult(
-                success=False,
-                output="",
-                error=f"Sandbox communication error: {str(e)}"
+                success=False, output="", error=f"Sandbox communication error: {str(e)}"
             )
 
         except Exception as e:
             logger.exception(f"Unexpected error in RunPythonTool: {e}")
             return ToolResult(
-                success=False,
-                output="",
-                error=f"Unexpected error: {str(e)}"
+                success=False, output="", error=f"Unexpected error: {str(e)}"
             )
 
 
@@ -240,7 +231,6 @@ class RunShellTool(BaseTool):
         "python3": ["-m", "-c"],
         "pip": ["install", "list", "freeze", "show"],
         "pip3": ["install", "list", "freeze", "show"],
-
         # Info commands
         "ls": ["*"],
         "cat": ["*"],  # Within workspace only
@@ -256,10 +246,8 @@ class RunShellTool(BaseTool):
         "stat": ["*"],
         "du": ["*"],
         "df": ["*"],
-
         # Git (read-only)
         "git": ["status", "log", "diff", "branch", "show", "config"],
-
         # Docker (read-only)
         "docker": ["ps", "logs", "inspect", "version", "info"],
         "docker-compose": ["ps", "logs", "config", "version"],
@@ -309,17 +297,17 @@ class RunShellTool(BaseTool):
         "properties": {
             "command": {
                 "type": "string",
-                "description": "Shell command to execute (must be whitelisted)"
+                "description": "Shell command to execute (must be whitelisted)",
             },
             "timeout": {
                 "type": "integer",
                 "description": "Execution timeout in seconds (1-30, default 30)",
                 "minimum": 1,
                 "maximum": 30,
-                "default": 30
-            }
+                "default": 30,
+            },
         },
-        "required": ["command"]
+        "required": ["command"],
     }
     requires_confirmation = False  # Whitelist is secure enough
 
@@ -394,36 +382,38 @@ class RunShellTool(BaseTool):
         valid, error = self._validate_command(command)
         if not valid:
             logger.warning(f"Shell command blocked: {command!r} - {error}")
-            return ToolResult(
-                success=False,
-                output="",
-                error=f"Security: {error}"
-            )
+            return ToolResult(success=False, output="", error=f"Security: {error}")
 
         # Log execution attempt
         logger.info(f"Executing shell command: {command!r}")
 
         try:
-            # Execute with timeout and restricted environment
-            proc = await asyncio.wait_for(
-                asyncio.create_subprocess_shell(
-                    command,
-                    cwd=str(self.workspace_root),
-                    stdout=asyncio.subprocess.PIPE,
-                    stderr=asyncio.subprocess.PIPE,
-                    # Restricted PATH - only standard bins
-                    env={
-                        **os.environ,
-                        "PATH": "/usr/local/bin:/usr/bin:/bin",
-                        # Remove dangerous env vars
-                        "LD_PRELOAD": "",
-                        "LD_LIBRARY_PATH": "",
-                    }
-                ),
-                timeout=timeout
+            # Create subprocess with restricted environment
+            proc = await asyncio.create_subprocess_shell(
+                command,
+                cwd=str(self.workspace_root),
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+                # Restricted PATH - only standard bins
+                env={
+                    **os.environ,
+                    "PATH": "/usr/local/bin:/usr/bin:/bin",
+                    # Remove dangerous env vars
+                    "LD_PRELOAD": "",
+                    "LD_LIBRARY_PATH": "",
+                },
             )
 
-            stdout, stderr = await proc.communicate()
+            # Execute with timeout - timeout applies to actual command execution
+            try:
+                stdout, stderr = await asyncio.wait_for(
+                    proc.communicate(), timeout=timeout
+                )
+            except asyncio.TimeoutError:
+                # Kill the process if it times out
+                proc.kill()
+                await proc.wait()
+                raise
 
             # Limit output size (10KB for stdout, 2KB for stderr)
             stdout_str = stdout.decode(errors="replace")[:10000]
@@ -452,7 +442,7 @@ class RunShellTool(BaseTool):
                     "exit_code": proc.returncode,
                     "timeout_seconds": timeout,
                     "output_bytes": len(stdout_str),
-                }
+                },
             )
 
         except asyncio.TimeoutError:
@@ -460,13 +450,11 @@ class RunShellTool(BaseTool):
             return ToolResult(
                 success=False,
                 output="",
-                error=f"Command timed out after {timeout} seconds"
+                error=f"Command timed out after {timeout} seconds",
             )
 
         except Exception as e:
             logger.exception(f"Unexpected error executing shell command: {command!r}")
             return ToolResult(
-                success=False,
-                output="",
-                error=f"Execution error: {str(e)}"
+                success=False, output="", error=f"Execution error: {str(e)}"
             )

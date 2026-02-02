@@ -17,8 +17,7 @@ from app.services.model_discovery import ModelDiscoveryService
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -46,7 +45,11 @@ def print_model_summary(model: DiscoveredModel) -> None:
     display_name = model.get_display_name()
 
     # Handle both enum and string values (Pydantic may convert)
-    tier_value = model.assigned_tier if isinstance(model.assigned_tier, str) else model.assigned_tier.value
+    tier_value = (
+        model.assigned_tier
+        if isinstance(model.assigned_tier, str)
+        else model.assigned_tier.value
+    )
     tier = tier_value.upper()
 
     port = f"@ port {model.port}" if model.port else "(no port)"
@@ -76,8 +79,12 @@ def print_tier_summary(registry: ModelRegistry) -> None:
         if models:
             # Sort by size descending, then quantization
             models.sort(
-                key=lambda m: (-m.size_params,
-                              m.quantization if isinstance(m.quantization, str) else m.quantization.value)
+                key=lambda m: (
+                    -m.size_params,
+                    m.quantization
+                    if isinstance(m.quantization, str)
+                    else m.quantization.value,
+                )
             )
 
             for model in models:
@@ -118,17 +125,13 @@ def print_statistics(registry: ModelRegistry, gguf_count: int) -> None:
 
     # Thinking models
     thinking_count = sum(
-        1 for m in registry.models.values()
-        if m.is_effectively_thinking()
+        1 for m in registry.models.values() if m.is_effectively_thinking()
     )
     if thinking_count > 0:
         print(f"\n  Reasoning models: {thinking_count} ⚡")
 
     # Port allocation
-    models_with_ports = sum(
-        1 for m in registry.models.values()
-        if m.port is not None
-    )
+    models_with_ports = sum(1 for m in registry.models.values() if m.port is not None)
     print(f"\n  Port allocation: {models_with_ports}/{parsed_count} models")
 
     print(f"{'─' * 64}")
@@ -178,7 +181,7 @@ def discover_models_cli(scan_path: str, output_path: str) -> int:
             scan_path=scan_path_obj,
             port_range=(8080, 8099),
             powerful_threshold=14.0,
-            fast_threshold=7.0
+            fast_threshold=7.0,
         )
 
         # Discover models
@@ -249,41 +252,39 @@ Examples:
   python -m app.cli.discover_models  # Uses defaults
 
 For more information, see: docs/development/TROUBLESHOOTING.md
-        """
+        """,
     )
 
     parser.add_argument(
-        '--scan-path',
+        "--scan-path",
         type=str,
-        default='${PRAXIS_MODEL_PATH}/',
-        help='Directory to scan for GGUF model files (default: %(default)s)'
+        default="${PRAXIS_MODEL_PATH}/",
+        help="Directory to scan for GGUF model files (default: %(default)s)",
     )
 
     parser.add_argument(
-        '--output',
+        "--output",
         type=str,
-        default='data/model_registry.json',
-        help='Output path for registry JSON file (default: %(default)s)'
+        default="data/model_registry.json",
+        help="Output path for registry JSON file (default: %(default)s)",
     )
 
     parser.add_argument(
-        '--powerful-threshold',
+        "--powerful-threshold",
         type=float,
         default=14.0,
-        help='Minimum parameter count for POWERFUL tier (default: %(default)s)'
+        help="Minimum parameter count for POWERFUL tier (default: %(default)s)",
     )
 
     parser.add_argument(
-        '--fast-threshold',
+        "--fast-threshold",
         type=float,
         default=7.0,
-        help='Maximum parameter count for FAST tier (default: %(default)s)'
+        help="Maximum parameter count for FAST tier (default: %(default)s)",
     )
 
     parser.add_argument(
-        '--verbose',
-        action='store_true',
-        help='Enable verbose debug logging'
+        "--verbose", action="store_true", help="Enable verbose debug logging"
     )
 
     args = parser.parse_args()
@@ -294,11 +295,8 @@ For more information, see: docs/development/TROUBLESHOOTING.md
         logger.debug("Verbose logging enabled")
 
     # Run discovery
-    return discover_models_cli(
-        scan_path=args.scan_path,
-        output_path=args.output
-    )
+    return discover_models_cli(scan_path=args.scan_path, output_path=args.output)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

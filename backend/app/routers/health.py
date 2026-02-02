@@ -38,10 +38,7 @@ async def liveness_probe(request: Request, response: Response) -> HealthResponse
     uptime = time.time() - _app_start_time
 
     return HealthResponse(
-        status="ok",
-        uptime=uptime,
-        components={"praxis": "alive"},
-        trace_id=trace_id
+        status="ok", uptime=uptime, components={"praxis": "alive"}, trace_id=trace_id
     )
 
 
@@ -86,7 +83,7 @@ async def readiness_probe(request: Request, response: Response) -> HealthRespons
             db=config.redis.db,
             password=config.redis.password,
             socket_connect_timeout=2,
-            decode_responses=True
+            decode_responses=True,
         )
         redis_client.ping()
         components["memex"] = "ready"
@@ -97,6 +94,7 @@ async def readiness_probe(request: Request, response: Response) -> HealthRespons
     # Check RECALL (FAISS Index) availability
     try:
         from pathlib import Path
+
         project_root = Path(__file__).parent.parent.parent
         index_path = project_root / "data" / "faiss_indexes" / "docs.index"
 
@@ -132,10 +130,7 @@ async def readiness_probe(request: Request, response: Response) -> HealthRespons
         overall_status = "degraded"
 
     return HealthResponse(
-        status=overall_status,
-        uptime=uptime,
-        components=components,
-        trace_id=trace_id
+        status=overall_status, uptime=uptime, components=components, trace_id=trace_id
     )
 
 

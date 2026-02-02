@@ -32,6 +32,7 @@ class SecurityError(Exception):
     - Symlink escape attempts
     - File size limit violations
     """
+
     pass
 
 
@@ -154,6 +155,15 @@ class ToolRegistry:
         self._tools: Dict[ToolName, BaseTool] = {}
         self._lock = asyncio.Lock()
 
+    @property
+    def tools(self) -> Dict[ToolName, BaseTool]:
+        """Access registered tools dictionary.
+
+        Returns:
+            Dictionary mapping ToolName to BaseTool instances
+        """
+        return self._tools
+
     def register(self, tool: BaseTool) -> None:
         """Register a tool in the registry.
 
@@ -214,7 +224,7 @@ class ToolRegistry:
                 "name": tool.name.value,
                 "description": tool.description,
                 "parameters": tool.parameter_schema,
-                "requires_confirmation": tool.requires_confirmation
+                "requires_confirmation": tool.requires_confirmation,
             }
             for tool in self._tools.values()
         ]
@@ -251,19 +261,15 @@ class ToolRegistry:
         if not tool:
             logger.error(f"Unknown tool: {tool_call.tool.value}")
             return ToolResult(
-                success=False,
-                error=f"Unknown tool: {tool_call.tool.value}"
+                success=False, error=f"Unknown tool: {tool_call.tool.value}"
             )
 
         # Validate parameters
         error = tool.validate_params(tool_call.args)
         if error:
-            logger.warning(
-                f"Tool {tool_call.tool.value} validation failed: {error}"
-            )
+            logger.warning(f"Tool {tool_call.tool.value} validation failed: {error}")
             return ToolResult(
-                success=False,
-                error=f"Parameter validation failed: {error}"
+                success=False, error=f"Parameter validation failed: {error}"
             )
 
         # Execute with comprehensive error handling
@@ -276,34 +282,22 @@ class ToolRegistry:
 
             # Log execution result
             if result.success:
-                logger.info(
-                    f"Tool {tool_call.tool.value} executed successfully"
-                )
+                logger.info(f"Tool {tool_call.tool.value} executed successfully")
             else:
-                logger.warning(
-                    f"Tool {tool_call.tool.value} failed: {result.error}"
-                )
+                logger.warning(f"Tool {tool_call.tool.value} failed: {result.error}")
 
             return result
 
         except SecurityError as e:
             # Security violations get special logging
             logger.error(
-                f"Security violation in {tool_call.tool.value}: {e}",
-                exc_info=True
+                f"Security violation in {tool_call.tool.value}: {e}", exc_info=True
             )
-            return ToolResult(
-                success=False,
-                error=f"Security violation: {str(e)}"
-            )
+            return ToolResult(success=False, error=f"Security violation: {str(e)}")
 
         except Exception as e:
             # All other exceptions caught and logged
             logger.error(
-                f"Tool {tool_call.tool.value} raised exception: {e}",
-                exc_info=True
+                f"Tool {tool_call.tool.value} raised exception: {e}", exc_info=True
             )
-            return ToolResult(
-                success=False,
-                error=f"Tool execution failed: {str(e)}"
-            )
+            return ToolResult(success=False, error=f"Tool execution failed: {str(e)}")

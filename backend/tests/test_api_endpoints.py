@@ -41,9 +41,9 @@ class APITester:
 
     def print_header(self, text: str) -> None:
         """Print a formatted test section header."""
-        print(f"\n{'='*70}")
+        print(f"\n{'=' * 70}")
         print(f"  {text}")
-        print(f"{'='*70}")
+        print(f"{'=' * 70}")
 
     def print_test(self, name: str, status: str, details: str = "") -> None:
         """Print test result."""
@@ -65,14 +65,14 @@ class APITester:
         total = self.passed + self.failed
         pass_rate = (self.passed / total * 100) if total > 0 else 0
 
-        print(f"\n{'='*70}")
+        print(f"\n{'=' * 70}")
         print("  TEST SUMMARY")
-        print(f"{'='*70}")
+        print(f"{'=' * 70}")
         print(f"  Total:  {total}")
         print(f"  Passed: {self.passed}")
         print(f"  Failed: {self.failed}")
         print(f"  Rate:   {pass_rate:.1f}%")
-        print(f"{'='*70}\n")
+        print(f"{'=' * 70}\n")
 
     async def test_get_registry(self, client: httpx.AsyncClient) -> None:
         """Test GET /api/models/registry."""
@@ -87,25 +87,27 @@ class APITester:
                 self.print_test(
                     "GET /api/models/registry",
                     "PASS",
-                    f"Status: {response.status_code}, Models: {model_count}"
+                    f"Status: {response.status_code}, Models: {model_count}",
                 )
 
                 # Store first model ID for later tests
                 if data.get("models"):
                     self.test_model_id = list(data["models"].keys())[0]
-                    print(f"  └─ Using model ID '{self.test_model_id}' for subsequent tests")
+                    print(
+                        f"  └─ Using model ID '{self.test_model_id}' for subsequent tests"
+                    )
 
             elif response.status_code == 503:
                 self.print_test(
                     "GET /api/models/registry",
                     "PASS",
-                    "Status: 503 (Registry not initialized - expected)"
+                    "Status: 503 (Registry not initialized - expected)",
                 )
             else:
                 self.print_test(
                     "GET /api/models/registry",
                     "FAIL",
-                    f"Unexpected status: {response.status_code}"
+                    f"Unexpected status: {response.status_code}",
                 )
 
         except Exception as e:
@@ -125,19 +127,19 @@ class APITester:
                 self.print_test(
                     "GET /api/models/servers",
                     "PASS",
-                    f"Status: {response.status_code}, Total: {total}, Ready: {ready}"
+                    f"Status: {response.status_code}, Total: {total}, Ready: {ready}",
                 )
             elif response.status_code == 503:
                 self.print_test(
                     "GET /api/models/servers",
                     "PASS",
-                    "Status: 503 (Server manager not initialized - expected)"
+                    "Status: 503 (Server manager not initialized - expected)",
                 )
             else:
                 self.print_test(
                     "GET /api/models/servers",
                     "FAIL",
-                    f"Unexpected status: {response.status_code}"
+                    f"Unexpected status: {response.status_code}",
                 )
 
         except Exception as e:
@@ -155,7 +157,7 @@ class APITester:
                 self.print_test(
                     "GET /api/models/profiles",
                     "PASS",
-                    f"Status: {response.status_code}, Profiles: {len(profiles)}"
+                    f"Status: {response.status_code}, Profiles: {len(profiles)}",
                 )
                 if profiles:
                     print(f"  └─ Available profiles: {', '.join(profiles)}")
@@ -163,13 +165,13 @@ class APITester:
                 self.print_test(
                     "GET /api/models/profiles",
                     "PASS",
-                    "Status: 503 (Profile manager not initialized - expected)"
+                    "Status: 503 (Profile manager not initialized - expected)",
                 )
             else:
                 self.print_test(
                     "GET /api/models/profiles",
                     "FAIL",
-                    f"Unexpected status: {response.status_code}"
+                    f"Unexpected status: {response.status_code}",
                 )
 
         except Exception as e:
@@ -190,29 +192,31 @@ class APITester:
                 self.print_test(
                     "GET /api/models/profiles/development",
                     "PASS",
-                    f"Status: {response.status_code}, Enabled models: {enabled}"
+                    f"Status: {response.status_code}, Enabled models: {enabled}",
                 )
             elif response.status_code == 404:
                 self.print_test(
                     "GET /api/models/profiles/development",
                     "PASS",
-                    "Status: 404 (Profile not found - acceptable)"
+                    "Status: 404 (Profile not found - acceptable)",
                 )
             elif response.status_code == 503:
                 self.print_test(
                     "GET /api/models/profiles/development",
                     "PASS",
-                    "Status: 503 (Profile manager not initialized - expected)"
+                    "Status: 503 (Profile manager not initialized - expected)",
                 )
             else:
                 self.print_test(
                     "GET /api/models/profiles/development",
                     "FAIL",
-                    f"Unexpected status: {response.status_code}"
+                    f"Unexpected status: {response.status_code}",
                 )
 
         except Exception as e:
-            self.print_test("GET /api/models/profiles/development", "FAIL", f"Error: {e}")
+            self.print_test(
+                "GET /api/models/profiles/development", "FAIL", f"Error: {e}"
+            )
 
     async def test_get_tiers(self, client: httpx.AsyncClient) -> None:
         """Test GET /api/models/tiers/{tier}."""
@@ -226,19 +230,19 @@ class APITester:
                 self.print_test(
                     "GET /api/models/tiers/powerful",
                     "PASS",
-                    f"Status: {response.status_code}, Models: {len(models)}"
+                    f"Status: {response.status_code}, Models: {len(models)}",
                 )
             elif response.status_code == 503:
                 self.print_test(
                     "GET /api/models/tiers/powerful",
                     "PASS",
-                    "Status: 503 (Registry not initialized - expected)"
+                    "Status: 503 (Registry not initialized - expected)",
                 )
             else:
                 self.print_test(
                     "GET /api/models/tiers/powerful",
                     "FAIL",
-                    f"Unexpected status: {response.status_code}"
+                    f"Unexpected status: {response.status_code}",
                 )
 
         except Exception as e:
@@ -252,14 +256,14 @@ class APITester:
             self.print_test(
                 "PUT /api/models/{model_id}/tier",
                 "FAIL",
-                "No model ID available (registry empty or not loaded)"
+                "No model ID available (registry empty or not loaded)",
             )
             return
 
         try:
             response = await client.put(
                 f"{self.base_url}/api/models/{self.test_model_id}/tier",
-                json={"tier": "powerful"}
+                json={"tier": "powerful"},
             )
 
             if response.status_code == 200:
@@ -267,23 +271,25 @@ class APITester:
                 self.print_test(
                     f"PUT /api/models/{self.test_model_id}/tier",
                     "PASS",
-                    f"Status: {response.status_code}, Tier: {data.get('tier')}"
+                    f"Status: {response.status_code}, Tier: {data.get('tier')}",
                 )
             elif response.status_code in [404, 503]:
                 self.print_test(
                     f"PUT /api/models/{self.test_model_id}/tier",
                     "PASS",
-                    f"Status: {response.status_code} (Expected when registry/model not found)"
+                    f"Status: {response.status_code} (Expected when registry/model not found)",
                 )
             else:
                 self.print_test(
                     f"PUT /api/models/{self.test_model_id}/tier",
                     "FAIL",
-                    f"Unexpected status: {response.status_code}"
+                    f"Unexpected status: {response.status_code}",
                 )
 
         except Exception as e:
-            self.print_test(f"PUT /api/models/{self.test_model_id}/tier", "FAIL", f"Error: {e}")
+            self.print_test(
+                f"PUT /api/models/{self.test_model_id}/tier", "FAIL", f"Error: {e}"
+            )
 
     async def test_update_thinking(self, client: httpx.AsyncClient) -> None:
         """Test PUT /api/models/{model_id}/thinking."""
@@ -293,14 +299,14 @@ class APITester:
             self.print_test(
                 "PUT /api/models/{model_id}/thinking",
                 "FAIL",
-                "No model ID available (registry empty or not loaded)"
+                "No model ID available (registry empty or not loaded)",
             )
             return
 
         try:
             response = await client.put(
                 f"{self.base_url}/api/models/{self.test_model_id}/thinking",
-                json={"thinking": True}
+                json={"thinking": True},
             )
 
             if response.status_code == 200:
@@ -308,23 +314,25 @@ class APITester:
                 self.print_test(
                     f"PUT /api/models/{self.test_model_id}/thinking",
                     "PASS",
-                    f"Status: {response.status_code}, Thinking: {data.get('thinking')}"
+                    f"Status: {response.status_code}, Thinking: {data.get('thinking')}",
                 )
             elif response.status_code in [404, 503]:
                 self.print_test(
                     f"PUT /api/models/{self.test_model_id}/thinking",
                     "PASS",
-                    f"Status: {response.status_code} (Expected when registry/model not found)"
+                    f"Status: {response.status_code} (Expected when registry/model not found)",
                 )
             else:
                 self.print_test(
                     f"PUT /api/models/{self.test_model_id}/thinking",
                     "FAIL",
-                    f"Unexpected status: {response.status_code}"
+                    f"Unexpected status: {response.status_code}",
                 )
 
         except Exception as e:
-            self.print_test(f"PUT /api/models/{self.test_model_id}/thinking", "FAIL", f"Error: {e}")
+            self.print_test(
+                f"PUT /api/models/{self.test_model_id}/thinking", "FAIL", f"Error: {e}"
+            )
 
     async def test_update_enabled(self, client: httpx.AsyncClient) -> None:
         """Test PUT /api/models/{model_id}/enabled."""
@@ -334,14 +342,14 @@ class APITester:
             self.print_test(
                 "PUT /api/models/{model_id}/enabled",
                 "FAIL",
-                "No model ID available (registry empty or not loaded)"
+                "No model ID available (registry empty or not loaded)",
             )
             return
 
         try:
             response = await client.put(
                 f"{self.base_url}/api/models/{self.test_model_id}/enabled",
-                json={"enabled": True}
+                json={"enabled": True},
             )
 
             if response.status_code == 200:
@@ -349,23 +357,25 @@ class APITester:
                 self.print_test(
                     f"PUT /api/models/{self.test_model_id}/enabled",
                     "PASS",
-                    f"Status: {response.status_code}, Enabled: {data.get('enabled')}"
+                    f"Status: {response.status_code}, Enabled: {data.get('enabled')}",
                 )
             elif response.status_code in [404, 503]:
                 self.print_test(
                     f"PUT /api/models/{self.test_model_id}/enabled",
                     "PASS",
-                    f"Status: {response.status_code} (Expected when registry/model not found)"
+                    f"Status: {response.status_code} (Expected when registry/model not found)",
                 )
             else:
                 self.print_test(
                     f"PUT /api/models/{self.test_model_id}/enabled",
                     "FAIL",
-                    f"Unexpected status: {response.status_code}"
+                    f"Unexpected status: {response.status_code}",
                 )
 
         except Exception as e:
-            self.print_test(f"PUT /api/models/{self.test_model_id}/enabled", "FAIL", f"Error: {e}")
+            self.print_test(
+                f"PUT /api/models/{self.test_model_id}/enabled", "FAIL", f"Error: {e}"
+            )
 
     async def test_rescan(self, client: httpx.AsyncClient) -> None:
         """Test POST /api/models/rescan."""
@@ -382,19 +392,19 @@ class APITester:
                 self.print_test(
                     "POST /api/models/rescan",
                     "PASS",
-                    f"Status: {response.status_code}, Found: {found}, Added: {added}, Removed: {removed}"
+                    f"Status: {response.status_code}, Found: {found}, Added: {added}, Removed: {removed}",
                 )
             elif response.status_code == 503:
                 self.print_test(
                     "POST /api/models/rescan",
                     "PASS",
-                    "Status: 503 (Registry/discovery not initialized - expected)"
+                    "Status: 503 (Registry/discovery not initialized - expected)",
                 )
             else:
                 self.print_test(
                     "POST /api/models/rescan",
                     "FAIL",
-                    f"Unexpected status: {response.status_code}"
+                    f"Unexpected status: {response.status_code}",
                 )
 
         except Exception as e:
@@ -410,8 +420,8 @@ class APITester:
                 json={
                     "name": "API Test Profile",
                     "description": "Test profile created via API",
-                    "enabledModels": []
-                }
+                    "enabledModels": [],
+                },
             )
 
             if response.status_code == 201:
@@ -419,19 +429,19 @@ class APITester:
                 self.print_test(
                     "POST /api/models/profiles",
                     "PASS",
-                    f"Status: {response.status_code}, Profile: {data.get('profileName')}"
+                    f"Status: {response.status_code}, Profile: {data.get('profileName')}",
                 )
             elif response.status_code == 503:
                 self.print_test(
                     "POST /api/models/profiles",
                     "PASS",
-                    "Status: 503 (Profile manager not initialized - expected)"
+                    "Status: 503 (Profile manager not initialized - expected)",
                 )
             else:
                 self.print_test(
                     "POST /api/models/profiles",
                     "FAIL",
-                    f"Unexpected status: {response.status_code}"
+                    f"Unexpected status: {response.status_code}",
                 )
 
         except Exception as e:
@@ -450,36 +460,38 @@ class APITester:
                 self.print_test(
                     "DELETE /api/models/profiles/api-test-profile",
                     "PASS",
-                    f"Status: {response.status_code}"
+                    f"Status: {response.status_code}",
                 )
             elif response.status_code == 404:
                 self.print_test(
                     "DELETE /api/models/profiles/api-test-profile",
                     "PASS",
-                    "Status: 404 (Profile not found - acceptable)"
+                    "Status: 404 (Profile not found - acceptable)",
                 )
             elif response.status_code == 503:
                 self.print_test(
                     "DELETE /api/models/profiles/api-test-profile",
                     "PASS",
-                    "Status: 503 (Profile manager not initialized - expected)"
+                    "Status: 503 (Profile manager not initialized - expected)",
                 )
             else:
                 self.print_test(
                     "DELETE /api/models/profiles/api-test-profile",
                     "FAIL",
-                    f"Unexpected status: {response.status_code}"
+                    f"Unexpected status: {response.status_code}",
                 )
 
         except Exception as e:
-            self.print_test("DELETE /api/models/profiles/api-test-profile", "FAIL", f"Error: {e}")
+            self.print_test(
+                "DELETE /api/models/profiles/api-test-profile", "FAIL", f"Error: {e}"
+            )
 
     async def run_all_tests(self) -> None:
         """Run all API endpoint tests."""
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
         print("  S.Y.N.A.P.S.E. ENGINE Model Management API Test Suite")
         print(f"  Base URL: {self.base_url}")
-        print("="*70)
+        print("=" * 70)
 
         async with httpx.AsyncClient(timeout=30.0) as client:
             # Test each endpoint
@@ -507,7 +519,7 @@ async def main() -> None:
     parser.add_argument(
         "--base-url",
         default="http://localhost:8000",
-        help="Base URL for API (default: http://localhost:8000)"
+        help="Base URL for API (default: http://localhost:8000)",
     )
     args = parser.parse_args()
 

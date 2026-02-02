@@ -63,9 +63,9 @@ class GetDiagnosticsTool(BaseTool):
             "file": {
                 "type": "string",
                 "description": "File path to get diagnostics for (relative or absolute). "
-                              "If not provided, gets diagnostics for all workspace files."
+                "If not provided, gets diagnostics for all workspace files.",
             }
-        }
+        },
     }
 
     def __init__(self, workspace_root: str):
@@ -91,21 +91,20 @@ class GetDiagnosticsTool(BaseTool):
             if file:
                 target_path = self._resolve_path(file)
                 if not target_path.exists():
-                    return ToolResult(
-                        success=False,
-                        error=f"File not found: {file}"
-                    )
+                    return ToolResult(success=False, error=f"File not found: {file}")
 
             # Try different diagnostic strategies
             diagnostics: List[Dict[str, Any]] = []
 
             # Strategy 1: Try pyright for Python files
-            if not file or (target_path and target_path.suffix == '.py'):
+            if not file or (target_path and target_path.suffix == ".py"):
                 py_diags = await self._run_pyright(target_path)
                 diagnostics.extend(py_diags)
 
             # Strategy 2: Try tsc for TypeScript/JavaScript
-            if not file or (target_path and target_path.suffix in {'.ts', '.tsx', '.js', '.jsx'}):
+            if not file or (
+                target_path and target_path.suffix in {".ts", ".tsx", ".js", ".jsx"}
+            ):
                 ts_diags = await self._run_tsc(target_path)
                 diagnostics.extend(ts_diags)
 
@@ -125,7 +124,7 @@ class GetDiagnosticsTool(BaseTool):
             return ToolResult(
                 success=True,
                 output=output,
-                data={"diagnostics": diagnostics, "count": len(diagnostics)}
+                data={"diagnostics": diagnostics, "count": len(diagnostics)},
             )
 
         except SecurityError as e:
@@ -133,7 +132,9 @@ class GetDiagnosticsTool(BaseTool):
             return ToolResult(success=False, error=f"Security error: {str(e)}")
         except Exception as e:
             logger.error(f"Error getting diagnostics: {e}", exc_info=True)
-            return ToolResult(success=False, error=f"Failed to get diagnostics: {str(e)}")
+            return ToolResult(
+                success=False, error=f"Failed to get diagnostics: {str(e)}"
+            )
 
     def _resolve_path(self, path: str) -> Path:
         """Resolve and validate path within workspace.
@@ -172,9 +173,10 @@ class GetDiagnosticsTool(BaseTool):
         try:
             # Check if pyright is available
             which_proc = await asyncio.create_subprocess_exec(
-                "which", "pyright",
+                "which",
+                "pyright",
                 stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
+                stderr=asyncio.subprocess.PIPE,
             )
             await which_proc.communicate()
             if which_proc.returncode != 0:
@@ -191,7 +193,7 @@ class GetDiagnosticsTool(BaseTool):
                 *cmd,
                 cwd=str(self.workspace_root),
                 stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
+                stderr=asyncio.subprocess.PIPE,
             )
             stdout, stderr = await proc.communicate()
 
@@ -219,15 +221,18 @@ class GetDiagnosticsTool(BaseTool):
         """
         diagnostics = []
         for diag in result.get("generalDiagnostics", []):
-            diagnostics.append({
-                "file": diag.get("file", ""),
-                "line": diag.get("range", {}).get("start", {}).get("line", 0) + 1,
-                "column": diag.get("range", {}).get("start", {}).get("character", 0) + 1,
-                "severity": diag.get("severity", "error"),
-                "message": diag.get("message", ""),
-                "code": diag.get("rule", ""),
-                "source": "pyright"
-            })
+            diagnostics.append(
+                {
+                    "file": diag.get("file", ""),
+                    "line": diag.get("range", {}).get("start", {}).get("line", 0) + 1,
+                    "column": diag.get("range", {}).get("start", {}).get("character", 0)
+                    + 1,
+                    "severity": diag.get("severity", "error"),
+                    "message": diag.get("message", ""),
+                    "code": diag.get("rule", ""),
+                    "source": "pyright",
+                }
+            )
         return diagnostics
 
     async def _run_tsc(self, target: Optional[Path]) -> List[Dict[str, Any]]:
@@ -242,9 +247,10 @@ class GetDiagnosticsTool(BaseTool):
         try:
             # Check if tsc is available
             which_proc = await asyncio.create_subprocess_exec(
-                "which", "npx",
+                "which",
+                "npx",
                 stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
+                stderr=asyncio.subprocess.PIPE,
             )
             await which_proc.communicate()
             if which_proc.returncode != 0:
@@ -261,7 +267,7 @@ class GetDiagnosticsTool(BaseTool):
                 *cmd,
                 cwd=str(self.workspace_root),
                 stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
+                stderr=asyncio.subprocess.PIPE,
             )
             stdout, stderr = await proc.communicate()
 
@@ -286,19 +292,20 @@ class GetDiagnosticsTool(BaseTool):
         diagnostics = []
         # Parse format: "path/file.ts(line,col): error TSxxxx: message"
         pattern = re.compile(
-            r"^(.+?)\((\d+),(\d+)\):\s+(error|warning)\s+TS(\d+):\s+(.+)$",
-            re.MULTILINE
+            r"^(.+?)\((\d+),(\d+)\):\s+(error|warning)\s+TS(\d+):\s+(.+)$", re.MULTILINE
         )
         for match in pattern.finditer(output):
-            diagnostics.append({
-                "file": match.group(1),
-                "line": int(match.group(2)),
-                "column": int(match.group(3)),
-                "severity": match.group(4),
-                "message": match.group(6),
-                "code": f"TS{match.group(5)}",
-                "source": "tsc"
-            })
+            diagnostics.append(
+                {
+                    "file": match.group(1),
+                    "line": int(match.group(2)),
+                    "column": int(match.group(3)),
+                    "severity": match.group(4),
+                    "message": match.group(6),
+                    "code": f"TS{match.group(5)}",
+                    "source": "tsc",
+                }
+            )
         return diagnostics
 
     def _format_diagnostics(self, diagnostics: List[Dict[str, Any]]) -> str:
@@ -319,9 +326,7 @@ class GetDiagnosticsTool(BaseTool):
             message = diag.get("message", "")
             code = diag.get("code", "")
 
-            lines.append(
-                f"[{severity}] {file}:{line}:{col} - {message} ({code})"
-            )
+            lines.append(f"[{severity}] {file}:{line}:{col} - {message} ({code})")
 
         return "\n".join(lines)
 
@@ -349,14 +354,14 @@ class GetDefinitionsTool(BaseTool):
         "properties": {
             "symbol": {
                 "type": "string",
-                "description": "Symbol name to find (function, class, variable)"
+                "description": "Symbol name to find (function, class, variable)",
             },
             "file": {
                 "type": "string",
-                "description": "Optional: limit search to specific file"
-            }
+                "description": "Optional: limit search to specific file",
+            },
         },
-        "required": ["symbol"]
+        "required": ["symbol"],
     }
 
     def __init__(self, workspace_root: str):
@@ -367,7 +372,9 @@ class GetDefinitionsTool(BaseTool):
         """
         self.workspace_root = Path(workspace_root).resolve()
 
-    async def execute(self, symbol: str, file: Optional[str] = None, **kwargs) -> ToolResult:
+    async def execute(
+        self, symbol: str, file: Optional[str] = None, **kwargs
+    ) -> ToolResult:
         """Find symbol definition.
 
         Args:
@@ -379,11 +386,8 @@ class GetDefinitionsTool(BaseTool):
         """
         try:
             # Validate symbol name
-            if not symbol or not re.match(r'^[a-zA-Z_][a-zA-Z0-9_]*$', symbol):
-                return ToolResult(
-                    success=False,
-                    error=f"Invalid symbol name: {symbol}"
-                )
+            if not symbol or not re.match(r"^[a-zA-Z_][a-zA-Z0-9_]*$", symbol):
+                return ToolResult(success=False, error=f"Invalid symbol name: {symbol}")
 
             # Try grep-based search with language-specific patterns
             definitions = await self._grep_definitions(symbol, file)
@@ -392,7 +396,7 @@ class GetDefinitionsTool(BaseTool):
                 return ToolResult(
                     success=True,
                     output=f"No definitions found for symbol: {symbol}",
-                    data={"definitions": [], "count": 0}
+                    data={"definitions": [], "count": 0},
                 )
 
             # Format output
@@ -401,7 +405,7 @@ class GetDefinitionsTool(BaseTool):
             return ToolResult(
                 success=True,
                 output=output,
-                data={"definitions": definitions, "count": len(definitions)}
+                data={"definitions": definitions, "count": len(definitions)},
             )
 
         except SecurityError as e:
@@ -409,12 +413,12 @@ class GetDefinitionsTool(BaseTool):
             return ToolResult(success=False, error=f"Security error: {str(e)}")
         except Exception as e:
             logger.error(f"Error finding definitions: {e}", exc_info=True)
-            return ToolResult(success=False, error=f"Failed to find definitions: {str(e)}")
+            return ToolResult(
+                success=False, error=f"Failed to find definitions: {str(e)}"
+            )
 
     async def _grep_definitions(
-        self,
-        symbol: str,
-        target_file: Optional[str]
+        self, symbol: str, target_file: Optional[str]
     ) -> List[Dict[str, Any]]:
         """Use grep to find symbol definitions with language-specific patterns.
 
@@ -449,18 +453,16 @@ class GetDefinitionsTool(BaseTool):
 
                 # Run grep
                 proc = await asyncio.create_subprocess_exec(
-                    *cmd,
-                    stdout=asyncio.subprocess.PIPE,
-                    stderr=asyncio.subprocess.PIPE
+                    *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
                 )
                 stdout, _ = await proc.communicate()
 
                 if proc.returncode == 0 and stdout:
                     # Parse grep output
-                    for line in stdout.decode().split('\n'):
+                    for line in stdout.decode().split("\n"):
                         if not line:
                             continue
-                        parts = line.split(':', 2)
+                        parts = line.split(":", 2)
                         if len(parts) >= 3:
                             file_path = parts[0]
                             line_num = parts[1]
@@ -468,16 +470,20 @@ class GetDefinitionsTool(BaseTool):
 
                             # Make path relative to workspace
                             try:
-                                rel_path = Path(file_path).relative_to(self.workspace_root)
+                                rel_path = Path(file_path).relative_to(
+                                    self.workspace_root
+                                )
                             except ValueError:
                                 rel_path = Path(file_path)
 
-                            definitions.append({
-                                "file": str(rel_path),
-                                "line": int(line_num),
-                                "content": content.strip(),
-                                "pattern": pattern
-                            })
+                            definitions.append(
+                                {
+                                    "file": str(rel_path),
+                                    "line": int(line_num),
+                                    "content": content.strip(),
+                                    "pattern": pattern,
+                                }
+                            )
 
         except Exception as e:
             logger.debug(f"Error running grep for definitions: {e}")
@@ -494,9 +500,7 @@ class GetDefinitionsTool(BaseTool):
         return unique_definitions
 
     def _format_definitions(
-        self,
-        symbol: str,
-        definitions: List[Dict[str, Any]]
+        self, symbol: str, definitions: List[Dict[str, Any]]
     ) -> str:
         """Format definitions for human-readable output.
 
@@ -536,14 +540,14 @@ class GetReferencesTool(BaseTool):
         "properties": {
             "symbol": {
                 "type": "string",
-                "description": "Symbol name to find references for"
+                "description": "Symbol name to find references for",
             },
             "file": {
                 "type": "string",
-                "description": "Optional: limit search to specific file"
-            }
+                "description": "Optional: limit search to specific file",
+            },
         },
-        "required": ["symbol"]
+        "required": ["symbol"],
     }
 
     def __init__(self, workspace_root: str):
@@ -554,7 +558,9 @@ class GetReferencesTool(BaseTool):
         """
         self.workspace_root = Path(workspace_root).resolve()
 
-    async def execute(self, symbol: str, file: Optional[str] = None, **kwargs) -> ToolResult:
+    async def execute(
+        self, symbol: str, file: Optional[str] = None, **kwargs
+    ) -> ToolResult:
         """Find all references to symbol.
 
         Args:
@@ -566,11 +572,8 @@ class GetReferencesTool(BaseTool):
         """
         try:
             # Validate symbol name
-            if not symbol or not re.match(r'^[a-zA-Z_][a-zA-Z0-9_]*$', symbol):
-                return ToolResult(
-                    success=False,
-                    error=f"Invalid symbol name: {symbol}"
-                )
+            if not symbol or not re.match(r"^[a-zA-Z_][a-zA-Z0-9_]*$", symbol):
+                return ToolResult(success=False, error=f"Invalid symbol name: {symbol}")
 
             # Try ripgrep first, fallback to grep
             references = await self._find_references(symbol, file)
@@ -586,7 +589,7 @@ class GetReferencesTool(BaseTool):
                 return ToolResult(
                     success=True,
                     output=f"No references found for symbol: {symbol}",
-                    data={"references": [], "count": 0}
+                    data={"references": [], "count": 0},
                 )
 
             # Format output
@@ -595,7 +598,7 @@ class GetReferencesTool(BaseTool):
             return ToolResult(
                 success=True,
                 output=output,
-                data={"references": references, "count": len(references)}
+                data={"references": references, "count": len(references)},
             )
 
         except SecurityError as e:
@@ -603,12 +606,12 @@ class GetReferencesTool(BaseTool):
             return ToolResult(success=False, error=f"Security error: {str(e)}")
         except Exception as e:
             logger.error(f"Error finding references: {e}", exc_info=True)
-            return ToolResult(success=False, error=f"Failed to find references: {str(e)}")
+            return ToolResult(
+                success=False, error=f"Failed to find references: {str(e)}"
+            )
 
     async def _find_references(
-        self,
-        symbol: str,
-        target_file: Optional[str]
+        self, symbol: str, target_file: Optional[str]
     ) -> List[Dict[str, Any]]:
         """Find all references using ripgrep or grep.
 
@@ -628,9 +631,7 @@ class GetReferencesTool(BaseTool):
         return await self._try_grep(symbol, target_file)
 
     async def _try_ripgrep(
-        self,
-        symbol: str,
-        target_file: Optional[str]
+        self, symbol: str, target_file: Optional[str]
     ) -> List[Dict[str, Any]]:
         """Try using ripgrep for references.
 
@@ -644,9 +645,10 @@ class GetReferencesTool(BaseTool):
         try:
             # Check if rg is available
             which_proc = await asyncio.create_subprocess_exec(
-                "which", "rg",
+                "which",
+                "rg",
                 stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
+                stderr=asyncio.subprocess.PIPE,
             )
             await which_proc.communicate()
             if which_proc.returncode != 0:
@@ -661,9 +663,7 @@ class GetReferencesTool(BaseTool):
 
             # Run ripgrep
             proc = await asyncio.create_subprocess_exec(
-                *cmd,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
+                *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
             )
             stdout, _ = await proc.communicate()
 
@@ -685,7 +685,7 @@ class GetReferencesTool(BaseTool):
             List of reference dictionaries
         """
         references = []
-        for line in output.split('\n'):
+        for line in output.split("\n"):
             if not line:
                 continue
             try:
@@ -702,20 +702,16 @@ class GetReferencesTool(BaseTool):
                     except ValueError:
                         rel_path = Path(path)
 
-                    references.append({
-                        "file": str(rel_path),
-                        "line": line_num,
-                        "content": line_text
-                    })
+                    references.append(
+                        {"file": str(rel_path), "line": line_num, "content": line_text}
+                    )
             except json.JSONDecodeError:
                 continue
 
         return references
 
     async def _try_grep(
-        self,
-        symbol: str,
-        target_file: Optional[str]
+        self, symbol: str, target_file: Optional[str]
     ) -> List[Dict[str, Any]]:
         """Fallback to grep for references.
 
@@ -737,18 +733,16 @@ class GetReferencesTool(BaseTool):
 
             # Run grep
             proc = await asyncio.create_subprocess_exec(
-                *cmd,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
+                *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
             )
             stdout, _ = await proc.communicate()
 
             if proc.returncode == 0 and stdout:
                 # Parse grep output
-                for line in stdout.decode().split('\n'):
+                for line in stdout.decode().split("\n"):
                     if not line:
                         continue
-                    parts = line.split(':', 2)
+                    parts = line.split(":", 2)
                     if len(parts) >= 3:
                         file_path = parts[0]
                         line_num = parts[1]
@@ -760,22 +754,20 @@ class GetReferencesTool(BaseTool):
                         except ValueError:
                             rel_path = Path(file_path)
 
-                        references.append({
-                            "file": str(rel_path),
-                            "line": int(line_num),
-                            "content": content.strip()
-                        })
+                        references.append(
+                            {
+                                "file": str(rel_path),
+                                "line": int(line_num),
+                                "content": content.strip(),
+                            }
+                        )
 
         except Exception as e:
             logger.debug(f"Error running grep for references: {e}")
 
         return references
 
-    def _format_references(
-        self,
-        symbol: str,
-        references: List[Dict[str, Any]]
-    ) -> str:
+    def _format_references(self, symbol: str, references: List[Dict[str, Any]]) -> str:
         """Format references for human-readable output.
 
         Args:
@@ -815,10 +807,7 @@ class GetProjectInfoTool(BaseTool):
 
     name = ToolName.GET_PROJECT_INFO
     description = "Get project structure and metadata"
-    parameter_schema = {
-        "type": "object",
-        "properties": {}
-    }
+    parameter_schema = {"type": "object", "properties": {}}
 
     def __init__(self, workspace_root: str):
         """Initialize project info tool.
@@ -842,21 +831,19 @@ class GetProjectInfoTool(BaseTool):
                 return ToolResult(
                     success=True,
                     output="No recognized project structure found.",
-                    data={"project_type": None}
+                    data={"project_type": None},
                 )
 
             # Format output
             output = self._format_project_info(project_info)
 
-            return ToolResult(
-                success=True,
-                output=output,
-                data=project_info
-            )
+            return ToolResult(success=True, output=output, data=project_info)
 
         except Exception as e:
             logger.error(f"Error getting project info: {e}", exc_info=True)
-            return ToolResult(success=False, error=f"Failed to get project info: {str(e)}")
+            return ToolResult(
+                success=False, error=f"Failed to get project info: {str(e)}"
+            )
 
     async def _detect_project(self) -> Optional[Dict[str, Any]]:
         """Detect project type and parse manifest.
@@ -901,7 +888,7 @@ class GetProjectInfoTool(BaseTool):
             Project info dictionary
         """
         try:
-            with open(path, 'r') as f:
+            with open(path, "r") as f:
                 data = json.load(f)
 
             return {
@@ -911,7 +898,7 @@ class GetProjectInfoTool(BaseTool):
                 "dependencies": list(data.get("dependencies", {}).keys()),
                 "dev_dependencies": list(data.get("devDependencies", {}).keys()),
                 "scripts": data.get("scripts", {}),
-                "entry_points": [data.get("main", "index.js")]
+                "entry_points": [data.get("main", "index.js")],
             }
         except Exception as e:
             logger.warning(f"Error parsing package.json: {e}")
@@ -940,13 +927,13 @@ class GetProjectInfoTool(BaseTool):
 
             # Extract dependencies (basic pattern matching)
             deps_section = re.search(
-                r'\[tool\.poetry\.dependencies\](.*?)(?:\[|$)',
-                content,
-                re.DOTALL
+                r"\[tool\.poetry\.dependencies\](.*?)(?:\[|$)", content, re.DOTALL
             )
             dependencies = []
             if deps_section:
-                deps = re.findall(r'^([a-zA-Z0-9_-]+)\s*=', deps_section.group(1), re.MULTILINE)
+                deps = re.findall(
+                    r"^([a-zA-Z0-9_-]+)\s*=", deps_section.group(1), re.MULTILINE
+                )
                 dependencies = [d for d in deps if d != "python"]
 
             return {
@@ -956,7 +943,7 @@ class GetProjectInfoTool(BaseTool):
                 "dependencies": dependencies,
                 "dev_dependencies": [],
                 "scripts": {},
-                "entry_points": ["main.py", "app/main.py"]
+                "entry_points": ["main.py", "app/main.py"],
             }
         except Exception as e:
             logger.warning(f"Error parsing pyproject.toml: {e}")
@@ -975,11 +962,11 @@ class GetProjectInfoTool(BaseTool):
             content = path.read_text()
             # Extract package names (ignore versions and comments)
             dependencies = []
-            for line in content.split('\n'):
+            for line in content.split("\n"):
                 line = line.strip()
-                if line and not line.startswith('#'):
+                if line and not line.startswith("#"):
                     # Extract package name before ==, >=, etc.
-                    package = re.split(r'[><=!]', line)[0].strip()
+                    package = re.split(r"[><=!]", line)[0].strip()
                     if package:
                         dependencies.append(package)
 
@@ -990,7 +977,7 @@ class GetProjectInfoTool(BaseTool):
                 "dependencies": dependencies,
                 "dev_dependencies": [],
                 "scripts": {},
-                "entry_points": ["main.py", "app/main.py"]
+                "entry_points": ["main.py", "app/main.py"],
             }
         except Exception as e:
             logger.warning(f"Error parsing requirements.txt: {e}")
@@ -1023,7 +1010,7 @@ class GetProjectInfoTool(BaseTool):
                 "dependencies": [],
                 "dev_dependencies": [],
                 "scripts": {},
-                "entry_points": ["src/main.rs"]
+                "entry_points": ["src/main.rs"],
             }
         except Exception as e:
             logger.warning(f"Error parsing Cargo.toml: {e}")
@@ -1042,7 +1029,7 @@ class GetProjectInfoTool(BaseTool):
             content = path.read_text()
 
             # Extract module name
-            module_match = re.search(r'module\s+([^\s]+)', content)
+            module_match = re.search(r"module\s+([^\s]+)", content)
             name = module_match.group(1) if module_match else None
 
             return {
@@ -1052,7 +1039,7 @@ class GetProjectInfoTool(BaseTool):
                 "dependencies": [],
                 "dev_dependencies": [],
                 "scripts": {},
-                "entry_points": ["main.go"]
+                "entry_points": ["main.go"],
             }
         except Exception as e:
             logger.warning(f"Error parsing go.mod: {e}")
@@ -1070,12 +1057,12 @@ class GetProjectInfoTool(BaseTool):
         lines = ["Project Information:\n"]
         lines.append(f"Type: {info.get('type', 'unknown')}")
 
-        if info.get('name'):
+        if info.get("name"):
             lines.append(f"Name: {info['name']}")
-        if info.get('version'):
+        if info.get("version"):
             lines.append(f"Version: {info['version']}")
 
-        deps = info.get('dependencies', [])
+        deps = info.get("dependencies", [])
         if deps:
             lines.append(f"\nDependencies ({len(deps)}):")
             for dep in deps[:10]:  # Show first 10
@@ -1083,7 +1070,7 @@ class GetProjectInfoTool(BaseTool):
             if len(deps) > 10:
                 lines.append(f"  ... and {len(deps) - 10} more")
 
-        scripts = info.get('scripts', {})
+        scripts = info.get("scripts", {})
         if scripts:
             lines.append("\nScripts:")
             for name, cmd in list(scripts.items())[:5]:  # Show first 5
@@ -1091,7 +1078,7 @@ class GetProjectInfoTool(BaseTool):
             if len(scripts) > 5:
                 lines.append(f"  ... and {len(scripts) - 5} more")
 
-        entry_points = info.get('entry_points', [])
+        entry_points = info.get("entry_points", [])
         if entry_points:
             lines.append("\nEntry Points:")
             for ep in entry_points:

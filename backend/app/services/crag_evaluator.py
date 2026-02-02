@@ -25,6 +25,7 @@ class RelevanceScore:
         diversity: Source diversity score (0.0-1.0)
         reasoning: Human-readable explanation of classification
     """
+
     category: str
     score: float
     keyword_overlap: float
@@ -55,18 +56,47 @@ class CRAGEvaluator:
 
     # Criteria weights (must sum to 1.0)
     WEIGHTS = {
-        'keyword_overlap': 0.30,
-        'semantic_coherence': 0.40,
-        'length_adequacy': 0.15,
-        'diversity': 0.15
+        "keyword_overlap": 0.30,
+        "semantic_coherence": 0.40,
+        "length_adequacy": 0.15,
+        "diversity": 0.15,
     }
 
     # Simple stopwords list (English) - filter out common words
     STOPWORDS = {
-        'a', 'an', 'and', 'are', 'as', 'at', 'be', 'by', 'for',
-        'from', 'has', 'he', 'in', 'is', 'it', 'its', 'of', 'on',
-        'that', 'the', 'to', 'was', 'will', 'with', 'what', 'how',
-        'which', 'this', 'these', 'those', 'there', 'where', 'when'
+        "a",
+        "an",
+        "and",
+        "are",
+        "as",
+        "at",
+        "be",
+        "by",
+        "for",
+        "from",
+        "has",
+        "he",
+        "in",
+        "is",
+        "it",
+        "its",
+        "of",
+        "on",
+        "that",
+        "the",
+        "to",
+        "was",
+        "will",
+        "with",
+        "what",
+        "how",
+        "which",
+        "this",
+        "these",
+        "those",
+        "there",
+        "where",
+        "when",
     }
 
     def __init__(self, min_keywords: int = 2, min_tokens_per_chunk: int = 100):
@@ -87,7 +117,7 @@ class CRAGEvaluator:
         self,
         query: str,
         artifacts: List,  # List[DocumentChunk]
-        relevance_scores: List[float]
+        relevance_scores: List[float],
     ) -> RelevanceScore:
         """Evaluate retrieval quality using multi-criteria heuristics.
 
@@ -108,7 +138,7 @@ class CRAGEvaluator:
                 semantic_coherence=0.0,
                 length_adequacy=0.0,
                 diversity=0.0,
-                reasoning="No artifacts retrieved from CGRAG index"
+                reasoning="No artifacts retrieved from CGRAG index",
             )
 
         # Extract query keywords (simple tokenization)
@@ -128,10 +158,10 @@ class CRAGEvaluator:
 
         # Weighted aggregate score
         aggregate_score = (
-            self.WEIGHTS['keyword_overlap'] * keyword_score +
-            self.WEIGHTS['semantic_coherence'] * coherence_score +
-            self.WEIGHTS['length_adequacy'] * length_score +
-            self.WEIGHTS['diversity'] * diversity_score
+            self.WEIGHTS["keyword_overlap"] * keyword_score
+            + self.WEIGHTS["semantic_coherence"] * coherence_score
+            + self.WEIGHTS["length_adequacy"] * length_score
+            + self.WEIGHTS["diversity"] * diversity_score
         )
 
         # Classify into category
@@ -167,7 +197,7 @@ class CRAGEvaluator:
             semantic_coherence=coherence_score,
             length_adequacy=length_score,
             diversity=diversity_score,
-            reasoning=reasoning
+            reasoning=reasoning,
         )
 
     def _extract_keywords(self, query: str) -> List[str]:
@@ -186,8 +216,7 @@ class CRAGEvaluator:
 
         # Filter stopwords and short tokens
         keywords = [
-            token for token in tokens
-            if token not in self.STOPWORDS and len(token) > 2
+            token for token in tokens if token not in self.STOPWORDS and len(token) > 2
         ]
 
         return keywords
@@ -195,7 +224,7 @@ class CRAGEvaluator:
     def _compute_keyword_overlap(
         self,
         query_keywords: List[str],
-        artifacts: List  # List[DocumentChunk]
+        artifacts: List,  # List[DocumentChunk]
     ) -> float:
         """Compute keyword overlap ratio.
 
@@ -212,12 +241,11 @@ class CRAGEvaluator:
             return 0.0
 
         # Combine all artifact content
-        combined_text = ' '.join(chunk.content.lower() for chunk in artifacts)
+        combined_text = " ".join(chunk.content.lower() for chunk in artifacts)
 
         # Count how many query keywords appear
         found_keywords = sum(
-            1 for keyword in query_keywords
-            if keyword in combined_text
+            1 for keyword in query_keywords if keyword in combined_text
         )
 
         overlap_ratio = found_keywords / len(query_keywords)
@@ -277,10 +305,7 @@ class CRAGEvaluator:
             return 0.0
 
         # Count tokens across all chunks
-        total_tokens = sum(
-            self._estimate_tokens(chunk.content)
-            for chunk in artifacts
-        )
+        total_tokens = sum(self._estimate_tokens(chunk.content) for chunk in artifacts)
 
         # Expect at least min_tokens_per_chunk * num_chunks
         expected_tokens = self.min_tokens_per_chunk * len(artifacts)

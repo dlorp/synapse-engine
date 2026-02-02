@@ -41,9 +41,7 @@ async def test_cgrag_integration():
 
     retriever = CGRAGRetriever(indexer=indexer, min_relevance=0.2)
     result = await retriever.retrieve(
-        query="What was delivered in Session 1?",
-        token_budget=8000,
-        max_artifacts=10
+        query="What was delivered in Session 1?", token_budget=8000, max_artifacts=10
     )
 
     print(f"   ✓ Retrieved {len(result.artifacts)} artifacts")
@@ -65,8 +63,8 @@ async def test_cgrag_integration():
                     "query": "What features were implemented in Session 1?",
                     "mode": "auto",
                     "use_context": True,
-                    "max_tokens": 512
-                }
+                    "max_tokens": 512,
+                },
             )
 
             if response.status_code != 200:
@@ -81,17 +79,19 @@ async def test_cgrag_integration():
             print(f"   ✓ CGRAG artifacts: {metadata.get('cgrag_artifacts')}")
             print(f"   ✓ Processing time: {metadata.get('processing_time_ms'):.2f}ms")
 
-            if metadata.get('cgrag_artifacts', 0) == 0:
+            if metadata.get("cgrag_artifacts", 0) == 0:
                 print("   ⚠ Warning: No CGRAG artifacts used in query")
 
             # Show artifact details
-            artifacts_info = metadata.get('cgrag_artifacts_info', [])
+            artifacts_info = metadata.get("cgrag_artifacts_info", [])
             if artifacts_info:
                 print("\n   Artifact Details:")
                 for i, artifact in enumerate(artifacts_info[:3], 1):
-                    print(f"      {i}. {Path(artifact['file_path']).name} "
-                          f"(relevance: {artifact['relevance_score']:.3f}, "
-                          f"tokens: {artifact['token_count']})")
+                    print(
+                        f"      {i}. {Path(artifact['file_path']).name} "
+                        f"(relevance: {artifact['relevance_score']:.3f}, "
+                        f"tokens: {artifact['token_count']})"
+                    )
 
         except httpx.ConnectError:
             print("   ❌ Cannot connect to backend (http://localhost:8000)")
@@ -101,14 +101,20 @@ async def test_cgrag_integration():
     # Test 4: Performance check
     print("\n4. Performance checks...")
     if result.retrieval_time_ms < 100:
-        print(f"   ✓ Retrieval latency: {result.retrieval_time_ms:.2f}ms (target: <100ms)")
+        print(
+            f"   ✓ Retrieval latency: {result.retrieval_time_ms:.2f}ms (target: <100ms)"
+        )
     else:
-        print(f"   ⚠ Retrieval latency: {result.retrieval_time_ms:.2f}ms (above 100ms target)")
+        print(
+            f"   ⚠ Retrieval latency: {result.retrieval_time_ms:.2f}ms (above 100ms target)"
+        )
 
-    if metadata.get('processing_time_ms', 0) < 5000:
+    if metadata.get("processing_time_ms", 0) < 5000:
         print(f"   ✓ Total processing: {metadata.get('processing_time_ms'):.2f}ms")
     else:
-        print(f"   ⚠ Total processing: {metadata.get('processing_time_ms'):.2f}ms (slow)")
+        print(
+            f"   ⚠ Total processing: {metadata.get('processing_time_ms'):.2f}ms (slow)"
+        )
 
     print("\n" + "=" * 60)
     print("✓ All tests passed!")

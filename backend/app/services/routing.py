@@ -27,7 +27,7 @@ SIMPLE_PATTERNS: List[str] = [
     "where is",
     "where was",
     "list",
-    "name"
+    "name",
 ]
 
 MODERATE_PATTERNS: List[str] = [
@@ -42,7 +42,7 @@ MODERATE_PATTERNS: List[str] = [
     "difference between",
     "similarities between",
     "contrast",
-    "overview of"
+    "overview of",
 ]
 
 COMPLEX_PATTERNS: List[str] = [
@@ -59,14 +59,11 @@ COMPLEX_PATTERNS: List[str] = [
     "justify",
     "argue",
     "defend",
-    "refute"
+    "refute",
 ]
 
 
-async def assess_complexity(
-    query: str,
-    config: RoutingConfig
-) -> QueryComplexity:
+async def assess_complexity(query: str, config: RoutingConfig) -> QueryComplexity:
     """Assess query complexity and determine appropriate model tier.
 
     This function analyzes the query using multiple heuristics:
@@ -131,7 +128,7 @@ async def assess_complexity(
         has_multiple_questions=has_multiple_questions,
         has_conditionals=has_conditionals,
         has_reasoning_indicators=has_reasoning_indicators,
-        has_enumeration=has_enumeration
+        has_enumeration=has_enumeration,
     )
 
     # 5. Map score to tier using configured thresholds
@@ -139,10 +136,7 @@ async def assess_complexity(
 
     # 6. Build reasoning explanation
     reasoning = _build_reasoning(
-        tier=tier,
-        score=score,
-        pattern_type=pattern_type,
-        token_count=token_count
+        tier=tier, score=score, pattern_type=pattern_type, token_count=token_count
     )
 
     # 7. Collect indicators for metadata
@@ -153,7 +147,7 @@ async def assess_complexity(
         "has_multiple_questions": has_multiple_questions,
         "has_conditionals": has_conditionals,
         "has_reasoning_indicators": has_reasoning_indicators,
-        "has_enumeration": has_enumeration
+        "has_enumeration": has_enumeration,
     }
 
     logger.debug(
@@ -162,15 +156,12 @@ async def assess_complexity(
             "tier": tier,
             "score": score,
             "query_length": len(query),
-            "indicators": indicators
-        }
+            "indicators": indicators,
+        },
     )
 
     return QueryComplexity(
-        tier=tier,
-        score=round(score, 2),
-        reasoning=reasoning,
-        indicators=indicators
+        tier=tier, score=round(score, 2), reasoning=reasoning, indicators=indicators
     )
 
 
@@ -206,7 +197,7 @@ def _calculate_score(
     has_multiple_questions: bool,
     has_conditionals: bool,
     has_reasoning_indicators: bool,
-    has_enumeration: bool
+    has_enumeration: bool,
 ) -> float:
     """Calculate numerical complexity score.
 
@@ -269,8 +260,8 @@ def _map_score_to_tier(score: float, config: RoutingConfig) -> str:
     thresholds = config.complexity_thresholds
 
     # Default thresholds if not configured
-    fast_threshold = thresholds.get('fast', 3.0)
-    balanced_threshold = thresholds.get('balanced', 7.0)
+    fast_threshold = thresholds.get("fast", 3.0)
+    balanced_threshold = thresholds.get("balanced", 7.0)
 
     if score < fast_threshold:
         return "fast"
@@ -281,10 +272,7 @@ def _map_score_to_tier(score: float, config: RoutingConfig) -> str:
 
 
 def _build_reasoning(
-    tier: str,
-    score: float,
-    pattern_type: str,
-    token_count: int
+    tier: str, score: float, pattern_type: str, token_count: int
 ) -> str:
     """Build human-readable reasoning for tier selection.
 
@@ -301,32 +289,20 @@ def _build_reasoning(
 
     # Add tier-specific explanation
     if tier == "fast":
-        reasoning_parts.append(
-            "Simple query routed to FAST tier (2B-7B models)."
-        )
-        reasoning_parts.append(
-            "Expected response time: <2s."
-        )
+        reasoning_parts.append("Simple query routed to FAST tier (2B-7B models).")
+        reasoning_parts.append("Expected response time: <2s.")
     elif tier == "balanced":
         reasoning_parts.append(
             "Moderate complexity routed to BALANCED tier (8B-14B models)."
         )
-        reasoning_parts.append(
-            "Expected response time: <5s."
-        )
+        reasoning_parts.append("Expected response time: <5s.")
     else:  # powerful
-        reasoning_parts.append(
-            "Complex query routed to POWERFUL tier (>14B models)."
-        )
-        reasoning_parts.append(
-            "Expected response time: <15s."
-        )
+        reasoning_parts.append("Complex query routed to POWERFUL tier (>14B models).")
+        reasoning_parts.append("Expected response time: <15s.")
 
     # Add pattern information if detected
     if pattern_type != "none":
-        reasoning_parts.append(
-            f"Detected {pattern_type} query pattern."
-        )
+        reasoning_parts.append(f"Detected {pattern_type} query pattern.")
 
     # Add length information for long queries
     if token_count > 50:

@@ -61,10 +61,12 @@ class AggregatorHandler(logging.Handler):
 
     # Loggers to exclude from aggregation to prevent infinite loops
     # event_bus logs "Event published" which would create recursive loop
-    EXCLUDED_LOGGERS = frozenset([
-        'app.services.event_bus',
-        'app.services.log_aggregator',
-    ])
+    EXCLUDED_LOGGERS = frozenset(
+        [
+            "app.services.event_bus",
+            "app.services.log_aggregator",
+        ]
+    )
 
     def emit(self, record: logging.LogRecord) -> None:
         """Handle log record by sending to LogAggregator asynchronously.
@@ -104,19 +106,19 @@ class AggregatorHandler(logging.Handler):
             "pathname": record.pathname,
             "lineno": record.lineno,
             "funcName": record.funcName,
-            "module": record.module
+            "module": record.module,
         }
 
         # Extract request ID from context or record
         request_id = None
-        if hasattr(record, 'request_id') and record.request_id != 'N/A':
+        if hasattr(record, "request_id") and record.request_id != "N/A":
             request_id = record.request_id
         else:
             request_id = get_request_id()
 
         # Extract trace ID from context or record
         trace_id = None
-        if hasattr(record, 'trace_id'):
+        if hasattr(record, "trace_id"):
             trace_id = record.trace_id
         else:
             trace_id = get_trace_id()
@@ -124,16 +126,20 @@ class AggregatorHandler(logging.Handler):
         # Extract session ID from context or record
         session_id = get_session_id()
         if session_id:
-            extra['session_id'] = session_id
+            extra["session_id"] = session_id
 
         # Extract service tag from record if present
         service_tag = None
-        if hasattr(record, 'service_tag'):
+        if hasattr(record, "service_tag"):
             service_tag = record.service_tag
 
         # Add exception info if present
         if record.exc_info:
-            extra['exc_info'] = self.formatter.formatException(record.exc_info) if self.formatter else str(record.exc_info)
+            extra["exc_info"] = (
+                self.formatter.formatException(record.exc_info)
+                if self.formatter
+                else str(record.exc_info)
+            )
 
         # Create async task to add log (non-blocking)
         try:
@@ -145,7 +151,7 @@ class AggregatorHandler(logging.Handler):
                     extra=extra,
                     request_id=request_id,
                     trace_id=trace_id,
-                    service_tag=service_tag
+                    service_tag=service_tag,
                 )
             )
         except RuntimeError:
@@ -231,31 +237,35 @@ class BufferedAggregatorHandler(logging.Handler):
                 "pathname": record.pathname,
                 "lineno": record.lineno,
                 "funcName": record.funcName,
-                "module": record.module
+                "module": record.module,
             }
 
             request_id = None
-            if hasattr(record, 'request_id') and record.request_id != 'N/A':
+            if hasattr(record, "request_id") and record.request_id != "N/A":
                 request_id = record.request_id
             else:
                 request_id = get_request_id()
 
             trace_id = None
-            if hasattr(record, 'trace_id'):
+            if hasattr(record, "trace_id"):
                 trace_id = record.trace_id
             else:
                 trace_id = get_trace_id()
 
             session_id = get_session_id()
             if session_id:
-                extra['session_id'] = session_id
+                extra["session_id"] = session_id
 
             service_tag = None
-            if hasattr(record, 'service_tag'):
+            if hasattr(record, "service_tag"):
                 service_tag = record.service_tag
 
             if record.exc_info:
-                extra['exc_info'] = self.formatter.formatException(record.exc_info) if self.formatter else str(record.exc_info)
+                extra["exc_info"] = (
+                    self.formatter.formatException(record.exc_info)
+                    if self.formatter
+                    else str(record.exc_info)
+                )
 
             # Create async task
             try:
@@ -267,7 +277,7 @@ class BufferedAggregatorHandler(logging.Handler):
                         extra=extra,
                         request_id=request_id,
                         trace_id=trace_id,
-                        service_tag=service_tag
+                        service_tag=service_tag,
                     )
                 )
             except (RuntimeError, Exception):

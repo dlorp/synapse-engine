@@ -10,8 +10,8 @@ from pydantic import BaseModel, Field
 
 
 # Type aliases for better type safety
-ComplexityLevel = Literal['SIMPLE', 'MODERATE', 'COMPLEX']
-ModelTierLabel = Literal['Q2', 'Q3', 'Q4']
+ComplexityLevel = Literal["SIMPLE", "MODERATE", "COMPLEX"]
+ModelTierLabel = Literal["Q2", "Q3", "Q4"]
 
 
 class RoutingDecision(BaseModel):
@@ -54,23 +54,18 @@ class TierUtilization(BaseModel):
         ge=0,
         le=100,
         description="Utilization percentage",
-        alias="utilizationPercent"
+        alias="utilizationPercent",
     )
     active_requests: int = Field(
-        ...,
-        ge=0,
-        description="Active requests count",
-        alias="activeRequests"
+        ..., ge=0, description="Active requests count", alias="activeRequests"
     )
     total_processed: int = Field(
-        ...,
-        ge=0,
-        description="Total processed queries",
-        alias="totalProcessed"
+        ..., ge=0, description="Total processed queries", alias="totalProcessed"
     )
 
     class Config:
         """Pydantic model configuration."""
+
         populate_by_name = True  # Allow both snake_case and camelCase
 
 
@@ -105,37 +100,31 @@ class OrchestratorStatusResponse(BaseModel):
     """
 
     tier_utilization: list[TierUtilization] = Field(
-        ...,
-        description="Tier utilization metrics",
-        alias="tierUtilization"
+        ..., description="Tier utilization metrics", alias="tierUtilization"
     )
     recent_decisions: list[RoutingDecision] = Field(
         ...,
         max_length=10,
         description="Recent routing decisions",
-        alias="recentDecisions"
+        alias="recentDecisions",
     )
     complexity_distribution: ComplexityDistribution = Field(
-        ...,
-        description="Complexity distribution",
-        alias="complexityDistribution"
+        ..., description="Complexity distribution", alias="complexityDistribution"
     )
     total_decisions: int = Field(
-        ...,
-        ge=0,
-        description="Total decisions made",
-        alias="totalDecisions"
+        ..., ge=0, description="Total decisions made", alias="totalDecisions"
     )
     avg_decision_time_ms: float = Field(
         ...,
         ge=0.0,
         description="Average decision time in ms",
-        alias="avgDecisionTimeMs"
+        alias="avgDecisionTimeMs",
     )
     timestamp: str = Field(..., description="ISO timestamp of snapshot")
 
     class Config:
         """Pydantic model configuration."""
+
         populate_by_name = True  # Allow both snake_case and camelCase
         json_schema_extra = {
             "example": {
@@ -144,20 +133,20 @@ class OrchestratorStatusResponse(BaseModel):
                         "tier": "Q2",
                         "utilizationPercent": 75,
                         "activeRequests": 2,
-                        "totalProcessed": 1250
+                        "totalProcessed": 1250,
                     },
                     {
                         "tier": "Q3",
                         "utilizationPercent": 50,
                         "activeRequests": 1,
-                        "totalProcessed": 680
+                        "totalProcessed": 680,
                     },
                     {
                         "tier": "Q4",
                         "utilizationPercent": 25,
                         "activeRequests": 0,
-                        "totalProcessed": 320
-                    }
+                        "totalProcessed": 320,
+                    },
                 ],
                 "recentDecisions": [
                     {
@@ -166,16 +155,12 @@ class OrchestratorStatusResponse(BaseModel):
                         "tier": "Q2",
                         "complexity": "SIMPLE",
                         "timestamp": "2025-11-08T10:30:00Z",
-                        "score": 1.2
+                        "score": 1.2,
                     }
                 ],
-                "complexityDistribution": {
-                    "simple": 45,
-                    "moderate": 35,
-                    "complex": 20
-                },
+                "complexityDistribution": {"simple": 45, "moderate": 35, "complex": 20},
                 "totalDecisions": 2250,
                 "avgDecisionTimeMs": 12.5,
-                "timestamp": "2025-11-08T10:35:00Z"
+                "timestamp": "2025-11-08T10:35:00Z",
             }
         }

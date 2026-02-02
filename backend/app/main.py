@@ -27,17 +27,44 @@ from app.core.logging import (
     set_request_id,
     clear_request_id,
     get_logger,
-    ServiceTag
+    ServiceTag,
 )
-from app.routers import health, models, query, admin, settings, proxy, events, orchestrator, metrics, pipeline, context, timeseries, topology, logs, code_chat, instances, cgrag
+from app.routers import (
+    health,
+    models,
+    query,
+    admin,
+    settings,
+    proxy,
+    events,
+    orchestrator,
+    metrics,
+    pipeline,
+    context,
+    timeseries,
+    topology,
+    logs,
+    code_chat,
+    instances,
+    cgrag,
+)
 from app.services.llama_server_manager import LlamaServerManager
 from app.services.model_discovery import ModelDiscoveryService
 from app.services.profile_manager import ProfileManager
 from app.services.websocket_manager import WebSocketManager
 from app.services.event_bus import init_event_bus, get_event_bus
-from app.services.pipeline_state import init_pipeline_state_manager, get_pipeline_state_manager
-from app.services.context_state import init_context_state_manager, get_context_state_manager
-from app.services.metrics_aggregator import init_metrics_aggregator, get_metrics_aggregator
+from app.services.pipeline_state import (
+    init_pipeline_state_manager,
+    get_pipeline_state_manager,
+)
+from app.services.context_state import (
+    init_context_state_manager,
+    get_context_state_manager,
+)
+from app.services.metrics_aggregator import (
+    init_metrics_aggregator,
+    get_metrics_aggregator,
+)
 from app.services.topology_manager import init_topology_manager, get_topology_manager
 from app.services.cache_metrics import init_cache_metrics
 from app.services.health_monitor import init_health_monitor, get_health_monitor
@@ -95,9 +122,9 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         logger.info(
             "prx: Configuration loaded successfully",
             extra={
-                'environment': config.environment,
-                'model_count': len(config.models)
-            }
+                "environment": config.environment,
+                "model_count": len(config.models),
+            },
         )
 
         # Setup logging with loaded configuration and service tag
@@ -110,6 +137,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
         # Load runtime settings (creates defaults if missing)
         from app.services import runtime_settings as settings_service
+
         runtime_settings_obj = await settings_service.load_runtime_settings()
         logger.info(
             f"Runtime settings loaded: GPU layers={runtime_settings_obj.n_gpu_layers}, "
@@ -120,7 +148,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         # Discovery service only - NO server launching
         discovery_service = ModelDiscoveryService(
             scan_path=config.model_management.scan_path,
-            port_range=config.model_management.port_range
+            port_range=config.model_management.port_range,
         )
 
         # Load or create registry (cached if exists)
@@ -138,7 +166,9 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         # Check for external server mode (Metal acceleration on macOS)
         use_external_servers_env = os.getenv("USE_EXTERNAL_SERVERS", "false")
         use_external_servers = use_external_servers_env.lower() == "true"
-        logger.info(f"🔍 DEBUG: USE_EXTERNAL_SERVERS env var = '{use_external_servers_env}'")
+        logger.info(
+            f"🔍 DEBUG: USE_EXTERNAL_SERVERS env var = '{use_external_servers_env}'"
+        )
         logger.info(f"🔍 DEBUG: use_external_servers flag = {use_external_servers}")
 
         # Initialize WebSocket manager for log streaming
@@ -151,12 +181,16 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         logger.info("Event bus initialized and started")
 
         # Initialize pipeline state manager for query processing visualization
-        pipeline_manager = init_pipeline_state_manager(cleanup_interval=300, ttl_seconds=3600)
+        pipeline_manager = init_pipeline_state_manager(
+            cleanup_interval=300, ttl_seconds=3600
+        )
         await pipeline_manager.start()
         logger.info("Pipeline state manager initialized and started")
 
         # Initialize context state manager for context window allocation tracking
-        context_manager = init_context_state_manager(cleanup_interval=300, ttl_seconds=3600)
+        context_manager = init_context_state_manager(
+            cleanup_interval=300, ttl_seconds=3600
+        )
         await context_manager.start()
         logger.info("Context state manager initialized and started")
 
@@ -208,7 +242,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
             max_startup_time=config.model_management.max_startup_time,
             readiness_check_interval=config.model_management.readiness_check_interval,
             use_external_servers=use_external_servers,
-            websocket_manager=websocket_manager
+            websocket_manager=websocket_manager,
         )
 
         # Profile manager (still needed for future profile management)
@@ -221,9 +255,11 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         instance_manager = init_instance_manager(
             registry_path=instance_registry_path,
             model_registry=model_registry,
-            server_manager=server_manager
+            server_manager=server_manager,
         )
-        logger.info(f"Instance manager initialized with {len(instance_manager.registry.instances)} instances")
+        logger.info(
+            f"Instance manager initialized with {len(instance_manager.registry.instances)} instances"
+        )
 
         # Expose services globally for routers
         from app.routers import models as models_router
@@ -245,11 +281,12 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
         # Initialize and expose model selector for query routing
         model_selector = ModelSelector(
-            registry=model_registry,
-            server_manager=server_manager
+            registry=model_registry, server_manager=server_manager
         )
         query_router.model_selector = model_selector
-        app.state.model_selector = model_selector  # Also expose via app.state for code_chat
+        app.state.model_selector = (
+            model_selector  # Also expose via app.state for code_chat
+        )
         logger.info("ModelSelector initialized for query routing")
 
         # Expose server_manager to proxy router for reverse proxy
@@ -281,14 +318,13 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
                 # Load index in background to avoid blocking startup
                 cgrag_indexer = CGRAGIndexer.load_index(
-                    index_path=index_path,
-                    metadata_path=metadata_path
+                    index_path=index_path, metadata_path=metadata_path
                 )
 
                 # Create retriever
                 _cgrag_retriever = CGRAGRetriever(
                     indexer=cgrag_indexer,
-                    min_relevance=config.cgrag.retrieval.min_relevance
+                    min_relevance=config.cgrag.retrieval.min_relevance,
                 )
 
                 # Store in app state for router access
@@ -296,26 +332,26 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
                 logger.info(
                     f"CGRAG index preloaded successfully ({len(cgrag_indexer.chunks)} chunks)",
-                    extra={'chunks': len(cgrag_indexer.chunks)}
+                    extra={"chunks": len(cgrag_indexer.chunks)},
                 )
             else:
                 logger.info(
                     "CGRAG index not found - skipping preload. Index will load on-demand.",
-                    extra={'index_path': str(index_path)}
+                    extra={"index_path": str(index_path)},
                 )
         except Exception as e:
             logger.warning(
                 f"Failed to preload CGRAG index: {e}. Index will load on-demand.",
-                extra={'error': str(e)}
+                extra={"error": str(e)},
             )
 
         logger.info(
             f"S.Y.N.A.P.S.E. Core (PRAXIS) started successfully on {config.host}:{config.port}",
             extra={
-                'app_name': config.app_name,
-                'version': config.version,
-                'environment': config.environment
-            }
+                "app_name": config.app_name,
+                "version": config.version,
+                "environment": config.environment,
+            },
         )
 
     except Exception as e:
@@ -389,7 +425,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     uptime = time.time() - _app_start_time
     logger.info(
         f"S.Y.N.A.P.S.E. Core (PRAXIS) stopped after {uptime:.2f} seconds",
-        extra={'uptime_seconds': uptime}
+        extra={"uptime_seconds": uptime},
     )
 
 
@@ -403,7 +439,7 @@ app = FastAPI(
     redoc_url="/api/redoc",
     openapi_url="/api/openapi.json",
     # Serialize all response models using camelCase aliases
-    response_model_by_alias=True
+    response_model_by_alias=True,
 )
 
 # Configure CORS middleware (will use default origins, updated in lifespan)
@@ -414,12 +450,12 @@ app.add_middleware(
         "http://localhost:5173",
         "http://127.0.0.1:5173",
         "http://localhost:3000",
-        "http://127.0.0.1:3000"
+        "http://127.0.0.1:3000",
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-    expose_headers=["X-Request-ID"]
+    expose_headers=["X-Request-ID"],
 )
 
 
@@ -436,7 +472,7 @@ async def request_id_middleware(request: Request, call_next) -> Response:  # typ
         Response with X-Request-ID header
     """
     # Get or generate request ID
-    request_id = request.headers.get('X-Request-ID')
+    request_id = request.headers.get("X-Request-ID")
     request_id = set_request_id(request_id)
 
     try:
@@ -444,7 +480,7 @@ async def request_id_middleware(request: Request, call_next) -> Response:  # typ
         response = await call_next(request)
 
         # Add request ID to response headers
-        response.headers['X-Request-ID'] = request_id
+        response.headers["X-Request-ID"] = request_id
 
         return response
     finally:
@@ -477,22 +513,24 @@ async def performance_middleware(request: Request, call_next) -> Response:  # ty
     logger.info(
         f"{request.method} {request.url.path}",
         extra={
-            'method': request.method,
-            'path': request.url.path,
-            'status_code': response.status_code,
-            'elapsed_ms': round(elapsed_ms, 2)
-        }
+            "method": request.method,
+            "path": request.url.path,
+            "status_code": response.status_code,
+            "elapsed_ms": round(elapsed_ms, 2),
+        },
     )
 
     # Add performance header
-    response.headers['X-Response-Time'] = f"{elapsed_ms:.2f}ms"
+    response.headers["X-Response-Time"] = f"{elapsed_ms:.2f}ms"
 
     return response
 
 
 # Exception handlers
 @app.exception_handler(SynapseException)
-async def synapse_exception_handler(request: Request, exc: SynapseException) -> JSONResponse:
+async def synapse_exception_handler(
+    request: Request, exc: SynapseException
+) -> JSONResponse:
     """Handle S.Y.N.A.P.S.E. CORE-specific exceptions.
 
     Args:
@@ -506,16 +544,13 @@ async def synapse_exception_handler(request: Request, exc: SynapseException) -> 
     logger.error(
         f"prx: Synapse exception: {exc.message}",
         extra={
-            'exception': exc.__class__.__name__,
-            'details': exc.details,
-            'status_code': exc.status_code
-        }
+            "exception": exc.__class__.__name__,
+            "details": exc.details,
+            "status_code": exc.status_code,
+        },
     )
 
-    return JSONResponse(
-        status_code=exc.status_code,
-        content=exc.to_dict()
-    )
+    return JSONResponse(status_code=exc.status_code, content=exc.to_dict())
 
 
 @app.exception_handler(Exception)
@@ -532,17 +567,17 @@ async def general_exception_handler(request: Request, exc: Exception) -> JSONRes
     logger = get_logger(__name__)
     logger.error(
         f"Unexpected exception: {exc}",
-        extra={'exception': exc.__class__.__name__},
-        exc_info=True
+        extra={"exception": exc.__class__.__name__},
+        exc_info=True,
     )
 
     return JSONResponse(
         status_code=500,
         content={
-            'error': 'InternalServerError',
-            'message': 'An unexpected error occurred',
-            'details': {}
-        }
+            "error": "InternalServerError",
+            "message": "An unexpected error occurred",
+            "details": {},
+        },
     )
 
 
@@ -575,10 +610,10 @@ async def root() -> dict[str, str]:
         API information
     """
     return {
-        'name': 'S.Y.N.A.P.S.E. ENGINE Multi-Model Orchestration Backend',
-        'version': '4.0.0',
-        'docs': '/api/docs',
-        'status': 'operational'
+        "name": "S.Y.N.A.P.S.E. ENGINE Multi-Model Orchestration Backend",
+        "version": "4.0.0",
+        "docs": "/api/docs",
+        "status": "operational",
     }
 
 

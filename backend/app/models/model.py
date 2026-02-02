@@ -17,6 +17,7 @@ class ModelState(str, Enum):
         ERROR: Model encountered an error
         OFFLINE: Model is not reachable or shut down
     """
+
     ACTIVE = "active"
     IDLE = "idle"
     PROCESSING = "processing"
@@ -34,19 +35,24 @@ class ModelHealth(BaseModel):
         error_message: Error message if unhealthy
         consecutive_failures: Number of consecutive failed health checks
     """
-    is_healthy: bool = Field(..., alias="isHealthy", description="Overall health status")
-    latency_ms: float = Field(..., ge=0, alias="latencyMs", description="Health check latency in ms")
-    last_check: datetime = Field(..., alias="lastCheck", description="Last health check timestamp")
+
+    is_healthy: bool = Field(
+        ..., alias="isHealthy", description="Overall health status"
+    )
+    latency_ms: float = Field(
+        ..., ge=0, alias="latencyMs", description="Health check latency in ms"
+    )
+    last_check: datetime = Field(
+        ..., alias="lastCheck", description="Last health check timestamp"
+    )
     error_message: Optional[str] = Field(
-        default=None,
-        alias="errorMessage",
-        description="Error message if unhealthy"
+        default=None, alias="errorMessage", description="Error message if unhealthy"
     )
     consecutive_failures: int = Field(
         default=0,
         ge=0,
         alias="consecutiveFailures",
-        description="Consecutive failed checks"
+        description="Consecutive failed checks",
     )
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
@@ -63,15 +69,15 @@ class ModelInfo(BaseModel):
         max_context_tokens: Maximum context window size
         description: Model description
     """
+
     id: str = Field(..., description="Model identifier")
     name: str = Field(..., description="Model name")
     tier: str = Field(..., description="Model tier (fast, balanced, powerful)")
     port: int = Field(..., ge=1, le=65535, description="Server port")
-    max_context_tokens: int = Field(..., gt=0, alias="maxContextTokens", description="Max context window")
-    description: Optional[str] = Field(
-        default=None,
-        description="Model description"
+    max_context_tokens: int = Field(
+        ..., gt=0, alias="maxContextTokens", description="Max context window"
     )
+    description: Optional[str] = Field(default=None, description="Model description")
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
@@ -93,23 +99,36 @@ class ModelStatus(BaseModel):
         error_count: Total errors encountered
         uptime_seconds: Time since model started
     """
+
     id: str = Field(..., description="Model identifier")
     name: str = Field(..., description="Model name")
     tier: str = Field(..., description="Model tier (fast, balanced, powerful)")
     port: int = Field(..., ge=1, le=65535, description="Server port")
     state: ModelState = Field(..., description="Current operational state")
-    memory_used: int = Field(..., ge=0, alias="memoryUsed", description="Memory used in MB")
-    memory_total: int = Field(..., gt=0, alias="memoryTotal", description="Total memory in MB")
-    request_count: int = Field(default=0, ge=0, alias="requestCount", description="Total requests")
+    memory_used: int = Field(
+        ..., ge=0, alias="memoryUsed", description="Memory used in MB"
+    )
+    memory_total: int = Field(
+        ..., gt=0, alias="memoryTotal", description="Total memory in MB"
+    )
+    request_count: int = Field(
+        default=0, ge=0, alias="requestCount", description="Total requests"
+    )
     avg_response_time: float = Field(
         default=0.0,
         ge=0,
         alias="avgResponseTime",
-        description="Average response time in ms"
+        description="Average response time in ms",
     )
-    last_active: datetime = Field(..., alias="lastActive", description="Last activity timestamp")
-    error_count: int = Field(default=0, ge=0, alias="errorCount", description="Total errors")
-    uptime_seconds: int = Field(default=0, ge=0, alias="uptimeSeconds", description="Uptime in seconds")
+    last_active: datetime = Field(
+        ..., alias="lastActive", description="Last activity timestamp"
+    )
+    error_count: int = Field(
+        default=0, ge=0, alias="errorCount", description="Total errors"
+    )
+    uptime_seconds: int = Field(
+        default=0, ge=0, alias="uptimeSeconds", description="Uptime in seconds"
+    )
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
@@ -126,18 +145,23 @@ class SystemStatus(BaseModel):
         total_requests: Total requests processed
         timestamp: Status timestamp
     """
+
     models: List[ModelStatus] = Field(..., description="Model statuses")
-    total_vram_gb: float = Field(..., ge=0, alias="totalVramGb", description="Total VRAM in GB")
-    total_vram_used_gb: float = Field(..., ge=0, alias="totalVramUsedGb", description="VRAM used in GB")
-    cache_hit_rate: float = Field(
-        ...,
-        ge=0.0,
-        le=1.0,
-        alias="cacheHitRate",
-        description="Cache hit rate"
+    total_vram_gb: float = Field(
+        ..., ge=0, alias="totalVramGb", description="Total VRAM in GB"
     )
-    active_queries: int = Field(..., ge=0, alias="activeQueries", description="Active queries")
-    total_requests: int = Field(default=0, ge=0, alias="totalRequests", description="Total requests")
+    total_vram_used_gb: float = Field(
+        ..., ge=0, alias="totalVramUsedGb", description="VRAM used in GB"
+    )
+    cache_hit_rate: float = Field(
+        ..., ge=0.0, le=1.0, alias="cacheHitRate", description="Cache hit rate"
+    )
+    active_queries: int = Field(
+        ..., ge=0, alias="activeQueries", description="Active queries"
+    )
+    total_requests: int = Field(
+        default=0, ge=0, alias="totalRequests", description="Total requests"
+    )
     timestamp: datetime = Field(..., description="Status timestamp")
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
@@ -153,18 +177,13 @@ class HealthCheckResponse(BaseModel):
         environment: Environment name
         uptime_seconds: Application uptime
     """
+
     status: str = Field(..., description="Health status")
     timestamp: datetime = Field(..., description="Check timestamp")
     version: str = Field(..., description="Application version")
-    environment: Optional[str] = Field(
-        default=None,
-        description="Environment name"
-    )
+    environment: Optional[str] = Field(default=None, description="Environment name")
     uptime_seconds: Optional[int] = Field(
-        default=None,
-        ge=0,
-        alias="uptimeSeconds",
-        description="Application uptime"
+        default=None, ge=0, alias="uptimeSeconds", description="Application uptime"
     )
 
 
@@ -177,16 +196,14 @@ class HealthResponse(BaseModel):
         components: Component health status dictionary
         trace_id: Optional trace ID for request correlation
     """
+
     status: str = Field(..., description="Health status: ok, degraded, error")
     uptime: float = Field(..., ge=0, description="Uptime in seconds")
     components: Dict[str, str] = Field(
-        default_factory=dict,
-        description="Component health status"
+        default_factory=dict, description="Component health status"
     )
     trace_id: Optional[str] = Field(
-        default=None,
-        alias="traceId",
-        description="Trace ID for request correlation"
+        default=None, alias="traceId", description="Trace ID for request correlation"
     )
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)

@@ -67,25 +67,30 @@ class ProfileManager:
                 f"Profile '{name}' not found",
                 details={
                     "path": str(profile_path),
-                    "available_profiles": self.list_profiles()
+                    "available_profiles": self.list_profiles(),
                 },
-                status_code=404
+                status_code=404,
             )
 
         try:
-            with open(profile_path, 'r') as f:
+            with open(profile_path, "r") as f:
                 data = yaml.safe_load(f)
 
             # Support both flat and nested structures
-            if 'profile' in data:
+            if "profile" in data:
                 # Nested: profile key + other keys
-                profile_data = {**data['profile'], **{k: v for k, v in data.items() if k != 'profile'}}
+                profile_data = {
+                    **data["profile"],
+                    **{k: v for k, v in data.items() if k != "profile"},
+                }
             else:
                 # Flat: all keys at root
                 profile_data = data
 
             profile = ModelProfile(**profile_data)
-            logger.info(f"Loaded profile '{name}' with {len(profile.enabled_models)} enabled models")
+            logger.info(
+                f"Loaded profile '{name}' with {len(profile.enabled_models)} enabled models"
+            )
             return profile
 
         except Exception as e:
@@ -93,7 +98,7 @@ class ProfileManager:
             raise SynapseException(
                 f"Failed to load profile '{name}': {e}",
                 details={"path": str(profile_path), "error": str(e)},
-                status_code=500
+                status_code=500,
             )
 
     def save_profile(self, profile: ModelProfile) -> Path:
@@ -109,23 +114,20 @@ class ProfileManager:
         self.profiles_dir.mkdir(parents=True, exist_ok=True)
 
         # Generate filename from profile name
-        filename = profile.name.lower().replace(' ', '-').replace('_', '-')
+        filename = profile.name.lower().replace(" ", "-").replace("_", "-")
         profile_path = self.profiles_dir / f"{filename}.yaml"
 
         # Convert to dict
         data = {
-            'profile': {
-                'name': profile.name,
-                'description': profile.description
-            },
-            'enabled_models': profile.enabled_models,
-            'tier_config': [t.model_dump() for t in profile.tier_config],
-            'two_stage': profile.two_stage.model_dump(),
-            'load_balancing': profile.load_balancing.model_dump()
+            "profile": {"name": profile.name, "description": profile.description},
+            "enabled_models": profile.enabled_models,
+            "tier_config": [t.model_dump() for t in profile.tier_config],
+            "two_stage": profile.two_stage.model_dump(),
+            "load_balancing": profile.load_balancing.model_dump(),
         }
 
         # Write to YAML
-        with open(profile_path, 'w') as f:
+        with open(profile_path, "w") as f:
             yaml.dump(data, f, default_flow_style=False, sort_keys=False)
 
         logger.info(f"Saved profile '{profile.name}' to {profile_path}")
@@ -146,13 +148,15 @@ class ProfileManager:
             raise SynapseException(
                 f"Profile '{name}' not found",
                 details={"path": str(profile_path)},
-                status_code=404
+                status_code=404,
             )
 
         profile_path.unlink()
         logger.info(f"Deleted profile '{name}'")
 
-    def validate_profile(self, profile: ModelProfile, available_model_ids: List[str]) -> List[str]:
+    def validate_profile(
+        self, profile: ModelProfile, available_model_ids: List[str]
+    ) -> List[str]:
         """Validate that all enabled models exist in registry.
 
         Args:

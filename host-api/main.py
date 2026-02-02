@@ -9,7 +9,6 @@ Log Tag: nrl:
 Metrics: nrl_*
 """
 
-import asyncio
 import subprocess
 import signal
 import sys
@@ -20,15 +19,14 @@ import uvicorn
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title="S.Y.N.A.P.S.E. NEURAL Orchestrator",
     description="Metal-accelerated model server management",
-    version="4.0.0"
+    version="4.0.0",
 )
 
 # Track application start time for uptime calculation
@@ -51,7 +49,7 @@ async def liveness():
     return {
         "status": "ok",
         "uptime": time.time() - startup_time,
-        "components": {"neural": "alive"}
+        "components": {"neural": "alive"},
     }
 
 
@@ -73,7 +71,7 @@ async def readiness():
         result = subprocess.run(
             ["ssh", "-o", "ConnectTimeout=2", "mac-host", "echo", "ready"],
             capture_output=True,
-            timeout=3
+            timeout=3,
         )
         components["ssh"] = "connected" if result.returncode == 0 else "disconnected"
     except Exception as e:
@@ -85,7 +83,7 @@ async def readiness():
     return {
         "status": status,
         "uptime": time.time() - startup_time,
-        "components": components
+        "components": components,
     }
 
 
@@ -113,7 +111,7 @@ async def start_servers():
             ["ssh", "mac-host", "start-metal-servers"],
             capture_output=True,
             text=True,
-            timeout=30
+            timeout=30,
         )
 
         if result.returncode == 0:
@@ -123,21 +121,17 @@ async def start_servers():
             return {
                 "status": "started",
                 "message": "Metal-accelerated llama-servers launched on host",
-                "output": result.stdout
+                "output": result.stdout,
             }
         else:
             logger.error(f"nrl: Failed to start servers: {result.stderr}")
             raise HTTPException(
-                status_code=500,
-                detail=f"Failed to start servers: {result.stderr}"
+                status_code=500, detail=f"Failed to start servers: {result.stderr}"
             )
 
     except subprocess.TimeoutExpired:
         logger.error("nrl: Script execution timed out after 30s")
-        raise HTTPException(
-            status_code=500,
-            detail="Script execution timed out"
-        )
+        raise HTTPException(status_code=500, detail="Script execution timed out")
     except Exception as e:
         logger.error(f"nrl: Error starting servers: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -160,7 +154,7 @@ async def stop_servers():
             ["ssh", "mac-host", "stop-metal-servers"],
             capture_output=True,
             text=True,
-            timeout=30
+            timeout=30,
         )
 
         servers_running = False
@@ -170,15 +164,12 @@ async def stop_servers():
         return {
             "status": "stopped",
             "message": "Metal-accelerated llama-servers shut down",
-            "output": result.stdout
+            "output": result.stdout,
         }
 
     except subprocess.TimeoutExpired:
         logger.error("nrl: Script execution timed out after 30s")
-        raise HTTPException(
-            status_code=500,
-            detail="Script execution timed out"
-        )
+        raise HTTPException(status_code=500, detail="Script execution timed out")
     except Exception as e:
         logger.error(f"nrl: Error stopping servers: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -194,7 +185,7 @@ async def server_status():
     """
     return {
         "running": servers_running,
-        "message": "Servers running" if servers_running else "Servers stopped"
+        "message": "Servers running" if servers_running else "Servers stopped",
     }
 
 
@@ -217,7 +208,7 @@ def shutdown_handler(signum, frame):
             ["ssh", "mac-host", "stop-metal-servers"],
             capture_output=True,
             text=True,
-            timeout=30
+            timeout=30,
         )
 
         if result.returncode == 0:
@@ -236,7 +227,7 @@ def shutdown_handler(signum, frame):
 
 # Register shutdown handlers for graceful cleanup
 signal.signal(signal.SIGTERM, shutdown_handler)  # Docker sends SIGTERM
-signal.signal(signal.SIGINT, shutdown_handler)   # Ctrl+C sends SIGINT
+signal.signal(signal.SIGINT, shutdown_handler)  # Ctrl+C sends SIGINT
 
 
 if __name__ == "__main__":
@@ -246,9 +237,4 @@ if __name__ == "__main__":
     logger.info("nrl: Health endpoints: /healthz (liveness), /ready (readiness)")
 
     # Run the FastAPI server
-    uvicorn.run(
-        app,
-        host="0.0.0.0",
-        port=9090,
-        log_level="info"
-    )
+    uvicorn.run(app, host="0.0.0.0", port=9090, log_level="info")

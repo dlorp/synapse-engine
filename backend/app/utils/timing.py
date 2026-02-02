@@ -38,7 +38,7 @@ class Timer:
         self.start_time: Optional[float] = None
         self.end_time: Optional[float] = None
 
-    def start(self) -> 'Timer':
+    def start(self) -> "Timer":
         """Start the timer.
 
         Returns:
@@ -66,10 +66,7 @@ class Timer:
         if self.log_result:
             logger.info(
                 f"Timer: {self.name} completed",
-                extra={
-                    'timer_name': self.name,
-                    'elapsed_ms': elapsed
-                }
+                extra={"timer_name": self.name, "elapsed_ms": elapsed},
             )
 
         return elapsed
@@ -100,7 +97,7 @@ class Timer:
         """
         return self.elapsed_ms / 1000
 
-    def __enter__(self) -> 'Timer':
+    def __enter__(self) -> "Timer":
         """Enter context manager.
 
         Returns:

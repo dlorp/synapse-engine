@@ -41,35 +41,35 @@ DEFAULT_PRESETS: List[SystemPromptPreset] = [
         name="Concise Assistant",
         prompt="You are a concise assistant. Keep responses brief and to the point. Avoid unnecessary elaboration.",
         description="For quick, short answers",
-        category="general"
+        category="general",
     ),
     SystemPromptPreset(
         id="researcher",
         name="Research Assistant",
         prompt="You are a thorough research assistant. Provide detailed, well-sourced answers. When citing information, be specific about sources. Consider multiple perspectives.",
         description="For in-depth research queries",
-        category="research"
+        category="research",
     ),
     SystemPromptPreset(
         id="coder",
         name="Code Assistant",
         prompt="You are an expert programmer. Write clean, well-documented code. Explain your reasoning and design decisions. Follow best practices and handle edge cases.",
         description="For coding tasks",
-        category="development"
+        category="development",
     ),
     SystemPromptPreset(
         id="creative",
         name="Creative Writer",
         prompt="You are a creative writing assistant. Help with storytelling, brainstorming, and creative content. Be imaginative and engaging while maintaining coherence.",
         description="For creative writing tasks",
-        category="creative"
+        category="creative",
     ),
     SystemPromptPreset(
         id="analyst",
         name="Data Analyst",
         prompt="You are a data analyst. Analyze information systematically, identify patterns, and provide data-driven insights. Be precise with numbers and statistics.",
         description="For data analysis tasks",
-        category="analysis"
+        category="analysis",
     ),
 ]
 
@@ -85,7 +85,7 @@ class InstanceManager:
         self,
         registry_path: Path,
         model_registry: ModelRegistry,
-        server_manager: Optional["LlamaServerManager"] = None
+        server_manager: Optional["LlamaServerManager"] = None,
     ):
         """Initialize the instance manager.
 
@@ -99,7 +99,9 @@ class InstanceManager:
         self.server_manager = server_manager
         self.registry: InstanceRegistry = self._load_registry()
 
-        logger.info(f"Initialized InstanceManager with {len(self.registry.instances)} instances")
+        logger.info(
+            f"Initialized InstanceManager with {len(self.registry.instances)} instances"
+        )
         logger.info(f"  Registry path: {registry_path}")
         logger.info(f"  Port range: {self.registry.port_range}")
 
@@ -118,7 +120,9 @@ class InstanceManager:
                 with open(self.registry_path, "r") as f:
                     data = json.load(f)
                 registry = InstanceRegistry.model_validate(data)
-                logger.info(f"Loaded instance registry with {len(registry.instances)} instances")
+                logger.info(
+                    f"Loaded instance registry with {len(registry.instances)} instances"
+                )
                 return registry
             except Exception as e:
                 logger.error(f"Failed to load instance registry: {e}")
@@ -128,7 +132,7 @@ class InstanceManager:
         return InstanceRegistry(
             instances={},
             port_range=(8100, 8199),
-            last_updated=datetime.utcnow().isoformat() + "Z"
+            last_updated=datetime.utcnow().isoformat() + "Z",
         )
 
     def _save_registry(self) -> None:
@@ -142,12 +146,13 @@ class InstanceManager:
             with open(self.registry_path, "w") as f:
                 json.dump(data, f, indent=2)
 
-            logger.debug(f"Saved instance registry with {len(self.registry.instances)} instances")
+            logger.debug(
+                f"Saved instance registry with {len(self.registry.instances)} instances"
+            )
         except Exception as e:
             logger.error(f"Failed to save instance registry: {e}")
             raise SynapseException(
-                "Failed to save instance registry",
-                details={"error": str(e)}
+                "Failed to save instance registry", details={"error": str(e)}
             )
 
     def _get_base_model(self, model_id: str) -> DiscoveredModel:
@@ -165,8 +170,7 @@ class InstanceManager:
         model = self.model_registry.models.get(model_id)
         if not model:
             raise SynapseException(
-                f"Base model not found: {model_id}",
-                details={"model_id": model_id}
+                f"Base model not found: {model_id}", details={"model_id": model_id}
             )
         return model
 
@@ -200,8 +204,8 @@ class InstanceManager:
                 "No available ports for new instance",
                 details={
                     "model_id": request.model_id,
-                    "port_range": self.registry.port_range
-                }
+                    "port_range": self.registry.port_range,
+                },
             )
 
         # Create config
@@ -214,7 +218,7 @@ class InstanceManager:
             web_search_enabled=request.web_search_enabled,
             port=port,
             status=InstanceStatus.STOPPED,
-            created_at=datetime.utcnow().isoformat() + "Z"
+            created_at=datetime.utcnow().isoformat() + "Z",
         )
 
         # Add to registry and persist
@@ -259,9 +263,7 @@ class InstanceManager:
         return self.registry.get_instances_for_model(model_id)
 
     def update_instance(
-        self,
-        instance_id: str,
-        request: UpdateInstanceRequest
+        self, instance_id: str, request: UpdateInstanceRequest
     ) -> InstanceConfig:
         """Update an existing instance configuration.
 
@@ -279,14 +281,16 @@ class InstanceManager:
         if not config:
             raise SynapseException(
                 f"Instance not found: {instance_id}",
-                details={"instance_id": instance_id}
+                details={"instance_id": instance_id},
             )
 
         # Update fields if provided
         if request.display_name is not None:
             config.display_name = request.display_name
         if request.system_prompt is not None:
-            config.system_prompt = request.system_prompt if request.system_prompt else None
+            config.system_prompt = (
+                request.system_prompt if request.system_prompt else None
+            )
         if request.web_search_enabled is not None:
             config.web_search_enabled = request.web_search_enabled
 
@@ -319,7 +323,7 @@ class InstanceManager:
         if config.status == InstanceStatus.ACTIVE:
             raise SynapseException(
                 f"Cannot delete running instance: {instance_id}",
-                details={"instance_id": instance_id, "status": config.status}
+                details={"instance_id": instance_id, "status": config.status},
             )
 
         # Remove from registry
@@ -350,13 +354,12 @@ class InstanceManager:
         if not config:
             raise SynapseException(
                 f"Instance not found: {instance_id}",
-                details={"instance_id": instance_id}
+                details={"instance_id": instance_id},
             )
 
         if not self.server_manager:
             raise SynapseException(
-                "Server manager not configured",
-                details={"instance_id": instance_id}
+                "Server manager not configured", details={"instance_id": instance_id}
             )
 
         # Get base model
@@ -405,13 +408,12 @@ class InstanceManager:
         if not config:
             raise SynapseException(
                 f"Instance not found: {instance_id}",
-                details={"instance_id": instance_id}
+                details={"instance_id": instance_id},
             )
 
         if not self.server_manager:
             raise SynapseException(
-                "Server manager not configured",
-                details={"instance_id": instance_id}
+                "Server manager not configured", details={"instance_id": instance_id}
             )
 
         # Update status to stopping
@@ -469,18 +471,18 @@ class InstanceManager:
         # Add server process info if available
         if self.server_manager and instance_id in self.server_manager.servers:
             server = self.server_manager.servers[instance_id]
-            status.update({
-                "is_ready": server.is_ready,
-                "is_running": server.is_running(),
-                "uptime_seconds": server.get_uptime_seconds(),
-            })
+            status.update(
+                {
+                    "is_ready": server.is_ready,
+                    "is_running": server.is_running(),
+                    "uptime_seconds": server.get_uptime_seconds(),
+                }
+            )
 
         return status
 
     def _create_augmented_model(
-        self,
-        model: DiscoveredModel,
-        config: InstanceConfig
+        self, model: DiscoveredModel, config: InstanceConfig
     ) -> DiscoveredModel:
         """Create a copy of the model with instance-specific settings.
 
@@ -540,8 +542,7 @@ class InstanceManager:
             List of InstanceConfig with web_search_enabled=True
         """
         return [
-            inst for inst in self.registry.instances.values()
-            if inst.web_search_enabled
+            inst for inst in self.registry.instances.values() if inst.web_search_enabled
         ]
 
 
@@ -566,7 +567,7 @@ def get_instance_manager() -> InstanceManager:
 def init_instance_manager(
     registry_path: Path,
     model_registry: ModelRegistry,
-    server_manager: Optional["LlamaServerManager"] = None
+    server_manager: Optional["LlamaServerManager"] = None,
 ) -> InstanceManager:
     """Initialize the global instance manager.
 

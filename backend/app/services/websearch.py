@@ -152,7 +152,9 @@ class SearXNGClient:
             raw_results = data.get("results", [])
             total_results = len(raw_results)
 
-            logger.debug(f"  ✅ SearXNG returned {total_results} results in {search_time_ms}ms")
+            logger.debug(
+                f"  ✅ SearXNG returned {total_results} results in {search_time_ms}ms"
+            )
 
             # Parse and limit results
             parsed_results = []
@@ -164,7 +166,9 @@ class SearXNGClient:
                         content=result.get("content", result.get("snippet", "")),
                         engine=", ".join(result.get("engines", [])),
                         score=1.0
-                        - (idx * 0.1),  # Simple ranking: first result = 1.0, decay by 0.1
+                        - (
+                            idx * 0.1
+                        ),  # Simple ranking: first result = 1.0, decay by 0.1
                         published_date=result.get("publishedDate"),
                     )
                     parsed_results.append(parsed_result)
@@ -221,7 +225,9 @@ class SearXNGClient:
             if is_healthy:
                 logger.debug("✅ SearXNG health check passed")
             else:
-                logger.warning(f"⚠️ SearXNG health check returned {response.status_code}")
+                logger.warning(
+                    f"⚠️ SearXNG health check returned {response.status_code}"
+                )
 
             return is_healthy
 

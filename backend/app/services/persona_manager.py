@@ -10,28 +10,28 @@ logger = logging.getLogger(__name__)
 DEBATE_PERSONA_PROFILES = {
     "classic": {
         "pro": "an optimistic advocate who emphasizes benefits and opportunities",
-        "con": "a skeptical critic who focuses on risks and drawbacks"
+        "con": "a skeptical critic who focuses on risks and drawbacks",
     },
     "technical": {
         "pro": "a solution architect arguing for implementation feasibility",
-        "con": "a senior engineer raising technical concerns and edge cases"
+        "con": "a senior engineer raising technical concerns and edge cases",
     },
     "business": {
         "pro": "a product manager focused on market value and user needs",
-        "con": "a risk analyst evaluating costs and strategic fit"
+        "con": "a risk analyst evaluating costs and strategic fit",
     },
     "scientific": {
         "pro": "a research scientist presenting evidence and experimental data",
-        "con": "a peer reviewer challenging methodology and conclusions"
+        "con": "a peer reviewer challenging methodology and conclusions",
     },
     "ethical": {
         "pro": "an ethicist arguing from moral principles and values",
-        "con": "a pragmatist focusing on real-world consequences and trade-offs"
+        "con": "a pragmatist focusing on real-world consequences and trade-offs",
     },
     "political": {
         "pro": "a progressive reformer advocating for change",
-        "con": "a conservative defender of traditional approaches"
-    }
+        "con": "a conservative defender of traditional approaches",
+    },
 }
 
 
@@ -40,18 +40,18 @@ CONSENSUS_PERSONA_PROFILES = {
     "balanced": {
         "analyst": "a pragmatic analyst focused on data and evidence",
         "creative": "a creative thinker exploring unconventional approaches",
-        "critic": "a critical thinker identifying potential issues"
+        "critic": "a critical thinker identifying potential issues",
     },
     "technical-review": {
         "engineer": "a senior software engineer focused on implementation details",
         "architect": "a system architect concerned with scalability and design",
-        "tester": "a quality assurance specialist identifying edge cases"
+        "tester": "a quality assurance specialist identifying edge cases",
     },
     "brainstorm": {
         "dreamer": "an idealistic visionary with bold ideas",
         "realist": "a practical implementer grounding ideas in reality",
-        "synthesizer": "a strategic thinker combining perspectives"
-    }
+        "synthesizer": "a strategic thinker combining perspectives",
+    },
 }
 
 
@@ -65,7 +65,7 @@ class PersonaManager:
         self,
         participants: List[str],
         user_personas: Optional[Dict[str, str]] = None,
-        profile_name: Optional[str] = None
+        profile_name: Optional[str] = None,
     ) -> Dict[str, str]:
         """
         Get persona descriptions for debate participants.
@@ -89,12 +89,14 @@ class PersonaManager:
         # Priority 1: User-defined personas
         if user_personas:
             if "pro" not in user_personas or "con" not in user_personas:
-                self.logger.warning("User personas missing 'pro' or 'con', falling back to profile")
+                self.logger.warning(
+                    "User personas missing 'pro' or 'con', falling back to profile"
+                )
             else:
                 self.logger.info("Using user-defined personas")
                 return {
                     participants[0]: user_personas["pro"],
-                    participants[1]: user_personas["con"]
+                    participants[1]: user_personas["con"],
                 }
 
         # Priority 2: Named profile
@@ -104,7 +106,7 @@ class PersonaManager:
                 profile = DEBATE_PERSONA_PROFILES[profile_name]
                 return {
                     participants[0]: profile["pro"],
-                    participants[1]: profile["con"]
+                    participants[1]: profile["con"],
                 }
             else:
                 self.logger.warning(f"Unknown profile '{profile_name}', using default")
@@ -112,16 +114,13 @@ class PersonaManager:
         # Priority 3: Default "classic" profile
         self.logger.info("Using default 'classic' profile")
         profile = DEBATE_PERSONA_PROFILES["classic"]
-        return {
-            participants[0]: profile["pro"],
-            participants[1]: profile["con"]
-        }
+        return {participants[0]: profile["pro"], participants[1]: profile["con"]}
 
     def get_consensus_personas(
         self,
         participants: List[str],
         user_personas: Optional[Dict[str, str]] = None,
-        profile_name: Optional[str] = None
+        profile_name: Optional[str] = None,
     ) -> Dict[str, str]:
         """
         Get persona descriptions for consensus participants (Phase 2).
@@ -142,7 +141,9 @@ class PersonaManager:
             if len(user_personas) >= len(participants):
                 self.logger.info("Using user-defined personas")
                 return {
-                    participant: user_personas.get(participant, "a collaborative participant")
+                    participant: user_personas.get(
+                        participant, "a collaborative participant"
+                    )
                     for participant in participants
                 }
 
@@ -165,7 +166,7 @@ class PersonaManager:
             "a creative thinker",
             "a critical evaluator",
             "a detail-oriented specialist",
-            "a strategic synthesizer"
+            "a strategic synthesizer",
         ]
 
         return {
@@ -181,7 +182,9 @@ class PersonaManager:
         """List available consensus persona profile names."""
         return list(CONSENSUS_PERSONA_PROFILES.keys())
 
-    def get_profile_description(self, mode: str, profile_name: str) -> Optional[Dict[str, str]]:
+    def get_profile_description(
+        self, mode: str, profile_name: str
+    ) -> Optional[Dict[str, str]]:
         """Get full persona profile by name."""
         if mode == "debate":
             return DEBATE_PERSONA_PROFILES.get(profile_name)

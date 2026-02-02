@@ -40,29 +40,19 @@ class PipelineStage(BaseModel):
         ... )
     """
 
-    stage_name: Literal["input", "complexity", "cgrag", "routing", "generation", "response"] = Field(
-        ...,
-        description="Pipeline stage identifier"
-    )
+    stage_name: Literal[
+        "input", "complexity", "cgrag", "routing", "generation", "response"
+    ] = Field(..., description="Pipeline stage identifier")
     status: Literal["pending", "active", "completed", "failed"] = Field(
-        ...,
-        description="Current stage status"
+        ..., description="Current stage status"
     )
-    start_time: Optional[datetime] = Field(
-        None,
-        description="Stage start timestamp"
-    )
-    end_time: Optional[datetime] = Field(
-        None,
-        description="Stage completion timestamp"
-    )
+    start_time: Optional[datetime] = Field(None, description="Stage start timestamp")
+    end_time: Optional[datetime] = Field(None, description="Stage completion timestamp")
     duration_ms: Optional[int] = Field(
-        None,
-        description="Stage duration in milliseconds"
+        None, description="Stage duration in milliseconds"
     )
     metadata: Dict[str, Any] = Field(
-        default_factory=dict,
-        description="Stage-specific metadata"
+        default_factory=dict, description="Stage-specific metadata"
     )
 
 
@@ -94,35 +84,21 @@ class PipelineStatus(BaseModel):
         ... )
     """
 
-    query_id: str = Field(
-        ...,
-        description="Unique query identifier"
-    )
-    current_stage: str = Field(
-        ...,
-        description="Currently active pipeline stage"
-    )
+    query_id: str = Field(..., description="Unique query identifier")
+    current_stage: str = Field(..., description="Currently active pipeline stage")
     stages: List[PipelineStage] = Field(
-        ...,
-        description="Status of all pipeline stages"
+        ..., description="Status of all pipeline stages"
     )
     overall_status: Literal["processing", "completed", "failed"] = Field(
-        ...,
-        description="Overall pipeline status"
+        ..., description="Overall pipeline status"
     )
     total_duration_ms: Optional[int] = Field(
-        None,
-        description="Total pipeline duration in milliseconds"
+        None, description="Total pipeline duration in milliseconds"
     )
     model_selected: Optional[str] = Field(
-        None,
-        description="Model ID used for generation"
+        None, description="Model ID used for generation"
     )
-    tier: Optional[str] = Field(
-        None,
-        description="Model tier selected (Q2/Q3/Q4)"
-    )
+    tier: Optional[str] = Field(None, description="Model tier selected (Q2/Q3/Q4)")
     cgrag_artifacts_count: Optional[int] = Field(
-        None,
-        description="Number of CGRAG artifacts retrieved"
+        None, description="Number of CGRAG artifacts retrieved"
     )

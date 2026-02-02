@@ -33,6 +33,7 @@ class EventType(str, Enum):
     - TOPOLOGY_DATAFLOW_UPDATE: Query entered a new component
     - LOG: System log entry from Python logging
     """
+
     QUERY_ROUTE = "query_route"
     MODEL_STATE = "model_state"
     CGRAG = "cgrag"
@@ -57,6 +58,7 @@ class EventSeverity(str, Enum):
     - WARNING: Potential issues requiring attention
     - ERROR: Errors requiring immediate attention
     """
+
     INFO = "info"
     WARNING = "warning"
     ERROR = "error"
@@ -96,30 +98,24 @@ class SystemEvent(BaseModel):
     model_config = ConfigDict(
         # Serialize enums as values, use camelCase aliases
         use_enum_values=True,
-        populate_by_name=True
+        populate_by_name=True,
     )
 
     timestamp: float = Field(
-        ...,
-        description="Unix timestamp with milliseconds precision"
+        ..., description="Unix timestamp with milliseconds precision"
     )
-    type: EventType = Field(
-        ...,
-        description="Event type classification"
-    )
+    type: EventType = Field(..., description="Event type classification")
     message: str = Field(
         ...,
         min_length=1,
         max_length=1000,
-        description="Human-readable event description"
+        description="Human-readable event description",
     )
     severity: EventSeverity = Field(
-        default=EventSeverity.INFO,
-        description="Event severity level"
+        default=EventSeverity.INFO, description="Event severity level"
     )
     metadata: Dict[str, Any] = Field(
-        default_factory=dict,
-        description="Type-specific metadata and context"
+        default_factory=dict, description="Type-specific metadata and context"
     )
 
 
@@ -148,7 +144,9 @@ class QueryRouteEvent(BaseModel):
 
     query_id: str = Field(..., description="Unique query identifier")
     complexity_score: float = Field(..., description="Complexity score (0-10+)")
-    selected_tier: Literal["Q2", "Q3", "Q4"] = Field(..., description="Selected model tier")
+    selected_tier: Literal["Q2", "Q3", "Q4"] = Field(
+        ..., description="Selected model tier"
+    )
     estimated_latency_ms: int = Field(..., description="Expected latency in ms")
     routing_reason: str = Field(..., description="Tier selection explanation")
 
@@ -236,7 +234,9 @@ class CacheEvent(BaseModel):
         ... ).model_dump()
     """
 
-    operation: Literal["hit", "miss", "set", "evict"] = Field(..., description="Cache operation")
+    operation: Literal["hit", "miss", "set", "evict"] = Field(
+        ..., description="Cache operation"
+    )
     key: str = Field(..., description="Cache key")
     hit: bool = Field(..., description="Cache hit status")
     latency_ms: int = Field(..., description="Operation latency in ms")
@@ -297,7 +297,9 @@ class PerformanceEvent(BaseModel):
     current_value: float = Field(..., description="Current metric value")
     threshold_value: float = Field(..., description="Threshold value")
     component: str = Field(..., description="Component being monitored")
-    action_required: bool = Field(default=False, description="Manual intervention needed")
+    action_required: bool = Field(
+        default=False, description="Manual intervention needed"
+    )
 
 
 class PipelineEvent(BaseModel):
@@ -319,11 +321,9 @@ class PipelineEvent(BaseModel):
     """
 
     query_id: str = Field(..., description="Unique query identifier")
-    stage: Literal["input", "complexity", "cgrag", "routing", "generation", "response"] = Field(
-        ...,
-        description="Pipeline stage name"
-    )
+    stage: Literal[
+        "input", "complexity", "cgrag", "routing", "generation", "response"
+    ] = Field(..., description="Pipeline stage name")
     metadata: Dict[str, Any] = Field(
-        default_factory=dict,
-        description="Stage-specific metadata"
+        default_factory=dict, description="Stage-specific metadata"
     )

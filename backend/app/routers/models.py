@@ -73,8 +73,8 @@ def _get_registry() -> ModelRegistry:
             detail={
                 "error": "ServiceUnavailable",
                 "message": "Model registry not initialized. Run discovery first.",
-                "details": {}
-            }
+                "details": {},
+            },
         )
     return model_registry
 
@@ -95,8 +95,8 @@ def _get_server_manager() -> LlamaServerManager:
             detail={
                 "error": "ServiceUnavailable",
                 "message": "Server manager not initialized",
-                "details": {}
-            }
+                "details": {},
+            },
         )
     return server_manager
 
@@ -117,8 +117,8 @@ def _get_profile_manager() -> ProfileManager:
             detail={
                 "error": "ServiceUnavailable",
                 "message": "Profile manager not initialized",
-                "details": {}
-            }
+                "details": {},
+            },
         )
     return profile_manager
 
@@ -139,16 +139,15 @@ def _get_discovery_service() -> ModelDiscoveryService:
             detail={
                 "error": "ServiceUnavailable",
                 "message": "Discovery service not initialized",
-                "details": {}
-            }
+                "details": {},
+            },
         )
     return discovery_service
 
 
 @router.get("/status")
 async def get_models_status(
-    model_manager: ModelManagerDependency,
-    logger_dep: LoggerDependency
+    model_manager: ModelManagerDependency, logger_dep: LoggerDependency
 ):
     """Get status of all models with system metrics and time-series data.
 
@@ -185,14 +184,16 @@ async def get_models_status(
                     name=server_proc.model.get_display_name(),
                     tier=str(server_proc.model.get_effective_tier()),
                     port=server_proc.port,
-                    state=ModelState.ACTIVE if server_proc.is_ready else ModelState.OFFLINE,
+                    state=ModelState.ACTIVE
+                    if server_proc.is_ready
+                    else ModelState.OFFLINE,
                     memory_used=0,  # Not tracked for external servers
                     memory_total=16384,  # Assume 16GB total
                     request_count=0,
                     avg_response_time=0.0,
                     last_active=datetime.now(timezone.utc),
                     error_count=0,
-                    uptime_seconds=server_proc.get_uptime_seconds()
+                    uptime_seconds=server_proc.get_uptime_seconds(),
                 )
                 system_status.models.append(dynamic_status)
                 logger_dep.debug(f"Added dynamic model to status: {model_id}")
@@ -200,14 +201,13 @@ async def get_models_status(
     logger_dep.info(
         "Models status retrieved",
         extra={
-            'model_count': len(system_status.models),
-            'active_queries': system_status.active_queries,
-            'total_requests': system_status.total_requests,
-            'healthy_models': sum(
-                1 for m in system_status.models
-                if m.state.value in ['active', 'idle']
-            )
-        }
+            "model_count": len(system_status.models),
+            "active_queries": system_status.active_queries,
+            "total_requests": system_status.total_requests,
+            "healthy_models": sum(
+                1 for m in system_status.models if m.state.value in ["active", "idle"]
+            ),
+        },
     )
 
     # Add per-model time-series metrics
@@ -215,25 +215,25 @@ async def get_models_status(
     for model_id, state in model_manager._model_states.items():
         metrics = ModelMetrics(
             model_id=model_id,
-            tokens_per_second=list(state['tokens_per_second_history']),
-            current_tokens_per_second=state['last_tokens_per_second'],
-            memory_gb=list(state['memory_gb_history']),
-            current_memory_gb=state['last_memory_gb'],
-            latency_ms=list(state['latency_ms_history']),
-            current_latency_ms=state['latency_ms']
+            tokens_per_second=list(state["tokens_per_second_history"]),
+            current_tokens_per_second=state["last_tokens_per_second"],
+            memory_gb=list(state["memory_gb_history"]),
+            current_memory_gb=state["last_memory_gb"],
+            latency_ms=list(state["latency_ms_history"]),
+            current_latency_ms=state["latency_ms"],
         )
         models_metrics.append(metrics)
 
     logger_dep.debug(
         f"Collected metrics for {len(models_metrics)} models",
-        extra={'metrics_count': len(models_metrics)}
+        extra={"metrics_count": len(models_metrics)},
     )
 
     # Return combined response (backward compatible)
     return {
         **system_status.model_dump(by_alias=True),
         "metrics": [m.model_dump(by_alias=True) for m in models_metrics],
-        "metricsTimestamp": datetime.now(timezone.utc).isoformat()
+        "metricsTimestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 
@@ -252,7 +252,7 @@ async def get_model_registry() -> dict:
 
     logger.info(
         f"Returned registry with {len(registry.models)} models",
-        extra={"model_count": len(registry.models)}
+        extra={"model_count": len(registry.models)},
     )
 
     # Convert to dict with camelCase aliases
@@ -307,8 +307,8 @@ async def rescan_models() -> RescanResponse:
                 "models_before": models_before,
                 "models_after": models_after,
                 "models_added": models_added,
-                "models_removed": models_removed
-            }
+                "models_removed": models_removed,
+            },
         )
 
         return RescanResponse(
@@ -316,7 +316,7 @@ async def rescan_models() -> RescanResponse:
             models_found=models_after,
             models_added=models_added,
             models_removed=models_removed,
-            timestamp=datetime.utcnow().isoformat() + "Z"
+            timestamp=datetime.utcnow().isoformat() + "Z",
         )
 
     except Exception as e:
@@ -326,12 +326,14 @@ async def rescan_models() -> RescanResponse:
             detail={
                 "error": "RescanFailed",
                 "message": f"Failed to rescan models: {str(e)}",
-                "details": {"error": str(e)}
-            }
+                "details": {"error": str(e)},
+            },
         )
 
 
-@router.put("/port-range", response_model=PortRangeUpdateResponse, response_model_by_alias=True)
+@router.put(
+    "/port-range", response_model=PortRangeUpdateResponse, response_model_by_alias=True
+)
 async def update_port_range(request: PortRangeUpdateRequest) -> PortRangeUpdateResponse:
     """Update the model server port range.
 
@@ -356,14 +358,16 @@ async def update_port_range(request: PortRangeUpdateRequest) -> PortRangeUpdateR
 
     # Validate port range
     if request.start >= request.end:
-        logger.warning(f"Invalid port range: start ({request.start}) >= end ({request.end})")
+        logger.warning(
+            f"Invalid port range: start ({request.start}) >= end ({request.end})"
+        )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={
                 "error": "InvalidPortRange",
                 "message": "Start port must be less than end port",
-                "details": {"start": request.start, "end": request.end}
-            }
+                "details": {"start": request.start, "end": request.end},
+            },
         )
 
     if request.start < 1024 or request.end > 65535:
@@ -373,8 +377,8 @@ async def update_port_range(request: PortRangeUpdateRequest) -> PortRangeUpdateR
             detail={
                 "error": "InvalidPortRange",
                 "message": "Port range must be between 1024 and 65535",
-                "details": {"start": request.start, "end": request.end}
-            }
+                "details": {"start": request.start, "end": request.end},
+            },
         )
 
     try:
@@ -390,14 +394,14 @@ async def update_port_range(request: PortRangeUpdateRequest) -> PortRangeUpdateR
 
         logger.info(
             f"Port range updated successfully: {request.start}-{request.end}",
-            extra={"start": request.start, "end": request.end}
+            extra={"start": request.start, "end": request.end},
         )
 
         return PortRangeUpdateResponse(
             message="Port range updated successfully. Restart servers to apply changes.",
             start=request.start,
             end=request.end,
-            restart_required=True
+            restart_required=True,
         )
 
     except Exception as e:
@@ -407,19 +411,16 @@ async def update_port_range(request: PortRangeUpdateRequest) -> PortRangeUpdateR
             detail={
                 "error": "PortRangeUpdateFailed",
                 "message": f"Failed to update port range: {str(e)}",
-                "details": {"error": str(e)}
-            }
+                "details": {"error": str(e)},
+            },
         )
 
 
 @router.put(
-    "/{model_id}/tier",
-    response_model=TierUpdateResponse,
-    response_model_by_alias=True
+    "/{model_id}/tier", response_model=TierUpdateResponse, response_model_by_alias=True
 )
 async def update_model_tier(
-    model_id: str,
-    request: TierUpdateRequest
+    model_id: str, request: TierUpdateRequest
 ) -> TierUpdateResponse:
     """Update tier assignment for a model (user override).
 
@@ -446,8 +447,8 @@ async def update_model_tier(
             detail={
                 "error": "ModelNotFound",
                 "message": f"Model '{model_id}' not found in registry",
-                "details": {"model_id": model_id}
-            }
+                "details": {"model_id": model_id},
+            },
         )
 
     # Validate tier value
@@ -462,9 +463,9 @@ async def update_model_tier(
                 "message": f"Invalid tier value: {request.tier}",
                 "details": {
                     "tier": request.tier,
-                    "valid_tiers": ["fast", "balanced", "powerful"]
-                }
-            }
+                    "valid_tiers": ["fast", "balanced", "powerful"],
+                },
+            },
         )
 
     # Update tier override
@@ -479,14 +480,14 @@ async def update_model_tier(
 
         logger.info(
             f"Tier updated for {model_id}: {request.tier}",
-            extra={"model_id": model_id, "tier": request.tier}
+            extra={"model_id": model_id, "tier": request.tier},
         )
 
         return TierUpdateResponse(
             message=f"Tier updated for {model_id}",
             model_id=model_id,
             tier=request.tier,
-            override=True
+            override=True,
         )
 
     except Exception as e:
@@ -496,19 +497,18 @@ async def update_model_tier(
             detail={
                 "error": "RegistrySaveFailed",
                 "message": f"Failed to save registry: {str(e)}",
-                "details": {"error": str(e)}
-            }
+                "details": {"error": str(e)},
+            },
         )
 
 
 @router.put(
     "/{model_id}/thinking",
     response_model=ThinkingUpdateResponse,
-    response_model_by_alias=True
+    response_model_by_alias=True,
 )
 async def update_model_thinking(
-    model_id: str,
-    request: ThinkingUpdateRequest
+    model_id: str, request: ThinkingUpdateRequest
 ) -> ThinkingUpdateResponse:
     """Update thinking capability for a model (user override).
 
@@ -538,8 +538,8 @@ async def update_model_thinking(
             detail={
                 "error": "ModelNotFound",
                 "message": f"Model '{model_id}' not found in registry",
-                "details": {"model_id": model_id}
-            }
+                "details": {"model_id": model_id},
+            },
         )
 
     model = registry.models[model_id]
@@ -565,8 +565,8 @@ async def update_model_thinking(
             extra={
                 "model_id": model_id,
                 "thinking": request.thinking,
-                "tier_changed": tier_changed
-            }
+                "tier_changed": tier_changed,
+            },
         )
 
         return ThinkingUpdateResponse(
@@ -574,7 +574,7 @@ async def update_model_thinking(
             model_id=model_id,
             thinking=request.thinking,
             override=True,
-            tier_changed=tier_changed
+            tier_changed=tier_changed,
         )
 
     except Exception as e:
@@ -584,19 +584,18 @@ async def update_model_thinking(
             detail={
                 "error": "RegistrySaveFailed",
                 "message": f"Failed to save registry: {str(e)}",
-                "details": {"error": str(e)}
-            }
+                "details": {"error": str(e)},
+            },
         )
 
 
 @router.put(
     "/{model_id}/enabled",
     response_model=EnabledUpdateResponse,
-    response_model_by_alias=True
+    response_model_by_alias=True,
 )
 async def toggle_model_enabled(
-    model_id: str,
-    request: EnabledUpdateRequest
+    model_id: str, request: EnabledUpdateRequest
 ) -> EnabledUpdateResponse:
     """Enable or disable a model AND start/stop its server dynamically.
 
@@ -623,8 +622,8 @@ async def toggle_model_enabled(
             detail={
                 "error": "ModelNotFound",
                 "message": f"Model '{model_id}' not found in registry",
-                "details": {"model_id": model_id}
-            }
+                "details": {"model_id": model_id},
+            },
         )
 
     model = registry.models[model_id]
@@ -641,7 +640,7 @@ async def toggle_model_enabled(
         status_str = "enabled" if request.enabled else "disabled"
         logger.info(
             f"Model {model_id} {status_str}",
-            extra={"model_id": model_id, "enabled": request.enabled}
+            extra={"model_id": model_id, "enabled": request.enabled},
         )
 
     except Exception as e:
@@ -651,8 +650,8 @@ async def toggle_model_enabled(
             detail={
                 "error": "RegistrySaveFailed",
                 "message": f"Failed to save registry: {str(e)}",
-                "details": {"error": str(e)}
-            }
+                "details": {"error": str(e)},
+            },
         )
 
     # NOTE: Enabling/disabling only updates registry - does NOT start/stop servers
@@ -662,14 +661,14 @@ async def toggle_model_enabled(
         model_id=model_id,
         enabled=request.enabled,
         restart_required=False,
-        server_status="registry_updated"
+        server_status="registry_updated",
     )
 
 
 @router.post(
     "/enable-all",
     response_model=BulkEnabledUpdateResponse,
-    response_model_by_alias=True
+    response_model_by_alias=True,
 )
 async def enable_all_models() -> BulkEnabledUpdateResponse:
     """Enable all discovered models in the registry.
@@ -705,22 +704,22 @@ async def enable_all_models() -> BulkEnabledUpdateResponse:
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={
                 "error": "RegistrySaveFailed",
-                "message": f"Failed to save registry: {str(e)}"
-            }
+                "message": f"Failed to save registry: {str(e)}",
+            },
         )
 
     return BulkEnabledUpdateResponse(
         message=f"All models enabled ({models_updated} updated)",
         models_updated=models_updated,
         enabled=True,
-        timestamp=datetime.now(timezone.utc).isoformat()
+        timestamp=datetime.now(timezone.utc).isoformat(),
     )
 
 
 @router.post(
     "/disable-all",
     response_model=BulkEnabledUpdateResponse,
-    response_model_by_alias=True
+    response_model_by_alias=True,
 )
 async def disable_all_models() -> BulkEnabledUpdateResponse:
     """Disable all discovered models in the registry.
@@ -756,15 +755,15 @@ async def disable_all_models() -> BulkEnabledUpdateResponse:
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={
                 "error": "RegistrySaveFailed",
-                "message": f"Failed to save registry: {str(e)}"
-            }
+                "message": f"Failed to save registry: {str(e)}",
+            },
         )
 
     return BulkEnabledUpdateResponse(
         message=f"All models disabled ({models_updated} updated)",
         models_updated=models_updated,
         enabled=False,
-        timestamp=datetime.now(timezone.utc).isoformat()
+        timestamp=datetime.now(timezone.utc).isoformat(),
     )
 
 
@@ -774,13 +773,10 @@ async def disable_all_models() -> BulkEnabledUpdateResponse:
 
 
 @router.put(
-    "/{model_id}/port",
-    response_model=PortUpdateResponse,
-    response_model_by_alias=True
+    "/{model_id}/port", response_model=PortUpdateResponse, response_model_by_alias=True
 )
 async def update_model_port(
-    model_id: str,
-    request: PortUpdateRequest
+    model_id: str, request: PortUpdateRequest
 ) -> PortUpdateResponse:
     """Assign a specific port to a model.
 
@@ -807,8 +803,8 @@ async def update_model_port(
             detail={
                 "error": "ModelNotFound",
                 "message": f"Model '{model_id}' not found in registry",
-                "details": {"model_id": model_id}
-            }
+                "details": {"model_id": model_id},
+            },
         )
 
     # Validate port in range
@@ -818,11 +814,8 @@ async def update_model_port(
             detail={
                 "error": "PortOutOfRange",
                 "message": f"Port {request.port} outside allowed range {registry.port_range}",
-                "details": {
-                    "port": request.port,
-                    "port_range": registry.port_range
-                }
-            }
+                "details": {"port": request.port, "port_range": registry.port_range},
+            },
         )
 
     # Check port not already in use by another model
@@ -836,9 +829,9 @@ async def update_model_port(
                     "details": {
                         "port": request.port,
                         "assigned_to": mid,
-                        "assigned_to_name": m.get_display_name()
-                    }
-                }
+                        "assigned_to_name": m.get_display_name(),
+                    },
+                },
             )
 
     model = registry.models[model_id]
@@ -858,8 +851,8 @@ async def update_model_port(
             detail={
                 "error": "RegistrySaveFailed",
                 "message": f"Failed to save registry: {str(e)}",
-                "details": {"error": str(e)}
-            }
+                "details": {"error": str(e)},
+            },
         )
 
     # Check if server restart is required
@@ -869,18 +862,17 @@ async def update_model_port(
         message=f"Port assigned successfully to {model.get_display_name()}",
         model_id=model_id,
         port=request.port,
-        restart_required=restart_required
+        restart_required=restart_required,
     )
 
 
 @router.put(
     "/{model_id}/runtime-settings",
     response_model=RuntimeSettingsUpdateResponse,
-    response_model_by_alias=True
+    response_model_by_alias=True,
 )
 async def update_model_runtime_settings(
-    model_id: str,
-    request: RuntimeSettingsUpdateRequest
+    model_id: str, request: RuntimeSettingsUpdateRequest
 ) -> RuntimeSettingsUpdateResponse:
     """Update per-model runtime settings overrides.
 
@@ -910,8 +902,8 @@ async def update_model_runtime_settings(
             detail={
                 "error": "ModelNotFound",
                 "message": f"Model '{model_id}' not found in registry",
-                "details": {"model_id": model_id}
-            }
+                "details": {"model_id": model_id},
+            },
         )
 
     model = registry.models[model_id]
@@ -939,8 +931,8 @@ async def update_model_runtime_settings(
             detail={
                 "error": "RegistrySaveFailed",
                 "message": f"Failed to save registry: {str(e)}",
-                "details": {"error": str(e)}
-            }
+                "details": {"error": str(e)},
+            },
         )
 
     # Check if server restart is required
@@ -953,14 +945,12 @@ async def update_model_runtime_settings(
         ctx_size=model.ctx_size,
         n_threads=model.n_threads,
         batch_size=model.batch_size,
-        restart_required=restart_required
+        restart_required=restart_required,
     )
 
 
 @router.get(
-    "/servers",
-    response_model=ServerStatusResponse,
-    response_model_by_alias=True
+    "/servers", response_model=ServerStatusResponse, response_model_by_alias=True
 )
 async def get_server_status() -> ServerStatusResponse:
     """Get status of all running llama.cpp servers.
@@ -982,20 +972,21 @@ async def get_server_status() -> ServerStatusResponse:
         f"Server status retrieved: {status_summary['total_servers']} servers",
         extra={
             "total_servers": status_summary["total_servers"],
-            "ready_servers": status_summary["ready_servers"]
-        }
+            "ready_servers": status_summary["ready_servers"],
+        },
     )
 
     return ServerStatusResponse(
         total_servers=status_summary["total_servers"],
         ready_servers=status_summary["ready_servers"],
-        servers=status_summary["servers"]
+        servers=status_summary["servers"],
     )
 
 
 # ============================================================================
 # DYNAMIC MODEL SERVER CONTROL (NO RESTART REQUIRED)
 # ============================================================================
+
 
 @router.post("/servers/{model_id}/start", response_model=dict)
 async def start_model_server(model_id: str):
@@ -1016,16 +1007,10 @@ async def start_model_server(model_id: str):
         500: Server failed to start
     """
     if not model_registry or model_id not in model_registry.models:
-        raise HTTPException(
-            status_code=404,
-            detail=f"Model not found: {model_id}"
-        )
+        raise HTTPException(status_code=404, detail=f"Model not found: {model_id}")
 
     if not server_manager:
-        raise HTTPException(
-            status_code=503,
-            detail="Server manager not initialized"
-        )
+        raise HTTPException(status_code=503, detail="Server manager not initialized")
 
     model = model_registry.models[model_id]
 
@@ -1036,7 +1021,7 @@ async def start_model_server(model_id: str):
             "message": f"Server already running for {model_id}",
             "model_id": model_id,
             "port": model.port,
-            "status": "already_running"
+            "status": "already_running",
         }
 
     try:
@@ -1047,7 +1032,9 @@ async def start_model_server(model_id: str):
         await server_manager.start_server(model)
 
         elapsed = time.time() - start_time
-        logger.info(f"✅ Started server for {model_id} on port {model.port} ({elapsed:.1f}s)")
+        logger.info(
+            f"✅ Started server for {model_id} on port {model.port} ({elapsed:.1f}s)"
+        )
 
         return {
             "message": f"Server started for {model_id}",
@@ -1055,15 +1042,12 @@ async def start_model_server(model_id: str):
             "display_name": model.get_display_name(),
             "port": model.port,
             "status": "started",
-            "startup_time_seconds": round(elapsed, 2)
+            "startup_time_seconds": round(elapsed, 2),
         }
 
     except Exception as e:
         logger.error(f"❌ Failed to start server for {model_id}: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to start server: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to start server: {str(e)}")
 
 
 @router.post("/servers/{model_id}/stop", response_model=dict)
@@ -1083,10 +1067,7 @@ async def stop_model_server(model_id: str):
         503: Server manager not initialized
     """
     if not server_manager:
-        raise HTTPException(
-            status_code=503,
-            detail="Server manager not initialized"
-        )
+        raise HTTPException(status_code=503, detail="Server manager not initialized")
 
     # Check if running
     if not server_manager.is_server_running(model_id):
@@ -1094,7 +1075,7 @@ async def stop_model_server(model_id: str):
         return {
             "message": f"Server not running for {model_id}",
             "model_id": model_id,
-            "status": "not_running"
+            "status": "not_running",
         }
 
     try:
@@ -1110,15 +1091,12 @@ async def stop_model_server(model_id: str):
             "message": f"Server stopped for {model_id}",
             "model_id": model_id,
             "status": "stopped",
-            "shutdown_time_seconds": round(elapsed, 2)
+            "shutdown_time_seconds": round(elapsed, 2),
         }
 
     except Exception as e:
         logger.error(f"❌ Failed to stop server for {model_id}: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to stop server: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to stop server: {str(e)}")
 
 
 @router.post("/servers/start-all", response_model=dict)
@@ -1135,21 +1113,14 @@ async def start_all_enabled_servers():
         503: Model registry or server manager not initialized
     """
     if not model_registry:
-        raise HTTPException(
-            status_code=503,
-            detail="Model registry not initialized"
-        )
+        raise HTTPException(status_code=503, detail="Model registry not initialized")
 
     if not server_manager:
-        raise HTTPException(
-            status_code=503,
-            detail="Server manager not initialized"
-        )
+        raise HTTPException(status_code=503, detail="Server manager not initialized")
 
     # Get all enabled models
     enabled_models = [
-        model for model in model_registry.models.values()
-        if model.enabled
+        model for model in model_registry.models.values() if model.enabled
     ]
 
     if not enabled_models:
@@ -1158,7 +1129,7 @@ async def start_all_enabled_servers():
             "message": "No enabled models to start",
             "started": 0,
             "total": 0,
-            "models": []
+            "models": [],
         }
 
     try:
@@ -1182,17 +1153,16 @@ async def start_all_enabled_servers():
                 {
                     "model_id": m.model_id,
                     "display_name": m.get_display_name(),
-                    "port": m.port
+                    "port": m.port,
                 }
                 for m in enabled_models
-            ]
+            ],
         }
 
     except Exception as e:
         logger.error(f"❌ Failed to start servers: {e}", exc_info=True)
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to start servers: {str(e)}"
+            status_code=500, detail=f"Failed to start servers: {str(e)}"
         )
 
 
@@ -1211,10 +1181,7 @@ async def stop_all_servers():
         503: Server manager not initialized
     """
     if not server_manager:
-        raise HTTPException(
-            status_code=503,
-            detail="Server manager not initialized"
-        )
+        raise HTTPException(status_code=503, detail="Server manager not initialized")
 
     try:
         # In external server mode, always call stop_all() to reach host-api
@@ -1231,7 +1198,7 @@ async def stop_all_servers():
             return {
                 "message": "Stopped Metal-accelerated servers on host",
                 "stopped": 1,  # At least one conceptual "server group" was stopped
-                "shutdown_time_seconds": round(elapsed, 2)
+                "shutdown_time_seconds": round(elapsed, 2),
             }
 
         # Internal server mode - check tracked servers
@@ -1239,10 +1206,7 @@ async def stop_all_servers():
 
         if running_count == 0:
             logger.info("No servers running to stop")
-            return {
-                "message": "No servers running",
-                "stopped": 0
-            }
+            return {"message": "No servers running", "stopped": 0}
 
         logger.info(f"Stopping {running_count} running servers...")
         stop_time = time.time()
@@ -1255,21 +1219,16 @@ async def stop_all_servers():
         return {
             "message": f"Stopped {running_count} servers",
             "stopped": running_count,
-            "shutdown_time_seconds": round(elapsed, 2)
+            "shutdown_time_seconds": round(elapsed, 2),
         }
 
     except Exception as e:
         logger.error(f"❌ Failed to stop servers: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to stop servers: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to stop servers: {str(e)}")
 
 
 @router.get(
-    "/tiers/{tier}",
-    response_model=List[DiscoveredModel],
-    response_model_by_alias=True
+    "/tiers/{tier}", response_model=List[DiscoveredModel], response_model_by_alias=True
 )
 async def get_models_by_tier(tier: str) -> List[DiscoveredModel]:
     """Get all models in a specific tier.
@@ -1299,9 +1258,9 @@ async def get_models_by_tier(tier: str) -> List[DiscoveredModel]:
                 "message": f"Invalid tier value: {tier}",
                 "details": {
                     "tier": tier,
-                    "valid_tiers": ["fast", "balanced", "powerful"]
-                }
-            }
+                    "valid_tiers": ["fast", "balanced", "powerful"],
+                },
+            },
         )
 
     # Get models in tier
@@ -1309,7 +1268,7 @@ async def get_models_by_tier(tier: str) -> List[DiscoveredModel]:
 
     logger.info(
         f"Found {len(models)} models in tier '{tier}'",
-        extra={"tier": tier, "count": len(models)}
+        extra={"tier": tier, "count": len(models)},
     )
 
     return models
@@ -1338,7 +1297,7 @@ async def list_profiles() -> List[str]:
 @router.get(
     "/profiles/{profile_name}",
     response_model=ModelProfile,
-    response_model_by_alias=True
+    response_model_by_alias=True,
 )
 async def get_profile(profile_name: str) -> ModelProfile:
     """Get details of a specific profile.
@@ -1363,8 +1322,8 @@ async def get_profile(profile_name: str) -> ModelProfile:
             f"Loaded profile '{profile_name}'",
             extra={
                 "profile": profile_name,
-                "enabled_models": len(profile.enabled_models)
-            }
+                "enabled_models": len(profile.enabled_models),
+            },
         )
 
         return profile
@@ -1376,8 +1335,8 @@ async def get_profile(profile_name: str) -> ModelProfile:
             detail={
                 "error": "ProfileNotFound",
                 "message": e.message,
-                "details": e.details
-            }
+                "details": e.details,
+            },
         )
 
 
@@ -1385,9 +1344,11 @@ async def get_profile(profile_name: str) -> ModelProfile:
     "/profiles",
     response_model=ProfileCreateResponse,
     response_model_by_alias=True,
-    status_code=status.HTTP_201_CREATED
+    status_code=status.HTTP_201_CREATED,
 )
-async def create_profile(profile_request: ProfileCreateRequest) -> ProfileCreateResponse:
+async def create_profile(
+    profile_request: ProfileCreateRequest,
+) -> ProfileCreateResponse:
     """Create a new configuration profile.
 
     Args:
@@ -1408,7 +1369,7 @@ async def create_profile(profile_request: ProfileCreateRequest) -> ProfileCreate
         profile = ModelProfile(
             name=profile_request.name,
             description=profile_request.description,
-            enabled_models=profile_request.enabled_models
+            enabled_models=profile_request.enabled_models,
         )
 
         # Save profile
@@ -1416,16 +1377,13 @@ async def create_profile(profile_request: ProfileCreateRequest) -> ProfileCreate
 
         logger.info(
             f"Profile '{profile_request.name}' created",
-            extra={
-                "profile": profile_request.name,
-                "path": str(profile_path)
-            }
+            extra={"profile": profile_request.name, "path": str(profile_path)},
         )
 
         return ProfileCreateResponse(
             message=f"Profile '{profile_request.name}' created successfully",
             profile_name=profile_path.stem,
-            path=str(profile_path.absolute())
+            path=str(profile_path.absolute()),
         )
 
     except Exception as e:
@@ -1435,15 +1393,15 @@ async def create_profile(profile_request: ProfileCreateRequest) -> ProfileCreate
             detail={
                 "error": "ProfileCreationFailed",
                 "message": f"Failed to create profile: {str(e)}",
-                "details": {"error": str(e)}
-            }
+                "details": {"error": str(e)},
+            },
         )
 
 
 @router.delete(
     "/profiles/{profile_name}",
     response_model=ProfileDeleteResponse,
-    response_model_by_alias=True
+    response_model_by_alias=True,
 )
 async def delete_profile(profile_name: str) -> ProfileDeleteResponse:
     """Delete a configuration profile.
@@ -1479,6 +1437,6 @@ async def delete_profile(profile_name: str) -> ProfileDeleteResponse:
             detail={
                 "error": "ProfileDeletionFailed",
                 "message": e.message,
-                "details": e.details
-            }
+                "details": e.details,
+            },
         )

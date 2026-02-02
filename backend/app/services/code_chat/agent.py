@@ -26,8 +26,14 @@ import uuid
 import aiofiles
 
 from app.models.code_chat import (
-    AgentState, CodeChatRequest, CodeChatStreamEvent,
-    ReActStep, ToolCall, ToolName, PRESETS, ToolModelConfig
+    AgentState,
+    CodeChatRequest,
+    CodeChatStreamEvent,
+    ReActStep,
+    ToolCall,
+    ToolName,
+    PRESETS,
+    ToolModelConfig,
 )
 from app.services.code_chat.tools.base import ToolRegistry
 from app.services.code_chat.memory import ConversationMemory, MemoryManager
@@ -66,7 +72,7 @@ class ReActAgent:
         ...         print(event.content)
     """
 
-    SYSTEM_PROMPT = '''You are an expert coding assistant with access to tools.
+    SYSTEM_PROMPT = """You are an expert coding assistant with access to tools.
 
 Available tools:
 {tools_description}
@@ -90,13 +96,13 @@ Rules:
 6. Only use tools that are listed above
 7. Always specify all required parameters for tools
 8. Use double quotes for string arguments
-'''
+"""
 
     def __init__(
         self,
         model_selector,  # Type hint would be ModelSelector
         tool_registry: ToolRegistry,
-        memory_manager: MemoryManager
+        memory_manager: MemoryManager,
     ):
         """Initialize ReAct agent.
 
@@ -109,15 +115,16 @@ Rules:
         self.tool_registry = tool_registry
         self.memory_manager = memory_manager
         self._active_sessions: Dict[str, bool] = {}
-        self._pending_actions: Dict[str, Dict[str, Any]] = {}  # session_id -> action data
-        self._action_confirmations: Dict[str, Optional[bool]] = {}  # action_id -> approved
+        self._pending_actions: Dict[
+            str, Dict[str, Any]
+        ] = {}  # session_id -> action data
+        self._action_confirmations: Dict[
+            str, Optional[bool]
+        ] = {}  # action_id -> approved
 
         logger.info("ReActAgent initialized")
 
-    async def run(
-        self,
-        request: CodeChatRequest
-    ) -> AsyncIterator[CodeChatStreamEvent]:
+    async def run(self, request: CodeChatRequest) -> AsyncIterator[CodeChatStreamEvent]:
         """Execute ReAct loop with streaming events.
 
         Main execution flow:
@@ -159,21 +166,17 @@ Rules:
             memory = await self.memory_manager.get_or_create(
                 session_id=session_id,
                 workspace_path=request.workspace_path,
-                context_name=request.context_name
+                context_name=request.context_name,
             )
 
             # Retrieve CGRAG context if enabled
             cgrag_context = None
             if request.use_cgrag and request.context_name:
                 cgrag_context = await self._get_cgrag_context(
-                    request.query,
-                    request.context_name
+                    request.query, request.context_name
                 )
                 if cgrag_context:
-                    yield CodeChatStreamEvent(
-                        type="context",
-                        content=cgrag_context
-                    )
+                    yield CodeChatStreamEvent(type="context", content=cgrag_context)
 
             # Load preset configuration
             if request.preset not in PRESETS:
@@ -201,7 +204,7 @@ Rules:
                     yield CodeChatStreamEvent(
                         type="cancelled",
                         content="Query execution was cancelled",
-                        state=AgentState.CANCELLED
+                        state=AgentState.CANCELLED,
                     )
                     return
 
@@ -210,9 +213,7 @@ Rules:
 
                 # === PLANNING PHASE ===
                 yield CodeChatStreamEvent(
-                    type="state",
-                    state=AgentState.PLANNING,
-                    step_number=iteration
+                    type="state", state=AgentState.PLANNING, step_number=iteration
                 )
 
                 # Build prompt with context
@@ -220,22 +221,20 @@ Rules:
                     query=request.query,
                     steps=steps,
                     memory=memory,
-                    cgrag_context=cgrag_context
+                    cgrag_context=cgrag_context,
                 )
 
                 # Call LLM for planning
                 try:
                     response = await self._call_llm(
-                        prompt=prompt,
-                        tier=preset.planning_tier,
-                        temperature=0.7
+                        prompt=prompt, tier=preset.planning_tier, temperature=0.7
                     )
                 except Exception as e:
                     logger.error(f"LLM call failed: {e}", exc_info=True)
                     yield CodeChatStreamEvent(
                         type="error",
                         content=f"Failed to generate plan: {str(e)}",
-                        state=AgentState.ERROR
+                        state=AgentState.ERROR,
                     )
                     return
 
@@ -247,7 +246,7 @@ Rules:
                     yield CodeChatStreamEvent(
                         type="error",
                         content="Failed to parse agent response. Please try again.",
-                        state=AgentState.ERROR
+                        state=AgentState.ERROR,
                     )
                     return
 
@@ -256,7 +255,7 @@ Rules:
                     type="thought",
                     content=thought,
                     tier=preset.planning_tier,
-                    step_number=iteration
+                    step_number=iteration,
                 )
 
                 # Check if we have final answer
@@ -266,15 +265,17 @@ Rules:
                         type="answer",
                         content=final_answer,
                         state=AgentState.COMPLETED,
-                        step_number=iteration
+                        step_number=iteration,
                     )
 
                     # Save to memory
-                    tools_used = [step.action.tool.value for step in steps if step.action]
+                    tools_used = [
+                        step.action.tool.value for step in steps if step.action
+                    ]
                     memory.add_turn(
                         query=request.query,
                         response=final_answer,
-                        tools_used=tools_used
+                        tools_used=tools_used,
                     )
 
                     break
@@ -286,19 +287,20 @@ Rules:
                     yield CodeChatStreamEvent(
                         type="error",
                         content="Agent failed to select an action. Please try again.",
-                        state=AgentState.ERROR
+                        state=AgentState.ERROR,
                     )
                     return
 
                 # === EXECUTING PHASE ===
                 yield CodeChatStreamEvent(
-                    type="state",
-                    state=AgentState.EXECUTING,
-                    step_number=iteration
+                    type="state", state=AgentState.EXECUTING, step_number=iteration
                 )
 
                 # Check if tool requires user confirmation (write_file, delete_file)
-                requires_confirmation = tool_call.tool in [ToolName.WRITE_FILE, ToolName.DELETE_FILE]
+                requires_confirmation = tool_call.tool in [
+                    ToolName.WRITE_FILE,
+                    ToolName.DELETE_FILE,
+                ]
                 action_approved = True  # Default: execute immediately
 
                 if requires_confirmation:
@@ -311,9 +313,9 @@ Rules:
                         # Simulate execution to get diff preview without writing
                         try:
                             tool = self.tool_registry.get(tool_call.tool)
-                            if tool and hasattr(tool, '_create_diff_preview'):
-                                path_arg = tool_call.args.get('path', '')
-                                content_arg = tool_call.args.get('content', '')
+                            if tool and hasattr(tool, "_create_diff_preview"):
+                                path_arg = tool_call.args.get("path", "")
+                                content_arg = tool_call.args.get("content", "")
 
                                 # Validate and resolve path
                                 resolved_path = tool._validate_and_resolve(path_arg)
@@ -322,7 +324,9 @@ Rules:
                                 original_content = None
                                 change_type = "create"
                                 if resolved_path.exists() and resolved_path.is_file():
-                                    async with aiofiles.open(resolved_path, 'r', encoding='utf-8') as f:
+                                    async with aiofiles.open(
+                                        resolved_path, "r", encoding="utf-8"
+                                    ) as f:
                                         original_content = await f.read()
                                     change_type = "modify"
 
@@ -331,7 +335,7 @@ Rules:
                                     resolved_path,
                                     original_content,
                                     content_arg,
-                                    change_type
+                                    change_type,
                                 )
                                 diff_preview_data = diff_preview.model_dump()
                         except Exception as e:
@@ -339,9 +343,9 @@ Rules:
 
                     # Store pending action
                     self._pending_actions[action_id] = {
-                        'session_id': session_id,
-                        'tool_call': tool_call,
-                        'diff_preview': diff_preview_data
+                        "session_id": session_id,
+                        "tool_call": tool_call,
+                        "diff_preview": diff_preview_data,
                     }
 
                     # Emit action_pending event
@@ -352,7 +356,10 @@ Rules:
                         tier=tool_configs.get(tool_call.tool, ToolModelConfig()).tier,
                         step_number=iteration,
                         timestamp=datetime.now().isoformat(),
-                        data={'action_id': action_id, 'diff_preview': diff_preview_data}
+                        data={
+                            "action_id": action_id,
+                            "diff_preview": diff_preview_data,
+                        },
                     )
 
                     # Wait for confirmation (with timeout)
@@ -364,7 +371,9 @@ Rules:
                     while elapsed < timeout:
                         if action_id in self._action_confirmations:
                             action_approved = self._action_confirmations[action_id]
-                            logger.info(f"Action {action_id} {'approved' if action_approved else 'rejected'}")
+                            logger.info(
+                                f"Action {action_id} {'approved' if action_approved else 'rejected'}"
+                            )
                             # Clean up confirmation
                             del self._action_confirmations[action_id]
                             del self._pending_actions[action_id]
@@ -372,10 +381,11 @@ Rules:
 
                         # Check for cancellation
                         if not self._active_sessions.get(session_id, False):
-                            logger.info(f"Session {session_id} cancelled while waiting for confirmation")
+                            logger.info(
+                                f"Session {session_id} cancelled while waiting for confirmation"
+                            )
                             yield CodeChatStreamEvent(
-                                type="cancelled",
-                                content="Session cancelled by user"
+                                type="cancelled", content="Session cancelled by user"
                             )
                             return
 
@@ -387,7 +397,7 @@ Rules:
                         yield CodeChatStreamEvent(
                             type="error",
                             content="User confirmation timeout - action skipped",
-                            state=AgentState.ERROR
+                            state=AgentState.ERROR,
                         )
                         # Clean up
                         if action_id in self._action_confirmations:
@@ -402,7 +412,7 @@ Rules:
                         content=f"Executing {tool_call.tool.value}",
                         tool=tool_call,
                         tier=tool_configs.get(tool_call.tool, ToolModelConfig()).tier,
-                        step_number=iteration
+                        step_number=iteration,
                     )
 
                 # Execute tool (only if approved)
@@ -423,9 +433,7 @@ Rules:
 
                 # === OBSERVING PHASE ===
                 yield CodeChatStreamEvent(
-                    type="state",
-                    state=AgentState.OBSERVING,
-                    step_number=iteration
+                    type="state", state=AgentState.OBSERVING, step_number=iteration
                 )
 
                 # Format observation
@@ -435,24 +443,24 @@ Rules:
                     # Emit diff preview if present
                     if result.data and "diff" in result.data:
                         yield CodeChatStreamEvent(
-                            type="diff_preview",
-                            content=result.data["diff"]
+                            type="diff_preview", content=result.data["diff"]
                         )
 
                     # Track file access in memory
-                    if tool_call.tool == ToolName.READ_FILE and "path" in tool_call.args:
+                    if (
+                        tool_call.tool == ToolName.READ_FILE
+                        and "path" in tool_call.args
+                    ):
                         memory.add_file_context(
                             path=tool_call.args["path"],
                             content=result.output or "",
-                            max_preview=500
+                            max_preview=500,
                         )
                 else:
                     observation = f"Error: {result_error or 'Unknown error'}"
 
                 yield CodeChatStreamEvent(
-                    type="observation",
-                    content=observation,
-                    step_number=iteration
+                    type="observation", content=observation, step_number=iteration
                 )
 
                 # Record step
@@ -463,17 +471,19 @@ Rules:
                     observation=observation,
                     state=AgentState.OBSERVING,
                     model_tier=preset.planning_tier,
-                    timestamp=datetime.now()
+                    timestamp=datetime.now(),
                 )
                 steps.append(step)
 
             # Check if we hit max iterations
             if iteration >= request.max_iterations and not final_answer:
-                logger.warning(f"Hit max iterations ({request.max_iterations}) without answer")
+                logger.warning(
+                    f"Hit max iterations ({request.max_iterations}) without answer"
+                )
                 yield CodeChatStreamEvent(
                     type="error",
                     content=f"Maximum iterations ({request.max_iterations}) reached without completing task",
-                    state=AgentState.ERROR
+                    state=AgentState.ERROR,
                 )
 
         finally:
@@ -533,7 +543,7 @@ Rules:
         query: str,
         steps: List[ReActStep],
         memory: ConversationMemory,
-        cgrag_context: Optional[str] = None
+        cgrag_context: Optional[str] = None,
     ) -> str:
         """Build the LLM prompt with context and history.
 
@@ -595,7 +605,9 @@ Rules:
                 parts.append("")
 
         # Prompt for next step
-        parts.append("What should we do next? Provide a Thought and then either an Action or final Answer.")
+        parts.append(
+            "What should we do next? Provide a Thought and then either an Action or final Answer."
+        )
 
         return "\n".join(parts)
 
@@ -629,18 +641,16 @@ Rules:
 
         # Extract thought
         thought_match = re.search(
-            r'Thought:\s*(.+?)(?=\n(?:Action|Answer):|$)',
+            r"Thought:\s*(.+?)(?=\n(?:Action|Answer):|$)",
             response,
-            re.DOTALL | re.IGNORECASE
+            re.DOTALL | re.IGNORECASE,
         )
         if thought_match:
             thought = thought_match.group(1).strip()
 
         # Check for Answer (final response)
         answer_match = re.search(
-            r'Answer:\s*(.+?)$',
-            response,
-            re.DOTALL | re.IGNORECASE
+            r"Answer:\s*(.+?)$", response, re.DOTALL | re.IGNORECASE
         )
         if answer_match:
             action_or_answer = answer_match.group(1).strip()
@@ -648,11 +658,7 @@ Rules:
             return thought, action_or_answer, is_answer
 
         # Check for Action (tool call)
-        action_match = re.search(
-            r'Action:\s*(\w+)\((.*?)\)',
-            response,
-            re.IGNORECASE
-        )
+        action_match = re.search(r"Action:\s*(\w+)\((.*?)\)", response, re.IGNORECASE)
         if action_match:
             tool_name = action_match.group(1)
             args_str = action_match.group(2)
@@ -741,15 +747,15 @@ Rules:
             parts.append(f"- {tool['name']}: {tool['description']}")
 
             # Parameters
-            schema = tool['parameters']
-            if 'properties' in schema:
-                param_names = list(schema['properties'].keys())
-                required = schema.get('required', [])
+            schema = tool["parameters"]
+            if "properties" in schema:
+                param_names = list(schema["properties"].keys())
+                required = schema.get("required", [])
 
                 param_strs = []
                 for name in param_names:
-                    prop = schema['properties'][name]
-                    param_type = prop.get('type', 'any')
+                    prop = schema["properties"][name]
+                    param_type = prop.get("type", "any")
                     param_strs.append(f"{name}: {param_type}")
 
                 parts.append(f"  Parameters: {', '.join(param_strs)}")
@@ -757,19 +763,14 @@ Rules:
                     parts.append(f"  Required: {', '.join(required)}")
 
             # Confirmation requirement
-            if tool['requires_confirmation']:
+            if tool["requires_confirmation"]:
                 parts.append("  ⚠ Requires user confirmation")
 
             parts.append("")
 
         return "\n".join(parts)
 
-    async def _call_llm(
-        self,
-        prompt: str,
-        tier: str,
-        temperature: float = 0.7
-    ) -> str:
+    async def _call_llm(self, prompt: str, tier: str, temperature: float = 0.7) -> str:
         """Call LLM with specified tier.
 
         Uses model_selector to route to appropriate model instance
@@ -793,7 +794,7 @@ Rules:
             model = await self.model_selector.select_model(tier)
             logger.debug(
                 f"Selected model {model.model_id} for tier {tier}",
-                extra={'model_id': model.model_id, 'tier': tier}
+                extra={"model_id": model.model_id, "tier": tier},
             )
 
             # Get llama.cpp client for the model
@@ -807,7 +808,7 @@ Rules:
             client = LlamaCppClient(
                 base_url=base_url,
                 timeout=120,  # 2 minute timeout for completions
-                max_retries=2
+                max_retries=2,
             )
 
             # Generate completion
@@ -815,15 +816,15 @@ Rules:
                 prompt=prompt,
                 max_tokens=2048,
                 temperature=temperature,
-                stop=None  # Let model decide when to stop
+                stop=None,  # Let model decide when to stop
             )
 
             # Check for errors
-            if result.get('error'):
+            if result.get("error"):
                 raise Exception(f"LLM generation error: {result['error']}")
 
             # Extract content
-            content = result.get('content', '')
+            content = result.get("content", "")
 
             if not content:
                 raise Exception("LLM returned empty response")
@@ -831,12 +832,12 @@ Rules:
             logger.info(
                 "LLM response generated successfully",
                 extra={
-                    'tier': tier,
-                    'model_id': model.model_id,
-                    'tokens_predicted': result.get('tokens_predicted', 0),
-                    'tokens_evaluated': result.get('tokens_evaluated', 0),
-                    'response_length': len(content)
-                }
+                    "tier": tier,
+                    "model_id": model.model_id,
+                    "tokens_predicted": result.get("tokens_predicted", 0),
+                    "tokens_evaluated": result.get("tokens_evaluated", 0),
+                    "response_length": len(content),
+                },
             )
 
             return content
@@ -845,11 +846,7 @@ Rules:
             logger.error(f"LLM call failed: {e}", exc_info=True)
             raise
 
-    async def _get_cgrag_context(
-        self,
-        query: str,
-        context_name: str
-    ) -> Optional[str]:
+    async def _get_cgrag_context(self, query: str, context_name: str) -> Optional[str]:
         """Retrieve CGRAG context for query.
 
         Uses the context service to get a retriever and perform
@@ -878,9 +875,7 @@ Rules:
 
             # Retrieve relevant chunks (token budget: 4000)
             result = await retriever.retrieve(
-                query=query,
-                token_budget=4000,
-                min_relevance=0.7
+                query=query, token_budget=4000, min_relevance=0.7
             )
 
             if not result.artifacts:
@@ -890,7 +885,9 @@ Rules:
             # Format artifacts as context
             parts = []
             for i, artifact in enumerate(result.artifacts, 1):
-                parts.append(f"### Relevant Section {i} (score: {artifact.relevance:.2f})")
+                parts.append(
+                    f"### Relevant Section {i} (score: {artifact.relevance:.2f})"
+                )
                 parts.append(artifact.content)
                 parts.append("")
 

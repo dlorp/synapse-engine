@@ -17,6 +17,7 @@ import re
 
 class InstanceStatus(str, Enum):
     """Runtime status of a model instance."""
+
     STOPPED = "stopped"
     STARTING = "starting"
     ACTIVE = "active"
@@ -34,72 +35,62 @@ class InstanceConfig(BaseModel):
     # Identity
     instance_id: str = Field(
         description="Unique instance identifier (model_id:NN format)",
-        alias="instanceId"
+        alias="instanceId",
     )
     model_id: str = Field(
-        description="Reference to base DiscoveredModel",
-        alias="modelId"
+        description="Reference to base DiscoveredModel", alias="modelId"
     )
     instance_number: int = Field(
-        ge=1, le=99,
-        description="Instance number (01-99)",
-        alias="instanceNumber"
+        ge=1, le=99, description="Instance number (01-99)", alias="instanceNumber"
     )
 
     # User-configurable settings
     display_name: str = Field(
         max_length=64,
         description="User-friendly name for this instance",
-        alias="displayName"
+        alias="displayName",
     )
     system_prompt: Optional[str] = Field(
         default=None,
         max_length=4096,
         description="System prompt injected at query time",
-        alias="systemPrompt"
+        alias="systemPrompt",
     )
     web_search_enabled: bool = Field(
         default=False,
         description="Enable SearXNG web search for this instance",
-        alias="webSearchEnabled"
+        alias="webSearchEnabled",
     )
 
     # Runtime configuration
-    port: int = Field(
-        ge=1024, le=65535,
-        description="Assigned port for this instance"
-    )
+    port: int = Field(ge=1024, le=65535, description="Assigned port for this instance")
 
     # Status tracking (not persisted, computed at runtime)
     status: InstanceStatus = Field(
-        default=InstanceStatus.STOPPED,
-        description="Current runtime status"
+        default=InstanceStatus.STOPPED, description="Current runtime status"
     )
 
     # Metadata
     created_at: str = Field(
-        description="ISO timestamp of instance creation",
-        alias="createdAt"
+        description="ISO timestamp of instance creation", alias="createdAt"
     )
     updated_at: Optional[str] = Field(
-        default=None,
-        description="ISO timestamp of last update",
-        alias="updatedAt"
+        default=None, description="ISO timestamp of last update", alias="updatedAt"
     )
 
-    @field_validator('system_prompt')
+    @field_validator("system_prompt")
     @classmethod
     def sanitize_system_prompt(cls, v: Optional[str]) -> Optional[str]:
         """Remove control characters and null bytes from system prompt."""
         if v is None:
             return None
         # Remove null bytes
-        v = v.replace('\x00', '')
+        v = v.replace("\x00", "")
         # Remove control characters except newlines/tabs
-        v = re.sub(r'[\x00-\x08\x0b-\x0c\x0e-\x1f\x7f]', '', v)
+        v = re.sub(r"[\x00-\x08\x0b-\x0c\x0e-\x1f\x7f]", "", v)
         return v.strip() if v.strip() else None
 
-    @field_validator('display_name')
+    @field_validator("display_name")
     @classmethod
     def validate_display_name(cls, v: str) -> str:
         """Ensure display name is safe and non-empty."""
@@ -107,14 +98,14 @@ class InstanceConfig(BaseModel):
         if not v:
             raise ValueError("Display name cannot be empty")
         # Remove any HTML-like tags for safety
-        v = re.sub(r'<[^>]+>', '', v)
+        v = re.sub(r"<[^>]+>", "", v)
         return v
 
-    @field_validator('instance_id')
+    @field_validator("instance_id")
     @classmethod
     def validate_instance_id(cls, v: str) -> str:
         """Validate instance_id format (model_id:NN)."""
-        if not re.match(r'^[a-z0-9_]+:\d{2}$', v):
+        if not re.match(r"^[a-z0-9_]+:\d{2}$", v):
             raise ValueError("Instance ID must be in format 'model_id:NN'")
         return v
 
@@ -122,10 +113,7 @@ class InstanceConfig(BaseModel):
         """Get formatted instance name for display."""
         return f"{self.display_name} [{self.instance_id}]"
 
-    model_config = ConfigDict(
-        use_enum_values=True,
-        populate_by_name=True
-    )
+    model_config = ConfigDict(use_enum_values=True, populate_by_name=True)
 
 
 class InstanceRegistry(BaseModel):
@@ -136,30 +124,26 @@ class InstanceRegistry(BaseModel):
     """
 
     instances: Dict[str, InstanceConfig] = Field(
-        default_factory=dict,
-        description="Map of instance_id to InstanceConfig"
+        default_factory=dict, description="Map of instance_id to InstanceConfig"
     )
 
     # Port management
     port_range: Tuple[int, int] = Field(
         default=(8100, 8199),
         description="Port range reserved for instances",
-        alias="portRange"
+        alias="portRange",
     )
 
     # Metadata
     last_updated: str = Field(
         default_factory=lambda: datetime.utcnow().isoformat() + "Z",
         description="ISO timestamp of last registry update",
-        alias="lastUpdated"
+        alias="lastUpdated",
     )
 
     def get_instances_for_model(self, model_id: str) -> List[InstanceConfig]:
         """Get all instances of a specific base model."""
-        return [
-            inst for inst in self.instances.values()
-            if inst.model_id == model_id
-        ]
+        return [inst for inst in self.instances.values() if inst.model_id == model_id]
 
     def get_next_instance_number(self, model_id: str) -> int:
         """Get the next available instance number for a model."""
@@ -193,21 +177,16 @@ class InstanceRegistry(BaseModel):
     def get_active_instances(self) -> List[InstanceConfig]:
         """Get all instances with ACTIVE status."""
         return [
-            inst for inst in self.instances.values()
+            inst
+            for inst in self.instances.values()
             if inst.status == InstanceStatus.ACTIVE
         ]
 
     def get_instances_by_status(self, status: InstanceStatus) -> List[InstanceConfig]:
         """Get instances filtered by status."""
-        return [
-            inst for inst in self.instances.values()
-            if inst.status == status
-        ]
+        return [inst for inst in self.instances.values() if inst.status == status]
 
-    model_config = ConfigDict(
-        use_enum_values=True,
-        populate_by_name=True
-    )
+    model_config = ConfigDict(use_enum_values=True, populate_by_name=True)
 
 
 class CreateInstanceRequest(BaseModel):
@@ -232,9 +211,7 @@ class UpdateInstanceRequest(BaseModel):
     system_prompt: Optional[str] = Field(
         default=None, max_length=4096, alias="systemPrompt"
     )
-    web_search_enabled: Optional[bool] = Field(
-        default=None, alias="webSearchEnabled"
-    )
+    web_search_enabled: Optional[bool] = Field(default=None, alias="webSearchEnabled")
 
     model_config = ConfigDict(populate_by_name=True)
 
@@ -257,7 +234,7 @@ class InstanceListResponse(BaseModel):
     by_model: Dict[str, int] = Field(
         default_factory=dict,
         description="Count of instances per model_id",
-        alias="byModel"
+        alias="byModel",
     )
 
     model_config = ConfigDict(populate_by_name=True)

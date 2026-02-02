@@ -93,31 +93,23 @@ class ClearLogsResponse(BaseModel):
 @router.get("/", response_model=LogQueryResponse)
 async def get_logs(
     level: Optional[str] = Query(
-        None,
-        description="Filter by log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)"
+        None, description="Filter by log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)"
     ),
     source: Optional[str] = Query(
-        None,
-        description="Filter by source (substring match, case-insensitive)"
+        None, description="Filter by source (substring match, case-insensitive)"
     ),
     search: Optional[str] = Query(
-        None,
-        description="Search in message text (substring match, case-insensitive)"
+        None, description="Search in message text (substring match, case-insensitive)"
     ),
     start_time: Optional[str] = Query(
-        None,
-        description="Filter logs after this timestamp (ISO 8601)"
+        None, description="Filter logs after this timestamp (ISO 8601)"
     ),
     end_time: Optional[str] = Query(
-        None,
-        description="Filter logs before this timestamp (ISO 8601)"
+        None, description="Filter logs before this timestamp (ISO 8601)"
     ),
     limit: int = Query(
-        500,
-        ge=1,
-        le=2000,
-        description="Maximum logs to return (default 500, max 2000)"
-    )
+        500, ge=1, le=2000, description="Maximum logs to return (default 500, max 2000)"
+    ),
 ) -> LogQueryResponse:
     """Query system logs with optional filtering.
 
@@ -159,7 +151,7 @@ async def get_logs(
             search=search,
             start_time=start_time,
             end_time=end_time,
-            limit=limit
+            limit=limit,
         )
 
         logger.info(
@@ -168,28 +160,24 @@ async def get_logs(
                 "level_filter": level,
                 "source_filter": source,
                 "search_filter": search,
-                "result_count": len(logs)
-            }
+                "result_count": len(logs),
+            },
         )
 
         return LogQueryResponse(
             count=len(logs),
             total_available=len(logs),  # Same as count for now (no pagination)
-            logs=logs
+            logs=logs,
         )
 
     except RuntimeError as e:
         logger.error(f"Log aggregator not initialized: {e}")
         raise HTTPException(
-            status_code=503,
-            detail="Log aggregation service not available"
+            status_code=503, detail="Log aggregation service not available"
         )
     except Exception as e:
         logger.error(f"Error querying logs: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to query logs: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to query logs: {str(e)}")
 
 
 @router.get("/sources", response_model=LogSourcesResponse)
@@ -220,22 +208,17 @@ async def get_log_sources() -> LogSourcesResponse:
 
         logger.debug(f"Retrieved {len(sources)} unique log sources")
 
-        return LogSourcesResponse(
-            count=len(sources),
-            sources=sources
-        )
+        return LogSourcesResponse(count=len(sources), sources=sources)
 
     except RuntimeError as e:
         logger.error(f"Log aggregator not initialized: {e}")
         raise HTTPException(
-            status_code=503,
-            detail="Log aggregation service not available"
+            status_code=503, detail="Log aggregation service not available"
         )
     except Exception as e:
         logger.error(f"Error retrieving log sources: {e}", exc_info=True)
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to retrieve log sources: {str(e)}"
+            status_code=500, detail=f"Failed to retrieve log sources: {str(e)}"
         )
 
 
@@ -274,20 +257,18 @@ async def get_log_stats() -> LogStatsResponse:
             unique_sources=stats["unique_sources"],
             oldest_log_time=stats["oldest_log_time"],
             newest_log_time=stats["newest_log_time"],
-            uptime_seconds=stats["uptime_seconds"]
+            uptime_seconds=stats["uptime_seconds"],
         )
 
     except RuntimeError as e:
         logger.error(f"Log aggregator not initialized: {e}")
         raise HTTPException(
-            status_code=503,
-            detail="Log aggregation service not available"
+            status_code=503, detail="Log aggregation service not available"
         )
     except Exception as e:
         logger.error(f"Error retrieving log stats: {e}", exc_info=True)
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to retrieve log statistics: {str(e)}"
+            status_code=500, detail=f"Failed to retrieve log statistics: {str(e)}"
         )
 
 
@@ -324,27 +305,24 @@ async def clear_logs() -> ClearLogsResponse:
         await aggregator.clear()
 
         from datetime import datetime
+
         cleared_at = datetime.utcnow().isoformat() + "Z"
 
         logger.info(
             f"Log buffer cleared - removed {cleared_count} logs",
-            extra={"cleared_count": cleared_count}
+            extra={"cleared_count": cleared_count},
         )
 
         return ClearLogsResponse(
             message=f"Successfully cleared {cleared_count} logs from buffer",
-            cleared_at=cleared_at
+            cleared_at=cleared_at,
         )
 
     except RuntimeError as e:
         logger.error(f"Log aggregator not initialized: {e}")
         raise HTTPException(
-            status_code=503,
-            detail="Log aggregation service not available"
+            status_code=503, detail="Log aggregation service not available"
         )
     except Exception as e:
         logger.error(f"Error clearing logs: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to clear logs: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to clear logs: {str(e)}")

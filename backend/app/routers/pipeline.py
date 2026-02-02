@@ -83,7 +83,7 @@ async def get_pipeline_status(query_id: str) -> PipelineStatus:
         if pipeline_status is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Pipeline not found for query: {query_id}"
+                detail=f"Pipeline not found for query: {query_id}",
             )
 
         logger.debug(
@@ -91,8 +91,8 @@ async def get_pipeline_status(query_id: str) -> PipelineStatus:
             extra={
                 "query_id": query_id,
                 "current_stage": pipeline_status.current_stage,
-                "overall_status": pipeline_status.overall_status
-            }
+                "overall_status": pipeline_status.overall_status,
+            },
         )
 
         return pipeline_status
@@ -104,17 +104,17 @@ async def get_pipeline_status(query_id: str) -> PipelineStatus:
         logger.error(f"Pipeline state manager not available: {e}")
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Pipeline state manager not available"
+            detail="Pipeline state manager not available",
         )
     except Exception as e:
         logger.error(
             f"Error retrieving pipeline status for query {query_id}: {e}",
             exc_info=True,
-            extra={"query_id": query_id}
+            extra={"query_id": query_id},
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to retrieve pipeline status"
+            detail="Failed to retrieve pipeline status",
         )
 
 
@@ -155,11 +155,11 @@ async def get_pipeline_stats() -> dict:
         logger.error(f"Pipeline state manager not available: {e}")
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Pipeline state manager not available"
+            detail="Pipeline state manager not available",
         )
     except Exception as e:
         logger.error(f"Error retrieving pipeline statistics: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to retrieve pipeline statistics"
+            detail="Failed to retrieve pipeline statistics",
         )

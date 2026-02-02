@@ -10,14 +10,14 @@ import requests
 import time
 
 
-def test_active_moderator(
+def run_active_moderator_test(
     query: str,
     moderator_check_frequency: int = 2,
     max_turns: int = 6,
-    expected_interjections: int = 0
+    expected_interjections: int = 0,
 ):
     """
-    Test active moderator with a specific query.
+    Run active moderator integration test with a specific query.
 
     Args:
         query: The debate question
@@ -25,11 +25,11 @@ def test_active_moderator(
         max_turns: Maximum debate turns
         expected_interjections: Expected number of interjections (for validation)
     """
-    print(f"\n{'='*80}")
+    print(f"\n{'=' * 80}")
     print(f"Testing query: {query}")
     print(f"Moderator check frequency: {moderator_check_frequency}")
     print(f"Max turns: {max_turns}")
-    print(f"{'='*80}\n")
+    print(f"{'=' * 80}\n")
 
     # Build request
     request_data = {
@@ -42,7 +42,7 @@ def test_active_moderator(
         "councilModeratorCheckFrequency": moderator_check_frequency,
         "councilMaxTurns": max_turns,
         "councilDynamicTermination": False,  # Disable early termination to see all turns
-        "temperature": 0.7
+        "temperature": 0.7,
     }
 
     # Send request
@@ -53,7 +53,7 @@ def test_active_moderator(
         response = requests.post(
             "http://localhost:8000/api/query",
             json=request_data,
-            timeout=300  # 5 minute timeout for debate
+            timeout=300,  # 5 minute timeout for debate
         )
 
         elapsed_time = time.time() - start_time
@@ -74,7 +74,9 @@ def test_active_moderator(
         print("\n📊 Results:")
         print(f"  Total turns: {len(council_turns)}")
         print(f"  Moderator interjections: {moderator_interjections}")
-        print(f"  Termination reason: {metadata.get('councilTerminationReason', 'N/A')}")
+        print(
+            f"  Termination reason: {metadata.get('councilTerminationReason', 'N/A')}"
+        )
 
         # Show turn-by-turn breakdown
         print("\n📝 Turn-by-turn breakdown:")
@@ -95,14 +97,20 @@ def test_active_moderator(
             if moderator_interjections >= expected_interjections:
                 print(f"  ✅ Got expected interjections (>= {expected_interjections})")
             else:
-                print(f"  ❌ Expected >= {expected_interjections} interjections, got {moderator_interjections}")
+                print(
+                    f"  ❌ Expected >= {expected_interjections} interjections, got {moderator_interjections}"
+                )
 
         # Check if moderator turns exist in conversation
-        moderator_turns = [t for t in council_turns if t.get("speakerId") == "MODERATOR"]
+        moderator_turns = [
+            t for t in council_turns if t.get("speakerId") == "MODERATOR"
+        ]
         if moderator_turns:
             print(f"  ✅ Found {len(moderator_turns)} moderator turns in conversation")
         else:
-            print("  ⚠️  No moderator turns found (may be expected if debate stayed on track)")
+            print(
+                "  ⚠️  No moderator turns found (may be expected if debate stayed on track)"
+            )
 
         return True
 
@@ -117,33 +125,33 @@ def test_active_moderator(
 def main():
     """Run test scenarios."""
 
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("Active Moderator System Test Suite")
-    print("="*80)
+    print("=" * 80)
 
     # Test 1: Simple query (should NOT require interjections)
     print("\n### Test 1: Simple Query (Moderator should NOT interject)")
-    test_active_moderator(
+    run_active_moderator_test(
         query="What is the capital of France?",
         moderator_check_frequency=2,
         max_turns=4,
-        expected_interjections=0  # Expect NO interjections - debate should stay focused
+        expected_interjections=0,  # Expect NO interjections - debate should stay focused
     )
 
     time.sleep(2)  # Brief pause between tests
 
     # Test 2: Abstract query (may trigger interjection if models drift)
     print("\n### Test 2: Abstract Query (Moderator may interject)")
-    test_active_moderator(
+    run_active_moderator_test(
         query="Is artificial intelligence beneficial or harmful to society?",
         moderator_check_frequency=2,
         max_turns=8,
-        expected_interjections=0  # No expectation, just observe
+        expected_interjections=0,  # No expectation, just observe
     )
 
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("Test suite completed!")
-    print("="*80 + "\n")
+    print("=" * 80 + "\n")
 
 
 if __name__ == "__main__":

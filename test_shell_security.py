@@ -180,7 +180,9 @@ def test_whitelist_validation():
 
     for cmd, should_pass, reason in tests:
         valid, error = tool._validate_command(cmd)
-        status = "✓ PASS" if (valid == should_pass) else f"✗ FAIL: Expected {should_pass}"
+        status = (
+            "✓ PASS" if (valid == should_pass) else f"✗ FAIL: Expected {should_pass}"
+        )
         print(f"{status:30} | {cmd}")
         assert valid == should_pass, f"Command validation mismatch: {cmd}"
 
@@ -199,7 +201,9 @@ def test_edge_cases():
 
     for cmd, should_pass, description in tests:
         valid, error = tool._validate_command(cmd)
-        status = "✓ PASS" if (valid == should_pass) else f"✗ FAIL: Expected {should_pass}"
+        status = (
+            "✓ PASS" if (valid == should_pass) else f"✗ FAIL: Expected {should_pass}"
+        )
         print(f"{status:30} | {description}: {cmd}")
 
 

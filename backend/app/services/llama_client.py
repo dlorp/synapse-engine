@@ -32,7 +32,7 @@ class LlamaCppClient:
         base_url: str,
         timeout: int = 10,
         max_retries: int = 3,
-        retry_delay: int = 2
+        retry_delay: int = 2,
     ) -> None:
         """Initialize llama.cpp client.
 
@@ -42,15 +42,14 @@ class LlamaCppClient:
             max_retries: Maximum retry attempts (default: 3)
             retry_delay: Delay in seconds between retries (default: 2)
         """
-        self.base_url = base_url.rstrip('/')
+        self.base_url = base_url.rstrip("/")
         self.timeout = timeout
         self.max_retries = max_retries
         self.retry_delay = retry_delay
 
         # Create async HTTP client with timeout configuration
         self._client = httpx.AsyncClient(
-            timeout=httpx.Timeout(timeout, connect=5.0),
-            follow_redirects=True
+            timeout=httpx.Timeout(timeout, connect=5.0), follow_redirects=True
         )
 
         self._logger = get_logger(__name__)
@@ -85,7 +84,7 @@ class LlamaCppClient:
         try:
             response = await self._client.get(
                 f"{self.base_url}/health",
-                timeout=5.0  # Shorter timeout for health checks
+                timeout=5.0,  # Shorter timeout for health checks
             )
 
             elapsed_ms = (asyncio.get_event_loop().time() - start_time) * 1000
@@ -93,63 +92,58 @@ class LlamaCppClient:
             # Parse response
             if response.status_code == 200:
                 data = response.json()
-                server_status = data.get('status', 'unknown')
+                server_status = data.get("status", "unknown")
 
                 return {
-                    'status': server_status,
-                    'latency_ms': elapsed_ms,
-                    'error': None
+                    "status": server_status,
+                    "latency_ms": elapsed_ms,
+                    "error": None,
                 }
             else:
                 self._logger.warning(
                     "Health check returned non-200 status",
                     extra={
-                        'base_url': self.base_url,
-                        'status_code': response.status_code
-                    }
+                        "base_url": self.base_url,
+                        "status_code": response.status_code,
+                    },
                 )
                 return {
-                    'status': 'error',
-                    'latency_ms': elapsed_ms,
-                    'error': f"HTTP {response.status_code}"
+                    "status": "error",
+                    "latency_ms": elapsed_ms,
+                    "error": f"HTTP {response.status_code}",
                 }
 
         except httpx.TimeoutException:
             elapsed_ms = (asyncio.get_event_loop().time() - start_time) * 1000
             self._logger.warning(
-                "Health check timeout",
-                extra={'base_url': self.base_url}
+                "Health check timeout", extra={"base_url": self.base_url}
             )
             return {
-                'status': 'unreachable',
-                'latency_ms': elapsed_ms,
-                'error': 'Timeout'
+                "status": "unreachable",
+                "latency_ms": elapsed_ms,
+                "error": "Timeout",
             }
 
         except httpx.ConnectError as e:
             elapsed_ms = (asyncio.get_event_loop().time() - start_time) * 1000
             self._logger.warning(
                 "Health check connection failed",
-                extra={'base_url': self.base_url, 'error': str(e)}
+                extra={"base_url": self.base_url, "error": str(e)},
             )
             return {
-                'status': 'unreachable',
-                'latency_ms': elapsed_ms,
-                'error': f'Connection failed: {str(e)}'
+                "status": "unreachable",
+                "latency_ms": elapsed_ms,
+                "error": f"Connection failed: {str(e)}",
             }
 
         except Exception as e:
             elapsed_ms = (asyncio.get_event_loop().time() - start_time) * 1000
             self._logger.error(
                 "Health check unexpected error",
-                extra={'base_url': self.base_url, 'error': str(e)},
-                exc_info=True
+                extra={"base_url": self.base_url, "error": str(e)},
+                exc_info=True,
             )
-            return {
-                'status': 'error',
-                'latency_ms': elapsed_ms,
-                'error': str(e)
-            }
+            return {"status": "error", "latency_ms": elapsed_ms, "error": str(e)}
 
     async def get_stats(self) -> Dict[str, Any]:
         """Get performance statistics from the llama.cpp server.
@@ -172,83 +166,76 @@ class LlamaCppClient:
         try:
             response = await self._client.get(
                 f"{self.base_url}/stats",
-                timeout=3.0  # Short timeout for stats
+                timeout=3.0,  # Short timeout for stats
             )
 
             if response.status_code == 200:
                 data = response.json()
 
                 # Extract tokens per second (may be in different fields)
-                tokens_per_second = data.get('tokens_per_second', 0.0)
+                tokens_per_second = data.get("tokens_per_second", 0.0)
                 if tokens_per_second == 0.0:
                     # Try alternative field names from llama.cpp
-                    tokens_per_second = data.get('n_tokens_predicted_per_second', 0.0)
+                    tokens_per_second = data.get("n_tokens_predicted_per_second", 0.0)
 
                 # Extract memory usage (convert from bytes to GB if needed)
-                memory_used_gb = data.get('memory_used_gb', 0.0)
+                memory_used_gb = data.get("memory_used_gb", 0.0)
                 if memory_used_gb == 0.0:
                     # Try to get memory in bytes and convert
-                    memory_bytes = data.get('kv_cache_used_cells', 0) * 1024  # Approximate
-                    memory_used_gb = memory_bytes / (1024 ** 3)
+                    memory_bytes = (
+                        data.get("kv_cache_used_cells", 0) * 1024
+                    )  # Approximate
+                    memory_used_gb = memory_bytes / (1024**3)
 
                 return {
-                    'tokens_per_second': float(tokens_per_second),
-                    'memory_used_gb': float(memory_used_gb),
-                    'error': None
+                    "tokens_per_second": float(tokens_per_second),
+                    "memory_used_gb": float(memory_used_gb),
+                    "error": None,
                 }
             else:
                 self._logger.debug(
                     "Stats endpoint returned non-200 status",
                     extra={
-                        'base_url': self.base_url,
-                        'status_code': response.status_code
-                    }
+                        "base_url": self.base_url,
+                        "status_code": response.status_code,
+                    },
                 )
                 return {
-                    'tokens_per_second': 0.0,
-                    'memory_used_gb': 0.0,
-                    'error': f"HTTP {response.status_code}"
+                    "tokens_per_second": 0.0,
+                    "memory_used_gb": 0.0,
+                    "error": f"HTTP {response.status_code}",
                 }
 
         except httpx.TimeoutException:
             self._logger.debug(
-                "Stats request timeout",
-                extra={'base_url': self.base_url}
+                "Stats request timeout", extra={"base_url": self.base_url}
             )
-            return {
-                'tokens_per_second': 0.0,
-                'memory_used_gb': 0.0,
-                'error': 'Timeout'
-            }
+            return {"tokens_per_second": 0.0, "memory_used_gb": 0.0, "error": "Timeout"}
 
         except httpx.ConnectError as e:
             self._logger.debug(
                 "Stats request connection failed",
-                extra={'base_url': self.base_url, 'error': str(e)}
+                extra={"base_url": self.base_url, "error": str(e)},
             )
             return {
-                'tokens_per_second': 0.0,
-                'memory_used_gb': 0.0,
-                'error': f'Connection failed: {str(e)}'
+                "tokens_per_second": 0.0,
+                "memory_used_gb": 0.0,
+                "error": f"Connection failed: {str(e)}",
             }
 
         except Exception as e:
             self._logger.debug(
                 "Stats request unexpected error",
-                extra={'base_url': self.base_url, 'error': str(e)}
+                extra={"base_url": self.base_url, "error": str(e)},
             )
-            return {
-                'tokens_per_second': 0.0,
-                'memory_used_gb': 0.0,
-                'error': str(e)
-            }
+            return {"tokens_per_second": 0.0, "memory_used_gb": 0.0, "error": str(e)}
 
     async def generate_completion(
         self,
         prompt: str,
         max_tokens: int = 512,
         temperature: float = 0.7,
-        stop: Optional[list[str]] = None
+        stop: Optional[list[str]] = None,
     ) -> Dict[str, Any]:
         """Generate text completion from the llama.cpp server.
 
@@ -281,11 +268,11 @@ class LlamaCppClient:
             'Python is a high-level programming language...'
         """
         request_body = {
-            'prompt': prompt,
-            'n_predict': max_tokens,
-            'temperature': temperature,
-            'stop': stop or [],
-            'stream': False  # We don't support streaming yet
+            "prompt": prompt,
+            "n_predict": max_tokens,
+            "temperature": temperature,
+            "stop": stop or [],
+            "stream": False,  # We don't support streaming yet
         }
 
         last_exception: Optional[Exception] = None
@@ -297,16 +284,16 @@ class LlamaCppClient:
                 self._logger.debug(
                     f"Completion request attempt {attempt + 1}/{self.max_retries + 1}",
                     extra={
-                        'base_url': self.base_url,
-                        'prompt_length': len(prompt),
-                        'max_tokens': max_tokens
-                    }
+                        "base_url": self.base_url,
+                        "prompt_length": len(prompt),
+                        "max_tokens": max_tokens,
+                    },
                 )
 
                 response = await self._client.post(
                     f"{self.base_url}/completion",
                     json=request_body,
-                    timeout=self.timeout
+                    timeout=self.timeout,
                 )
 
                 # Success case
@@ -316,17 +303,17 @@ class LlamaCppClient:
                     self._logger.info(
                         "Completion generated successfully",
                         extra={
-                            'base_url': self.base_url,
-                            'tokens_predicted': data.get('tokens_predicted', 0),
-                            'tokens_evaluated': data.get('tokens_evaluated', 0)
-                        }
+                            "base_url": self.base_url,
+                            "tokens_predicted": data.get("tokens_predicted", 0),
+                            "tokens_evaluated": data.get("tokens_evaluated", 0),
+                        },
                     )
 
                     return {
-                        'content': data.get('content', ''),
-                        'tokens_predicted': data.get('tokens_predicted', 0),
-                        'tokens_evaluated': data.get('tokens_evaluated', 0),
-                        'error': None
+                        "content": data.get("content", ""),
+                        "tokens_predicted": data.get("tokens_predicted", 0),
+                        "tokens_evaluated": data.get("tokens_evaluated", 0),
+                        "error": None,
                     }
 
                 # Non-200 response
@@ -335,35 +322,33 @@ class LlamaCppClient:
                     self._logger.warning(
                         "Completion request failed",
                         extra={
-                            'base_url': self.base_url,
-                            'status_code': response.status_code,
-                            'attempt': attempt + 1
-                        }
+                            "base_url": self.base_url,
+                            "status_code": response.status_code,
+                            "attempt": attempt + 1,
+                        },
                     )
 
                     # Don't retry on client errors (4xx)
                     if 400 <= response.status_code < 500:
                         return {
-                            'content': '',
-                            'tokens_predicted': 0,
-                            'tokens_evaluated': 0,
-                            'error': error_msg
+                            "content": "",
+                            "tokens_predicted": 0,
+                            "tokens_evaluated": 0,
+                            "error": error_msg,
                         }
 
                     last_exception = httpx.HTTPStatusError(
-                        error_msg,
-                        request=response.request,
-                        response=response
+                        error_msg, request=response.request, response=response
                     )
 
             except httpx.TimeoutException as e:
                 self._logger.warning(
                     "Completion request timeout",
                     extra={
-                        'base_url': self.base_url,
-                        'attempt': attempt + 1,
-                        'timeout': self.timeout
-                    }
+                        "base_url": self.base_url,
+                        "attempt": attempt + 1,
+                        "timeout": self.timeout,
+                    },
                 )
                 last_exception = e
 
@@ -371,10 +356,10 @@ class LlamaCppClient:
                 self._logger.warning(
                     "Completion request connection failed",
                     extra={
-                        'base_url': self.base_url,
-                        'attempt': attempt + 1,
-                        'error': str(e)
-                    }
+                        "base_url": self.base_url,
+                        "attempt": attempt + 1,
+                        "error": str(e),
+                    },
                 )
                 last_exception = e
 
@@ -382,11 +367,11 @@ class LlamaCppClient:
                 self._logger.error(
                     "Completion request unexpected error",
                     extra={
-                        'base_url': self.base_url,
-                        'attempt': attempt + 1,
-                        'error': str(e)
+                        "base_url": self.base_url,
+                        "attempt": attempt + 1,
+                        "error": str(e),
                     },
-                    exc_info=True
+                    exc_info=True,
                 )
                 last_exception = e
 
@@ -394,19 +379,19 @@ class LlamaCppClient:
             if attempt < self.max_retries:
                 self._logger.debug(
                     f"Retrying after {self.retry_delay}s delay",
-                    extra={'attempt': attempt + 1}
+                    extra={"attempt": attempt + 1},
                 )
                 await asyncio.sleep(self.retry_delay)
 
         # All retries exhausted
         self._logger.error(
             f"Completion request failed after {self.max_retries + 1} attempts",
-            extra={'base_url': self.base_url}
+            extra={"base_url": self.base_url},
         )
 
         return {
-            'content': '',
-            'tokens_predicted': 0,
-            'tokens_evaluated': 0,
-            'error': f'Failed after {self.max_retries} attempts: {str(last_exception)}'
+            "content": "",
+            "tokens_predicted": 0,
+            "tokens_evaluated": 0,
+            "error": f"Failed after {self.max_retries} attempts: {str(last_exception)}",
         }

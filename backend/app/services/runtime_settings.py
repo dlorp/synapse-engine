@@ -40,7 +40,9 @@ async def load_runtime_settings(file_path: Optional[Path] = None) -> RuntimeSett
 
     # If file doesn't exist, create default settings
     if not _settings_file_path.exists():
-        logger.info(f"Runtime settings file not found at {_settings_file_path}, creating defaults")
+        logger.info(
+            f"Runtime settings file not found at {_settings_file_path}, creating defaults"
+        )
         _runtime_settings = RuntimeSettings()
         await save_runtime_settings(_runtime_settings)
         return _runtime_settings
@@ -74,8 +76,7 @@ async def load_runtime_settings(file_path: Optional[Path] = None) -> RuntimeSett
 
 
 async def save_runtime_settings(
-    settings: RuntimeSettings,
-    file_path: Optional[Path] = None
+    settings: RuntimeSettings, file_path: Optional[Path] = None
 ) -> None:
     """Save runtime settings to JSON file (atomic write).
 
@@ -100,7 +101,7 @@ async def save_runtime_settings(
         data = settings.model_dump()
         data["_metadata"] = {
             "last_modified": datetime.utcnow().isoformat() + "Z",
-            "version": "1.0"
+            "version": "1.0",
         }
 
         # Write to temp file
@@ -156,7 +157,10 @@ async def validate_settings(settings: RuntimeSettings) -> Tuple[bool, List[str]]
         errors.append("threads must be between 1 and 64")
 
     # Validate embedding model name (basic check)
-    if not settings.embedding_model_name or len(settings.embedding_model_name.strip()) == 0:
+    if (
+        not settings.embedding_model_name
+        or len(settings.embedding_model_name.strip()) == 0
+    ):
         errors.append("embedding_model_name cannot be empty")
 
     # Validate embedding cache path if provided
@@ -229,7 +233,9 @@ def get_runtime_settings() -> RuntimeSettings:
     return _runtime_settings
 
 
-async def update_runtime_settings(new_settings: RuntimeSettings) -> Tuple[bool, RuntimeSettings, bool, List[str]]:
+async def update_runtime_settings(
+    new_settings: RuntimeSettings,
+) -> Tuple[bool, RuntimeSettings, bool, List[str]]:
     """Update runtime settings with validation.
 
     Args:
@@ -298,7 +304,9 @@ async def export_settings_json() -> str:
     return json.dumps(data, indent=2)
 
 
-async def import_settings_json(json_str: str) -> Tuple[bool, Optional[RuntimeSettings], List[str]]:
+async def import_settings_json(
+    json_str: str,
+) -> Tuple[bool, Optional[RuntimeSettings], List[str]]:
     """Import settings from JSON string with validation.
 
     Args:

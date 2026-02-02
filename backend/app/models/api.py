@@ -15,50 +15,26 @@ class TierUpdateRequest(BaseModel):
     tier: str = Field(
         ...,
         description="New tier (fast/balanced/powerful)",
-        pattern="^(fast|balanced|powerful)$"
+        pattern="^(fast|balanced|powerful)$",
     )
 
-    model_config = ConfigDict(
-        json_schema_extra={
-            "example": {
-                "tier": "powerful"
-            }
-        }
-    )
+    model_config = ConfigDict(json_schema_extra={"example": {"tier": "powerful"}})
 
 
 class ThinkingUpdateRequest(BaseModel):
     """Request to update thinking capability."""
 
-    thinking: bool = Field(
-        ...,
-        description="Thinking model flag"
-    )
+    thinking: bool = Field(..., description="Thinking model flag")
 
-    model_config = ConfigDict(
-        json_schema_extra={
-            "example": {
-                "thinking": True
-            }
-        }
-    )
+    model_config = ConfigDict(json_schema_extra={"example": {"thinking": True}})
 
 
 class EnabledUpdateRequest(BaseModel):
     """Request to toggle enabled status."""
 
-    enabled: bool = Field(
-        ...,
-        description="Enabled flag"
-    )
+    enabled: bool = Field(..., description="Enabled flag")
 
-    model_config = ConfigDict(
-        json_schema_extra={
-            "example": {
-                "enabled": True
-            }
-        }
-    )
+    model_config = ConfigDict(json_schema_extra={"example": {"enabled": True}})
 
 
 class TierUpdateResponse(BaseModel):
@@ -76,9 +52,9 @@ class TierUpdateResponse(BaseModel):
                 "message": "Tier updated for deepseek_r1_8b_q4km_powerful",
                 "modelId": "deepseek_r1_8b_q4km_powerful",
                 "tier": "powerful",
-                "override": True
+                "override": True,
             }
-        }
+        },
     )
 
 
@@ -90,9 +66,7 @@ class ThinkingUpdateResponse(BaseModel):
     thinking: bool = Field(..., description="New thinking status")
     override: bool = Field(..., description="Whether this is a user override")
     tier_changed: bool = Field(
-        ...,
-        description="Whether tier was auto-updated",
-        alias="tierChanged"
+        ..., description="Whether tier was auto-updated", alias="tierChanged"
     )
 
     model_config = ConfigDict(
@@ -103,9 +77,9 @@ class ThinkingUpdateResponse(BaseModel):
                 "modelId": "deepseek_r1_8b_q4km_powerful",
                 "thinking": True,
                 "override": True,
-                "tierChanged": False
+                "tierChanged": False,
             }
-        }
+        },
     )
 
 
@@ -116,14 +90,12 @@ class EnabledUpdateResponse(BaseModel):
     model_id: str = Field(..., description="Model identifier", alias="modelId")
     enabled: bool = Field(..., description="New enabled status")
     restart_required: bool = Field(
-        ...,
-        description="Whether server restart is required",
-        alias="restartRequired"
+        ..., description="Whether server restart is required", alias="restartRequired"
     )
     server_status: Optional[str] = Field(
         default=None,
         description="Dynamic server status (started, stopped, already_running, etc.)",
-        alias="serverStatus"
+        alias="serverStatus",
     )
 
     model_config = ConfigDict(
@@ -134,9 +106,9 @@ class EnabledUpdateResponse(BaseModel):
                 "modelId": "deepseek_r1_8b_q4km_powerful",
                 "enabled": True,
                 "restartRequired": False,
-                "serverStatus": "started"
+                "serverStatus": "started",
             }
-        }
+        },
     )
 
 
@@ -147,7 +119,7 @@ class BulkEnabledUpdateResponse(BaseModel):
     models_updated: int = Field(
         ...,
         description="Number of models whose state was changed",
-        alias="modelsUpdated"
+        alias="modelsUpdated",
     )
     enabled: bool = Field(..., description="New enabled status applied")
     timestamp: str = Field(..., description="ISO timestamp of operation")
@@ -159,9 +131,9 @@ class BulkEnabledUpdateResponse(BaseModel):
                 "message": "All models enabled successfully (5 updated)",
                 "modelsUpdated": 5,
                 "enabled": True,
-                "timestamp": "2026-01-30T23:30:00Z"
+                "timestamp": "2026-01-30T23:30:00Z",
             }
-        }
+        },
     )
 
 
@@ -169,16 +141,14 @@ class RescanResponse(BaseModel):
     """Response from model rescan operation."""
 
     message: str = Field(..., description="Human-readable success message")
-    models_found: int = Field(..., description="Total models found", alias="modelsFound")
+    models_found: int = Field(
+        ..., description="Total models found", alias="modelsFound"
+    )
     models_added: int = Field(
-        default=0,
-        description="Number of new models added",
-        alias="modelsAdded"
+        default=0, description="Number of new models added", alias="modelsAdded"
     )
     models_removed: int = Field(
-        default=0,
-        description="Number of models removed",
-        alias="modelsRemoved"
+        default=0, description="Number of models removed", alias="modelsRemoved"
     )
     timestamp: str = Field(..., description="ISO timestamp of rescan")
 
@@ -190,9 +160,9 @@ class RescanResponse(BaseModel):
                 "modelsFound": 5,
                 "modelsAdded": 1,
                 "modelsRemoved": 0,
-                "timestamp": "2025-01-15T10:30:00Z"
+                "timestamp": "2025-01-15T10:30:00Z",
             }
-        }
+        },
     )
 
 
@@ -200,14 +170,22 @@ class ServerStatusItem(BaseModel):
     """Status information for a single running server."""
 
     model_id: str = Field(..., description="Model identifier", alias="modelId")
-    display_name: str = Field(..., description="Human-readable name", alias="displayName")
+    display_name: str = Field(
+        ..., description="Human-readable name", alias="displayName"
+    )
     port: int = Field(..., description="HTTP port server is listening on")
-    pid: Optional[int] = Field(None, description="Process ID (None for external servers)")
+    pid: Optional[int] = Field(
+        None, description="Process ID (None for external servers)"
+    )
     is_ready: bool = Field(..., description="Server readiness status", alias="isReady")
     is_running: bool = Field(..., description="Process alive status", alias="isRunning")
-    uptime_seconds: int = Field(..., description="Uptime in seconds", alias="uptimeSeconds")
+    uptime_seconds: int = Field(
+        ..., description="Uptime in seconds", alias="uptimeSeconds"
+    )
     tier: str = Field(..., description="Model tier")
-    is_thinking: bool = Field(..., description="Thinking model flag", alias="isThinking")
+    is_thinking: bool = Field(
+        ..., description="Thinking model flag", alias="isThinking"
+    )
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -221,9 +199,9 @@ class ServerStatusItem(BaseModel):
                 "isRunning": True,
                 "uptimeSeconds": 120,
                 "tier": "powerful",
-                "isThinking": True
+                "isThinking": True,
             }
-        }
+        },
     )
 
 
@@ -231,14 +209,10 @@ class ServerStatusResponse(BaseModel):
     """Response containing status of all running servers."""
 
     total_servers: int = Field(
-        ...,
-        description="Total number of servers",
-        alias="totalServers"
+        ..., description="Total number of servers", alias="totalServers"
     )
     ready_servers: int = Field(
-        ...,
-        description="Number of ready servers",
-        alias="readyServers"
+        ..., description="Number of ready servers", alias="readyServers"
     )
     servers: List[ServerStatusItem] = Field(..., description="List of server statuses")
 
@@ -258,11 +232,11 @@ class ServerStatusResponse(BaseModel):
                         "isRunning": True,
                         "uptimeSeconds": 120,
                         "tier": "powerful",
-                        "isThinking": True
+                        "isThinking": True,
                     }
-                ]
+                ],
             }
-        }
+        },
     )
 
 
@@ -274,7 +248,7 @@ class ProfileCreateRequest(BaseModel):
     enabled_models: List[str] = Field(
         default_factory=list,
         description="List of model IDs to enable",
-        alias="enabledModels"
+        alias="enabledModels",
     )
 
     model_config = ConfigDict(
@@ -286,10 +260,10 @@ class ProfileCreateRequest(BaseModel):
                 "enabledModels": [
                     "qwen3_4p0b_q4km_fast",
                     "qwen3_7p0b_q4km_balanced",
-                    "deepseek_r1_8b_q4km_powerful"
-                ]
+                    "deepseek_r1_8b_q4km_powerful",
+                ],
             }
-        }
+        },
     )
 
 
@@ -297,7 +271,9 @@ class ProfileCreateResponse(BaseModel):
     """Response from profile creation."""
 
     message: str = Field(..., description="Human-readable success message")
-    profile_name: str = Field(..., description="Created profile name", alias="profileName")
+    profile_name: str = Field(
+        ..., description="Created profile name", alias="profileName"
+    )
     path: str = Field(..., description="Path to profile file")
 
     model_config = ConfigDict(
@@ -306,9 +282,9 @@ class ProfileCreateResponse(BaseModel):
             "example": {
                 "message": "Profile 'Production' created successfully",
                 "profileName": "production",
-                "path": "${WORKSPACE_PATH}/S.Y.N.A.P.S.E-ENGINE/config/profiles/production.yaml"
+                "path": "${WORKSPACE_PATH}/S.Y.N.A.P.S.E-ENGINE/config/profiles/production.yaml",
             }
-        }
+        },
     )
 
 
@@ -319,9 +295,7 @@ class ProfileDeleteResponse(BaseModel):
 
     model_config = ConfigDict(
         json_schema_extra={
-            "example": {
-                "message": "Profile 'test' deleted successfully"
-            }
+            "example": {"message": "Profile 'test' deleted successfully"}
         }
     )
 
@@ -333,19 +307,10 @@ class PortUpdateRequest(BaseModel):
     """Request to update model port assignment."""
 
     port: int = Field(
-        ...,
-        ge=1024,
-        le=65535,
-        description="Port number to assign to model"
+        ..., ge=1024, le=65535, description="Port number to assign to model"
     )
 
-    model_config = ConfigDict(
-        json_schema_extra={
-            "example": {
-                "port": 8083
-            }
-        }
-    )
+    model_config = ConfigDict(json_schema_extra={"example": {"port": 8083}})
 
 
 class PortUpdateResponse(BaseModel):
@@ -355,9 +320,7 @@ class PortUpdateResponse(BaseModel):
     model_id: str = Field(..., description="Model identifier", alias="modelId")
     port: int = Field(..., description="Assigned port number")
     restart_required: bool = Field(
-        ...,
-        description="Whether server restart is required",
-        alias="restartRequired"
+        ..., description="Whether server restart is required", alias="restartRequired"
     )
 
     model_config = ConfigDict(
@@ -367,9 +330,9 @@ class PortUpdateResponse(BaseModel):
                 "message": "Port assigned successfully",
                 "modelId": "deepseek_r1_8b_q4km_powerful",
                 "port": 8083,
-                "restartRequired": True
+                "restartRequired": True,
             }
-        }
+        },
     )
 
 
@@ -381,28 +344,28 @@ class RuntimeSettingsUpdateRequest(BaseModel):
         ge=0,
         le=999,
         description="GPU layers override (None = use global)",
-        alias="nGpuLayers"
+        alias="nGpuLayers",
     )
     ctx_size: Optional[int] = Field(
         None,
         ge=512,
         le=131072,
         description="Context size override (None = use global)",
-        alias="ctxSize"
+        alias="ctxSize",
     )
     n_threads: Optional[int] = Field(
         None,
         ge=1,
         le=128,
         description="Thread count override (None = use global)",
-        alias="nThreads"
+        alias="nThreads",
     )
     batch_size: Optional[int] = Field(
         None,
         ge=1,
         le=4096,
         description="Batch size override (None = use global)",
-        alias="batchSize"
+        alias="batchSize",
     )
 
     model_config = ConfigDict(
@@ -412,9 +375,9 @@ class RuntimeSettingsUpdateRequest(BaseModel):
                 "nGpuLayers": 50,
                 "ctxSize": 32768,
                 "nThreads": 8,
-                "batchSize": 512
+                "batchSize": 512,
             }
-        }
+        },
     )
 
 
@@ -423,14 +386,20 @@ class RuntimeSettingsUpdateResponse(BaseModel):
 
     message: str = Field(..., description="Human-readable success message")
     model_id: str = Field(..., description="Model identifier", alias="modelId")
-    n_gpu_layers: Optional[int] = Field(None, description="GPU layers override", alias="nGpuLayers")
-    ctx_size: Optional[int] = Field(None, description="Context size override", alias="ctxSize")
-    n_threads: Optional[int] = Field(None, description="Thread count override", alias="nThreads")
-    batch_size: Optional[int] = Field(None, description="Batch size override", alias="batchSize")
+    n_gpu_layers: Optional[int] = Field(
+        None, description="GPU layers override", alias="nGpuLayers"
+    )
+    ctx_size: Optional[int] = Field(
+        None, description="Context size override", alias="ctxSize"
+    )
+    n_threads: Optional[int] = Field(
+        None, description="Thread count override", alias="nThreads"
+    )
+    batch_size: Optional[int] = Field(
+        None, description="Batch size override", alias="batchSize"
+    )
     restart_required: bool = Field(
-        ...,
-        description="Whether server restart is required",
-        alias="restartRequired"
+        ..., description="Whether server restart is required", alias="restartRequired"
     )
 
     model_config = ConfigDict(
@@ -443,25 +412,24 @@ class RuntimeSettingsUpdateResponse(BaseModel):
                 "ctxSize": 32768,
                 "nThreads": 8,
                 "batchSize": 512,
-                "restartRequired": True
+                "restartRequired": True,
             }
-        }
+        },
     )
 
 
 class PortRangeUpdateRequest(BaseModel):
     """Request to update model server port range."""
 
-    start: int = Field(..., ge=1024, le=65535, description="Start port of range (minimum 1024)")
-    end: int = Field(..., ge=1024, le=65535, description="End port of range (maximum 65535)")
+    start: int = Field(
+        ..., ge=1024, le=65535, description="Start port of range (minimum 1024)"
+    )
+    end: int = Field(
+        ..., ge=1024, le=65535, description="End port of range (maximum 65535)"
+    )
 
     model_config = ConfigDict(
-        json_schema_extra={
-            "example": {
-                "start": 8080,
-                "end": 8099
-            }
-        }
+        json_schema_extra={"example": {"start": 8080, "end": 8099}}
     )
 
 
@@ -472,9 +440,7 @@ class PortRangeUpdateResponse(BaseModel):
     start: int = Field(..., description="Start port of new range")
     end: int = Field(..., description="End port of new range")
     restart_required: bool = Field(
-        ...,
-        description="Whether server restart is required",
-        alias="restartRequired"
+        ..., description="Whether server restart is required", alias="restartRequired"
     )
 
     model_config = ConfigDict(
@@ -484,9 +450,9 @@ class PortRangeUpdateResponse(BaseModel):
                 "message": "Port range updated successfully. Restart servers to apply changes.",
                 "start": 8080,
                 "end": 8099,
-                "restartRequired": True
+                "restartRequired": True,
             }
-        }
+        },
     )
 
 
@@ -494,16 +460,16 @@ class ExternalServerItem(BaseModel):
     """Details about a single external Metal server."""
 
     port: int = Field(..., description="Port number the server is running on")
-    status: str = Field(..., description="Server status: 'online', 'offline', or 'error'")
+    status: str = Field(
+        ..., description="Server status: 'online', 'offline', or 'error'"
+    )
     response_time_ms: Optional[int] = Field(
         None,
         description="Response time in milliseconds (null if unreachable)",
-        alias="responseTimeMs"
+        alias="responseTimeMs",
     )
     error_message: Optional[str] = Field(
-        None,
-        description="Error message if server is unreachable",
-        alias="errorMessage"
+        None, description="Error message if server is unreachable", alias="errorMessage"
     )
 
     model_config = ConfigDict(
@@ -513,9 +479,9 @@ class ExternalServerItem(BaseModel):
                 "port": 8080,
                 "status": "online",
                 "responseTimeMs": 45,
-                "errorMessage": None
+                "errorMessage": None,
             }
-        }
+        },
     )
 
 
@@ -525,22 +491,21 @@ class ExternalServerStatusResponse(BaseModel):
     are_reachable: bool = Field(
         ...,
         description="True if all enabled external servers are reachable",
-        alias="areReachable"
+        alias="areReachable",
     )
     use_external_servers: bool = Field(
         ...,
         description="True if system is configured to use external servers",
-        alias="useExternalServers"
+        alias="useExternalServers",
     )
     servers: List[ExternalServerItem] = Field(
-        ...,
-        description="Status details for each external server"
+        ..., description="Status details for each external server"
     )
     message: str = Field(..., description="Human-readable status message")
     checked_at: str = Field(
         ...,
         description="ISO 8601 timestamp when check was performed",
-        alias="checkedAt"
+        alias="checkedAt",
     )
 
     model_config = ConfigDict(
@@ -554,11 +519,11 @@ class ExternalServerStatusResponse(BaseModel):
                         "port": 8080,
                         "status": "online",
                         "responseTimeMs": 45,
-                        "errorMessage": None
+                        "errorMessage": None,
                     }
                 ],
                 "message": "All 1 external servers are online",
-                "checkedAt": "2025-11-07T10:30:00Z"
+                "checkedAt": "2025-11-07T10:30:00Z",
             }
-        }
+        },
     )
