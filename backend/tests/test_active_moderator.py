@@ -10,14 +10,14 @@ import requests
 import time
 
 
-def test_active_moderator(
+def run_active_moderator_test(
     query: str,
     moderator_check_frequency: int = 2,
     max_turns: int = 6,
     expected_interjections: int = 0,
 ):
     """
-    Test active moderator with a specific query.
+    Run active moderator integration test with a specific query.
 
     Args:
         query: The debate question
@@ -131,7 +131,7 @@ def main():
 
     # Test 1: Simple query (should NOT require interjections)
     print("\n### Test 1: Simple Query (Moderator should NOT interject)")
-    test_active_moderator(
+    run_active_moderator_test(
         query="What is the capital of France?",
         moderator_check_frequency=2,
         max_turns=4,
@@ -142,7 +142,7 @@ def main():
 
     # Test 2: Abstract query (may trigger interjection if models drift)
     print("\n### Test 2: Abstract Query (Moderator may interject)")
-    test_active_moderator(
+    run_active_moderator_test(
         query="Is artificial intelligence beneficial or harmful to society?",
         moderator_check_frequency=2,
         max_turns=8,
