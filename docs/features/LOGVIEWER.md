@@ -513,7 +513,7 @@ The LogViewer component is a production-ready, fully-featured real-time log stre
 
 - ✅ Robust WebSocket implementation with auto-reconnection
 - ✅ Advanced multi-filter system
-- ✅ Terminal aesthetic matching MAGI design system
+- ✅ Terminal aesthetic matching Synapse design system
 - ✅ Full accessibility support
 - ✅ Smooth animations and transitions
 - ✅ Export functionality
