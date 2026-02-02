@@ -1,4 +1,4 @@
-# S.Y.N.A.P.S.E. ENGINE Page Boundaries
+# Synapse Engine Page Boundaries
 
 **Last Updated:** 2025-11-09
 **Status:** Implemented (UI Consolidation Plan)
@@ -7,7 +7,7 @@
 
 ## Purpose
 
-This document defines the **clear boundaries** between the three primary pages in the S.Y.N.A.P.S.E. ENGINE UI. Each page serves a distinct role in the user workflow.
+This document defines the **clear boundaries** between the three primary pages in the Synapse Engine UI. Each page serves a distinct role in the user workflow.
 
 ---
 
@@ -24,7 +24,7 @@ This document defines the **clear boundaries** between the three primary pages i
 - What's happening RIGHT NOW?
 
 **Components:**
-- **DotMatrixDisplay** - S.Y.N.A.P.S.E. ENGINE banner with reactive states
+- **DotMatrixDisplay** - Synapse Engine banner with reactive states
 - **SystemStatusPanelEnhanced** - 5 essential metrics (static snapshots, no trends):
   1. Active Models (Q2/Q3/Q4 breakdown)
   2. Active Queries (current load)

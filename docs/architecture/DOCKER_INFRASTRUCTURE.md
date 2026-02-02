@@ -1,11 +1,11 @@
-# MAGI Docker Infrastructure
+# Synapse Engine Docker Infrastructure
 
 **Quick Start:** [Docker Quick Start Guide](../guides/DOCKER_QUICKSTART.md)
 **Cheat Sheet:** [Docker Quick Reference](../guides/DOCKER_QUICK_REFERENCE.md)
 
 ## Overview
 
-Complete Docker infrastructure for the MAGI Multi-Model Orchestration WebUI, supporting both development and production deployments.
+Complete Docker infrastructure for the Synapse Engine, supporting both development and production deployments.
 
 ## Architecture
 
@@ -15,7 +15,7 @@ The system consists of three containerized services:
 2. **Backend** - FastAPI application server
 3. **Frontend** - React application (Vite dev server or nginx)
 
-All services are connected via a dedicated Docker bridge network (`magi_network`) with proper health checks, resource limits, and security configurations.
+All services are connected via a dedicated Docker bridge network (`synapse_network`) with proper health checks, resource limits, and security configurations.
 
 ---
 
@@ -50,7 +50,7 @@ ${PROJECT_DIR}/
 - Authentication: Password required (from REDIS_PASSWORD env var)
 - Persistence: AOF (Append-Only File) with everysec fsync
 - Memory: 256MB max with LRU eviction policy
-- Volume: `magi_redis_data` for data persistence
+- Volume: `synapse_redis_data` for data persistence
 
 **Resource Limits:**
 - CPU: 0.25-0.5 cores
@@ -148,7 +148,7 @@ wget --no-verbose --tries=1 --spider http://localhost:5173
 
 ## Network Configuration
 
-**Network:** `magi_network`
+**Network:** `synapse_network`
 - Type: Bridge
 - Driver: bridge
 - Isolation: Services can only communicate within this network
@@ -445,7 +445,7 @@ Total stack startup: ~30 seconds
 docker stats
 
 # Specific containers
-docker stats magi_backend magi_frontend magi_redis
+docker stats synapse_backend synapse_frontend synapse_redis
 ```
 
 ### Health Check Status
@@ -455,7 +455,7 @@ docker stats magi_backend magi_frontend magi_redis
 docker compose ps
 
 # Detailed inspect
-docker inspect --format='{{.State.Health.Status}}' magi_backend
+docker inspect --format='{{.State.Health.Status}}' synapse_backend
 ```
 
 ### Logs
@@ -482,7 +482,7 @@ docker compose logs backend | grep ERROR
 docker compose exec redis redis-cli -a YOUR_PASSWORD BGSAVE
 
 # Copy AOF file from volume
-docker cp magi_redis:/data/appendonly.aof ./backups/redis-$(date +%Y%m%d).aof
+docker cp synapse_redis:/data/appendonly.aof ./backups/redis-$(date +%Y%m%d).aof
 ```
 
 ### Backup FAISS Indexes
@@ -499,8 +499,8 @@ tar -czf backups/faiss-indexes-$(date +%Y%m%d).tar.gz ./data/faiss_indexes/
 docker compose down
 
 # Restore Redis data to volume
-docker volume create magi_redis_data
-docker run --rm -v magi_redis_data:/data -v $(pwd)/backups:/backup alpine \
+docker volume create synapse_redis_data
+docker run --rm -v synapse_redis_data:/data -v $(pwd)/backups:/backup alpine \
     sh -c "cp /backup/redis-20250102.aof /data/appendonly.aof"
 
 # Restore FAISS indexes

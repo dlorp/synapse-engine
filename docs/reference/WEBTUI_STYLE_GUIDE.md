@@ -1,4 +1,4 @@
-# S.Y.N.A.P.S.E. ENGINE - WebTUI Style Guide
+# Synapse Engine - WebTUI Style Guide
 
 **Date:** 2025-11-08
 **Version:** 1.0
@@ -28,14 +28,14 @@
 
 ## Styling Philosophy
 
-S.Y.N.A.P.S.E. ENGINE uses a **three-layer styling approach** for maintainability, consistency, and performance:
+Synapse Engine uses a **three-layer styling approach** for maintainability, consistency, and performance:
 
 ### Layer 1: WebTUI Foundation
 **What:** Base terminal-aesthetic styles from [@webtui/css](https://github.com/Ztkent/webtui-css)
 **Purpose:** Provides foundational terminal UI elements (panels, buttons, inputs, grids)
 **Customization:** None - use as-is for consistency
 
-### Layer 2: S.Y.N.A.P.S.E. Theme
+### Layer 2: Synapse Theme
 **What:** Project-specific color palette, spacing, and animation overrides
 **File:** [`frontend/src/styles/theme.css`](../frontend/src/styles/theme.css)
 **Purpose:** Phosphor orange (#ff9500) branding, glow effects, custom animations
@@ -45,7 +45,7 @@ S.Y.N.A.P.S.E. ENGINE uses a **three-layer styling approach** for maintainabilit
 **File:** [`frontend/src/styles/components.css`](../frontend/src/styles/components.css)
 **Purpose:** Layout, metrics displays, status indicators, ASCII visualizations
 
-**Key Principle:** Use WebTUI classes first, extend with S.Y.N.A.P.S.E. classes only when needed.
+**Key Principle:** Use WebTUI classes first, extend with Synapse classes only when needed.
 
 ---
 
@@ -79,7 +79,7 @@ Before writing custom CSS, check if WebTUI provides the component:
 - `.synapse-grid` (responsive grid layouts)
 - `.synapse-table` (data tables)
 
-### Step 2: Apply S.Y.N.A.P.S.E. Theme
+### Step 2: Apply Synapse Theme
 Use CSS variables from [`theme.css`](../frontend/src/styles/theme.css) for colors and spacing:
 
 ```tsx
@@ -148,7 +148,7 @@ Verify layout works at all breakpoints:
   - `.synapse-panel__header` (element)
   - `.synapse-button--primary` (modifier)
 
-### S.Y.N.A.P.S.E. Custom Classes (Create When Needed)
+### Synapse Custom Classes (Create When Needed)
 - **Prefix:** `synapse-`
 - **Pattern:** BEM with descriptive names
 - **Examples:**
@@ -515,7 +515,7 @@ Verify layout works at all breakpoints:
     └─────────┘      └──────────┘     └──────────────┘
          │                 │                  │
          ▼                 ▼                  ▼
-   Terminal          Phosphor             S.Y.N.A.P.S.E.
+   Terminal          Phosphor             Synapse
    Aesthetics         Orange              Components
    (Panels,           Theme               (Metrics,
    Buttons,          (Colors,             Status,
@@ -924,7 +924,7 @@ export default ASCIIChart;
 
 ### Migrating Existing Components to WebTUI
 
-This guide helps transition legacy components to the WebTUI + S.Y.N.A.P.S.E. styling system.
+This guide helps transition legacy components to the WebTUI + Synapse styling system.
 
 ---
 
@@ -1035,7 +1035,7 @@ export default Panel;
 **After Migration:**
 
 ```tsx
-// ✅ NEW - WebTUI + S.Y.N.A.P.S.E. approach
+// ✅ NEW - WebTUI + Synapse approach
 import React from 'react';
 
 interface PanelProps {
@@ -1577,7 +1577,7 @@ npm run dev
 - [ ] CSS variables supported (all modern browsers)
 - [ ] Grid layout supported (all modern browsers)
 
-**Note:** S.Y.N.A.P.S.E. ENGINE targets modern browsers only (no IE11 support).
+**Note:** Synapse Engine targets modern browsers only (no IE11 support).
 
 ---
 
@@ -1711,4 +1711,4 @@ When updating this guide:
 
 ---
 
-**This guide is authoritative. All S.Y.N.A.P.S.E. ENGINE developers must follow these standards.**
+**This guide is authoritative. All Synapse Engine developers must follow these standards.**

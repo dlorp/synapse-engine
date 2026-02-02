@@ -1,4 +1,4 @@
-# S.Y.N.A.P.S.E. ENGINE Documentation
+# Synapse Engine Documentation
 
 This directory contains all project documentation organized by category.
 

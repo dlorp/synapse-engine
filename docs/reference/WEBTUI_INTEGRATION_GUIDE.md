@@ -6,12 +6,12 @@
 
 ## Overview
 
-S.Y.N.A.P.S.E. ENGINE uses **WebTUI** as its CSS foundation to achieve a dense, terminal-inspired aesthetic with modern web performance. WebTUI provides battle-tested terminal UI components, and we customize it with a phosphor orange theme (#ff9500) to match our NERV-inspired visual identity.
+Synapse Engine uses **WebTUI** as its CSS foundation to achieve a dense, terminal-inspired aesthetic with modern web performance. WebTUI provides battle-tested terminal UI components, and we customize it with a phosphor orange theme (#ff9500) to match our NERV-inspired visual identity.
 
 **Integration Approach:**
 - WebTUI provides the terminal base layer (panels, metrics, status indicators)
 - Custom theme overrides WebTUI's default green with phosphor orange (#ff9500)
-- Component styles add S.Y.N.A.P.S.E.-specific patterns (ASCII charts, sparklines)
+- Component styles add Synapse-specific patterns (ASCII charts, sparklines)
 - CSS layers ensure clean separation and override control
 
 **Benefits:**
@@ -70,7 +70,7 @@ WebTUI Base (@layer base)
       ↓
 Custom Theme (@layer utils)
   ├── Phosphor orange variables (--webtui-primary: #ff9500)
-  ├── S.Y.N.A.P.S.E. branding
+  ├── Synapse branding
   └── Typography overrides
       ↓
 Component Styles (@layer components)
@@ -195,7 +195,7 @@ Our custom theme (`/frontend/src/assets/styles/theme.css`) overrides WebTUI's de
 ### When to Use Custom CSS
 
 **DO use custom CSS when:**
-- Creating S.Y.N.A.P.S.E.-specific components (ASCII charts, sparklines)
+- Creating Synapse-specific components (ASCII charts, sparklines)
 - Adding application-specific layouts
 - Implementing unique interactions WebTUI doesn't provide
 - Overriding WebTUI defaults for branding
@@ -1215,7 +1215,7 @@ h1, h2, .webtui-panel__header {
 - `.webtui-status--processing` - Processing state (pulsing cyan)
 - `.webtui-status--error` - Error state (red)
 
-### S.Y.N.A.P.S.E. Custom Classes
+### Synapse Custom Classes
 
 **Components:**
 - `.synapse-ascii-chart` - ASCII art container
@@ -1236,5 +1236,5 @@ h1, h2, .webtui-panel__header {
 ---
 
 **Last Updated:** 2025-11-08
-**Maintainer:** S.Y.N.A.P.S.E. ENGINE Development Team
+**Maintainer:** Synapse Engine Development Team
 **License:** MIT

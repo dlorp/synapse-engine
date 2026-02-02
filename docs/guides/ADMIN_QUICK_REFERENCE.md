@@ -1,4 +1,4 @@
-# S.Y.N.A.P.S.E. ENGINE Admin Page - Quick Reference
+# Synapse Engine Admin Page - Quick Reference
 
 **Full Documentation:** [Admin Page Complete](../implementation/ADMIN_PAGE_COMPLETE.md)
 

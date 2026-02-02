@@ -14,11 +14,11 @@ CGRAG provides sub-100ms contextual retrieval using FAISS vector search.
 
 ## Supported Formats
 
-- `.md` — Markdown
-- `.py` — Python
-- `.txt` — Plain text
-- `.yaml` / `.json` — Config files
-- `.rst` — ReStructuredText
+- `.md` - Markdown
+- `.py` - Python
+- `.txt` - Plain text
+- `.yaml` / `.json` - Config files
+- `.rst` - ReStructuredText
 
 ## Indexing
 
@@ -40,12 +40,12 @@ RECALL_MIN_RELEVANCE=0.7
 
 ## How It Works
 
-1. **Chunking** — Documents split into 512-word chunks with 50-word overlap
-2. **Embedding** — Chunks converted to vectors via sentence-transformers
-3. **Indexing** — Vectors stored in FAISS index
-4. **Query** — User query embedded, nearest neighbors found
-5. **Filtering** — Results above 70% relevance included
-6. **Budget** — Context trimmed to 8000 tokens
+1. **Chunking** - Documents split into 512-word chunks with 50-word overlap
+2. **Embedding** - Chunks converted to vectors via sentence-transformers
+3. **Indexing** - Vectors stored in FAISS index
+4. **Query** - User query embedded, nearest neighbors found
+5. **Filtering** - Results above 70% relevance included
+6. **Budget** - Context trimmed to 8000 tokens
 
 ## Performance
 

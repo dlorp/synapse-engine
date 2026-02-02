@@ -1,4 +1,4 @@
-# S.Y.N.A.P.S.E. ENGINE Model Management API - Quick Reference
+# Synapse Engine Model Management API - Quick Reference
 
 **Base URL:** `http://localhost:8000`
 

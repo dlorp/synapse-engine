@@ -65,7 +65,7 @@ Access models through reverse proxy:
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `PRAXIS_MODEL_PATH` | HuggingFace cache path | — |
+| `PRAXIS_MODEL_PATH` | HuggingFace cache path | - |
 | `NEURAL_LLAMA_SERVER_PATH` | llama-server binary | `/usr/local/bin/llama-server` |
 | `NEURAL_PORT_START` | First model port | `8080` |
 | `NEURAL_PORT_END` | Last model port | `8099` |

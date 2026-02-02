@@ -48,7 +48,7 @@ npm run type-check
 
 ## Pull Requests
 
-- Keep PRs focused — one feature or fix per PR
+- Keep PRs focused - one feature or fix per PR
 - Add tests for new functionality
 - Update docs if needed
 - Follow existing code style
@@ -73,4 +73,4 @@ npm run type-check
 
 ## Questions?
 
-Open a discussion or issue — we're happy to help!
+Open a discussion or issue - we're happy to help!

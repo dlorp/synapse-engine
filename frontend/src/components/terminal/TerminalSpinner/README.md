@@ -248,4 +248,4 @@ This ensures rotation speed remains constant regardless of frame count.
 
 ## License
 
-Part of S.Y.N.A.P.S.E. ENGINE project.
+Part of Synapse Engine project.

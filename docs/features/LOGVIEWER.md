@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-Implemented a production-ready LogViewer component for S.Y.N.A.P.S.E. ENGINE's Model Management page that streams logs in real-time via WebSocket with color-coded log levels, advanced filtering, and a polished terminal aesthetic.
+Implemented a production-ready LogViewer component for Synapse Engine's Model Management page that streams logs in real-time via WebSocket with color-coded log levels, advanced filtering, and a polished terminal aesthetic.
 
 **Key Features:**
 - Real-time WebSocket streaming with automatic reconnection

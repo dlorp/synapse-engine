@@ -25,10 +25,10 @@ curl http://localhost:8080/v1/chat/completions
 
 ## Benefits
 
-1. **Security** — Models not exposed to host network
-2. **Control** — All access through authenticated backend
-3. **Observability** — Request/response logging
-4. **Future-proof** — Foundation for auth, rate limiting
+1. **Security** - Models not exposed to host network
+2. **Control** - All access through authenticated backend
+3. **Observability** - Request/response logging
+4. **Future-proof** - Foundation for auth, rate limiting
 
 ## Verification
 

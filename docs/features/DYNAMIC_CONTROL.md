@@ -2,7 +2,7 @@
 
 ## Overview
 
-S.Y.N.A.P.S.E. ENGINE allows starting, stopping, and managing LLM servers dynamically from the WebUI without restarting Docker.
+Synapse Engine allows starting, stopping, and managing LLM servers dynamically from the WebUI without restarting Docker.
 
 ## Key Benefits
 
@@ -15,7 +15,7 @@ S.Y.N.A.P.S.E. ENGINE allows starting, stopping, and managing LLM servers dynami
 
 ### Discovery vs. Activation
 
-S.Y.N.A.P.S.E. ENGINE separates discovery from activation:
+Synapse Engine separates discovery from activation:
 
 - **Discovery:** Scans HuggingFace cache, finds all GGUF models (automatic, <5s)
 - **Activation:** Launches llama-server processes (user-controlled, 10-15s per model)

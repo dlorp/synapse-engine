@@ -1,4 +1,4 @@
-# MAGI Backend - Quick Start Guide
+# Synapse Engine Backend - Quick Start Guide
 
 ## 🚀 First Time Setup
 
@@ -77,10 +77,10 @@ Logs are structured JSON format. To view:
 
 ```bash
 # Follow logs in real-time
-tail -f /tmp/magi-backend.log
+tail -f /tmp/synapse-backend.log
 
 # Pretty print JSON logs
-tail -f /tmp/magi-backend.log | grep '^{' | jq
+tail -f /tmp/synapse-backend.log | grep '^{' | jq
 ```
 
 ## 🛠️ Configuration
@@ -89,7 +89,7 @@ Edit `.env` to change settings:
 
 ```bash
 # Application
-APP_NAME="MAGI Backend"
+APP_NAME="Synapse Engine Backend"
 ENVIRONMENT=development
 PORT=8000
 

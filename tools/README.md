@@ -1,4 +1,4 @@
-# Tools - S.Y.N.A.P.S.E. ENGINE
+# Tools - Synapse Engine
 
 Utility modules and experimental features for the dashboard.
 
@@ -6,10 +6,10 @@ Utility modules and experimental features for the dashboard.
 
 Terminal Text Effects integration for Textual dashboard. Provides animated visual effects for:
 
-- **Startup splash** — Matrix/decrypt effect for dashboard title on launch
-- **Theme transitions** — Slide/fade effect when cycling themes with 't'
-- **Alert emphasis** — Shake/pulse effect for critical alerts
-- **Refresh animation** — Subtle wipe effect on panel updates
+- **Startup splash** - Matrix/decrypt effect for dashboard title on launch
+- **Theme transitions** - Slide/fade effect when cycling themes with 't'
+- **Alert emphasis** - Shake/pulse effect for critical alerts
+- **Refresh animation** - Subtle wipe effect on panel updates
 
 ### Installation
 
@@ -30,7 +30,7 @@ from tools.tte_animations import StartupSplash, AlertWidget, RefreshPanel
 class MyDashboard(App):
     def compose(self):
         # Dramatic startup with decrypt effect
-        yield StartupSplash("S.Y.N.A.P.S.E. ENGINE")
+        yield StartupSplash("Synapse Engine")
         
         # Panels with refresh animations
         yield RefreshPanel("metrics", "Loading...")
@@ -48,10 +48,10 @@ python -m tools.tte_animations
 ```
 
 **Keybindings:**
-- `t` — Cycle themes with transition
-- `a` — Trigger alert animation
-- `r` — Trigger refresh animation
-- `q` — Quit
+- `t` - Cycle themes with transition
+- `a` - Trigger alert animation
+- `r` - Trigger refresh animation
+- `q` - Quit
 
 ### Available Effects
 
@@ -87,10 +87,10 @@ config = EffectConfig(
 
 ### Textual Integration Notes
 
-1. **Async rendering** — Use `animate_async()` to avoid blocking the event loop
-2. **Frame cleaning** — TTEWidget strips cursor positioning codes automatically
-3. **Messages** — `AnimationComplete` and `AnimationStarted` messages for coordination
-4. **Toggling** — Set `config.enabled = False` for low-power mode
+1. **Async rendering** - Use `animate_async()` to avoid blocking the event loop
+2. **Frame cleaning** - TTEWidget strips cursor positioning codes automatically
+3. **Messages** - `AnimationComplete` and `AnimationStarted` messages for coordination
+4. **Toggling** - Set `config.enabled = False` for low-power mode
 
 ### Architecture
 

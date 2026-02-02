@@ -69,10 +69,10 @@ User → Frontend (5173)
 
 ## Dashboard Components
 
-- **ProcessingPipelinePanel** — React Flow query visualization
-- **ContextWindowPanel** — Token allocation display
-- **AdvancedMetricsPanel** — Chart.js time series
-- **SystemArchitectureDiagram** — Topology view
+- **ProcessingPipelinePanel** - React Flow query visualization
+- **ContextWindowPanel** - Token allocation display
+- **AdvancedMetricsPanel** - Chart.js time series
+- **SystemArchitectureDiagram** - Topology view
 
 ## Real-Time Features
 

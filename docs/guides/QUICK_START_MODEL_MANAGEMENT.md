@@ -1,4 +1,4 @@
-# MAGI Model Management UI - Quick Start Guide
+# Synapse Engine Model Management UI - Quick Start Guide
 
 ## Access the UI
 

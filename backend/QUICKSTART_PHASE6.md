@@ -1,8 +1,8 @@
-# MAGI Phase 6 - Quick Start Guide
+# Synapse Engine Phase 6 - Quick Start Guide
 
 ## Overview
 
-Phase 6 completes the MAGI Model Management System with automated startup orchestration.
+Phase 6 completes the Synapse Engine Model Management System with automated startup orchestration.
 
 ## Prerequisites
 
@@ -24,7 +24,7 @@ cp .env.example .env
 Edit `.env`:
 ```bash
 # Core settings
-MAGI_PROFILE=development
+SYNAPSE_PROFILE=development
 MODEL_SCAN_PATH=${PRAXIS_MODEL_PATH}/
 LLAMA_SERVER_PATH=/usr/local/bin/llama-server
 ```
@@ -56,7 +56,7 @@ uvicorn app.main:app --reload
 
 Watch startup logs:
 ```
-MAGI STARTUP SEQUENCE
+SYNAPSE STARTUP SEQUENCE
 Profile: development
 Time: 2025-11-03T14:30:00
 
@@ -75,7 +75,7 @@ Time: 2025-11-03T14:30:00
 [5/5] Health check
 ✅ All 4 servers ready!
 
-MAGI STARTUP COMPLETE
+SYNAPSE STARTUP COMPLETE
 ```
 
 ### 5. Verify Servers Running
@@ -115,7 +115,7 @@ python3 test_full_startup.py
 
 Expected output:
 ```
-TESTING MAGI STARTUP SEQUENCE
+TESTING SYNAPSE STARTUP SEQUENCE
 ✅ Configuration loaded
 ✅ StartupService created
 ✅ Registry loaded: 8 models
@@ -140,7 +140,7 @@ cat PHASE6_TESTING_CHECKLIST.md
 
 Edit `.env`:
 ```bash
-MAGI_PROFILE=production  # or fast-only
+SYNAPSE_PROFILE=production  # or fast-only
 ```
 
 Restart backend:
@@ -206,7 +206,7 @@ enabled_models:
 
 3. Activate profile:
    ```bash
-   export MAGI_PROFILE=custom
+   export SYNAPSE_PROFILE=custom
    ```
 
 4. Restart backend
@@ -239,10 +239,10 @@ tail -f backend/logs/app.log
 ls config/profiles/development.yaml
 
 # Check environment variable
-echo $MAGI_PROFILE
+echo $SYNAPSE_PROFILE
 
 # Use correct profile name
-export MAGI_PROFILE=development
+export SYNAPSE_PROFILE=development
 ```
 
 ### "No models discovered"
@@ -299,7 +299,7 @@ docker-compose up --build
 In `docker-compose.yml` or `.env`:
 ```yaml
 environment:
-  - MAGI_PROFILE=production
+  - SYNAPSE_PROFILE=production
   - MODEL_SCAN_PATH=/models
   - LLAMA_SERVER_PATH=/usr/local/bin/llama-server
 ```
@@ -372,7 +372,7 @@ Limit enabled models in profile:
 ## Key Files
 
 ```
-MAGI/
+synapse-engine/
 ├── backend/
 │   ├── app/
 │   │   ├── services/
@@ -407,7 +407,7 @@ MAGI/
 
 - **Full Documentation:** `PHASE6_INTEGRATION_COMPLETE.md`
 - **Testing Guide:** `PHASE6_TESTING_CHECKLIST.md`
-- **Architecture:** `UPDATE_MAGI.md`
+- **Architecture:** `UPDATE_SYNAPSE.md`
 
 ---
 

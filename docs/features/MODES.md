@@ -1,8 +1,8 @@
-# S.Y.N.A.P.S.E. ENGINE Query Modes
+# Synapse Engine Query Modes
 
 ## Overview
 
-S.Y.N.A.P.S.E. ENGINE supports multiple query processing modes, each optimized for different use cases.
+Synapse Engine supports multiple query processing modes, each optimized for different use cases.
 
 ## Available Modes
 

@@ -2,7 +2,7 @@
 
 ## Overview
 
-The WebSocket test page (`test-websocket.html`) is a standalone diagnostic tool for testing the S.Y.N.A.P.S.E. ENGINE real-time event streaming system. It provides visual feedback on WebSocket connection health, event delivery, and ping/pong heartbeat cycles.
+The WebSocket test page (`test-websocket.html`) is a standalone diagnostic tool for testing the Synapse Engine real-time event streaming system. It provides visual feedback on WebSocket connection health, event delivery, and ping/pong heartbeat cycles.
 
 ## Purpose
 
@@ -352,7 +352,7 @@ curl -X POST "http://localhost:5173/api/events/test?message=Debug"
 
 ## Terminal Aesthetic
 
-The test page follows S.Y.N.A.P.S.E. ENGINE design principles:
+The test page follows Synapse Engine design principles:
 - **Phosphor orange** (#ff9500) primary text and borders
 - **Pure black** (#000) background
 - **Cyan accents** (#00ffff) for stats and event types

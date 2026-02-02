@@ -1,4 +1,4 @@
-# S.Y.N.A.P.S.E. ENGINE Backend
+# Synapse Engine Backend
 
 FastAPI backend for the Multi-Model Orchestration WebUI.
 
