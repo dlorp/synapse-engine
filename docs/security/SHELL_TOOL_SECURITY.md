@@ -1,9 +1,5 @@
 # RunShellTool Security Documentation
 
-**Author:** Security Specialist
-**Date:** 2025-11-29
-**Status:** Implemented
-
 ## Overview
 
 The `RunShellTool` provides **strictly controlled** shell command execution for the Code Chat agentic coding assistant. This tool implements defense-in-depth security through command whitelisting, pattern blocking, and execution sandboxing.
