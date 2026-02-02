@@ -1,4 +1,4 @@
-# MAGI Profile System - Quick Reference
+# Synapse Engine Profile System - Quick Reference
 
 ## Profile Structure
 
@@ -253,7 +253,7 @@ Randomly selects from available models.
 ## File Locations
 
 ```
-MAGI/
+synapse-engine/
 ├── config/
 │   └── profiles/
 │       ├── development.yaml      # Dev profile
@@ -275,14 +275,14 @@ See also: [Docker Quick Reference](DOCKER_QUICK_REFERENCE.md) for Docker-specifi
 
 ### Profile Not Found
 ```python
-# Error: MAGIException: Profile 'my-profile' not found
+# Error: SynapseException: Profile 'my-profile' not found
 # Solution: Check profile name (case-sensitive, no .yaml extension)
 profiles = manager.list_profiles()  # See available profiles
 ```
 
 ### Invalid YAML
 ```python
-# Error: MAGIException: Failed to load profile: ...
+# Error: SynapseException: Failed to load profile: ...
 # Solution: Validate YAML syntax
 # - Check indentation (use spaces, not tabs)
 # - Ensure proper nesting

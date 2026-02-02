@@ -1,4 +1,4 @@
-# MAGI Docker Quick Reference Card
+# Synapse Engine Docker Quick Reference Card
 
 One-page cheat sheet for common Docker operations.
 
@@ -127,7 +127,7 @@ curl -X POST http://localhost:8000/api/models/profile/activate \
   -d '{"profile_name": "production"}'
 
 # Or via environment
-export MAGI_PROFILE=production
+export SYNAPSE_PROFILE=production
 docker-compose restart backend
 ```
 
@@ -249,7 +249,7 @@ docker system prune -af
 
 ```bash
 # Profile selection
-MAGI_PROFILE=development|production|fast-only
+SYNAPSE_PROFILE=development|production|fast-only
 
 # Model management
 MODEL_PORT_RANGE_START=8080

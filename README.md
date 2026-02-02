@@ -212,15 +212,15 @@ llama-server --version
 **2. Configure SSH for Host API**
 ```bash
 # Generate SSH key for Docker → Host communication
-ssh-keygen -t ed25519 -f ~/.ssh/magi_host_api -N ""
+ssh-keygen -t ed25519 -f ~/.ssh/synapse_host_api -N ""
 
 # Add to authorized_keys with command restriction
 echo "command=\"/opt/homebrew/bin/bash /Users/$USER/Documents/Programming/SYNAPSE_ENGINE/scripts/ssh-wrapper.sh\" $(cat ~/.ssh/synapse_host_api.pub)" >> ~/.ssh/authorized_keys
 
 # Copy SSH config to host-api directory
 mkdir -p host-api/.ssh
-cp ~/.ssh/magi_host_api host-api/.ssh/id_ed25519
-cp ~/.ssh/magi_host_api.pub host-api/.ssh/id_ed25519.pub
+cp ~/.ssh/synapse_host_api host-api/.ssh/id_ed25519
+cp ~/.ssh/synapse_host_api.pub host-api/.ssh/id_ed25519.pub
 
 # Create SSH config
 cat > host-api/.ssh/config <<EOF

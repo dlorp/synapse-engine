@@ -1,6 +1,6 @@
-# MAGI Docker Quick Start Guide
+# Synapse Engine Docker Quick Start Guide
 
-Complete guide for running MAGI Multi-Model Orchestration WebUI in Docker with model management support.
+Complete guide for running Synapse Engine in Docker with model management support.
 
 **Quick Links:**
 - [Docker Quick Reference](DOCKER_QUICK_REFERENCE.md) - One-page cheat sheet
@@ -169,7 +169,7 @@ Key variables:
 
 ```bash
 # Active Profile
-MAGI_PROFILE=development  # or: production, fast-only
+SYNAPSE_PROFILE=development  # or: production, fast-only
 
 # Redis
 REDIS_PASSWORD=change_this_secure_redis_password
@@ -188,7 +188,7 @@ CORS_ORIGINS=http://localhost:5173,http://localhost:3000
 
 ### Profile Selection
 
-MAGI uses profiles to define which models to load. Available profiles:
+Synapse Engine uses profiles to define which models to load. Available profiles:
 
 #### 1. **development** (default)
 - Loads Q2_FAST_1, Q2_FAST_2, Q3_SYNTH
@@ -209,11 +209,11 @@ Change profile:
 
 ```bash
 # Option 1: Environment variable
-export MAGI_PROFILE=production
+export SYNAPSE_PROFILE=production
 docker-compose restart backend
 
 # Option 2: Edit docker-compose.yml
-# Change: MAGI_PROFILE=production
+# Change: SYNAPSE_PROFILE=production
 docker-compose restart backend
 
 # Option 3: Runtime API call
@@ -520,7 +520,7 @@ models:
 Activate:
 
 ```bash
-export MAGI_PROFILE=my-profile
+export SYNAPSE_PROFILE=my-profile
 docker-compose restart backend
 ```
 
@@ -595,16 +595,16 @@ docker-compose ps
 docker stats
 
 # Inspect container
-docker inspect magi_backend
+docker inspect synapse_backend
 
 # Network info
-docker network inspect magi_network
+docker network inspect synapse_network
 
 # Volume info
-docker volume inspect magi_redis_data
+docker volume inspect synapse_redis_data
 
 # Container logs location
-docker inspect magi_backend | jq -r '.[0].LogPath'
+docker inspect synapse_backend | jq -r '.[0].LogPath'
 ```
 
 ---

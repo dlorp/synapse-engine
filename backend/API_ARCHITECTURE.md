@@ -1,4 +1,4 @@
-# MAGI Model Management API Architecture
+# Synapse Engine Model Management API Architecture
 
 ## System Overview
 

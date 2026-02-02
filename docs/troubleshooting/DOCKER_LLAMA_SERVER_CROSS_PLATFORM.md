@@ -28,7 +28,7 @@ $ file /opt/homebrew/bin/llama-server
 /opt/homebrew/bin/llama-server: Mach-O 64-bit executable arm64
 
 # Container OS (Linux)
-$ docker exec magi_backend cat /etc/os-release
+$ docker exec synapse_backend cat /etc/os-release
 Debian GNU/Linux 11 (bullseye)
 ```
 
@@ -70,7 +70,7 @@ For development unblocking while permanent fix is prepared.
      - Matches development.yaml profile configuration
      - Health checking for all servers
      - Colored output with detailed logging
-     - Logs to `/tmp/magi-llama-servers/`
+     - Logs to `/tmp/synapse-llama-servers/`
 
    - **File:** `${PROJECT_DIR}/scripts/stop-host-llama-servers.sh` (executable)
    - **Purpose:** Gracefully stop all host llama-server processes
@@ -137,12 +137,12 @@ cd ${PROJECT_DIR}
 **Expected output:**
 ```
 ========================================
-MAGI llama-server Host Launcher
+Synapse llama-server Host Launcher
 ========================================
 
 ✓ llama-server found: /opt/homebrew/bin/llama-server
 ✓ HUB directory found: ${PRAXIS_MODEL_PATH}
-✓ Log directory ready: /tmp/magi-llama-servers
+✓ Log directory ready: /tmp/synapse-llama-servers
 
 → Starting server on port 8080
    Model: DeepSeek-R1-Distill-Qwen-1.5B-Q2_K.gguf
@@ -217,7 +217,7 @@ pgrep -af "llama-server.*--port"
 1. ⏳ Implement Option 1 from `DOCKER_LLAMA_SERVER_FIX.md`
 2. ⏳ Modify `backend/Dockerfile` to compile llama.cpp
 3. ⏳ Test Docker build: `docker-compose build --no-cache backend`
-4. ⏳ Verify binary in container: `docker exec magi_backend file /usr/local/bin/llama-server`
+4. ⏳ Verify binary in container: `docker exec synapse_backend file /usr/local/bin/llama-server`
 5. ⏳ Test server launches from container
 6. ⏳ Remove host launcher scripts (no longer needed)
 
@@ -285,7 +285,7 @@ pkill -f "llama-server.*--port"
 ### Issue: "Health check timeout"
 ```bash
 # Check server logs
-tail -f /tmp/magi-llama-servers/llama-server-8080.log
+tail -f /tmp/synapse-llama-servers/llama-server-8080.log
 
 # Verify server is running
 pgrep -af "llama-server.*8080"
