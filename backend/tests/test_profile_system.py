@@ -13,14 +13,59 @@ from app.services.profile_manager import ProfileManager
 from app.services.model_discovery import ModelDiscoveryService
 
 
+def get_profiles_dir() -> Path:
+    """Get the profiles directory, handling both Docker and local environments."""
+    # Docker environment
+    docker_path = Path("/app/config/profiles")
+    if docker_path.exists():
+        return docker_path
+    
+    # Local development: relative to test file (backend/tests -> repo/config/profiles)
+    local_path = Path(__file__).parent.parent.parent / "config" / "profiles"
+    if local_path.exists():
+        return local_path
+    
+    # Fallback: relative to cwd
+    cwd_path = Path("config/profiles")
+    if cwd_path.exists():
+        return cwd_path
+    
+    raise FileNotFoundError(
+        f"Could not find profiles directory. Tried:\n"
+        f"  - {docker_path}\n"
+        f"  - {local_path}\n"
+        f"  - {cwd_path}"
+    )
+
+
+def get_registry_path() -> Path:
+    """Get the model registry path, handling both Docker and local environments."""
+    # Docker environment
+    docker_path = Path("/app/data/model_registry.json")
+    if docker_path.exists():
+        return docker_path
+    
+    # Local development: relative to test file
+    local_path = Path(__file__).parent.parent / "data" / "model_registry.json"
+    if local_path.exists():
+        return local_path
+    
+    # Fallback: relative to cwd
+    cwd_path = Path("data/model_registry.json")
+    if cwd_path.exists():
+        return cwd_path
+    
+    return local_path  # Return local path even if doesn't exist (will be checked later)
+
+
 def test_profile_manager():
     """Test ProfileManager basic operations."""
     print("=" * 60)
     print("TEST 1: Profile Manager Operations")
     print("=" * 60)
 
-    # Use absolute path from container root
-    manager = ProfileManager(profiles_dir=Path("/app/config/profiles"))
+    # Use dynamic path detection for Docker/CI/local environments
+    manager = ProfileManager(profiles_dir=get_profiles_dir())
 
     # List profiles
     profiles = manager.list_profiles()
@@ -61,8 +106,8 @@ def test_profile_validation():
     discovery = ModelDiscoveryService(
         scan_path=Path("${PRAXIS_MODEL_PATH}/")
     )
-    # Use absolute path from container root
-    registry_path = Path("/app/data/model_registry.json")
+    # Use dynamic path detection
+    registry_path = get_registry_path()
 
     if not registry_path.exists():
         print("⚠️  Model registry not found. Run Phase 1 first.")
@@ -72,8 +117,8 @@ def test_profile_validation():
     print(f"\nLoaded registry with {len(registry.models)} models")
 
     # Validate profiles
-    # Use absolute path from container root
-    manager = ProfileManager(profiles_dir=Path("/app/config/profiles"))
+    # Use dynamic path detection
+    manager = ProfileManager(profiles_dir=get_profiles_dir())
     all_valid = True
 
     for name in manager.list_profiles():
@@ -101,8 +146,8 @@ def test_profile_structure():
     print("TEST 3: Profile Structure Details")
     print("=" * 60)
 
-    # Use absolute path from container root
-    manager = ProfileManager(profiles_dir=Path("/app/config/profiles"))
+    # Use dynamic path detection
+    manager = ProfileManager(profiles_dir=get_profiles_dir())
 
     # Test development profile
     print("\n--- Development Profile ---")

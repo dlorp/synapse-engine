@@ -58,33 +58,25 @@ def workspace_dir() -> Generator[Path, None, None]:
 @pytest.fixture
 def read_file_tool(workspace_dir: Path) -> ReadFileTool:
     """Create ReadFileTool with workspace."""
-    tool = ReadFileTool()
-    tool.workspace_root = workspace_dir
-    return tool
+    return ReadFileTool(workspace_root=str(workspace_dir))
 
 
 @pytest.fixture
 def write_file_tool(workspace_dir: Path) -> WriteFileTool:
     """Create WriteFileTool with workspace."""
-    tool = WriteFileTool()
-    tool.workspace_root = workspace_dir
-    return tool
+    return WriteFileTool(workspace_root=str(workspace_dir))
 
 
 @pytest.fixture
 def list_dir_tool(workspace_dir: Path) -> ListDirectoryTool:
     """Create ListDirectoryTool with workspace."""
-    tool = ListDirectoryTool()
-    tool.workspace_root = workspace_dir
-    return tool
+    return ListDirectoryTool(workspace_root=str(workspace_dir))
 
 
 @pytest.fixture
 def delete_file_tool(workspace_dir: Path) -> DeleteFileTool:
     """Create DeleteFileTool with workspace."""
-    tool = DeleteFileTool()
-    tool.workspace_root = workspace_dir
-    return tool
+    return DeleteFileTool(workspace_root=str(workspace_dir))
 
 
 # =============================================================================
@@ -94,18 +86,18 @@ def delete_file_tool(workspace_dir: Path) -> DeleteFileTool:
 class TestToolRegistry:
     """Tests for ToolRegistry."""
 
-    def test_register_tool(self):
+    def test_register_tool(self, workspace_dir: Path):
         """Test tool registration."""
         registry = ToolRegistry()
-        tool = ReadFileTool()
+        tool = ReadFileTool(workspace_root=str(workspace_dir))
         registry.register(tool)
-        assert ToolName.READ_FILE in registry.tools
-        assert registry.tools[ToolName.READ_FILE] is tool
+        assert ToolName.READ_FILE in registry._tools
+        assert registry._tools[ToolName.READ_FILE] is tool
 
-    def test_get_tool(self):
+    def test_get_tool(self, workspace_dir: Path):
         """Test retrieving a registered tool."""
         registry = ToolRegistry()
-        tool = ReadFileTool()
+        tool = ReadFileTool(workspace_root=str(workspace_dir))
         registry.register(tool)
         retrieved = registry.get(ToolName.READ_FILE)
         assert retrieved is tool
@@ -115,11 +107,11 @@ class TestToolRegistry:
         registry = ToolRegistry()
         assert registry.get(ToolName.READ_FILE) is None
 
-    def test_list_tools(self):
+    def test_list_tools(self, workspace_dir: Path):
         """Test listing all registered tools."""
         registry = ToolRegistry()
-        registry.register(ReadFileTool())
-        registry.register(WriteFileTool())
+        registry.register(ReadFileTool(workspace_root=str(workspace_dir)))
+        registry.register(WriteFileTool(workspace_root=str(workspace_dir)))
         tools = registry.list_tools()
         assert len(tools) == 2
 
@@ -225,14 +217,18 @@ class TestDeleteFileTool:
 
     @pytest.mark.asyncio
     async def test_delete_file_success(self, delete_file_tool: DeleteFileTool, workspace_dir: Path):
-        """Test deleting a file successfully."""
+        """Test delete returns confirmation request (doesn't delete immediately)."""
         # Create a file to delete
         to_delete = workspace_dir / "to_delete.txt"
         to_delete.write_text("delete me")
 
+        # Delete tool returns confirmation request, doesn't actually delete
         result = await delete_file_tool.execute(path="to_delete.txt")
         assert result.success is True
-        assert not to_delete.exists()
+        assert result.requires_confirmation is True
+        assert result.confirmation_type == "file_delete"
+        # File still exists because confirmation hasn't been given
+        assert to_delete.exists()
 
     @pytest.mark.asyncio
     async def test_delete_file_not_found(self, delete_file_tool: DeleteFileTool):
@@ -257,9 +253,7 @@ class TestSearchCodeTool:
 
     @pytest.fixture
     def search_tool(self, workspace_dir: Path) -> SearchCodeTool:
-        tool = SearchCodeTool()
-        tool.workspace_root = workspace_dir
-        return tool
+        return SearchCodeTool(workspace_root=str(workspace_dir))
 
     @pytest.mark.asyncio
     async def test_search_code_success(self, search_tool: SearchCodeTool, workspace_dir: Path):
@@ -284,9 +278,7 @@ class TestGrepFilesTool:
 
     @pytest.fixture
     def grep_tool(self, workspace_dir: Path) -> GrepFilesTool:
-        tool = GrepFilesTool()
-        tool.workspace_root = workspace_dir
-        return tool
+        return GrepFilesTool(workspace_root=str(workspace_dir))
 
     @pytest.mark.asyncio
     async def test_grep_files_success(self, grep_tool: GrepFilesTool, workspace_dir: Path):
@@ -641,11 +633,8 @@ class TestToolIntegration:
     @pytest.mark.asyncio
     async def test_write_then_read(self, workspace_dir: Path):
         """Test writing a file then reading it."""
-        write_tool = WriteFileTool()
-        write_tool.workspace_root = workspace_dir
-
-        read_tool = ReadFileTool()
-        read_tool.workspace_root = workspace_dir
+        write_tool = WriteFileTool(workspace_root=str(workspace_dir))
+        read_tool = ReadFileTool(workspace_root=str(workspace_dir))
 
         # Write
         content = "Integration test content"
@@ -659,22 +648,22 @@ class TestToolIntegration:
 
     @pytest.mark.asyncio
     async def test_write_then_delete(self, workspace_dir: Path):
-        """Test writing a file then deleting it."""
-        write_tool = WriteFileTool()
-        write_tool.workspace_root = workspace_dir
-
-        delete_tool = DeleteFileTool()
-        delete_tool.workspace_root = workspace_dir
+        """Test writing a file then requesting deletion (confirmation required)."""
+        write_tool = WriteFileTool(workspace_root=str(workspace_dir))
+        delete_tool = DeleteFileTool(workspace_root=str(workspace_dir))
 
         # Write
         write_result = await write_tool.execute(path="temp.txt", content="temporary")
         assert write_result.success is True
         assert (workspace_dir / "temp.txt").exists()
 
-        # Delete
+        # Request delete (returns confirmation request, doesn't actually delete)
         delete_result = await delete_tool.execute(path="temp.txt")
         assert delete_result.success is True
-        assert not (workspace_dir / "temp.txt").exists()
+        assert delete_result.requires_confirmation is True
+        assert delete_result.confirmation_type == "file_delete"
+        # File still exists because confirmation hasn't been given
+        assert (workspace_dir / "temp.txt").exists()
 
 
 # =============================================================================
@@ -687,8 +676,7 @@ class TestSecurityConstraints:
     @pytest.mark.asyncio
     async def test_absolute_path_rejection(self, workspace_dir: Path):
         """Test that absolute paths are rejected."""
-        read_tool = ReadFileTool()
-        read_tool.workspace_root = workspace_dir
+        read_tool = ReadFileTool(workspace_root=str(workspace_dir))
 
         result = await read_tool.execute(path="/etc/passwd")
         assert result.success is False
@@ -703,8 +691,7 @@ class TestSecurityConstraints:
         except OSError:
             pytest.skip("Unable to create symlink")
 
-        read_tool = ReadFileTool()
-        read_tool.workspace_root = workspace_dir
+        read_tool = ReadFileTool(workspace_root=str(workspace_dir))
 
         result = await read_tool.execute(path="escape_link/passwd")
         # Should fail due to path escaping workspace
@@ -713,8 +700,7 @@ class TestSecurityConstraints:
     @pytest.mark.asyncio
     async def test_null_byte_injection(self, workspace_dir: Path):
         """Test null byte injection prevention."""
-        read_tool = ReadFileTool()
-        read_tool.workspace_root = workspace_dir
+        read_tool = ReadFileTool(workspace_root=str(workspace_dir))
 
         result = await read_tool.execute(path="test.py\x00.txt")
         # Should fail or sanitize the null byte
