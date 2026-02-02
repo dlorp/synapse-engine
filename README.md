@@ -5,6 +5,18 @@
 
 ![til](docs/features/synapseEngine.gif)
 
+### Query Modes
+![Query Modes](docs/screenshot-query-modes.png)
+
+### System Architecture
+![System Architecture Topology](docs/screenshot-topology.png)
+
+### Model Management
+![Discovered Models](docs/screenshot-models.png)
+
+### System Status
+![System Status](docs/screenshot-status.png)
+
 **Scalable Yoked Network for Adaptive Praxial System Emergence**
 
 > Interlinked cognition — thought in motion.
