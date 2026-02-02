@@ -569,7 +569,7 @@ class TopologyManager:
         # Check Redis health
         try:
             redis_host = os.environ.get("MEMEX_HOST", "synapse_redis")
-            redis_password = os.environ.get("MEMEX_PASSWORD", "change_this_secure_redis_password")
+            redis_password = os.environ.get("MEMEX_PASSWORD")
             redis_port = int(os.environ.get("MEMEX_PORT", "6379"))
 
             r = redis.Redis(

@@ -123,7 +123,7 @@ class EffectConfig:
         return cls(
             frame_rate=60,
             typing_speed=2,
-            primary_colors=("3B60E4", "50D8D7", "F4E409"),  # dlorp branding
+            primary_colors=("3B60E4", "50D8D7", "F4E409"),  # synapse branding
             final_colors=("FB8B24", "F4E409"),
             max_frames=180,  # ~3 seconds at 60fps
         )
