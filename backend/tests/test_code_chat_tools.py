@@ -88,18 +88,18 @@ def delete_file_tool(workspace_dir: Path) -> DeleteFileTool:
 class TestToolRegistry:
     """Tests for ToolRegistry."""
 
-    def test_register_tool(self):
+    def test_register_tool(self, workspace_dir: Path):
         """Test tool registration."""
         registry = ToolRegistry()
-        tool = ReadFileTool()
+        tool = ReadFileTool(workspace_root=str(workspace_dir))
         registry.register(tool)
         assert ToolName.READ_FILE in registry.tools
         assert registry.tools[ToolName.READ_FILE] is tool
 
-    def test_get_tool(self):
+    def test_get_tool(self, workspace_dir: Path):
         """Test retrieving a registered tool."""
         registry = ToolRegistry()
-        tool = ReadFileTool()
+        tool = ReadFileTool(workspace_root=str(workspace_dir))
         registry.register(tool)
         retrieved = registry.get(ToolName.READ_FILE)
         assert retrieved is tool
@@ -109,11 +109,11 @@ class TestToolRegistry:
         registry = ToolRegistry()
         assert registry.get(ToolName.READ_FILE) is None
 
-    def test_list_tools(self):
+    def test_list_tools(self, workspace_dir: Path):
         """Test listing all registered tools."""
         registry = ToolRegistry()
-        registry.register(ReadFileTool())
-        registry.register(WriteFileTool())
+        registry.register(ReadFileTool(workspace_root=str(workspace_dir)))
+        registry.register(WriteFileTool(workspace_root=str(workspace_dir)))
         tools = registry.list_tools()
         assert len(tools) == 2
 
