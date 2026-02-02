@@ -9,6 +9,7 @@ import websockets
 import json
 import sys
 
+
 async def test_event_stream():
     """Connect to WebSocket and listen for events."""
     url = "ws://localhost:8000/ws/events"
@@ -28,21 +29,23 @@ async def test_event_stream():
                     event_count += 1
 
                     # Format event for display
-                    event_type = event.get('type', 'unknown')
-                    severity = event.get('severity', 'info')
-                    msg = event.get('message', 'No message')
-                    timestamp = event.get('timestamp', 0)
-                    metadata = event.get('metadata', {})
+                    event_type = event.get("type", "unknown")
+                    severity = event.get("severity", "info")
+                    msg = event.get("message", "No message")
+                    timestamp = event.get("timestamp", 0)
+                    metadata = event.get("metadata", {})
 
                     # Color-code by severity
                     color = {
-                        'info': '\033[92m',  # Green
-                        'warning': '\033[93m',  # Yellow
-                        'error': '\033[91m'  # Red
-                    }.get(severity, '\033[0m')
-                    reset = '\033[0m'
+                        "info": "\033[92m",  # Green
+                        "warning": "\033[93m",  # Yellow
+                        "error": "\033[91m",  # Red
+                    }.get(severity, "\033[0m")
+                    reset = "\033[0m"
 
-                    print(f"[{event_count}] {color}[{severity.upper()}]{reset} [{event_type}]")
+                    print(
+                        f"[{event_count}] {color}[{severity.upper()}]{reset} [{event_type}]"
+                    )
                     print(f"  Message: {msg}")
 
                     if metadata:
@@ -61,6 +64,7 @@ async def test_event_stream():
     except Exception as e:
         print(f"❌ Error connecting to WebSocket: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     try:

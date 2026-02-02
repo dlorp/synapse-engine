@@ -8,8 +8,8 @@ Provides isolated Python code execution with security restrictions:
 - CPU timeout: configurable (max 30s)
 - Output capture
 """
+
 import ast
-import sys
 import time
 import signal
 import resource
@@ -18,7 +18,7 @@ from io import StringIO
 from typing import Optional, Set
 from contextlib import redirect_stdout, redirect_stderr
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from pydantic import BaseModel, Field
 import uvicorn
 
@@ -29,144 +29,254 @@ import uvicorn
 app = FastAPI(
     title="Synapse Sandbox",
     description="Isolated Python execution environment",
-    version="1.0.0"
+    version="1.0.0",
 )
 
 # Safe builtins that don't provide system access
 SAFE_BUILTINS: Set[str] = {
     # Basic types
-    'True', 'False', 'None',
-    'int', 'float', 'str', 'bool', 'bytes', 'bytearray',
-    'list', 'tuple', 'dict', 'set', 'frozenset',
-    'complex', 'memoryview',
-
+    "True",
+    "False",
+    "None",
+    "int",
+    "float",
+    "str",
+    "bool",
+    "bytes",
+    "bytearray",
+    "list",
+    "tuple",
+    "dict",
+    "set",
+    "frozenset",
+    "complex",
+    "memoryview",
     # Type operations
-    'type', 'isinstance', 'issubclass', 'callable',
-    'hasattr', 'getattr', 'setattr', 'delattr',
-
+    "type",
+    "isinstance",
+    "issubclass",
+    "callable",
+    "hasattr",
+    "getattr",
+    "setattr",
+    "delattr",
     # Iteration
-    'range', 'enumerate', 'zip', 'map', 'filter',
-    'iter', 'next', 'reversed', 'sorted',
-
+    "range",
+    "enumerate",
+    "zip",
+    "map",
+    "filter",
+    "iter",
+    "next",
+    "reversed",
+    "sorted",
     # Math
-    'abs', 'round', 'pow', 'divmod', 'sum', 'min', 'max',
-    'bin', 'hex', 'oct', 'ord', 'chr',
-
+    "abs",
+    "round",
+    "pow",
+    "divmod",
+    "sum",
+    "min",
+    "max",
+    "bin",
+    "hex",
+    "oct",
+    "ord",
+    "chr",
     # String/repr
-    'repr', 'ascii', 'format', 'print', 'input',
-
+    "repr",
+    "ascii",
+    "format",
+    "print",
+    "input",
     # Collections
-    'len', 'slice', 'all', 'any',
-
+    "len",
+    "slice",
+    "all",
+    "any",
     # Object
-    'object', 'super', 'property',
-    'staticmethod', 'classmethod',
-
+    "object",
+    "super",
+    "property",
+    "staticmethod",
+    "classmethod",
     # ID/hash
-    'id', 'hash',
-
+    "id",
+    "hash",
     # Exceptions (read-only)
-    'Exception', 'BaseException', 'TypeError', 'ValueError',
-    'AttributeError', 'KeyError', 'IndexError', 'RuntimeError',
-    'StopIteration', 'GeneratorExit', 'ZeroDivisionError',
-    'OverflowError', 'FloatingPointError', 'AssertionError',
-    'ImportError', 'ModuleNotFoundError', 'NameError',
-    'UnboundLocalError', 'NotImplementedError', 'RecursionError',
+    "Exception",
+    "BaseException",
+    "TypeError",
+    "ValueError",
+    "AttributeError",
+    "KeyError",
+    "IndexError",
+    "RuntimeError",
+    "StopIteration",
+    "GeneratorExit",
+    "ZeroDivisionError",
+    "OverflowError",
+    "FloatingPointError",
+    "AssertionError",
+    "ImportError",
+    "ModuleNotFoundError",
+    "NameError",
+    "UnboundLocalError",
+    "NotImplementedError",
+    "RecursionError",
 }
 
 # Allowed imports (safe modules only)
 ALLOWED_IMPORTS: Set[str] = {
     # Standard library (safe)
-    'math', 'cmath',
-    'datetime', 'calendar',
-    'json',
-    're',
-    'collections', 'collections.abc',
-    'itertools', 'functools', 'operator',
-    'string', 'textwrap',
-    'random',
-    'statistics',
-    'decimal', 'fractions', 'numbers',
-    'copy',
-    'pprint',
-    'typing', 'typing_extensions',
-    'dataclasses',
-    'enum',
-    'abc',
-    'contextlib',
-    'heapq', 'bisect',
-    'array',
-    'struct',
-    'hashlib',  # Read-only hashing
-    'base64',
-    'binascii',
-    'unicodedata',
-    'difflib',
-
+    "math",
+    "cmath",
+    "datetime",
+    "calendar",
+    "json",
+    "re",
+    "collections",
+    "collections.abc",
+    "itertools",
+    "functools",
+    "operator",
+    "string",
+    "textwrap",
+    "random",
+    "statistics",
+    "decimal",
+    "fractions",
+    "numbers",
+    "copy",
+    "pprint",
+    "typing",
+    "typing_extensions",
+    "dataclasses",
+    "enum",
+    "abc",
+    "contextlib",
+    "heapq",
+    "bisect",
+    "array",
+    "struct",
+    "hashlib",  # Read-only hashing
+    "base64",
+    "binascii",
+    "unicodedata",
+    "difflib",
     # Data science
-    'numpy', 'np',
-    'pandas', 'pd',
-    'matplotlib', 'matplotlib.pyplot', 'plt',
-    'sympy',
-    'scipy', 'scipy.stats', 'scipy.optimize', 'scipy.integrate',
+    "numpy",
+    "np",
+    "pandas",
+    "pd",
+    "matplotlib",
+    "matplotlib.pyplot",
+    "plt",
+    "sympy",
+    "scipy",
+    "scipy.stats",
+    "scipy.optimize",
+    "scipy.integrate",
 }
 
 # Forbidden imports (security critical)
 FORBIDDEN_IMPORTS: Set[str] = {
     # System access
-    'os', 'sys', 'platform', 'sysconfig',
-    'subprocess', 'shlex',
-    'multiprocessing', 'threading', 'concurrent',
-    'asyncio', 'async_generator',
-
+    "os",
+    "sys",
+    "platform",
+    "sysconfig",
+    "subprocess",
+    "shlex",
+    "multiprocessing",
+    "threading",
+    "concurrent",
+    "asyncio",
+    "async_generator",
     # Network
-    'socket', 'ssl',
-    'urllib', 'urllib.request', 'urllib.parse',
-    'http', 'http.client', 'http.server',
-    'ftplib', 'smtplib', 'poplib', 'imaplib', 'nntplib',
-    'email', 'mailbox',
-    'requests', 'httpx', 'aiohttp',
-
+    "socket",
+    "ssl",
+    "urllib",
+    "urllib.request",
+    "urllib.parse",
+    "http",
+    "http.client",
+    "http.server",
+    "ftplib",
+    "smtplib",
+    "poplib",
+    "imaplib",
+    "nntplib",
+    "email",
+    "mailbox",
+    "requests",
+    "httpx",
+    "aiohttp",
     # File system
-    'pathlib', 'shutil',
-    'tempfile', 'glob', 'fnmatch',
-    'fileinput', 'filecmp',
-    'io',  # Can be used for file-like operations
-
+    "pathlib",
+    "shutil",
+    "tempfile",
+    "glob",
+    "fnmatch",
+    "fileinput",
+    "filecmp",
+    "io",  # Can be used for file-like operations
     # Code execution
-    'importlib', 'pkgutil', 'modulefinder',
-    'runpy', 'compileall',
-    'ast', 'dis', 'code', 'codeop',
-    'compile', 'exec', 'eval',
-
+    "importlib",
+    "pkgutil",
+    "modulefinder",
+    "runpy",
+    "compileall",
+    "ast",
+    "dis",
+    "code",
+    "codeop",
+    "compile",
+    "exec",
+    "eval",
     # Serialization (can execute code)
-    'pickle', 'shelve', 'marshal', 'copyreg',
-    'dbm', 'sqlite3',
-
+    "pickle",
+    "shelve",
+    "marshal",
+    "copyreg",
+    "dbm",
+    "sqlite3",
     # Introspection
-    'inspect', 'traceback', 'linecache',
-    'gc', 'weakref',
-
+    "inspect",
+    "traceback",
+    "linecache",
+    "gc",
+    "weakref",
     # C interface
-    'ctypes', 'cffi', 'ffi',
-
+    "ctypes",
+    "cffi",
+    "ffi",
     # Process/signals
-    'signal', 'resource',
-    'pty', 'tty', 'termios',
-
+    "signal",
+    "resource",
+    "pty",
+    "tty",
+    "termios",
     # Debugging
-    'pdb', 'bdb',
-    'profile', 'pstats', 'timeit', 'trace',
-
+    "pdb",
+    "bdb",
+    "profile",
+    "pstats",
+    "timeit",
+    "trace",
     # Web/HTML
-    'html', 'xml', 'webbrowser', 'cgi', 'cgitb',
-
+    "html",
+    "xml",
+    "webbrowser",
+    "cgi",
+    "cgitb",
     # Other dangerous
-    'builtins', '__builtins__',
-    'warnings',  # Can suppress errors
-    'logging',   # Can access files
-    'configparser',
-    'atexit',
+    "builtins",
+    "__builtins__",
+    "warnings",  # Can suppress errors
+    "logging",  # Can access files
+    "configparser",
+    "atexit",
 }
 
 
@@ -174,14 +284,19 @@ FORBIDDEN_IMPORTS: Set[str] = {
 # Models
 # =============================================================================
 
+
 class ExecuteRequest(BaseModel):
     """Request to execute Python code."""
+
     code: str = Field(..., description="Python code to execute")
-    timeout: int = Field(default=30, ge=1, le=30, description="Timeout in seconds (max 30)")
+    timeout: int = Field(
+        default=30, ge=1, le=30, description="Timeout in seconds (max 30)"
+    )
 
 
 class ExecuteResponse(BaseModel):
     """Response from code execution."""
+
     output: str = Field(..., description="Captured stdout/stderr")
     error: Optional[str] = Field(None, description="Error message if execution failed")
     execution_time_ms: float = Field(..., description="Execution time in milliseconds")
@@ -190,6 +305,7 @@ class ExecuteResponse(BaseModel):
 # =============================================================================
 # Security Validation
 # =============================================================================
+
 
 def validate_code(code: str) -> Optional[str]:
     """
@@ -205,7 +321,7 @@ def validate_code(code: str) -> Optional[str]:
         # Check import statements
         if isinstance(node, ast.Import):
             for alias in node.names:
-                module = alias.name.split('.')[0]
+                module = alias.name.split(".")[0]
                 if module in FORBIDDEN_IMPORTS:
                     return f"Import blocked (security): {alias.name}"
                 if module not in ALLOWED_IMPORTS and alias.name not in ALLOWED_IMPORTS:
@@ -213,7 +329,7 @@ def validate_code(code: str) -> Optional[str]:
 
         elif isinstance(node, ast.ImportFrom):
             if node.module:
-                module = node.module.split('.')[0]
+                module = node.module.split(".")[0]
                 if module in FORBIDDEN_IMPORTS or node.module in FORBIDDEN_IMPORTS:
                     return f"Import blocked (security): from {node.module}"
                 if module not in ALLOWED_IMPORTS and node.module not in ALLOWED_IMPORTS:
@@ -222,17 +338,34 @@ def validate_code(code: str) -> Optional[str]:
         # Block dangerous function calls
         if isinstance(node, ast.Call):
             if isinstance(node.func, ast.Name):
-                if node.func.id in ('exec', 'eval', 'compile', '__import__', 'open'):
+                if node.func.id in ("exec", "eval", "compile", "__import__", "open"):
                     return f"Function blocked (security): {node.func.id}()"
             elif isinstance(node.func, ast.Attribute):
-                if node.func.attr in ('system', 'popen', 'spawn', 'fork', 'execv',
-                                       'execve', 'execvp', 'spawnl', 'spawnle'):
+                if node.func.attr in (
+                    "system",
+                    "popen",
+                    "spawn",
+                    "fork",
+                    "execv",
+                    "execve",
+                    "execvp",
+                    "spawnl",
+                    "spawnle",
+                ):
                     return f"Method blocked (security): .{node.func.attr}()"
 
         # Block attribute access to dangerous objects
         if isinstance(node, ast.Attribute):
-            if node.attr in ('__class__', '__bases__', '__subclasses__', '__mro__',
-                            '__globals__', '__code__', '__builtins__', '__dict__'):
+            if node.attr in (
+                "__class__",
+                "__bases__",
+                "__subclasses__",
+                "__mro__",
+                "__globals__",
+                "__code__",
+                "__builtins__",
+                "__dict__",
+            ):
                 return f"Attribute access blocked (security): .{node.attr}"
 
     return None
@@ -240,6 +373,7 @@ def validate_code(code: str) -> Optional[str]:
 
 class TimeoutError(Exception):
     """Raised when code execution times out."""
+
     pass
 
 
@@ -252,17 +386,20 @@ def timeout_handler(signum, frame):
 # Safe Import Function
 # =============================================================================
 
+
 def create_safe_import():
     """
     Create a restricted __import__ function that only allows safe modules.
     This enables 'import' statements for whitelisted modules only.
     """
-    original_import = __builtins__.__import__ if hasattr(__builtins__, '__import__') else __import__
+    original_import = (
+        __builtins__.__import__ if hasattr(__builtins__, "__import__") else __import__
+    )
 
     def safe_import(name, globals=None, locals=None, fromlist=(), level=0):
         """Import function that only allows whitelisted modules."""
         # Get the base module name
-        base_module = name.split('.')[0]
+        base_module = name.split(".")[0]
 
         # Check if module is explicitly forbidden
         if base_module in FORBIDDEN_IMPORTS or name in FORBIDDEN_IMPORTS:
@@ -281,6 +418,7 @@ def create_safe_import():
 # =============================================================================
 # Execution
 # =============================================================================
+
 
 def execute_code(code: str, timeout: int = 30) -> ExecuteResponse:
     """
@@ -316,19 +454,20 @@ def execute_code(code: str, timeout: int = 30) -> ExecuteResponse:
     try:
         # Build restricted builtins
         import builtins
+
         restricted_builtins = {}
         for name in SAFE_BUILTINS:
             if hasattr(builtins, name):
                 restricted_builtins[name] = getattr(builtins, name)
 
         # Add safe __import__ to allow whitelisted modules
-        restricted_builtins['__import__'] = create_safe_import()
+        restricted_builtins["__import__"] = create_safe_import()
 
         # Create restricted globals
         restricted_globals = {
-            '__builtins__': restricted_builtins,
-            '__name__': '__main__',
-            '__doc__': None,
+            "__builtins__": restricted_builtins,
+            "__name__": "__main__",
+            "__doc__": None,
         }
 
         # Execute with captured output
@@ -341,16 +480,16 @@ def execute_code(code: str, timeout: int = 30) -> ExecuteResponse:
         error_msg = "Memory limit exceeded (container limit)"
     except RecursionError:
         error_msg = "Maximum recursion depth exceeded"
-    except Exception as e:
+    except Exception:
         # Format error with traceback (but sanitize paths)
         tb = traceback.format_exc()
         # Remove file paths for security
         tb_lines = []
-        for line in tb.split('\n'):
+        for line in tb.split("\n"):
             if 'File "' in line:
-                line = line.replace('/app/', '').replace('/home/', '')
+                line = line.replace("/app/", "").replace("/home/", "")
             tb_lines.append(line)
-        error_msg = '\n'.join(tb_lines)
+        error_msg = "\n".join(tb_lines)
     finally:
         # Restore signal handler
         signal.alarm(0)
@@ -361,13 +500,14 @@ def execute_code(code: str, timeout: int = 30) -> ExecuteResponse:
     return ExecuteResponse(
         output=output_buffer.getvalue(),
         error=error_msg,
-        execution_time_ms=round(execution_time, 2)
+        execution_time_ms=round(execution_time, 2),
     )
 
 
 # =============================================================================
 # API Endpoints
 # =============================================================================
+
 
 @app.post("/execute", response_model=ExecuteResponse)
 async def execute_endpoint(request: ExecuteRequest) -> ExecuteResponse:
@@ -394,7 +534,7 @@ async def allowed_imports():
     """List allowed imports for user reference."""
     return {
         "allowed": sorted(ALLOWED_IMPORTS),
-        "note": "Only these modules can be imported. System, network, and file access is blocked."
+        "note": "Only these modules can be imported. System, network, and file access is blocked.",
     }
 
 
@@ -403,9 +543,4 @@ async def allowed_imports():
 # =============================================================================
 
 if __name__ == "__main__":
-    uvicorn.run(
-        app,
-        host="0.0.0.0",
-        port=8001,
-        log_level="info"
-    )
+    uvicorn.run(app, host="0.0.0.0", port=8001, log_level="info")

@@ -24,17 +24,19 @@ if TEXTUAL_AVAILABLE:
 
 __all__ = [
     "TTEAnimator",
-    "EffectType", 
+    "EffectType",
     "EffectConfig",
     "TTE_AVAILABLE",
     "TEXTUAL_AVAILABLE",
 ]
 
 if TEXTUAL_AVAILABLE:
-    __all__.extend([
-        "TTEWidget",
-        "StartupSplash",
-        "AlertWidget",
-        "RefreshPanel",
-        "ThemeTransitionManager",
-    ])
+    __all__.extend(
+        [
+            "TTEWidget",
+            "StartupSplash",
+            "AlertWidget",
+            "RefreshPanel",
+            "ThemeTransitionManager",
+        ]
+    )

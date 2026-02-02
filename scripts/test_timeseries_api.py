@@ -41,51 +41,38 @@ async def test_metrics_aggregator():
         await aggregator.record_metric(
             metric_name=MetricType.RESPONSE_TIME,
             value=1000.0 + (i * 100),
-            metadata={
-                "model_id": "test_model_q2",
-                "tier": "Q2",
-                "query_mode": "auto"
-            }
+            metadata={"model_id": "test_model_q2", "tier": "Q2", "query_mode": "auto"},
         )
         await aggregator.record_metric(
             metric_name=MetricType.TOKENS_PER_SECOND,
             value=45.0 + (i * 2),
-            metadata={
-                "model_id": "test_model_q2",
-                "tier": "Q2",
-                "query_mode": "auto"
-            }
+            metadata={"model_id": "test_model_q2", "tier": "Q2", "query_mode": "auto"},
         )
         await aggregator.record_metric(
             metric_name=MetricType.COMPLEXITY_SCORE,
             value=3.0 + (i * 0.5),
-            metadata={
-                "model_id": "test_model_q2",
-                "tier": "Q2",
-                "query_mode": "auto"
-            }
+            metadata={"model_id": "test_model_q2", "tier": "Q2", "query_mode": "auto"},
         )
     print("✅ Recorded 30 sample metrics")
 
     # Test get_time_series
     print("\n3. Testing get_time_series()...")
     result = await aggregator.get_time_series(
-        metric_name=MetricType.RESPONSE_TIME,
-        time_range=TimeRange.ONE_HOUR,
-        tier="Q2"
+        metric_name=MetricType.RESPONSE_TIME, time_range=TimeRange.ONE_HOUR, tier="Q2"
     )
     print(f"   Metric: {result.metric_name}")
     print(f"   Time range: {result.time_range}")
     print(f"   Unit: {result.unit}")
     print(f"   Data points: {len(result.data_points)}")
-    print(f"   Summary: min={result.summary.min}, max={result.summary.max}, avg={result.summary.avg}")
+    print(
+        f"   Summary: min={result.summary.min}, max={result.summary.max}, avg={result.summary.avg}"
+    )
     print("✅ get_time_series() working")
 
     # Test get_summary
     print("\n4. Testing get_summary()...")
     summary = await aggregator.get_summary(
-        metric_name=MetricType.TOKENS_PER_SECOND,
-        time_range=TimeRange.ONE_HOUR
+        metric_name=MetricType.TOKENS_PER_SECOND, time_range=TimeRange.ONE_HOUR
     )
     print(f"   Min: {summary.min}")
     print(f"   Max: {summary.max}")
@@ -100,27 +87,30 @@ async def test_metrics_aggregator():
         metric_names=[
             MetricType.RESPONSE_TIME,
             MetricType.TOKENS_PER_SECOND,
-            MetricType.COMPLEXITY_SCORE
+            MetricType.COMPLEXITY_SCORE,
         ],
-        time_range=TimeRange.ONE_HOUR
+        time_range=TimeRange.ONE_HOUR,
     )
     print(f"   Time range: {comparison.time_range}")
     print(f"   Labels: {len(comparison.chart_data.labels)} timestamps")
     print(f"   Datasets: {len(comparison.chart_data.datasets)}")
     for dataset in comparison.chart_data.datasets:
-        print(f"     - {dataset.label}: {len(dataset.data)} points, unit={dataset.metadata.get('unit')}")
+        print(
+            f"     - {dataset.label}: {len(dataset.data)} points, unit={dataset.metadata.get('unit')}"
+        )
     print("✅ get_comparison() working")
 
     # Test get_model_breakdown
     print("\n6. Testing get_model_breakdown()...")
     breakdown = await aggregator.get_model_breakdown(
-        metric_name=MetricType.RESPONSE_TIME,
-        time_range=TimeRange.ONE_HOUR
+        metric_name=MetricType.RESPONSE_TIME, time_range=TimeRange.ONE_HOUR
     )
     print(f"   Metric: {breakdown.metric_name}")
     print(f"   Models: {len(breakdown.models)}")
     for model in breakdown.models:
-        print(f"     - {model.model_id} ({model.tier}): {len(model.data_points)} points")
+        print(
+            f"     - {model.model_id} ({model.tier}): {len(model.data_points)} points"
+        )
         print(f"       Summary: avg={model.summary.avg}, p95={model.summary.p95}")
     print("✅ get_model_breakdown() working")
 
@@ -150,12 +140,8 @@ async def test_api_endpoints():
         try:
             response = await client.get(
                 f"{base_url}/api/timeseries",
-                params={
-                    "metric": "response_time",
-                    "range": "1h",
-                    "tier": "Q2"
-                },
-                timeout=10.0
+                params={"metric": "response_time", "range": "1h", "tier": "Q2"},
+                timeout=10.0,
             )
             print(f"   Status: {response.status_code}")
             if response.status_code == 200:
@@ -173,11 +159,8 @@ async def test_api_endpoints():
         try:
             response = await client.get(
                 f"{base_url}/api/timeseries/summary",
-                params={
-                    "metric": "response_time",
-                    "range": "24h"
-                },
-                timeout=10.0
+                params={"metric": "response_time", "range": "24h"},
+                timeout=10.0,
             )
             print(f"   Status: {response.status_code}")
             if response.status_code == 200:
@@ -196,11 +179,8 @@ async def test_api_endpoints():
         try:
             response = await client.get(
                 f"{base_url}/api/timeseries/comparison",
-                params={
-                    "metrics": "response_time,tokens_per_second",
-                    "range": "6h"
-                },
-                timeout=10.0
+                params={"metrics": "response_time,tokens_per_second", "range": "6h"},
+                timeout=10.0,
             )
             print(f"   Status: {response.status_code}")
             if response.status_code == 200:
@@ -218,11 +198,8 @@ async def test_api_endpoints():
         try:
             response = await client.get(
                 f"{base_url}/api/timeseries/models",
-                params={
-                    "metric": "response_time",
-                    "range": "7d"
-                },
-                timeout=10.0
+                params={"metric": "response_time", "range": "7d"},
+                timeout=10.0,
             )
             print(f"   Status: {response.status_code}")
             if response.status_code == 200:

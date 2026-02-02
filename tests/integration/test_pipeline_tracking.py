@@ -34,14 +34,11 @@ async def test_pipeline_tracking():
             "mode": "simple",
             "use_context": False,
             "use_web_search": False,
-            "max_tokens": 100
+            "max_tokens": 100,
         }
 
         try:
-            response = await client.post(
-                f"{base_url}/api/query",
-                json=query_payload
-            )
+            response = await client.post(f"{base_url}/api/query", json=query_payload)
 
             # This might fail if no models are loaded, which is OK for pipeline tracking test
             if response.status_code == 200:
@@ -51,10 +48,12 @@ async def test_pipeline_tracking():
             elif response.status_code == 503:
                 # Expected if no models are loaded
                 error_data = response.json()
-                print(f"   ⚠ Query failed (expected - no models loaded)")
-                print(f"     Error: {error_data.get('detail', {}).get('message', 'Unknown')}")
+                print("   ⚠ Query failed (expected - no models loaded)")
+                print(
+                    f"     Error: {error_data.get('detail', {}).get('message', 'Unknown')}"
+                )
                 # Extract query_id from error detail if available
-                query_id = error_data.get('detail', {}).get('query_id')
+                query_id = error_data.get("detail", {}).get("query_id")
                 if query_id:
                     print(f"     query_id: {query_id}")
             else:
@@ -81,37 +80,41 @@ async def test_pipeline_tracking():
 
                 if status_response.status_code == 200:
                     pipeline_data = status_response.json()
-                    print(f"   ✓ Pipeline status retrieved")
+                    print("   ✓ Pipeline status retrieved")
                     print()
                     print("   Pipeline Details:")
                     print(f"     Status: {pipeline_data.get('status')}")
                     print(f"     Created: {pipeline_data.get('created_at')}")
                     print(f"     Updated: {pipeline_data.get('updated_at')}")
 
-                    stages = pipeline_data.get('stages', [])
+                    stages = pipeline_data.get("stages", [])
                     print(f"     Stages: {len(stages)}")
                     for stage in stages:
-                        stage_status = stage.get('status', 'unknown')
-                        stage_name = stage.get('stage_name')
-                        duration = stage.get('duration_ms', 0)
+                        stage_status = stage.get("status", "unknown")
+                        stage_name = stage.get("stage_name")
+                        duration = stage.get("duration_ms", 0)
 
                         status_emoji = {
-                            'pending': '⏳',
-                            'in_progress': '🔄',
-                            'completed': '✓',
-                            'failed': '✗'
-                        }.get(stage_status, '?')
+                            "pending": "⏳",
+                            "in_progress": "🔄",
+                            "completed": "✓",
+                            "failed": "✗",
+                        }.get(stage_status, "?")
 
-                        print(f"       {status_emoji} {stage_name}: {stage_status} ({duration}ms)")
+                        print(
+                            f"       {status_emoji} {stage_name}: {stage_status} ({duration}ms)"
+                        )
 
                         # Show metadata if available
-                        metadata = stage.get('metadata')
+                        metadata = stage.get("metadata")
                         if metadata:
-                            print(f"          Metadata: {json.dumps(metadata, indent=10)[:100]}...")
+                            print(
+                                f"          Metadata: {json.dumps(metadata, indent=10)[:100]}..."
+                            )
 
                     print()
                 elif status_response.status_code == 404:
-                    print(f"   ⚠ Pipeline status not found (query may have expired)")
+                    print("   ⚠ Pipeline status not found (query may have expired)")
                 else:
                     print(f"   ✗ Unexpected status code: {status_response.status_code}")
                     print(f"     Response: {status_response.text}")
@@ -128,10 +131,10 @@ async def test_pipeline_tracking():
         print("   ✓ PipelineTracker successfully instrumented in query router")
         print("   ✓ Pipeline state manager initialized")
         if query_id:
-            print(f"   ✓ Pipeline status endpoint accessible")
+            print("   ✓ Pipeline status endpoint accessible")
             print()
-            print(f"   To view WebSocket events, run:")
-            print(f"     websocat ws://localhost:8000/ws/events")
+            print("   To view WebSocket events, run:")
+            print("     websocat ws://localhost:8000/ws/events")
         else:
             print("   ⚠ Could not verify full pipeline flow (no query_id)")
 
