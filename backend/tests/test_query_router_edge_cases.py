@@ -47,17 +47,18 @@ class TestCGRAGContextEdgeCases:
                 mock_instance.quantization = "q4_k_m"
                 mock_selector.select_instance.return_value = mock_instance
 
-                # Mock HTTP client to avoid actual model server calls
-                with patch('app.routers.query.httpx.AsyncClient') as mock_client:
+                # Mock LlamaCppClient to avoid actual model server calls
+                # httpx is imported in app.services.llama_client, not in query.py
+                with patch('app.services.llama_client.httpx.AsyncClient') as mock_client:
                     mock_response = MagicMock()
                     mock_response.status_code = 200
                     mock_response.json.return_value = {
                         "content": "Test response",
-                        "tokens_generated": 10
+                        "tokens_predicted": 10,
+                        "tokens_evaluated": 5
                     }
-                    mock_client.return_value.__aenter__.return_value.post = AsyncMock(
-                        return_value=mock_response
-                    )
+                    mock_client.return_value.post = AsyncMock(return_value=mock_response)
+                    mock_client.return_value.aclose = AsyncMock()
 
                     # This should not raise UnboundLocalError
                     # The cgrag_context_text variable should be initialized to None
@@ -219,16 +220,17 @@ class TestQueryRouterIntegration:
                 mock_instance.size_params = 8.0
                 mock_selector.select_instance.return_value = mock_instance
 
-                with patch('app.routers.query.httpx.AsyncClient') as mock_client:
+                # Mock LlamaCppClient - httpx is imported in app.services.llama_client
+                with patch('app.services.llama_client.httpx.AsyncClient') as mock_client:
                     mock_response = MagicMock()
                     mock_response.status_code = 200
                     mock_response.json.return_value = {
                         "content": "Test response",
-                        "tokens_generated": 10
+                        "tokens_predicted": 10,
+                        "tokens_evaluated": 5
                     }
-                    mock_client.return_value.__aenter__.return_value.post = AsyncMock(
-                        return_value=mock_response
-                    )
+                    mock_client.return_value.post = AsyncMock(return_value=mock_response)
+                    mock_client.return_value.aclose = AsyncMock()
 
                     client = TestClient(app)
                     response = client.post(
