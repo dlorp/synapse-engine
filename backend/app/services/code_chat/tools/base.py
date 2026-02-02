@@ -155,6 +155,15 @@ class ToolRegistry:
         self._tools: Dict[ToolName, BaseTool] = {}
         self._lock = asyncio.Lock()
 
+    @property
+    def tools(self) -> Dict[ToolName, BaseTool]:
+        """Access registered tools dictionary.
+
+        Returns:
+            Dictionary mapping ToolName to BaseTool instances
+        """
+        return self._tools
+
     def register(self, tool: BaseTool) -> None:
         """Register a tool in the registry.
 

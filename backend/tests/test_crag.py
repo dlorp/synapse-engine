@@ -275,8 +275,8 @@ class TestWebSearchAugmenter:
     @pytest.mark.asyncio
     async def test_augment_converts_web_results_to_chunks(self):
         """Test web search results are converted to DocumentChunk format."""
-        # Mock SearXNG client
-        with patch("app.services.web_augmenter.get_searxng_client") as mock_get_client:
+        # Mock SearXNG client - patch where it's imported (inside WebSearchAugmenter.__init__)
+        with patch("app.services.websearch.get_searxng_client") as mock_get_client:
             mock_client = AsyncMock()
             mock_search_response = Mock()
             mock_search_response.results = [
@@ -313,7 +313,7 @@ class TestWebSearchAugmenter:
     @pytest.mark.asyncio
     async def test_augment_handles_empty_results(self):
         """Test augmenter handles empty search results gracefully."""
-        with patch("app.services.web_augmenter.get_searxng_client") as mock_get_client:
+        with patch("app.services.websearch.get_searxng_client") as mock_get_client:
             mock_client = AsyncMock()
             mock_search_response = Mock()
             mock_search_response.results = []
@@ -330,7 +330,7 @@ class TestWebSearchAugmenter:
     @pytest.mark.asyncio
     async def test_augment_handles_search_failure(self):
         """Test augmenter handles search failures gracefully."""
-        with patch("app.services.web_augmenter.get_searxng_client") as mock_get_client:
+        with patch("app.services.websearch.get_searxng_client") as mock_get_client:
             mock_client = AsyncMock()
             mock_client.search = AsyncMock(side_effect=Exception("Search failed"))
             mock_get_client.return_value = mock_client
@@ -454,22 +454,21 @@ class TestCRAGOrchestrator:
         )
         mock_retriever.retrieve = AsyncMock(return_value=mock_cgrag_result)
 
-        # Mock web augmenter
-        web_chunk = DocumentChunk(
-            id="web1",
-            file_path="https://example.com/kubernetes",
-            content="Kubernetes Deployment Strategies for Microservices",
-            chunk_index=0,
-            start_pos=0,
-            end_pos=50,
-            language="web",
-            relevance_score=0.95,
-        )
-
-        with patch("app.services.crag.WebSearchAugmenter") as MockAugmenter:
-            mock_augmenter_instance = AsyncMock()
-            mock_augmenter_instance.augment = AsyncMock(return_value=[web_chunk])
-            MockAugmenter.return_value = mock_augmenter_instance
+        # Patch at the import location in crag.py
+        with patch("app.services.websearch.get_searxng_client") as mock_get_client:
+            mock_client = AsyncMock()
+            mock_search_response = Mock()
+            mock_search_response.results = [
+                Mock(
+                    title="Kubernetes Deployment Strategies",
+                    url="https://example.com/kubernetes",
+                    content="Kubernetes Deployment Strategies for Microservices",
+                    score=0.95,
+                ),
+            ]
+            mock_search_response.search_time_ms = 100.0
+            mock_client.search = AsyncMock(return_value=mock_search_response)
+            mock_get_client.return_value = mock_client
 
             orchestrator = CRAGOrchestrator(
                 cgrag_retriever=mock_retriever,

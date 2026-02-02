@@ -13,14 +13,36 @@ from app.services.profile_manager import ProfileManager
 from app.services.model_discovery import ModelDiscoveryService
 
 
+def _get_profiles_dir() -> Path:
+    """Get the profiles directory path (works in both Docker and local dev)."""
+    # Try Docker path first
+    docker_path = Path("/app/config/profiles")
+    if docker_path.exists():
+        return docker_path
+
+    # Fall back to local development path (relative to backend/tests/)
+    local_path = Path(__file__).parent.parent.parent / "config" / "profiles"
+    if local_path.exists():
+        return local_path
+
+    # As a last resort, try relative to current working directory
+    cwd_path = Path.cwd().parent / "config" / "profiles"
+    if cwd_path.exists():
+        return cwd_path
+
+    raise FileNotFoundError(
+        f"Could not find profiles directory. Tried: {docker_path}, {local_path}, {cwd_path}"
+    )
+
+
 def test_profile_manager():
     """Test ProfileManager basic operations."""
     print("=" * 60)
     print("TEST 1: Profile Manager Operations")
     print("=" * 60)
 
-    # Use absolute path from container root
-    manager = ProfileManager(profiles_dir=Path("/app/config/profiles"))
+    # Use path that works in both Docker and local development
+    manager = ProfileManager(profiles_dir=_get_profiles_dir())
 
     # List profiles
     profiles = manager.list_profiles()
@@ -61,8 +83,10 @@ def test_profile_validation():
 
     # Load registry
     discovery = ModelDiscoveryService(scan_path=Path("${PRAXIS_MODEL_PATH}/"))
-    # Use absolute path from container root
-    registry_path = Path("/app/data/model_registry.json")
+    # Use path that works in both Docker and local development
+    docker_registry = Path("/app/data/model_registry.json")
+    local_registry = Path(__file__).parent.parent / "data" / "model_registry.json"
+    registry_path = docker_registry if docker_registry.exists() else local_registry
 
     if not registry_path.exists():
         print("⚠️  Model registry not found. Run Phase 1 first.")
@@ -72,8 +96,8 @@ def test_profile_validation():
     print(f"\nLoaded registry with {len(registry.models)} models")
 
     # Validate profiles
-    # Use absolute path from container root
-    manager = ProfileManager(profiles_dir=Path("/app/config/profiles"))
+    # Use path that works in both Docker and local development
+    manager = ProfileManager(profiles_dir=_get_profiles_dir())
     all_valid = True
 
     for name in manager.list_profiles():
@@ -103,8 +127,8 @@ def test_profile_structure():
     print("TEST 3: Profile Structure Details")
     print("=" * 60)
 
-    # Use absolute path from container root
-    manager = ProfileManager(profiles_dir=Path("/app/config/profiles"))
+    # Use path that works in both Docker and local development
+    manager = ProfileManager(profiles_dir=_get_profiles_dir())
 
     # Test development profile
     print("\n--- Development Profile ---")
