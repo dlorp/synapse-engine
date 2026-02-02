@@ -257,26 +257,72 @@ class TestSearchCodeTool:
 
     @pytest.fixture
     def search_tool(self, workspace_dir: Path) -> SearchCodeTool:
-        tool = SearchCodeTool()
-        tool.workspace_root = workspace_dir
+        tool = SearchCodeTool(workspace_root=str(workspace_dir))
         return tool
 
+    @pytest.fixture
+    def mock_retriever(self):
+        """Create a mock retriever for CGRAG context."""
+        retriever = AsyncMock()
+        retriever.min_relevance = 0.7
+        return retriever
+
     @pytest.mark.asyncio
-    async def test_search_code_success(self, search_tool: SearchCodeTool, workspace_dir: Path):
+    async def test_search_code_success(self, search_tool: SearchCodeTool, workspace_dir: Path, mock_retriever):
         """Test searching code successfully."""
+        from app.services.cgrag import CGRAGResult, DocumentChunk
+
         # Create files with searchable content
         (workspace_dir / "func.py").write_text("def hello():\n    pass\n")
 
-        result = await search_tool.execute(query="def hello")
-        assert result.success is True
-        assert "func.py" in result.output or "hello" in result.output
+        # Create mock result with a found chunk
+        mock_chunk = DocumentChunk(
+            id="test-chunk-1",
+            file_path=str(workspace_dir / "func.py"),
+            content="def hello():\n    pass\n",
+            chunk_index=0,
+            start_pos=0,
+            end_pos=20,
+            relevance_score=0.95
+        )
+        mock_result = CGRAGResult(
+            artifacts=[mock_chunk],
+            tokens_used=10,
+            candidates_considered=5,
+            retrieval_time_ms=25.0,
+            top_scores=[0.95]
+        )
+        mock_retriever.retrieve = AsyncMock(return_value=mock_result)
+
+        with patch('app.services.code_chat.context.get_retriever_for_context', new_callable=AsyncMock) as mock_get_retriever:
+            mock_get_retriever.return_value = mock_retriever
+
+            result = await search_tool.execute(query="def hello", context_name="test_context")
+            assert result.success is True
+            assert "func.py" in result.output or "hello" in result.output
 
     @pytest.mark.asyncio
-    async def test_search_code_no_results(self, search_tool: SearchCodeTool):
+    async def test_search_code_no_results(self, search_tool: SearchCodeTool, mock_retriever):
         """Test search with no results."""
-        result = await search_tool.execute(query="nonexistent_function_xyz")
-        assert result.success is True
-        # No results is still a successful search
+        from app.services.cgrag import CGRAGResult
+
+        # Create mock result with no artifacts
+        mock_result = CGRAGResult(
+            artifacts=[],
+            tokens_used=0,
+            candidates_considered=0,
+            retrieval_time_ms=10.0,
+            top_scores=[]
+        )
+        mock_retriever.retrieve = AsyncMock(return_value=mock_result)
+
+        with patch('app.services.code_chat.context.get_retriever_for_context', new_callable=AsyncMock) as mock_get_retriever:
+            mock_get_retriever.return_value = mock_retriever
+
+            result = await search_tool.execute(query="nonexistent_function_xyz", context_name="test_context")
+            assert result.success is True
+            # No results is still a successful search
+            assert "No results found" in result.output
 
 
 class TestGrepFilesTool:
@@ -284,8 +330,7 @@ class TestGrepFilesTool:
 
     @pytest.fixture
     def grep_tool(self, workspace_dir: Path) -> GrepFilesTool:
-        tool = GrepFilesTool()
-        tool.workspace_root = workspace_dir
+        tool = GrepFilesTool(workspace_root=str(workspace_dir))
         return tool
 
     @pytest.mark.asyncio
@@ -584,8 +629,10 @@ class TestRunShellTool:
     @pytest.mark.asyncio
     async def test_timeout_enforcement(self, shell_tool: RunShellTool):
         """Test that long-running commands timeout."""
-        # Sleep for longer than timeout
-        result = await shell_tool.execute(command="sleep 100", timeout=1)
+        # Mock whitelist validation to allow 'sleep' for this test
+        # (sleep is not normally whitelisted, but we need it to test timeout logic)
+        with patch.object(shell_tool, '_validate_command', return_value=(True, "")):
+            result = await shell_tool.execute(command="sleep 100", timeout=1)
         assert result.success is False
         assert "timed out" in result.error.lower()
 
