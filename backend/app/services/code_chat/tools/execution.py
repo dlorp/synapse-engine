@@ -404,26 +404,33 @@ class RunShellTool(BaseTool):
         logger.info(f"Executing shell command: {command!r}")
 
         try:
-            # Execute with timeout and restricted environment
-            proc = await asyncio.wait_for(
-                asyncio.create_subprocess_shell(
-                    command,
-                    cwd=str(self.workspace_root),
-                    stdout=asyncio.subprocess.PIPE,
-                    stderr=asyncio.subprocess.PIPE,
-                    # Restricted PATH - only standard bins
-                    env={
-                        **os.environ,
-                        "PATH": "/usr/local/bin:/usr/bin:/bin",
-                        # Remove dangerous env vars
-                        "LD_PRELOAD": "",
-                        "LD_LIBRARY_PATH": "",
-                    }
-                ),
-                timeout=timeout
+            # Create subprocess with restricted environment
+            proc = await asyncio.create_subprocess_shell(
+                command,
+                cwd=str(self.workspace_root),
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+                # Restricted PATH - only standard bins
+                env={
+                    **os.environ,
+                    "PATH": "/usr/local/bin:/usr/bin:/bin",
+                    # Remove dangerous env vars
+                    "LD_PRELOAD": "",
+                    "LD_LIBRARY_PATH": "",
+                }
             )
 
-            stdout, stderr = await proc.communicate()
+            # Execute with timeout - timeout applies to actual command execution
+            try:
+                stdout, stderr = await asyncio.wait_for(
+                    proc.communicate(),
+                    timeout=timeout
+                )
+            except asyncio.TimeoutError:
+                # Kill the process if it times out
+                proc.kill()
+                await proc.wait()
+                raise
 
             # Limit output size (10KB for stdout, 2KB for stderr)
             stdout_str = stdout.decode(errors="replace")[:10000]
