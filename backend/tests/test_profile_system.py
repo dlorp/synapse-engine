@@ -13,14 +13,31 @@ from app.services.profile_manager import ProfileManager
 from app.services.model_discovery import ModelDiscoveryService
 
 
+def _get_profiles_dir() -> Path:
+    """Get the profiles directory, works both locally and in container."""
+    # Try relative path from backend directory first (local dev)
+    backend_dir = Path(__file__).parent.parent
+    local_profiles = backend_dir.parent / "config" / "profiles"
+    if local_profiles.exists():
+        return local_profiles
+    
+    # Fall back to container path
+    container_profiles = Path("/app/config/profiles")
+    if container_profiles.exists():
+        return container_profiles
+    
+    # Last resort: relative to cwd
+    return Path("config/profiles")
+
+
 def test_profile_manager():
     """Test ProfileManager basic operations."""
     print("=" * 60)
     print("TEST 1: Profile Manager Operations")
     print("=" * 60)
 
-    # Use absolute path from container root
-    manager = ProfileManager(profiles_dir=Path("/app/config/profiles"))
+    # Use dynamic path that works both locally and in container
+    manager = ProfileManager(profiles_dir=_get_profiles_dir())
 
     # List profiles
     profiles = manager.list_profiles()
@@ -61,8 +78,11 @@ def test_profile_validation():
 
     # Load registry
     discovery = ModelDiscoveryService(scan_path=Path("${PRAXIS_MODEL_PATH}/"))
-    # Use absolute path from container root
-    registry_path = Path("/app/data/model_registry.json")
+    # Try local path first, fall back to container path
+    backend_dir = Path(__file__).parent.parent
+    registry_path = backend_dir / "data" / "model_registry.json"
+    if not registry_path.exists():
+        registry_path = Path("/app/data/model_registry.json")
 
     if not registry_path.exists():
         print("⚠️  Model registry not found. Run Phase 1 first.")
@@ -72,8 +92,7 @@ def test_profile_validation():
     print(f"\nLoaded registry with {len(registry.models)} models")
 
     # Validate profiles
-    # Use absolute path from container root
-    manager = ProfileManager(profiles_dir=Path("/app/config/profiles"))
+    manager = ProfileManager(profiles_dir=_get_profiles_dir())
     all_valid = True
 
     for name in manager.list_profiles():
@@ -103,8 +122,7 @@ def test_profile_structure():
     print("TEST 3: Profile Structure Details")
     print("=" * 60)
 
-    # Use absolute path from container root
-    manager = ProfileManager(profiles_dir=Path("/app/config/profiles"))
+    manager = ProfileManager(profiles_dir=_get_profiles_dir())
 
     # Test development profile
     print("\n--- Development Profile ---")

@@ -48,7 +48,7 @@ class TestCGRAGContextEdgeCases:
                 mock_selector.select_instance.return_value = mock_instance
 
                 # Mock HTTP client to avoid actual model server calls
-                with patch("app.routers.query.httpx.AsyncClient") as mock_client:
+                with patch("app.services.llama_client.httpx.AsyncClient") as mock_client:
                     mock_response = MagicMock()
                     mock_response.status_code = 200
                     mock_response.json.return_value = {
@@ -222,7 +222,7 @@ class TestQueryRouterIntegration:
                 mock_instance.size_params = 8.0
                 mock_selector.select_instance.return_value = mock_instance
 
-                with patch("app.routers.query.httpx.AsyncClient") as mock_client:
+                with patch("app.services.llama_client.httpx.AsyncClient") as mock_client:
                     mock_response = MagicMock()
                     mock_response.status_code = 200
                     mock_response.json.return_value = {

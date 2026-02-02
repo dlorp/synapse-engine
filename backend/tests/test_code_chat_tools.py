@@ -59,33 +59,25 @@ def workspace_dir() -> Generator[Path, None, None]:
 @pytest.fixture
 def read_file_tool(workspace_dir: Path) -> ReadFileTool:
     """Create ReadFileTool with workspace."""
-    tool = ReadFileTool()
-    tool.workspace_root = workspace_dir
-    return tool
+    return ReadFileTool(workspace_root=str(workspace_dir))
 
 
 @pytest.fixture
 def write_file_tool(workspace_dir: Path) -> WriteFileTool:
     """Create WriteFileTool with workspace."""
-    tool = WriteFileTool()
-    tool.workspace_root = workspace_dir
-    return tool
+    return WriteFileTool(workspace_root=str(workspace_dir))
 
 
 @pytest.fixture
 def list_dir_tool(workspace_dir: Path) -> ListDirectoryTool:
     """Create ListDirectoryTool with workspace."""
-    tool = ListDirectoryTool()
-    tool.workspace_root = workspace_dir
-    return tool
+    return ListDirectoryTool(workspace_root=str(workspace_dir))
 
 
 @pytest.fixture
 def delete_file_tool(workspace_dir: Path) -> DeleteFileTool:
     """Create DeleteFileTool with workspace."""
-    tool = DeleteFileTool()
-    tool.workspace_root = workspace_dir
-    return tool
+    return DeleteFileTool(workspace_root=str(workspace_dir))
 
 
 # =============================================================================
@@ -96,18 +88,18 @@ def delete_file_tool(workspace_dir: Path) -> DeleteFileTool:
 class TestToolRegistry:
     """Tests for ToolRegistry."""
 
-    def test_register_tool(self):
+    def test_register_tool(self, workspace_dir: Path):
         """Test tool registration."""
         registry = ToolRegistry()
-        tool = ReadFileTool()
+        tool = ReadFileTool(workspace_root=str(workspace_dir))
         registry.register(tool)
-        assert ToolName.READ_FILE in registry.tools
-        assert registry.tools[ToolName.READ_FILE] is tool
+        assert ToolName.READ_FILE in registry._tools
+        assert registry._tools[ToolName.READ_FILE] is tool
 
-    def test_get_tool(self):
+    def test_get_tool(self, workspace_dir: Path):
         """Test retrieving a registered tool."""
         registry = ToolRegistry()
-        tool = ReadFileTool()
+        tool = ReadFileTool(workspace_root=str(workspace_dir))
         registry.register(tool)
         retrieved = registry.get(ToolName.READ_FILE)
         assert retrieved is tool
@@ -117,11 +109,11 @@ class TestToolRegistry:
         registry = ToolRegistry()
         assert registry.get(ToolName.READ_FILE) is None
 
-    def test_list_tools(self):
+    def test_list_tools(self, workspace_dir: Path):
         """Test listing all registered tools."""
         registry = ToolRegistry()
-        registry.register(ReadFileTool())
-        registry.register(WriteFileTool())
+        registry.register(ReadFileTool(workspace_root=str(workspace_dir)))
+        registry.register(WriteFileTool(workspace_root=str(workspace_dir)))
         tools = registry.list_tools()
         assert len(tools) == 2
 
@@ -271,9 +263,7 @@ class TestSearchCodeTool:
 
     @pytest.fixture
     def search_tool(self, workspace_dir: Path) -> SearchCodeTool:
-        tool = SearchCodeTool()
-        tool.workspace_root = workspace_dir
-        return tool
+        return SearchCodeTool(workspace_root=str(workspace_dir))
 
     @pytest.mark.asyncio
     async def test_search_code_success(
@@ -300,9 +290,7 @@ class TestGrepFilesTool:
 
     @pytest.fixture
     def grep_tool(self, workspace_dir: Path) -> GrepFilesTool:
-        tool = GrepFilesTool()
-        tool.workspace_root = workspace_dir
-        return tool
+        return GrepFilesTool(workspace_root=str(workspace_dir))
 
     @pytest.mark.asyncio
     async def test_grep_files_success(
@@ -400,9 +388,7 @@ class TestRunShellTool:
     @pytest.fixture
     def shell_tool(self, workspace_dir: Path) -> RunShellTool:
         """Create RunShellTool with workspace."""
-        tool = RunShellTool()
-        tool.workspace_root = workspace_dir
-        return tool
+        return RunShellTool(workspace_root=str(workspace_dir))
 
     # =============================================================================
     # Allowed Command Tests
@@ -663,11 +649,8 @@ class TestToolIntegration:
     @pytest.mark.asyncio
     async def test_write_then_read(self, workspace_dir: Path):
         """Test writing a file then reading it."""
-        write_tool = WriteFileTool()
-        write_tool.workspace_root = workspace_dir
-
-        read_tool = ReadFileTool()
-        read_tool.workspace_root = workspace_dir
+        write_tool = WriteFileTool(workspace_root=str(workspace_dir))
+        read_tool = ReadFileTool(workspace_root=str(workspace_dir))
 
         # Write
         content = "Integration test content"
@@ -682,11 +665,8 @@ class TestToolIntegration:
     @pytest.mark.asyncio
     async def test_write_then_delete(self, workspace_dir: Path):
         """Test writing a file then deleting it."""
-        write_tool = WriteFileTool()
-        write_tool.workspace_root = workspace_dir
-
-        delete_tool = DeleteFileTool()
-        delete_tool.workspace_root = workspace_dir
+        write_tool = WriteFileTool(workspace_root=str(workspace_dir))
+        delete_tool = DeleteFileTool(workspace_root=str(workspace_dir))
 
         # Write
         write_result = await write_tool.execute(path="temp.txt", content="temporary")
@@ -710,8 +690,7 @@ class TestSecurityConstraints:
     @pytest.mark.asyncio
     async def test_absolute_path_rejection(self, workspace_dir: Path):
         """Test that absolute paths are rejected."""
-        read_tool = ReadFileTool()
-        read_tool.workspace_root = workspace_dir
+        read_tool = ReadFileTool(workspace_root=str(workspace_dir))
 
         result = await read_tool.execute(path="/etc/passwd")
         assert result.success is False
@@ -726,8 +705,7 @@ class TestSecurityConstraints:
         except OSError:
             pytest.skip("Unable to create symlink")
 
-        read_tool = ReadFileTool()
-        read_tool.workspace_root = workspace_dir
+        read_tool = ReadFileTool(workspace_root=str(workspace_dir))
 
         result = await read_tool.execute(path="escape_link/passwd")
         # Should fail due to path escaping workspace
@@ -736,8 +714,7 @@ class TestSecurityConstraints:
     @pytest.mark.asyncio
     async def test_null_byte_injection(self, workspace_dir: Path):
         """Test null byte injection prevention."""
-        read_tool = ReadFileTool()
-        read_tool.workspace_root = workspace_dir
+        read_tool = ReadFileTool(workspace_root=str(workspace_dir))
 
         result = await read_tool.execute(path="test.py\x00.txt")
         # Should fail or sanitize the null byte
