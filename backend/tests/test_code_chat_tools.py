@@ -6,6 +6,7 @@ Code Chat agentic coding assistant.
 Phase: Code Chat Implementation (Session 5)
 """
 
+import asyncio
 import os
 import tempfile
 from pathlib import Path
@@ -230,14 +231,17 @@ class TestDeleteFileTool:
     async def test_delete_file_success(
         self, delete_file_tool: DeleteFileTool, workspace_dir: Path
     ):
-        """Test deleting a file successfully."""
+        """Test deleting a file returns confirmation request (does not actually delete)."""
         # Create a file to delete
         to_delete = workspace_dir / "to_delete.txt"
         to_delete.write_text("delete me")
 
         result = await delete_file_tool.execute(path="to_delete.txt")
         assert result.success is True
-        assert not to_delete.exists()
+        # DeleteFileTool requires confirmation - file should still exist
+        assert result.requires_confirmation is True
+        assert result.confirmation_type == "file_delete"
+        assert to_delete.exists()  # File NOT deleted until confirmation
 
     @pytest.mark.asyncio
     async def test_delete_file_not_found(self, delete_file_tool: DeleteFileTool):
@@ -656,21 +660,41 @@ class TestRunShellTool:
     @pytest.mark.asyncio
     async def test_timeout_enforcement(self, shell_tool: RunShellTool):
         """Test that long-running commands timeout."""
-        # Mock whitelist validation to allow 'sleep' for this test
-        # (sleep is not normally whitelisted, but we need it to test timeout logic)
+
+        # Mock asyncio.create_subprocess_shell to simulate a slow process
+        async def slow_communicate():
+            await asyncio.sleep(10)  # Simulate slow process
+            return b"", b""
+
+        mock_proc = AsyncMock()
+        mock_proc.communicate = slow_communicate
+        mock_proc.kill = MagicMock()
+        mock_proc.wait = AsyncMock()
+
         with patch.object(shell_tool, "_validate_command", return_value=(True, "")):
-            result = await shell_tool.execute(command="sleep 100", timeout=1)
+            with patch("asyncio.create_subprocess_shell", return_value=mock_proc):
+                result = await shell_tool.execute(command="sleep 100", timeout=1)
+
         assert result.success is False
         assert "timed out" in result.error.lower()
 
     @pytest.mark.asyncio
     async def test_output_size_limit(self, shell_tool: RunShellTool):
         """Test that output is limited to 10KB."""
-        # Generate large output (> 10KB)
-        result = await shell_tool.execute(command="find /")
-        # Even if command succeeds, output should be limited
-        if result.success:
-            assert len(result.output) <= 10000
+        # Mock subprocess to return large output (> 10KB)
+        large_output = b"x" * 20000  # 20KB of data
+
+        mock_proc = AsyncMock()
+        mock_proc.communicate = AsyncMock(return_value=(large_output, b""))
+        mock_proc.returncode = 0
+
+        with patch.object(shell_tool, "_validate_command", return_value=(True, "")):
+            with patch("asyncio.create_subprocess_shell", return_value=mock_proc):
+                result = await shell_tool.execute(command="find .", timeout=5)
+
+        # Output should be truncated to 10KB max
+        assert result.success is True
+        assert len(result.output) <= 10000
 
     @pytest.mark.asyncio
     async def test_workspace_cwd(self, shell_tool: RunShellTool, workspace_dir: Path):
