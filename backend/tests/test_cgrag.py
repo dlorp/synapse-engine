@@ -5,6 +5,7 @@ import asyncio
 from pathlib import Path
 from app.services.cgrag import CGRAGIndexer, CGRAGRetriever
 
+
 async def main():
     # Load index
     project_root = Path(__file__).parent.parent
@@ -34,7 +35,10 @@ async def main():
 
     # Manually test to see raw distances
     import faiss
-    query_embedding = indexer.encoder.encode([query], show_progress_bar=False, convert_to_numpy=True)
+
+    query_embedding = indexer.encoder.encode(
+        [query], show_progress_bar=False, convert_to_numpy=True
+    )
     query_embedding = query_embedding[0].reshape(1, -1)
     faiss.normalize_L2(query_embedding)
 
@@ -43,11 +47,7 @@ async def main():
     print(f"FAISS distances squared (L2^2): {distances[0] ** 2}")
     print(f"Converted scores (1 - L2^2/2): {1.0 - ((distances[0] ** 2) / 2.0)}")
 
-    result = await retriever.retrieve(
-        query=query,
-        token_budget=8000,
-        max_artifacts=10
-    )
+    result = await retriever.retrieve(query=query, token_budget=8000, max_artifacts=10)
 
     print("\nRetrieval Results:")
     print(f"  Artifacts: {len(result.artifacts)}")
@@ -59,11 +59,12 @@ async def main():
     # Print top artifacts
     print("\nTop Artifacts:")
     for i, artifact in enumerate(result.artifacts[:3]):
-        print(f"\n  Artifact {i+1}:")
+        print(f"\n  Artifact {i + 1}:")
         print(f"    File: {artifact.file_path}")
         print(f"    Relevance: {artifact.relevance_score:.3f}")
         print(f"    Chunk: {artifact.chunk_index}")
         print(f"    Content preview: {artifact.content[:200]}...")
+
 
 if __name__ == "__main__":
     asyncio.run(main())

@@ -17,11 +17,7 @@ class ModeratorAnalysis:
     """Result of moderator analysis."""
 
     def __init__(
-        self,
-        analysis: str,
-        moderator_model: str,
-        tokens_used: int,
-        breakdown: Dict
+        self, analysis: str, moderator_model: str, tokens_used: int, breakdown: Dict
     ):
         self.analysis = analysis
         self.moderator_model = moderator_model
@@ -34,7 +30,7 @@ class ModeratorAnalysis:
             "analysis": self.analysis,
             "moderator_model": self.moderator_model,
             "tokens_used": self.tokens_used,
-            "breakdown": self.breakdown
+            "breakdown": self.breakdown,
         }
 
 
@@ -42,7 +38,7 @@ async def check_for_interjection(
     dialogue_turns: List,  # List[DialogueTurn]
     query: str,
     model_caller: ModelCallerFunc,
-    moderator_model: str
+    moderator_model: str,
 ) -> Optional[str]:
     """
     Check if moderator should interject to redirect debate.
@@ -89,14 +85,16 @@ Be brief and direct. Only interject if genuinely needed to refocus the debate on
 
 Your decision:"""
 
-        logger.debug(f"Checking for moderator interjection using model {moderator_model}")
+        logger.debug(
+            f"Checking for moderator interjection using model {moderator_model}"
+        )
 
         # Call moderator model
         response = await model_caller(
             moderator_model,
             prompt,
             max_tokens=300,  # Brief interjection message
-            temperature=0.3  # Lower temperature for consistent moderation
+            temperature=0.3,  # Lower temperature for consistent moderation
         )
 
         response_text = response.get("content", "").strip()
@@ -127,7 +125,7 @@ async def run_moderator_analysis(
     synthesis: str,
     model_caller: ModelCallerFunc,
     model_selector=None,  # ModelSelector instance for auto-selection
-    model_id: Optional[str] = None
+    model_id: Optional[str] = None,
 ) -> Optional[ModeratorAnalysis]:
     """
     Use LLM model to analyze debate comprehensively.
@@ -154,7 +152,9 @@ async def run_moderator_analysis(
         # Auto-select moderator model if not specified
         if model_id is None:
             if model_selector is None:
-                raise ValueError("model_selector must be provided when model_id is None")
+                raise ValueError(
+                    "model_selector must be provided when model_id is None"
+                )
 
             moderator_model = _auto_select_moderator_model(model_selector)
             logger.info(f"Auto-selected moderator model: {moderator_model}")
@@ -176,7 +176,7 @@ async def run_moderator_analysis(
                 moderator_model,
                 analysis_prompt,
                 max_tokens=2000,  # Moderator needs space for detailed analysis
-                temperature=0.3   # Lower temperature for more analytical response
+                temperature=0.3,  # Lower temperature for more analytical response
             )
 
             analysis_text = response.get("content", "")
@@ -184,14 +184,13 @@ async def run_moderator_analysis(
 
             logger.info(
                 f"Moderator analysis completed using {moderator_model}: {tokens_used} tokens",
-                extra={
-                    "moderator_model": moderator_model,
-                    "tokens_used": tokens_used
-                }
+                extra={"moderator_model": moderator_model, "tokens_used": tokens_used},
             )
 
         except Exception as e:
-            logger.error(f"Error calling moderator model {moderator_model}: {e}", exc_info=True)
+            logger.error(
+                f"Error calling moderator model {moderator_model}: {e}", exc_info=True
+            )
             raise
 
         # Parse the analysis into structured breakdown
@@ -201,7 +200,7 @@ async def run_moderator_analysis(
             analysis=analysis_text,
             moderator_model=moderator_model,
             tokens_used=tokens_used,
-            breakdown=breakdown
+            breakdown=breakdown,
         )
 
     except Exception as e:
@@ -253,7 +252,9 @@ def _auto_select_moderator_model(model_selector) -> str:
         return selected
     elif fast:
         selected = fast[0].model_id
-        logger.info(f"Selected FAST tier model for moderator (no powerful/balanced available): {selected}")
+        logger.info(
+            f"Selected FAST tier model for moderator (no powerful/balanced available): {selected}"
+        )
         return selected
     else:
         raise ValueError("No enabled models available for moderator analysis")
@@ -350,26 +351,30 @@ def _parse_moderator_analysis(analysis_text: str) -> Dict:
             "pro_strengths": [],
             "pro_weaknesses": [],
             "con_strengths": [],
-            "con_weaknesses": []
+            "con_weaknesses": [],
         },
         "logical_fallacies": [],
         "rhetorical_techniques": [],
         "key_turning_points": [],
         "unanswered_questions": [],
-        "overall_winner": None  # "pro", "con", or "tie"
+        "overall_winner": None,  # "pro", "con", or "tie"
     }
 
     # Simple keyword-based extraction
     # In production, this could use more sophisticated NLP
-    lines = analysis_text.lower().split('\n')
+    lines = analysis_text.lower().split("\n")
 
     for line in lines:
         # Extract argument strengths/weaknesses
-        if "pro" in line and ("strong" in line or "effective" in line or "strength" in line):
+        if "pro" in line and (
+            "strong" in line or "effective" in line or "strength" in line
+        ):
             breakdown["argument_strength"]["pro_strengths"].append(line.strip()[:200])
         if "pro" in line and ("weak" in line or "fallacy" in line or "flaw" in line):
             breakdown["argument_strength"]["pro_weaknesses"].append(line.strip()[:200])
-        if "con" in line and ("strong" in line or "effective" in line or "strength" in line):
+        if "con" in line and (
+            "strong" in line or "effective" in line or "strength" in line
+        ):
             breakdown["argument_strength"]["con_strengths"].append(line.strip()[:200])
         if "con" in line and ("weak" in line or "fallacy" in line or "flaw" in line):
             breakdown["argument_strength"]["con_weaknesses"].append(line.strip()[:200])
@@ -387,18 +392,35 @@ def _parse_moderator_analysis(analysis_text: str) -> Dict:
             breakdown["key_turning_points"].append(line.strip()[:200])
 
         # Extract unanswered questions
-        if "unanswered" in line or "gap" in line or "missing" in line or "not addressed" in line:
+        if (
+            "unanswered" in line
+            or "gap" in line
+            or "missing" in line
+            or "not addressed" in line
+        ):
             breakdown["unanswered_questions"].append(line.strip()[:200])
 
     # Determine overall winner based on final assessment
     analysis_lower = analysis_text.lower()
-    if "pro" in analysis_lower and ("stronger" in analysis_lower or "winner" in analysis_lower or "wins" in analysis_lower):
+    if "pro" in analysis_lower and (
+        "stronger" in analysis_lower
+        or "winner" in analysis_lower
+        or "wins" in analysis_lower
+    ):
         # Check context to avoid false positives
         if "con" not in analysis_lower.split("pro")[0]:  # PRO mentioned first as winner
             breakdown["overall_winner"] = "pro"
-    elif "con" in analysis_lower and ("stronger" in analysis_lower or "winner" in analysis_lower or "wins" in analysis_lower):
+    elif "con" in analysis_lower and (
+        "stronger" in analysis_lower
+        or "winner" in analysis_lower
+        or "wins" in analysis_lower
+    ):
         breakdown["overall_winner"] = "con"
-    elif "tie" in analysis_lower or "balanced" in analysis_lower or "even" in analysis_lower:
+    elif (
+        "tie" in analysis_lower
+        or "balanced" in analysis_lower
+        or "even" in analysis_lower
+    ):
         breakdown["overall_winner"] = "tie"
 
     return breakdown

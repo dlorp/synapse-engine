@@ -24,7 +24,7 @@ from app.models.topology import (
     ComponentNode,
     DataFlowPath,
     HealthMetrics,
-    SystemTopology
+    SystemTopology,
 )
 from app.services.event_bus import get_event_bus
 from app.models.events import SystemEvent, EventType, EventSeverity
@@ -79,7 +79,7 @@ class TopologyManager:
                 label="React Frontend",
                 status="healthy",
                 metadata={"version": "5.0.0", "framework": "React 19"},
-                position={"x": 100, "y": 50}
+                position={"x": 100, "y": 50},
             ),
             "orchestrator": ComponentNode(
                 id="orchestrator",
@@ -89,9 +89,9 @@ class TopologyManager:
                 metadata={
                     "version": "5.0.0",
                     "uptime_hours": 0.0,
-                    "queries_processed": 0
+                    "queries_processed": 0,
                 },
-                position={"x": 100, "y": 200}
+                position={"x": 100, "y": 200},
             ),
             "cgrag_engine": ComponentNode(
                 id="cgrag_engine",
@@ -99,7 +99,7 @@ class TopologyManager:
                 label="CGRAG Engine",
                 status="offline",
                 metadata={"retrieval_count": 0, "cache_hit_rate": 0.0},
-                position={"x": 300, "y": 200}
+                position={"x": 300, "y": 200},
             ),
             "faiss_index": ComponentNode(
                 id="faiss_index",
@@ -107,7 +107,7 @@ class TopologyManager:
                 label="FAISS Vector Index",
                 status="offline",
                 metadata={"chunks_indexed": 0, "dimensions": 384},
-                position={"x": 500, "y": 200}
+                position={"x": 500, "y": 200},
             ),
             "redis_cache": ComponentNode(
                 id="redis_cache",
@@ -115,7 +115,7 @@ class TopologyManager:
                 label="Redis Cache",
                 status="offline",
                 metadata={"hit_rate": 0.0, "keys_count": 0},
-                position={"x": 300, "y": 350}
+                position={"x": 300, "y": 350},
             ),
             "event_bus": ComponentNode(
                 id="event_bus",
@@ -123,7 +123,7 @@ class TopologyManager:
                 label="Event Bus",
                 status="healthy",
                 metadata={"connected_clients": 0, "events_sent": 0},
-                position={"x": 300, "y": 50}
+                position={"x": 300, "y": 50},
             ),
             # Model nodes (will be dynamically updated based on running models)
             "q2_fast_1": ComponentNode(
@@ -132,7 +132,7 @@ class TopologyManager:
                 label="Q2 FAST #1",
                 status="offline",
                 metadata={"tier": "Q2", "memory_usage_mb": 0.0},
-                position={"x": 100, "y": 350}
+                position={"x": 100, "y": 350},
             ),
             "q2_fast_2": ComponentNode(
                 id="q2_fast_2",
@@ -140,7 +140,7 @@ class TopologyManager:
                 label="Q2 FAST #2",
                 status="offline",
                 metadata={"tier": "Q2", "memory_usage_mb": 0.0},
-                position={"x": 100, "y": 450}
+                position={"x": 100, "y": 450},
             ),
             "q3_balanced_1": ComponentNode(
                 id="q3_balanced_1",
@@ -148,7 +148,7 @@ class TopologyManager:
                 label="Q3 BALANCED #1",
                 status="offline",
                 metadata={"tier": "Q3", "memory_usage_mb": 0.0},
-                position={"x": 100, "y": 550}
+                position={"x": 100, "y": 550},
             ),
             "q4_deep_1": ComponentNode(
                 id="q4_deep_1",
@@ -156,8 +156,8 @@ class TopologyManager:
                 label="Q4 POWERFUL #1",
                 status="offline",
                 metadata={"tier": "Q4", "memory_usage_mb": 0.0},
-                position={"x": 100, "y": 650}
-            )
+                position={"x": 100, "y": 650},
+            ),
         }
 
         # Define component connections
@@ -168,7 +168,7 @@ class TopologyManager:
                 type="data_flow",
                 label="User queries",
                 active=False,
-                metadata={"throughput_qps": 0.0, "avg_latency_ms": 0.0}
+                metadata={"throughput_qps": 0.0, "avg_latency_ms": 0.0},
             ),
             ComponentConnection(
                 source="orchestrator",
@@ -176,7 +176,7 @@ class TopologyManager:
                 type="control",
                 label="Context retrieval",
                 active=False,
-                metadata={"requests_per_min": 0.0}
+                metadata={"requests_per_min": 0.0},
             ),
             ComponentConnection(
                 source="cgrag_engine",
@@ -184,7 +184,7 @@ class TopologyManager:
                 type="dependency",
                 label="Vector search",
                 active=False,
-                metadata={"search_latency_ms": 0.0}
+                metadata={"search_latency_ms": 0.0},
             ),
             ComponentConnection(
                 source="orchestrator",
@@ -192,7 +192,7 @@ class TopologyManager:
                 type="dependency",
                 label="Cache lookup",
                 active=False,
-                metadata={"hit_rate": 0.0}
+                metadata={"hit_rate": 0.0},
             ),
             ComponentConnection(
                 source="orchestrator",
@@ -200,7 +200,7 @@ class TopologyManager:
                 type="data_flow",
                 label="Q2 routing",
                 active=False,
-                metadata={"queries_routed": 0}
+                metadata={"queries_routed": 0},
             ),
             ComponentConnection(
                 source="orchestrator",
@@ -208,7 +208,7 @@ class TopologyManager:
                 type="data_flow",
                 label="Q2 routing",
                 active=False,
-                metadata={"queries_routed": 0}
+                metadata={"queries_routed": 0},
             ),
             ComponentConnection(
                 source="orchestrator",
@@ -216,7 +216,7 @@ class TopologyManager:
                 type="data_flow",
                 label="Q3 routing",
                 active=False,
-                metadata={"queries_routed": 0}
+                metadata={"queries_routed": 0},
             ),
             ComponentConnection(
                 source="orchestrator",
@@ -224,7 +224,7 @@ class TopologyManager:
                 type="data_flow",
                 label="Q4 routing",
                 active=False,
-                metadata={"queries_routed": 0}
+                metadata={"queries_routed": 0},
             ),
             ComponentConnection(
                 source="orchestrator",
@@ -232,7 +232,7 @@ class TopologyManager:
                 type="control",
                 label="Status updates",
                 active=True,
-                metadata={"events_per_sec": 0.0}
+                metadata={"events_per_sec": 0.0},
             ),
             ComponentConnection(
                 source="event_bus",
@@ -240,8 +240,8 @@ class TopologyManager:
                 type="data_flow",
                 label="Real-time events",
                 active=True,
-                metadata={"websocket_connections": 0}
-            )
+                metadata={"websocket_connections": 0},
+            ),
         ]
 
         logger.info(
@@ -303,12 +303,10 @@ class TopologyManager:
             nodes=list(self.nodes.values()),
             connections=self.connections,
             last_updated=datetime.utcnow(),
-            overall_health=overall_health
+            overall_health=overall_health,
         )
 
-    async def get_component_health(
-        self, component_id: str
-    ) -> Optional[HealthMetrics]:
+    async def get_component_health(self, component_id: str) -> Optional[HealthMetrics]:
         """Get health metrics for a specific component.
 
         Args:
@@ -319,9 +317,7 @@ class TopologyManager:
         """
         return self.health_metrics.get(component_id)
 
-    async def get_data_flow_path(
-        self, query_id: str
-    ) -> Optional[DataFlowPath]:
+    async def get_data_flow_path(self, query_id: str) -> Optional[DataFlowPath]:
         """Get data flow path for a specific query.
 
         Args:
@@ -347,12 +343,14 @@ class TopologyManager:
         # Update node status
         if component_id in self.nodes:
             self.nodes[component_id].status = metrics.status
-            self.nodes[component_id].metadata.update({
-                "memory_usage_mb": metrics.memory_usage_mb,
-                "cpu_percent": metrics.cpu_percent,
-                "error_rate": metrics.error_rate,
-                "avg_latency_ms": metrics.avg_latency_ms
-            })
+            self.nodes[component_id].metadata.update(
+                {
+                    "memory_usage_mb": metrics.memory_usage_mb,
+                    "cpu_percent": metrics.cpu_percent,
+                    "error_rate": metrics.error_rate,
+                    "avg_latency_ms": metrics.avg_latency_ms,
+                }
+            )
 
         # Emit event if status changed
         if old_status is None or old_status.status != metrics.status:
@@ -364,26 +362,28 @@ class TopologyManager:
                         type=EventType.MODEL_STATE,
                         message=f"Component {component_id} status changed to {metrics.status}",
                         severity=(
-                            EventSeverity.ERROR if metrics.status == "unhealthy"
-                            else EventSeverity.WARNING if metrics.status == "degraded"
+                            EventSeverity.ERROR
+                            if metrics.status == "unhealthy"
+                            else EventSeverity.WARNING
+                            if metrics.status == "degraded"
                             else EventSeverity.INFO
                         ),
                         metadata={
                             "component_id": component_id,
-                            "previous_status": old_status.status if old_status else "unknown",
+                            "previous_status": old_status.status
+                            if old_status
+                            else "unknown",
                             "current_status": metrics.status,
                             "memory_usage_mb": metrics.memory_usage_mb,
-                            "cpu_percent": metrics.cpu_percent
-                        }
+                            "cpu_percent": metrics.cpu_percent,
+                        },
                     )
                 )
             except RuntimeError:
                 # Event bus not initialized - skip
                 pass
 
-    async def record_data_flow(
-        self, query_id: str, component_id: str
-    ) -> None:
+    async def record_data_flow(self, query_id: str, component_id: str) -> None:
         """Record query entering a component for data flow tracking.
 
         Args:
@@ -393,10 +393,7 @@ class TopologyManager:
         # Get or create data flow path
         if query_id not in self.data_flow_paths:
             self.data_flow_paths[query_id] = DataFlowPath(
-                query_id=query_id,
-                path=[],
-                timestamps={},
-                status="active"
+                query_id=query_id, path=[], timestamps={}, status="active"
             )
 
         flow = self.data_flow_paths[query_id]
@@ -408,7 +405,7 @@ class TopologyManager:
 
             logger.debug(
                 f"Recorded data flow: query {query_id} -> {component_id}",
-                extra={"query_id": query_id, "component_id": component_id}
+                extra={"query_id": query_id, "component_id": component_id},
             )
 
         # Cleanup old paths (TTL: 1 hour, max 100 paths)
@@ -424,8 +421,7 @@ class TopologyManager:
             # Get oldest timestamp in path
             if flow.timestamps:
                 oldest_timestamp = min(
-                    datetime.fromisoformat(ts)
-                    for ts in flow.timestamps.values()
+                    datetime.fromisoformat(ts) for ts in flow.timestamps.values()
                 )
                 if oldest_timestamp < cutoff_time:
                     expired_ids.append(query_id)
@@ -439,9 +435,8 @@ class TopologyManager:
             sorted_paths = sorted(
                 self.data_flow_paths.items(),
                 key=lambda item: min(
-                    datetime.fromisoformat(ts)
-                    for ts in item[1].timestamps.values()
-                )
+                    datetime.fromisoformat(ts) for ts in item[1].timestamps.values()
+                ),
             )
             for query_id, _ in sorted_paths[:-100]:
                 del self.data_flow_paths[query_id]
@@ -484,8 +479,8 @@ class TopologyManager:
                 cpu_percent=round(cpu_percent, 2),
                 error_rate=0.0,
                 avg_latency_ms=0.0,
-                last_check=datetime.utcnow()
-            )
+                last_check=datetime.utcnow(),
+            ),
         )
 
         # Check model servers via LlamaServerManager
@@ -524,8 +519,8 @@ class TopologyManager:
                             cpu_percent=0.0,  # llama.cpp doesn't expose this yet
                             error_rate=0.0,
                             avg_latency_ms=0.0,
-                            last_check=datetime.utcnow()
-                        )
+                            last_check=datetime.utcnow(),
+                        ),
                     )
         except Exception as e:
             logger.debug(f"Failed to update model health from server_manager: {e}")
@@ -534,6 +529,7 @@ class TopologyManager:
         try:
             # Use the same path function as CGRAG service for consistency
             from app.services.cgrag import get_cgrag_index_paths
+
             _, index_path, metadata_path = get_cgrag_index_paths("docs")
 
             if index_path.exists() and metadata_path.exists():
@@ -547,8 +543,8 @@ class TopologyManager:
                         cpu_percent=0.0,
                         error_rate=0.0,
                         avg_latency_ms=0.0,
-                        last_check=datetime.utcnow()
-                    )
+                        last_check=datetime.utcnow(),
+                    ),
                 )
                 await self.update_component_health(
                     "cgrag_engine",
@@ -560,8 +556,8 @@ class TopologyManager:
                         cpu_percent=0.0,
                         error_rate=0.0,
                         avg_latency_ms=0.0,
-                        last_check=datetime.utcnow()
-                    )
+                        last_check=datetime.utcnow(),
+                    ),
                 )
         except Exception as e:
             logger.debug(f"CGRAG health check failed: {e}")
@@ -576,7 +572,7 @@ class TopologyManager:
                 host=redis_host,
                 port=redis_port,
                 password=redis_password,
-                socket_timeout=2.0
+                socket_timeout=2.0,
             )
 
             if r.ping():
@@ -595,8 +591,8 @@ class TopologyManager:
                         cpu_percent=0.0,
                         error_rate=0.0,
                         avg_latency_ms=0.0,
-                        last_check=datetime.utcnow()
-                    )
+                        last_check=datetime.utcnow(),
+                    ),
                 )
                 # Update metadata with keys count
                 if "redis_cache" in self.nodes:
@@ -612,8 +608,8 @@ class TopologyManager:
                         cpu_percent=0.0,
                         error_rate=0.0,
                         avg_latency_ms=0.0,
-                        last_check=datetime.utcnow()
-                    )
+                        last_check=datetime.utcnow(),
+                    ),
                 )
             r.close()
         except Exception as e:
@@ -629,8 +625,8 @@ class TopologyManager:
                     cpu_percent=0.0,
                     error_rate=0.0,
                     avg_latency_ms=0.0,
-                    last_check=datetime.utcnow()
-                )
+                    last_check=datetime.utcnow(),
+                ),
             )
 
         # Event bus (always healthy if we're running)
@@ -646,8 +642,8 @@ class TopologyManager:
                     cpu_percent=0.0,
                     error_rate=0.0,
                     avg_latency_ms=0.0,
-                    last_check=datetime.utcnow()
-                )
+                    last_check=datetime.utcnow(),
+                ),
             )
         except RuntimeError:
             pass

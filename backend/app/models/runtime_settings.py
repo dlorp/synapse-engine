@@ -29,45 +29,35 @@ class RuntimeSettings(BaseModel):
         default=99,
         ge=0,
         le=999,
-        description="Number of layers to offload to GPU (0=CPU only, 99=max offload)"
+        description="Number of layers to offload to GPU (0=CPU only, 99=max offload)",
     )
 
     ctx_size: int = Field(
         default=32768,
         ge=512,
         le=131072,
-        description="Context window size in tokens (2K, 4K, 8K, 16K, 32K, 64K, 128K)"
+        description="Context window size in tokens (2K, 4K, 8K, 16K, 32K, 64K, 128K)",
     )
 
     threads: int = Field(
-        default=8,
-        ge=1,
-        le=64,
-        description="Number of CPU threads for processing"
+        default=8, ge=1, le=64, description="Number of CPU threads for processing"
     )
 
     batch_size: int = Field(
-        default=512,
-        ge=32,
-        le=2048,
-        description="Batch size for prompt processing"
+        default=512, ge=32, le=2048, description="Batch size for prompt processing"
     )
 
     ubatch_size: int = Field(
-        default=256,
-        ge=32,
-        le=1024,
-        description="Micro-batch size for generation"
+        default=256, ge=32, le=1024, description="Micro-batch size for generation"
     )
 
     flash_attn: bool = Field(
         default=True,
-        description="Enable Flash Attention for faster inference (GPU only)"
+        description="Enable Flash Attention for faster inference (GPU only)",
     )
 
     no_mmap: bool = Field(
-        default=True,
-        description="Disable memory mapping (use for Metal/GPU)"
+        default=True, description="Disable memory mapping (use for Metal/GPU)"
     )
 
     # ========================================================================
@@ -76,19 +66,19 @@ class RuntimeSettings(BaseModel):
 
     embedding_model_name: str = Field(
         default="all-MiniLM-L6-v2",
-        description="HuggingFace sentence-transformers model name"
+        description="HuggingFace sentence-transformers model name",
     )
 
     embedding_model_cache_path: Optional[str] = Field(
         default=None,
-        description="Custom cache path for HuggingFace models (None = use default ~/.cache/huggingface)"
+        description="Custom cache path for HuggingFace models (None = use default ~/.cache/huggingface)",
     )
 
     embedding_dimension: int = Field(
         default=384,
         ge=128,
         le=1536,
-        description="Embedding vector dimension (must match model output)"
+        description="Embedding vector dimension (must match model output)",
     )
 
     # ========================================================================
@@ -99,40 +89,40 @@ class RuntimeSettings(BaseModel):
         default=8000,
         ge=1000,
         le=32000,
-        description="Maximum tokens to use for CGRAG context"
+        description="Maximum tokens to use for CGRAG context",
     )
 
     cgrag_min_relevance: float = Field(
         default=0.7,
         ge=0.0,
         le=1.0,
-        description="Minimum relevance score for including artifacts (0.0-1.0)"
+        description="Minimum relevance score for including artifacts (0.0-1.0)",
     )
 
     cgrag_chunk_size: int = Field(
         default=512,
         ge=128,
         le=2048,
-        description="Text chunk size for CGRAG indexing (tokens)"
+        description="Text chunk size for CGRAG indexing (tokens)",
     )
 
     cgrag_chunk_overlap: int = Field(
         default=50,
         ge=0,
         le=512,
-        description="Overlap between chunks to preserve context (tokens)"
+        description="Overlap between chunks to preserve context (tokens)",
     )
 
     cgrag_max_results: int = Field(
         default=20,
         ge=1,
         le=100,
-        description="Maximum number of artifacts to retrieve from FAISS"
+        description="Maximum number of artifacts to retrieve from FAISS",
     )
 
     cgrag_index_directory: str = Field(
         default="data/faiss_indexes",
-        description="Directory containing CGRAG FAISS indexes (relative to project root)"
+        description="Directory containing CGRAG FAISS indexes (relative to project root)",
     )
 
     # ========================================================================
@@ -143,14 +133,14 @@ class RuntimeSettings(BaseModel):
         default=1024,
         ge=128,
         le=4096,
-        description="Default max_tokens per model in benchmark mode"
+        description="Default max_tokens per model in benchmark mode",
     )
 
     benchmark_parallel_max_models: int = Field(
         default=5,
         ge=1,
         le=10,
-        description="Maximum number of models to run in parallel (VRAM constraint)"
+        description="Maximum number of models to run in parallel (VRAM constraint)",
     )
 
     # ========================================================================
@@ -161,18 +151,16 @@ class RuntimeSettings(BaseModel):
         default=5,
         ge=1,
         le=20,
-        description="Maximum number of web search results to include"
+        description="Maximum number of web search results to include",
     )
 
     websearch_timeout_seconds: int = Field(
-        default=10,
-        ge=5,
-        le=30,
-        description="Timeout for web search requests"
+        default=10, ge=5, le=30, description="Timeout for web search requests"
     )
 
     class Config:
         """Pydantic configuration."""
+
         json_schema_extra = {
             "example": {
                 "n_gpu_layers": 99,
@@ -193,7 +181,7 @@ class RuntimeSettings(BaseModel):
                 "benchmark_default_max_tokens": 1024,
                 "benchmark_parallel_max_models": 5,
                 "websearch_max_results": 5,
-                "websearch_timeout_seconds": 10
+                "websearch_timeout_seconds": 10,
             }
         }
 
@@ -213,7 +201,7 @@ class RuntimeSettings(BaseModel):
             "batch_size",
             "ubatch_size",
             "flash_attn",
-            "no_mmap"
+            "no_mmap",
         }
 
         for field in restart_fields:
@@ -223,9 +211,7 @@ class RuntimeSettings(BaseModel):
         return False
 
     def estimate_vram_per_model(
-        self,
-        model_size_b: float = 8.0,
-        quantization: str = "Q4_K_M"
+        self, model_size_b: float = 8.0, quantization: str = "Q4_K_M"
     ) -> float:
         """Estimate VRAM usage per model instance.
 
@@ -249,7 +235,7 @@ class RuntimeSettings(BaseModel):
             "Q6_K": 0.75,
             "Q8_0": 1.0,
             "F16": 2.0,
-            "F32": 4.0
+            "F32": 4.0,
         }
 
         if self.n_gpu_layers == 0:
@@ -262,7 +248,7 @@ class RuntimeSettings(BaseModel):
         # Context buffer (KV cache)
         # Formula: ctx_size * layers * hidden_dim * 2 (K+V) * 2 bytes (FP16)
         # Simplified: ~2 bytes per token for 8B models
-        context_size_gb = (self.ctx_size * 2) / (1024 ** 3)
+        context_size_gb = (self.ctx_size * 2) / (1024**3)
 
         # GPU kernel overhead
         overhead_gb = 0.5

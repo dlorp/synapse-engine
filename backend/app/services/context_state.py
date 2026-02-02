@@ -16,7 +16,11 @@ import time
 from typing import Dict, Optional
 
 from app.core.logging import get_logger
-from app.models.context import ContextAllocation, ContextAllocationRequest, ContextComponent
+from app.models.context import (
+    ContextAllocation,
+    ContextAllocationRequest,
+    ContextComponent,
+)
 from app.services.token_counter import get_token_counter
 
 logger = get_logger(__name__)
@@ -87,8 +91,7 @@ class ContextStateManager:
         logger.info("ContextStateManager stopped")
 
     async def store_allocation(
-        self,
-        request: ContextAllocationRequest
+        self, request: ContextAllocationRequest
     ) -> ContextAllocation:
         """Store context allocation for a query.
 
@@ -113,7 +116,9 @@ class ContextStateManager:
             # Calculate totals
             total_tokens_used = system_prompt_tokens + cgrag_tokens + query_tokens
             tokens_remaining = max(0, request.context_window_size - total_tokens_used)
-            utilization_percentage = (total_tokens_used / request.context_window_size) * 100
+            utilization_percentage = (
+                total_tokens_used / request.context_window_size
+            ) * 100
 
             # Generate warning if >80% utilized
             warning = None
@@ -126,30 +131,37 @@ class ContextStateManager:
                     component="system_prompt",
                     tokens_used=system_prompt_tokens,
                     tokens_allocated=system_prompt_tokens,
-                    percentage=(system_prompt_tokens / request.context_window_size) * 100,
-                    content_preview=request.system_prompt[:100] if request.system_prompt else None
+                    percentage=(system_prompt_tokens / request.context_window_size)
+                    * 100,
+                    content_preview=request.system_prompt[:100]
+                    if request.system_prompt
+                    else None,
                 ),
                 ContextComponent(
                     component="cgrag_context",
                     tokens_used=cgrag_tokens,
                     tokens_allocated=cgrag_tokens,
                     percentage=(cgrag_tokens / request.context_window_size) * 100,
-                    content_preview=request.cgrag_context[:100] if request.cgrag_context else None
+                    content_preview=request.cgrag_context[:100]
+                    if request.cgrag_context
+                    else None,
                 ),
                 ContextComponent(
                     component="user_query",
                     tokens_used=query_tokens,
                     tokens_allocated=query_tokens,
                     percentage=(query_tokens / request.context_window_size) * 100,
-                    content_preview=request.user_query[:100] if request.user_query else None
+                    content_preview=request.user_query[:100]
+                    if request.user_query
+                    else None,
                 ),
                 ContextComponent(
                     component="response_budget",
                     tokens_used=0,
                     tokens_allocated=tokens_remaining,
                     percentage=(tokens_remaining / request.context_window_size) * 100,
-                    content_preview=None
-                )
+                    content_preview=None,
+                ),
             ]
 
             # Create allocation object
@@ -162,7 +174,7 @@ class ContextStateManager:
                 utilization_percentage=utilization_percentage,
                 components=components,
                 cgrag_artifacts=request.cgrag_artifacts or [],
-                warning=warning
+                warning=warning,
             )
 
             # Store with timestamp
@@ -177,16 +189,13 @@ class ContextStateManager:
                     "model_id": request.model_id,
                     "total_tokens": total_tokens_used,
                     "context_size": request.context_window_size,
-                    "utilization": round(utilization_percentage, 2)
-                }
+                    "utilization": round(utilization_percentage, 2),
+                },
             )
 
             return allocation
 
-    async def get_allocation(
-        self,
-        query_id: str
-    ) -> Optional[ContextAllocation]:
+    async def get_allocation(self, query_id: str) -> Optional[ContextAllocation]:
         """Retrieve context allocation for a query.
 
         Args:
@@ -228,7 +237,7 @@ class ContextStateManager:
                     if to_remove:
                         logger.info(
                             f"Cleaned up {len(to_remove)} old context allocations",
-                            extra={"removed_count": len(to_remove)}
+                            extra={"removed_count": len(to_remove)},
                         )
 
             except asyncio.CancelledError:
@@ -247,17 +256,16 @@ class ContextStateManager:
             Dictionary with statistics (total allocations, avg utilization)
         """
         if not self._allocations:
-            return {
-                "total_allocations": 0,
-                "avg_utilization_percentage": 0.0
-            }
+            return {"total_allocations": 0, "avg_utilization_percentage": 0.0}
 
         allocations_list = [alloc for alloc, _ in self._allocations.values()]
-        avg_utilization = sum(a.utilization_percentage for a in allocations_list) / len(allocations_list)
+        avg_utilization = sum(a.utilization_percentage for a in allocations_list) / len(
+            allocations_list
+        )
 
         return {
             "total_allocations": len(self._allocations),
-            "avg_utilization_percentage": round(avg_utilization, 2)
+            "avg_utilization_percentage": round(avg_utilization, 2),
         }
 
 
@@ -282,8 +290,7 @@ def get_context_state_manager() -> ContextStateManager:
 
 
 def init_context_state_manager(
-    cleanup_interval: int = 300,
-    ttl_seconds: int = 3600
+    cleanup_interval: int = 300, ttl_seconds: int = 3600
 ) -> ContextStateManager:
     """Initialize the global context state manager instance.
 
@@ -298,7 +305,6 @@ def init_context_state_manager(
     """
     global _context_state_manager
     _context_state_manager = ContextStateManager(
-        cleanup_interval=cleanup_interval,
-        ttl_seconds=ttl_seconds
+        cleanup_interval=cleanup_interval, ttl_seconds=ttl_seconds
     )
     return _context_state_manager

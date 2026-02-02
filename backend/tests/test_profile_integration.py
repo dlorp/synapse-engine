@@ -11,7 +11,10 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from app.services.profile_manager import ProfileManager
 from app.models.discovered_model import (
-    DiscoveredModel, ModelRegistry, ModelTier, QuantizationLevel
+    DiscoveredModel,
+    ModelRegistry,
+    ModelTier,
+    QuantizationLevel,
 )
 from datetime import datetime, timezone
 
@@ -30,7 +33,7 @@ def create_mock_registry() -> ModelRegistry:
             is_instruct=True,
             is_coder=False,
             assigned_tier=ModelTier.POWERFUL,
-            model_id="gpt_oss_20p0b_q4km_powerful"
+            model_id="gpt_oss_20p0b_q4km_powerful",
         ),
         "qwen2_coder_p5_14p0b_q4km_powerful": DiscoveredModel(
             file_path="/mock/qwen2_coder_p5_14p0b_q4km_powerful.gguf",
@@ -43,7 +46,7 @@ def create_mock_registry() -> ModelRegistry:
             is_instruct=True,
             is_coder=True,
             assigned_tier=ModelTier.POWERFUL,
-            model_id="qwen2_coder_p5_14p0b_q4km_powerful"
+            model_id="qwen2_coder_p5_14p0b_q4km_powerful",
         ),
         "deepseek_r10528qwen3_8p0b_q4km_powerful": DiscoveredModel(
             file_path="/mock/deepseek_r10528qwen3_8p0b_q4km_powerful.gguf",
@@ -56,7 +59,7 @@ def create_mock_registry() -> ModelRegistry:
             is_instruct=True,
             is_coder=False,
             assigned_tier=ModelTier.POWERFUL,
-            model_id="deepseek_r10528qwen3_8p0b_q4km_powerful"
+            model_id="deepseek_r10528qwen3_8p0b_q4km_powerful",
         ),
         "qwen3_vl_4p0b_q4km_fast": DiscoveredModel(
             file_path="/mock/qwen3_vl_4p0b_q4km_fast.gguf",
@@ -69,7 +72,7 @@ def create_mock_registry() -> ModelRegistry:
             is_instruct=True,
             is_coder=False,
             assigned_tier=ModelTier.FAST,
-            model_id="qwen3_vl_4p0b_q4km_fast"
+            model_id="qwen3_vl_4p0b_q4km_fast",
         ),
         "qwen3_4p0b_q4km_fast": DiscoveredModel(
             file_path="/mock/qwen3_4p0b_q4km_fast.gguf",
@@ -82,14 +85,14 @@ def create_mock_registry() -> ModelRegistry:
             is_instruct=True,
             is_coder=False,
             assigned_tier=ModelTier.FAST,
-            model_id="qwen3_4p0b_q4km_fast"
-        )
+            model_id="qwen3_4p0b_q4km_fast",
+        ),
     }
 
     return ModelRegistry(
         models=models,
         scan_path="/mock/models",
-        last_scan=datetime.now(timezone.utc).isoformat()
+        last_scan=datetime.now(timezone.utc).isoformat(),
     )
 
 
@@ -140,22 +143,28 @@ def test_profile_with_registry():
             # Show tier routing
             print("\nTier routing configuration:")
             for tier in profile.tier_config:
-                print(f"  • {tier.name.upper()}: complexity ≤ {tier.max_score}, "
-                      f"target {tier.expected_time_seconds}s")
+                print(
+                    f"  • {tier.name.upper()}: complexity ≤ {tier.max_score}, "
+                    f"target {tier.expected_time_seconds}s"
+                )
                 if tier.description:
                     print(f"    └─ {tier.description}")
 
             # Show special configs
             if profile.two_stage.enabled:
                 print("\n⚡ Two-stage processing enabled:")
-                print(f"  Stage 1: {profile.two_stage.stage1_tier} "
-                      f"(max {profile.two_stage.stage1_max_tokens} tokens)")
+                print(
+                    f"  Stage 1: {profile.two_stage.stage1_tier} "
+                    f"(max {profile.two_stage.stage1_max_tokens} tokens)"
+                )
                 print(f"  Stage 2: {profile.two_stage.stage2_tier} (full response)")
 
             if profile.load_balancing.enabled:
                 print("\n⚖️  Load balancing enabled:")
                 print(f"  Strategy: {profile.load_balancing.strategy}")
-                print(f"  Health check: every {profile.load_balancing.health_check_interval}s")
+                print(
+                    f"  Health check: every {profile.load_balancing.health_check_interval}s"
+                )
 
     print("\n" + "=" * 60)
     print("✅ Profile Integration Test Complete!")
@@ -189,7 +198,9 @@ def test_profile_tier_matching():
             if model.get_effective_tier() in tier_names:
                 print("    ✅ Tier match found")
             else:
-                print(f"    ⚠️  Model tier '{model.get_effective_tier()}' not in profile tier config")
+                print(
+                    f"    ⚠️  Model tier '{model.get_effective_tier()}' not in profile tier config"
+                )
 
     print("\n" + "=" * 60)
     print("✅ Tier Matching Test Complete!")
@@ -210,6 +221,7 @@ def main():
     except Exception as e:
         print(f"\n❌ Test failed: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)
 

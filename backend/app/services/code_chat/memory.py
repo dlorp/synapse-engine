@@ -65,7 +65,7 @@ class ConversationMemory:
         workspace_path: str,
         context_name: Optional[str] = None,
         max_turns: int = 20,
-        max_file_context: int = 5
+        max_file_context: int = 5,
     ):
         """Initialize conversation memory.
 
@@ -102,10 +102,7 @@ class ConversationMemory:
         )
 
     def add_turn(
-        self,
-        query: str,
-        response: str,
-        tools_used: Optional[List[str]] = None
+        self, query: str, response: str, tools_used: Optional[List[str]] = None
     ) -> None:
         """Add a conversation turn to memory.
 
@@ -124,7 +121,7 @@ class ConversationMemory:
             query=query,
             response=response,
             tools_used=tools_used,
-            timestamp=datetime.now()
+            timestamp=datetime.now(),
         )
 
         self.turns.append(turn)
@@ -136,12 +133,7 @@ class ConversationMemory:
             f"total turns: {len(self.turns)})"
         )
 
-    def add_file_context(
-        self,
-        path: str,
-        content: str,
-        max_preview: int = 500
-    ) -> None:
+    def add_file_context(self, path: str, content: str, max_preview: int = 500) -> None:
         """Track a recently accessed file for context.
 
         Adds file preview to file_context dict. If max_file_context is exceeded,
@@ -190,10 +182,7 @@ class ConversationMemory:
             f"{project_info.type} project '{project_info.name or 'unnamed'}'"
         )
 
-    def get_context_for_prompt(
-        self,
-        include_file_context: bool = True
-    ) -> str:
+    def get_context_for_prompt(self, include_file_context: bool = True) -> str:
         """Build context string for LLM prompt.
 
         Formats conversation history, project info, and file context into a
@@ -241,7 +230,9 @@ class ConversationMemory:
                 parts.append(f"Dependencies: {deps_str}")
 
             if self.project_context.entry_points:
-                parts.append(f"Entry Points: {', '.join(self.project_context.entry_points)}")
+                parts.append(
+                    f"Entry Points: {', '.join(self.project_context.entry_points)}"
+                )
 
             parts.append("")
 
@@ -348,7 +339,7 @@ class MemoryManager:
         workspace_path: str,
         context_name: Optional[str] = None,
         max_turns: int = 20,
-        max_file_context: int = 5
+        max_file_context: int = 5,
     ) -> ConversationMemory:
         """Get existing memory or create new one for session.
 
@@ -369,7 +360,7 @@ class MemoryManager:
                     workspace_path=workspace_path,
                     context_name=context_name,
                     max_turns=max_turns,
-                    max_file_context=max_file_context
+                    max_file_context=max_file_context,
                 )
                 self._sessions[session_id] = memory
                 logger.info(
@@ -419,10 +410,7 @@ class MemoryManager:
                 return True
             return False
 
-    async def cleanup_stale_sessions(
-        self,
-        max_age_hours: int = 24
-    ) -> int:
+    async def cleanup_stale_sessions(self, max_age_hours: int = 24) -> int:
         """Remove inactive sessions older than max_age_hours.
 
         Args:
@@ -482,16 +470,19 @@ class MemoryManager:
                     "total_sessions": 0,
                     "avg_turns": 0,
                     "oldest_session_hours": 0,
-                    "newest_session_hours": 0
+                    "newest_session_hours": 0,
                 }
 
             now = datetime.now()
             turn_counts = [len(m.turns) for m in self._sessions.values()]
-            ages = [(now - m.created_at).total_seconds() / 3600 for m in self._sessions.values()]
+            ages = [
+                (now - m.created_at).total_seconds() / 3600
+                for m in self._sessions.values()
+            ]
 
             return {
                 "total_sessions": len(self._sessions),
                 "avg_turns": sum(turn_counts) / len(turn_counts) if turn_counts else 0,
                 "oldest_session_hours": max(ages) if ages else 0,
-                "newest_session_hours": min(ages) if ages else 0
+                "newest_session_hours": min(ages) if ages else 0,
             }

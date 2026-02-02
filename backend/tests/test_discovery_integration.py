@@ -25,13 +25,14 @@ def test_discovery_integration():
         print("   This test requires a local model directory")
         print("   Skipping test (not a failure)")
         import pytest
+
         pytest.skip("Scan path does not exist - requires local model directory")
 
     service = ModelDiscoveryService(
         scan_path=scan_path,
         port_range=(8080, 8099),
         powerful_threshold=14.0,
-        fast_threshold=7.0
+        fast_threshold=7.0,
     )
     print("\n✓ Service initialized")
     print(f"  Scan path: {scan_path}")
@@ -49,8 +50,7 @@ def test_discovery_integration():
 
     # Test thinking model detection
     thinking_models = [
-        m for m in registry.models.values()
-        if m.is_effectively_thinking()
+        m for m in registry.models.values() if m.is_effectively_thinking()
     ]
     print(f"\n✓ Thinking models: {len(thinking_models)}")
     for model in thinking_models:
@@ -71,7 +71,9 @@ def test_discovery_integration():
             tier = model.get_effective_tier()
             tier_str = tier if isinstance(tier, str) else tier.value
             thinking = " ⚡" if model.is_effectively_thinking() else ""
-            print(f"  Port {port}: {model.get_display_name()}{thinking} [{tier_str.upper()}]")
+            print(
+                f"  Port {port}: {model.get_display_name()}{thinking} [{tier_str.upper()}]"
+            )
 
     # Test quantization detection
     print("\n--- Quantization Levels ---")
@@ -88,7 +90,7 @@ def test_discovery_integration():
     sizes = sorted([m.size_params for m in registry.models.values()])
     print(f"  Smallest: {min(sizes)}B")
     print(f"  Largest:  {max(sizes)}B")
-    print(f"  Average:  {sum(sizes)/len(sizes):.1f}B")
+    print(f"  Average:  {sum(sizes) / len(sizes):.1f}B")
 
     # Test JSON persistence
     output_path = Path("data/test_registry.json")
@@ -111,9 +113,18 @@ def test_discovery_integration():
     print("=" * 70)
 
     validations = [
-        ("Model IDs are unique", len(registry.models) == len(set(registry.models.keys()))),
-        ("All models have ports", all(m.port is not None for m in registry.models.values())),
-        ("All models disabled by default", all(not m.enabled for m in registry.models.values())),
+        (
+            "Model IDs are unique",
+            len(registry.models) == len(set(registry.models.keys())),
+        ),
+        (
+            "All models have ports",
+            all(m.port is not None for m in registry.models.values()),
+        ),
+        (
+            "All models disabled by default",
+            all(not m.enabled for m in registry.models.values()),
+        ),
         ("Tier thresholds set", registry.tier_thresholds is not None),
         ("Port range valid", registry.port_range[0] < registry.port_range[1]),
         ("Scan timestamp present", registry.last_scan is not None),
@@ -141,6 +152,7 @@ def test_discovery_integration():
 
 if __name__ == "__main__":
     import sys
+
     try:
         success = test_discovery_integration()
         sys.exit(0 if success else 1)

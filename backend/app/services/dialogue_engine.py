@@ -23,7 +23,7 @@ class DialogueTurn:
         persona: str,
         content: str,
         timestamp: datetime,
-        tokens_used: int
+        tokens_used: int,
     ):
         self.turn_number = turn_number
         self.speaker_id = speaker_id
@@ -39,7 +39,7 @@ class DialogueTurn:
             "persona": self.persona,
             "content": self.content,
             "timestamp": self.timestamp.isoformat(),
-            "tokensUsed": self.tokens_used
+            "tokensUsed": self.tokens_used,
         }
 
 
@@ -53,7 +53,7 @@ class DialogueResult:
         termination_reason: str,
         total_tokens: int,
         total_time_ms: int,
-        moderator_interjection_count: int = 0
+        moderator_interjection_count: int = 0,
     ):
         self.turns = turns
         self.synthesis = synthesis
@@ -69,7 +69,7 @@ class DialogueResult:
             "terminationReason": self.termination_reason,
             "totalTokens": self.total_tokens,
             "totalTimeMs": self.total_time_ms,
-            "moderatorInterjectionCount": self.moderator_interjection_count
+            "moderatorInterjectionCount": self.moderator_interjection_count,
         }
 
 
@@ -93,7 +93,7 @@ class DialogueEngine:
         enable_active_moderator: bool = False,
         moderator_check_frequency: int = 2,
         moderator_model: Optional[str] = None,
-        max_moderator_interjections: int = 3
+        max_moderator_interjections: int = 3,
     ) -> DialogueResult:
         """
         Execute sequential debate dialogue between two models.
@@ -127,14 +127,20 @@ class DialogueEngine:
         total_tokens = 0
         moderator_interjection_count = 0
 
-        self.logger.info(f"Starting debate dialogue: {len(participants)} participants, max {max_turns} turns")
+        self.logger.info(
+            f"Starting debate dialogue: {len(participants)} participants, max {max_turns} turns"
+        )
 
         if enable_active_moderator:
             if not moderator_model:
-                self.logger.warning("Active moderator enabled but no moderator_model provided - disabling")
+                self.logger.warning(
+                    "Active moderator enabled but no moderator_model provided - disabling"
+                )
                 enable_active_moderator = False
             else:
-                self.logger.info(f"Active moderator enabled: check every {moderator_check_frequency} turns, max {max_moderator_interjections} interjections")
+                self.logger.info(
+                    f"Active moderator enabled: check every {moderator_check_frequency} turns, max {max_moderator_interjections} interjections"
+                )
 
         # Main dialogue loop
         for turn_num in range(max_turns):
@@ -150,7 +156,7 @@ class DialogueEngine:
                 speaker_persona=speaker_persona,
                 conversation_history=conversation_history,
                 context=context,
-                turn_number=turn_num + 1
+                turn_number=turn_num + 1,
             )
 
             # Call model using provided model_caller function
@@ -162,14 +168,14 @@ class DialogueEngine:
                     model_id=speaker_id,
                     prompt=prompt,
                     max_tokens=max_tokens_per_turn,
-                    temperature=temperature
+                    temperature=temperature,
                 )
             except Exception as e:
                 self.logger.error(f"Error calling model {speaker_id}: {e}")
                 # Continue with error message as content
                 response = {
                     "content": f"[Error: Model {speaker_id} failed to respond]",
-                    "usage": {"total_tokens": 0}
+                    "usage": {"total_tokens": 0},
                 }
 
             turn_end = datetime.now()
@@ -186,23 +192,28 @@ class DialogueEngine:
                 persona=speaker_persona,
                 content=content,
                 timestamp=turn_start,
-                tokens_used=tokens_used
+                tokens_used=tokens_used,
             )
 
             conversation_history.append(turn)
 
-            self.logger.debug(f"Turn {turn_num + 1} completed in {(turn_end - turn_start).total_seconds():.2f}s")
+            self.logger.debug(
+                f"Turn {turn_num + 1} completed in {(turn_end - turn_start).total_seconds():.2f}s"
+            )
 
             # Check for active moderator interjection
-            if (enable_active_moderator and
-                moderator_interjection_count < max_moderator_interjections and
-                len(conversation_history) >= moderator_check_frequency and
-                len(conversation_history) % moderator_check_frequency == 0):
-
+            if (
+                enable_active_moderator
+                and moderator_interjection_count < max_moderator_interjections
+                and len(conversation_history) >= moderator_check_frequency
+                and len(conversation_history) % moderator_check_frequency == 0
+            ):
                 self.logger.info(f"🎓 Moderator check at turn {turn_num + 1}")
 
                 # Get recent turns for moderator review (last moderator_check_frequency * 2 turns)
-                recent_turn_count = min(moderator_check_frequency * 2, len(conversation_history))
+                recent_turn_count = min(
+                    moderator_check_frequency * 2, len(conversation_history)
+                )
                 recent_turns = conversation_history[-recent_turn_count:]
 
                 # Check if moderator wants to interject
@@ -210,7 +221,7 @@ class DialogueEngine:
                     model_caller=model_caller,
                     query=query,
                     recent_turns=recent_turns,
-                    moderator_model=moderator_model
+                    moderator_model=moderator_model,
                 )
 
                 if moderator_guidance:
@@ -218,7 +229,9 @@ class DialogueEngine:
                     moderator_interjection_count += 1
                     moderator_turn_num = len(conversation_history) + 1
 
-                    self.logger.info(f"🎓 Moderator interjecting (#{moderator_interjection_count}): {moderator_guidance[:100]}...")
+                    self.logger.info(
+                        f"🎓 Moderator interjecting (#{moderator_interjection_count}): {moderator_guidance[:100]}..."
+                    )
 
                     moderator_turn = DialogueTurn(
                         turn_number=moderator_turn_num,
@@ -226,7 +239,7 @@ class DialogueEngine:
                         persona="Neutral debate moderator",
                         content=moderator_guidance,
                         timestamp=datetime.now(),
-                        tokens_used=0  # Moderator interjection doesn't count toward token usage
+                        tokens_used=0,  # Moderator interjection doesn't count toward token usage
                     )
 
                     conversation_history.append(moderator_turn)
@@ -247,13 +260,15 @@ class DialogueEngine:
             conversation_history=conversation_history,
             query=query,
             participants=participants,
-            temperature=temperature
+            temperature=temperature,
         )
 
         end_time = datetime.now()
         total_time_ms = int((end_time - start_time).total_seconds() * 1000)
 
-        self.logger.info(f"Debate completed: {len(conversation_history)} turns, {total_time_ms}ms, {total_tokens} tokens, {moderator_interjection_count} moderator interjections")
+        self.logger.info(
+            f"Debate completed: {len(conversation_history)} turns, {total_time_ms}ms, {total_tokens} tokens, {moderator_interjection_count} moderator interjections"
+        )
 
         return DialogueResult(
             turns=conversation_history,
@@ -261,7 +276,7 @@ class DialogueEngine:
             termination_reason=termination_reason,
             total_tokens=total_tokens,
             total_time_ms=total_time_ms,
-            moderator_interjection_count=moderator_interjection_count
+            moderator_interjection_count=moderator_interjection_count,
         )
 
     def _build_debate_prompt(
@@ -271,7 +286,7 @@ class DialogueEngine:
         speaker_persona: str,
         conversation_history: List[DialogueTurn],
         context: Optional[str],
-        turn_number: int
+        turn_number: int,
     ) -> str:
         """Build prompt for next speaker in debate dialogue."""
 
@@ -281,10 +296,12 @@ class DialogueEngine:
 
         # Build conversation transcript
         if conversation_history:
-            transcript = "\n\n".join([
-                f"[Turn {turn.turn_number}] {self._get_position_for_turn(turn.turn_number)}: {turn.content}"
-                for turn in conversation_history
-            ])
+            transcript = "\n\n".join(
+                [
+                    f"[Turn {turn.turn_number}] {self._get_position_for_turn(turn.turn_number)}: {turn.content}"
+                    for turn in conversation_history
+                ]
+            )
             transcript_section = f"""
 Conversation so far:
 {transcript}
@@ -326,7 +343,7 @@ Your Turn {turn_number} ({position} response):"""
         model_caller: ModelCallerFunc,
         query: str,
         recent_turns: List[DialogueTurn],
-        moderator_model: str
+        moderator_model: str,
     ) -> Optional[str]:
         """
         Check if moderator should interject to redirect debate.
@@ -347,13 +364,15 @@ Your Turn {turn_number} ({position} response):"""
                 dialogue_turns=recent_turns,
                 query=query,
                 model_caller=model_caller,
-                moderator_model=moderator_model
+                moderator_model=moderator_model,
             )
 
             return guidance
 
         except Exception as e:
-            self.logger.error(f"Error checking moderator interjection: {e}", exc_info=True)
+            self.logger.error(
+                f"Error checking moderator interjection: {e}", exc_info=True
+            )
             return None
 
     def _check_termination(self, history: List[DialogueTurn]) -> Optional[str]:
@@ -377,7 +396,7 @@ Your Turn {turn_number} ({position} response):"""
             "i concede",
             "you've convinced me",
             "i accept your argument",
-            "you make a valid point"
+            "you make a valid point",
         ]
 
         last_response = recent_turns[-1].content.lower()
@@ -439,7 +458,7 @@ Your Turn {turn_number} ({position} response):"""
         conversation_history: List[DialogueTurn],
         query: str,
         participants: List[str],
-        temperature: float = 0.3
+        temperature: float = 0.3,
     ) -> str:
         """
         Synthesize final summary of debate dialogue.
@@ -447,10 +466,12 @@ Your Turn {turn_number} ({position} response):"""
         Uses one of the debate participants to create balanced summary.
         """
         # Build full transcript
-        transcript = "\n\n".join([
-            f"[Turn {turn.turn_number}] {self._get_position_for_turn(turn.turn_number)}: {turn.content}"
-            for turn in conversation_history
-        ])
+        transcript = "\n\n".join(
+            [
+                f"[Turn {turn.turn_number}] {self._get_position_for_turn(turn.turn_number)}: {turn.content}"
+                for turn in conversation_history
+            ]
+        )
 
         # Synthesis prompt
         prompt = f"""You are a neutral moderator summarizing a debate between two models.
@@ -477,7 +498,7 @@ Your neutral summary:"""
                 model_id=synthesis_model_id,
                 prompt=prompt,
                 max_tokens=800,
-                temperature=temperature
+                temperature=temperature,
             )
 
             return response.get("content", "").strip()

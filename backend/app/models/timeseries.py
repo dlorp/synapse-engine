@@ -41,17 +41,11 @@ class TimeSeriesPoint(BaseModel):
         metadata: Optional metadata (model_id, tier, mode, etc.)
     """
 
-    timestamp: str = Field(
-        ...,
-        description="ISO8601 timestamp"
-    )
-    value: float = Field(
-        ...,
-        description="Metric value"
-    )
+    timestamp: str = Field(..., description="ISO8601 timestamp")
+    value: float = Field(..., description="Metric value")
     metadata: dict[str, Any] = Field(
         default_factory=dict,
-        description="Additional metadata (model_id, tier, query_mode, etc.)"
+        description="Additional metadata (model_id, tier, query_mode, etc.)",
     )
 
 
@@ -76,6 +70,7 @@ class MetricsSummary(BaseModel):
 
     class Config:
         """Pydantic model configuration."""
+
         populate_by_name = True
 
 
@@ -90,32 +85,17 @@ class TimeSeriesResponse(BaseModel):
         summary: Statistical summary of values
     """
 
-    metric_name: str = Field(
-        ...,
-        alias="metricName",
-        description="Metric name"
-    )
-    time_range: str = Field(
-        ...,
-        alias="timeRange",
-        description="Time range covered"
-    )
-    unit: str = Field(
-        ...,
-        description="Unit of measurement"
-    )
+    metric_name: str = Field(..., alias="metricName", description="Metric name")
+    time_range: str = Field(..., alias="timeRange", description="Time range covered")
+    unit: str = Field(..., description="Unit of measurement")
     data_points: list[TimeSeriesPoint] = Field(
-        ...,
-        alias="dataPoints",
-        description="Time-series data points"
+        ..., alias="dataPoints", description="Time-series data points"
     )
-    summary: MetricsSummary = Field(
-        ...,
-        description="Statistical summary"
-    )
+    summary: MetricsSummary = Field(..., description="Statistical summary")
 
     class Config:
         """Pydantic model configuration."""
+
         populate_by_name = True
 
 
@@ -131,8 +111,7 @@ class ChartJSDataset(BaseModel):
     label: str = Field(..., description="Dataset label")
     data: list[float] = Field(..., description="Data values")
     metadata: dict[str, Any] = Field(
-        default_factory=dict,
-        description="Dataset metadata"
+        default_factory=dict, description="Dataset metadata"
     )
 
 
@@ -156,19 +135,12 @@ class MultiMetricResponse(BaseModel):
         chart_data: Chart.js compatible data structure
     """
 
-    time_range: str = Field(
-        ...,
-        alias="timeRange",
-        description="Time range covered"
-    )
-    chart_data: ChartJSData = Field(
-        ...,
-        alias="chartData",
-        description="Chart.js data"
-    )
+    time_range: str = Field(..., alias="timeRange", description="Time range covered")
+    chart_data: ChartJSData = Field(..., alias="chartData", description="Chart.js data")
 
     class Config:
         """Pydantic model configuration."""
+
         populate_by_name = True
 
 
@@ -183,32 +155,19 @@ class ModelBreakdown(BaseModel):
         summary: Statistical summary
     """
 
-    model_id: str = Field(
-        ...,
-        alias="modelId",
-        description="Model identifier"
-    )
+    model_id: str = Field(..., alias="modelId", description="Model identifier")
     display_name: str = Field(
-        ...,
-        alias="displayName",
-        description="Human-readable model name"
+        ..., alias="displayName", description="Human-readable model name"
     )
-    tier: Literal["Q2", "Q3", "Q4"] = Field(
-        ...,
-        description="Model tier"
-    )
+    tier: Literal["Q2", "Q3", "Q4"] = Field(..., description="Model tier")
     data_points: list[TimeSeriesPoint] = Field(
-        ...,
-        alias="dataPoints",
-        description="Time-series data"
+        ..., alias="dataPoints", description="Time-series data"
     )
-    summary: MetricsSummary = Field(
-        ...,
-        description="Statistical summary"
-    )
+    summary: MetricsSummary = Field(..., description="Statistical summary")
 
     class Config:
         """Pydantic model configuration."""
+
         populate_by_name = True
 
 
@@ -222,25 +181,12 @@ class ModelBreakdownResponse(BaseModel):
         models: List of per-model breakdowns
     """
 
-    metric_name: str = Field(
-        ...,
-        alias="metricName",
-        description="Metric name"
-    )
-    time_range: str = Field(
-        ...,
-        alias="timeRange",
-        description="Time range covered"
-    )
-    unit: str = Field(
-        ...,
-        description="Unit of measurement"
-    )
-    models: list[ModelBreakdown] = Field(
-        ...,
-        description="Per-model breakdowns"
-    )
+    metric_name: str = Field(..., alias="metricName", description="Metric name")
+    time_range: str = Field(..., alias="timeRange", description="Time range covered")
+    unit: str = Field(..., description="Unit of measurement")
+    models: list[ModelBreakdown] = Field(..., description="Per-model breakdowns")
 
     class Config:
         """Pydantic model configuration."""
+
         populate_by_name = True

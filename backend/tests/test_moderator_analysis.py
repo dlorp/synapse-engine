@@ -8,7 +8,7 @@ import pytest
 from app.services.moderator_analysis import (
     ModeratorAnalysis,
     _build_transcript,
-    _parse_moderator_analysis
+    _parse_moderator_analysis,
 )
 from app.services.dialogue_engine import DialogueTurn
 from datetime import datetime
@@ -24,7 +24,7 @@ def sample_dialogue_turns():
             persona="Pro advocate",
             content="TypeScript provides static typing which catches errors at compile time.",
             timestamp=datetime.now(),
-            tokens_used=15
+            tokens_used=15,
         ),
         DialogueTurn(
             turn_number=2,
@@ -32,7 +32,7 @@ def sample_dialogue_turns():
             persona="Con advocate",
             content="JavaScript is more flexible and doesn't require type annotations.",
             timestamp=datetime.now(),
-            tokens_used=12
+            tokens_used=12,
         ),
         DialogueTurn(
             turn_number=3,
@@ -40,7 +40,7 @@ def sample_dialogue_turns():
             persona="Pro advocate",
             content="That flexibility leads to runtime errors that TypeScript prevents.",
             timestamp=datetime.now(),
-            tokens_used=13
+            tokens_used=13,
         ),
         DialogueTurn(
             turn_number=4,
@@ -48,8 +48,8 @@ def sample_dialogue_turns():
             persona="Con advocate",
             content="The JavaScript ecosystem is larger and more mature than TypeScript.",
             timestamp=datetime.now(),
-            tokens_used=14
-        )
+            tokens_used=14,
+        ),
     ]
     return turns
 
@@ -118,8 +118,8 @@ def test_moderator_analysis_to_dict():
         breakdown={
             "argument_strength": {"pro_strengths": ["Point 1"], "con_strengths": []},
             "logical_fallacies": ["Fallacy 1"],
-            "overall_winner": "pro"
-        }
+            "overall_winner": "pro",
+        },
     )
 
     result = analysis.to_dict()

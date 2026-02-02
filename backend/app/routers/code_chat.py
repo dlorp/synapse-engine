@@ -144,7 +144,9 @@ async def get_agent(request: Request) -> ReActAgent:
     _tool_registry.register(GetReferencesTool(workspace_root="/workspace"))
     _tool_registry.register(GetProjectInfoTool(workspace_root="/workspace"))
 
-    logger.info(f"ToolRegistry initialized with {len(_tool_registry.list_tools())} tools")
+    logger.info(
+        f"ToolRegistry initialized with {len(_tool_registry.list_tools())} tools"
+    )
 
     # Initialize agent
     _agent = ReActAgent(
@@ -165,7 +167,7 @@ async def get_agent(request: Request) -> ReActAgent:
 
 @router.get("/workspaces", response_model=WorkspaceListResponse)
 async def list_workspaces(
-    path: str = Query("/", description="Directory path to list")
+    path: str = Query("/", description="Directory path to list"),
 ) -> WorkspaceListResponse:
     """List directories available for workspace selection.
 
@@ -220,7 +222,7 @@ async def list_workspaces(
 
 @router.post("/workspaces/validate", response_model=WorkspaceValidation)
 async def validate_workspace(
-    path: str = Query(..., description="Workspace path to validate")
+    path: str = Query(..., description="Workspace path to validate"),
 ) -> WorkspaceValidation:
     """Validate a workspace path and return metadata.
 
@@ -268,9 +270,7 @@ async def validate_workspace(
 
     except Exception as e:
         logger.error(f"Workspace validation failed: {e}", exc_info=True)
-        return WorkspaceValidation(
-            valid=False, error=f"Validation error: {str(e)}"
-        )
+        return WorkspaceValidation(valid=False, error=f"Validation error: {str(e)}")
 
 
 # ============================================================================
@@ -389,9 +389,7 @@ async def refresh_context(name: str) -> ContextInfo:
         # Check if context exists
         existing = await get_context_info(name)
         if existing is None:
-            raise HTTPException(
-                status_code=404, detail=f"Context '{name}' not found"
-            )
+            raise HTTPException(status_code=404, detail=f"Context '{name}' not found")
 
         # Refresh index
         context_info = await refresh_cgrag_index(name)
@@ -478,10 +476,11 @@ async def create_preset(preset: ModelPreset) -> ModelPreset:
         raise HTTPException(status_code=400, detail=str(e))
 
     except Exception as e:
-        logger.error(f"Unexpected error creating preset '{preset.name}': {e}", exc_info=True)
+        logger.error(
+            f"Unexpected error creating preset '{preset.name}': {e}", exc_info=True
+        )
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to create preset: {str(e)}"
+            status_code=500, detail=f"Failed to create preset: {str(e)}"
         )
 
 
@@ -523,8 +522,7 @@ async def update_preset(name: str, preset: ModelPreset) -> ModelPreset:
     except Exception as e:
         logger.error(f"Unexpected error updating preset '{name}': {e}", exc_info=True)
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to update preset: {str(e)}"
+            status_code=500, detail=f"Failed to update preset: {str(e)}"
         )
 
 
@@ -554,8 +552,7 @@ async def delete_preset(name: str) -> dict:
         else:
             logger.warning(f"Preset '{name}' not found for deletion")
             raise HTTPException(
-                status_code=404,
-                detail=f"Custom preset '{name}' not found"
+                status_code=404, detail=f"Custom preset '{name}' not found"
             )
 
     except ValueError as e:
@@ -566,8 +563,7 @@ async def delete_preset(name: str) -> dict:
     except Exception as e:
         logger.error(f"Unexpected error deleting preset '{name}': {e}", exc_info=True)
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to delete preset: {str(e)}"
+            status_code=500, detail=f"Failed to delete preset: {str(e)}"
         )
 
 
@@ -661,9 +657,7 @@ async def query(request_obj: CodeChatRequest, req: Request) -> StreamingResponse
                 f"Error in query stream for session {session_id}: {e}",
                 exc_info=True,
             )
-            error_event = CodeChatStreamEvent(
-                type="error", content=f"Error: {str(e)}"
-            )
+            error_event = CodeChatStreamEvent(type="error", content=f"Error: {str(e)}")
             yield f"data: {error_event.model_dump_json()}\n\n"
 
     return StreamingResponse(
@@ -722,7 +716,7 @@ async def cancel_session(session_id: str, req: Request) -> dict:
 async def confirm_action(
     action_id: str = Query(..., description="Action ID to confirm"),
     approved: bool = Query(..., description="Whether to approve the action"),
-    req: Request = None
+    req: Request = None,
 ) -> dict:
     """Confirm or reject a pending file operation.
 
@@ -761,7 +755,7 @@ async def confirm_action(
             logger.warning(f"Action {action_id} not found")
             raise HTTPException(
                 status_code=400,
-                detail=f"Action '{action_id}' not found or already processed"
+                detail=f"Action '{action_id}' not found or already processed",
             )
 
     except HTTPException:

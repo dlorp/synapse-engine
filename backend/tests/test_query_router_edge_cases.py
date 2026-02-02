@@ -33,14 +33,14 @@ class TestCGRAGContextEdgeCases:
         from app.main import app
 
         # Mock the FAISS index paths to return non-existent files
-        with patch('app.routers.query.get_cgrag_index_paths') as mock_paths:
+        with patch("app.routers.query.get_cgrag_index_paths") as mock_paths:
             # Return paths that don't exist
             fake_index = Path("/tmp/nonexistent/docs.index")
             fake_metadata = Path("/tmp/nonexistent/docs.metadata")
             mock_paths.return_value = (Path("/tmp"), fake_index, fake_metadata)
 
             # Mock model selection to avoid actual model calls
-            with patch('app.routers.query.model_selector') as mock_selector:
+            with patch("app.routers.query.model_selector") as mock_selector:
                 mock_instance = MagicMock(spec=InstanceConfig)
                 mock_instance.model_id = "test-model"
                 mock_instance.port = 8080
@@ -49,15 +49,19 @@ class TestCGRAGContextEdgeCases:
 
                 # Mock LlamaCppClient to avoid actual model server calls
                 # httpx is imported in app.services.llama_client, not in query.py
-                with patch('app.services.llama_client.httpx.AsyncClient') as mock_client:
+                with patch(
+                    "app.services.llama_client.httpx.AsyncClient"
+                ) as mock_client:
                     mock_response = MagicMock()
                     mock_response.status_code = 200
                     mock_response.json.return_value = {
                         "content": "Test response",
                         "tokens_predicted": 10,
-                        "tokens_evaluated": 5
+                        "tokens_evaluated": 5,
                     }
-                    mock_client.return_value.post = AsyncMock(return_value=mock_response)
+                    mock_client.return_value.post = AsyncMock(
+                        return_value=mock_response
+                    )
                     mock_client.return_value.aclose = AsyncMock()
 
                     # This should not raise UnboundLocalError
@@ -68,12 +72,15 @@ class TestCGRAGContextEdgeCases:
                         json={
                             "query": "test query",
                             "mode": "powerful",
-                            "use_context": True
-                        }
+                            "use_context": True,
+                        },
                     )
 
                     # Should complete successfully without UnboundLocalError
-                    assert response.status_code in [200, 500]  # May fail for other reasons
+                    assert response.status_code in [
+                        200,
+                        500,
+                    ]  # May fail for other reasons
                     # The important thing is it doesn't raise UnboundLocalError
 
     @pytest.mark.asyncio
@@ -119,7 +126,7 @@ class TestQuantizationValueEdgeCases:
             family="qwen",
             size_params=8.0,
             quantization=QuantizationLevel.Q4_K_M,  # Enum value
-            assigned_tier=ModelTier.BALANCED
+            assigned_tier=ModelTier.BALANCED,
         )
 
         # Should handle enum correctly
@@ -140,7 +147,7 @@ class TestQuantizationValueEdgeCases:
             family="qwen",
             size_params=8.0,
             quantization="q4_k_m",  # String value
-            assigned_tier=ModelTier.BALANCED
+            assigned_tier=ModelTier.BALANCED,
         )
 
         # Should handle string correctly without .value attribute access
@@ -160,7 +167,7 @@ class TestQuantizationValueEdgeCases:
             family="qwen",
             size_params=8.0,
             quantization=QuantizationLevel.Q4_K_M,  # Will be tested as None
-            assigned_tier=ModelTier.BALANCED
+            assigned_tier=ModelTier.BALANCED,
         )
 
         # Simulate None quantization (would need model validation to allow None)
@@ -180,7 +187,7 @@ class TestQuantizationValueEdgeCases:
     def test_all_quantization_levels_have_value_attribute(self):
         """Verify all QuantizationLevel enum members have .value attribute."""
         for level in QuantizationLevel:
-            assert hasattr(level, 'value'), (
+            assert hasattr(level, "value"), (
                 f"QuantizationLevel.{level.name} missing .value attribute"
             )
             assert isinstance(level.value, str), (
@@ -205,13 +212,13 @@ class TestQueryRouterIntegration:
         app = FastAPI()
         app.include_router(router)
 
-        with patch('app.routers.query.get_cgrag_index_paths') as mock_paths:
+        with patch("app.routers.query.get_cgrag_index_paths") as mock_paths:
             # Missing CGRAG index
             fake_index = Path("/tmp/nonexistent/docs.index")
             fake_metadata = Path("/tmp/nonexistent/docs.metadata")
             mock_paths.return_value = (Path("/tmp"), fake_index, fake_metadata)
 
-            with patch('app.routers.query.model_selector') as mock_selector:
+            with patch("app.routers.query.model_selector") as mock_selector:
                 # Model with string quantization (not enum)
                 mock_instance = MagicMock(spec=InstanceConfig)
                 mock_instance.model_id = "test-model"
@@ -221,15 +228,19 @@ class TestQueryRouterIntegration:
                 mock_selector.select_instance.return_value = mock_instance
 
                 # Mock LlamaCppClient - httpx is imported in app.services.llama_client
-                with patch('app.services.llama_client.httpx.AsyncClient') as mock_client:
+                with patch(
+                    "app.services.llama_client.httpx.AsyncClient"
+                ) as mock_client:
                     mock_response = MagicMock()
                     mock_response.status_code = 200
                     mock_response.json.return_value = {
                         "content": "Test response",
                         "tokens_predicted": 10,
-                        "tokens_evaluated": 5
+                        "tokens_evaluated": 5,
                     }
-                    mock_client.return_value.post = AsyncMock(return_value=mock_response)
+                    mock_client.return_value.post = AsyncMock(
+                        return_value=mock_response
+                    )
                     mock_client.return_value.aclose = AsyncMock()
 
                     client = TestClient(app)
@@ -238,8 +249,8 @@ class TestQueryRouterIntegration:
                         json={
                             "query": "test query",
                             "mode": "powerful",
-                            "use_context": True
-                        }
+                            "use_context": True,
+                        },
                     )
 
                     # Should not raise UnboundLocalError or AttributeError
@@ -261,17 +272,16 @@ class TestCodePatternConsistency:
         source = query_file.read_text()
 
         # Find all lines with .value access
-        lines = source.split('\n')
+        lines = source.split("\n")
         value_access_lines = [
-            (i, line) for i, line in enumerate(lines, 1)
-            if 'quantization.value' in line
+            (i, line) for i, line in enumerate(lines, 1) if "quantization.value" in line
         ]
 
         # Each should be preceded or wrapped by isinstance check
         for line_num, line in value_access_lines:
             # Check if isinstance is in the same line or nearby
-            context = '\n'.join(lines[max(0, line_num-3):line_num+1])
-            assert 'isinstance' in context, (
+            context = "\n".join(lines[max(0, line_num - 3) : line_num + 1])
+            assert "isinstance" in context, (
                 f"Line {line_num} accesses .value without isinstance check:\n{line}"
             )
 
@@ -288,9 +298,9 @@ class TestCodePatternConsistency:
 
         # Variables that should always be initialized
         required_inits = {
-            'cgrag_context_text': 'None',
-            'cgrag_artifacts': '[]',  # Initialized as empty list
-            'cgrag_result': 'None'
+            "cgrag_context_text": "None",
+            "cgrag_artifacts": "[]",  # Initialized as empty list
+            "cgrag_result": "None",
         }
 
         for var_name, expected_value in required_inits.items():
@@ -337,8 +347,7 @@ class TestPerformanceRegression:
 
         # Overhead should be < 50% (typically ~10-20%)
         assert overhead_pct < 50, (
-            f"isinstance check adds {overhead_pct:.1f}% overhead "
-            "(expected < 50%)"
+            f"isinstance check adds {overhead_pct:.1f}% overhead (expected < 50%)"
         )
 
 

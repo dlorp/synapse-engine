@@ -31,7 +31,7 @@ from app.models.events import (
     CGRAGEvent,
     CacheEvent,
     ErrorEvent,
-    PerformanceEvent
+    PerformanceEvent,
 )
 from app.services.event_bus import get_event_bus
 
@@ -43,7 +43,7 @@ async def emit_query_route_event(
     complexity_score: float,
     selected_tier: str,
     estimated_latency_ms: int,
-    routing_reason: str
+    routing_reason: str,
 ) -> None:
     """Emit a query routing event.
 
@@ -73,14 +73,14 @@ async def emit_query_route_event(
             complexity_score=complexity_score,
             selected_tier=selected_tier,
             estimated_latency_ms=estimated_latency_ms,
-            routing_reason=routing_reason
+            routing_reason=routing_reason,
         )
 
         await event_bus.publish(
             event_type=EventType.QUERY_ROUTE,
             message=f"Query routed to {selected_tier} tier (complexity: {complexity_score:.1f})",
             severity=EventSeverity.INFO,
-            metadata=metadata.model_dump()
+            metadata=metadata.model_dump(),
         )
 
     except Exception as e:
@@ -92,7 +92,7 @@ async def emit_model_state_event(
     previous_state: str,
     current_state: str,
     reason: str,
-    port: Optional[int] = None
+    port: Optional[int] = None,
 ) -> None:
     """Emit a model state change event.
 
@@ -122,7 +122,7 @@ async def emit_model_state_event(
             previous_state=previous_state,
             current_state=current_state,
             reason=reason,
-            port=port
+            port=port,
         )
 
         # Determine severity based on state
@@ -136,7 +136,7 @@ async def emit_model_state_event(
             event_type=EventType.MODEL_STATE,
             message=f"Model {model_id} state: {previous_state} → {current_state}",
             severity=severity,
-            metadata=metadata.model_dump()
+            metadata=metadata.model_dump(),
         )
 
     except Exception as e:
@@ -149,7 +149,7 @@ async def emit_cgrag_event(
     relevance_threshold: float,
     retrieval_time_ms: int,
     total_tokens: int,
-    cache_hit: bool
+    cache_hit: bool,
 ) -> None:
     """Emit a CGRAG context retrieval event.
 
@@ -182,7 +182,7 @@ async def emit_cgrag_event(
             relevance_threshold=relevance_threshold,
             retrieval_time_ms=retrieval_time_ms,
             total_tokens=total_tokens,
-            cache_hit=cache_hit
+            cache_hit=cache_hit,
         )
 
         # Determine severity based on performance
@@ -196,7 +196,7 @@ async def emit_cgrag_event(
             event_type=EventType.CGRAG,
             message=f"Retrieved {chunks_retrieved} chunks ({total_tokens} tokens) in {retrieval_time_ms}ms ({cache_status})",
             severity=severity,
-            metadata=metadata.model_dump()
+            metadata=metadata.model_dump(),
         )
 
     except Exception as e:
@@ -208,7 +208,7 @@ async def emit_cache_event(
     key: str,
     hit: bool,
     latency_ms: int,
-    size_bytes: Optional[int] = None
+    size_bytes: Optional[int] = None,
 ) -> None:
     """Emit a cache operation event.
 
@@ -238,7 +238,7 @@ async def emit_cache_event(
             key=key,
             hit=hit,
             latency_ms=latency_ms,
-            size_bytes=size_bytes
+            size_bytes=size_bytes,
         )
 
         status = "HIT" if hit else "MISS"
@@ -248,7 +248,7 @@ async def emit_cache_event(
             event_type=EventType.CACHE,
             message=f"Cache {operation.upper()}: {key} ({status}, {latency_ms}ms{size_info})",
             severity=EventSeverity.INFO,
-            metadata=metadata.model_dump()
+            metadata=metadata.model_dump(),
         )
 
     except Exception as e:
@@ -260,7 +260,7 @@ async def emit_error_event(
     error_message: str,
     component: str,
     stack_trace: Optional[str] = None,
-    recovery_action: Optional[str] = None
+    recovery_action: Optional[str] = None,
 ) -> None:
     """Emit a system error event.
 
@@ -289,14 +289,14 @@ async def emit_error_event(
             error_message=error_message,
             component=component,
             stack_trace=stack_trace,
-            recovery_action=recovery_action
+            recovery_action=recovery_action,
         )
 
         await event_bus.publish(
             event_type=EventType.ERROR,
             message=f"ERROR in {component}: {error_message}",
             severity=EventSeverity.ERROR,
-            metadata=metadata.model_dump()
+            metadata=metadata.model_dump(),
         )
 
     except Exception as e:
@@ -308,7 +308,7 @@ async def emit_performance_event(
     current_value: float,
     threshold_value: float,
     component: str,
-    action_required: bool = False
+    action_required: bool = False,
 ) -> None:
     """Emit a performance threshold alert event.
 
@@ -338,7 +338,7 @@ async def emit_performance_event(
             current_value=current_value,
             threshold_value=threshold_value,
             component=component,
-            action_required=action_required
+            action_required=action_required,
         )
 
         severity = EventSeverity.ERROR if action_required else EventSeverity.WARNING
@@ -347,7 +347,7 @@ async def emit_performance_event(
             event_type=EventType.PERFORMANCE,
             message=f"Performance alert: {metric_name} = {current_value:.1f} (threshold: {threshold_value:.1f}) in {component}",
             severity=severity,
-            metadata=metadata.model_dump()
+            metadata=metadata.model_dump(),
         )
 
     except Exception as e:

@@ -47,7 +47,7 @@ class ServerProcess:
         self,
         model: DiscoveredModel,
         process: Optional[subprocess.Popen] = None,
-        is_external: bool = False
+        is_external: bool = False,
     ):
         """Initialize server process wrapper.
 
@@ -108,7 +108,7 @@ class ServerProcess:
             "is_running": self.is_running(),
             "uptime_seconds": self.get_uptime_seconds(),
             "tier": str(self.model.get_effective_tier()),
-            "is_thinking": self.model.is_effectively_thinking()
+            "is_thinking": self.model.is_effectively_thinking(),
         }
 
 
@@ -140,7 +140,7 @@ class LlamaServerManager:
         readiness_check_interval: int = 2,
         host: str = "127.0.0.1",
         use_external_servers: bool = False,
-        websocket_manager: Optional["WebSocketManager"] = None
+        websocket_manager: Optional["WebSocketManager"] = None,
     ):
         """Initialize the server manager.
 
@@ -161,7 +161,9 @@ class LlamaServerManager:
         self.websocket_manager = websocket_manager
         self.host_api_url = os.getenv("HOST_API_URL", "http://host-api:9090")
 
-        logger.info(f"🔍 DEBUG: LlamaServerManager.__init__ received use_external_servers = {use_external_servers}")
+        logger.info(
+            f"🔍 DEBUG: LlamaServerManager.__init__ received use_external_servers = {use_external_servers}"
+        )
 
         # Validate llama-server binary exists (skip if using external servers)
         # Note: Skip validation in Docker build stages to allow image creation
@@ -210,7 +212,7 @@ class LlamaServerManager:
         if not model.port:
             raise SynapseException(
                 f"Model {model.model_id} has no port assigned",
-                details={"model_id": model.model_id}
+                details={"model_id": model.model_id},
             )
 
         # Check if server already running
@@ -229,7 +231,9 @@ class LlamaServerManager:
         logger.info(f"  Thinking mode: {model.is_effectively_thinking()}")
 
         # External server mode (Metal acceleration on macOS host)
-        logger.info(f"🔍 DEBUG: In start_server(), self.use_external_servers = {self.use_external_servers}")
+        logger.info(
+            f"🔍 DEBUG: In start_server(), self.use_external_servers = {self.use_external_servers}"
+        )
         if self.use_external_servers:
             logger.info("🔍 DEBUG: Taking EXTERNAL SERVER path (Metal acceleration)")
             return await self._connect_to_external_server(model)
@@ -242,18 +246,24 @@ class LlamaServerManager:
                 f"llama-server binary not found at {self.llama_server_path}",
                 details={
                     "model_id": model.model_id,
-                    "binary_path": str(self.llama_server_path)
-                }
+                    "binary_path": str(self.llama_server_path),
+                },
             )
 
         # Load runtime settings for dynamic configuration
         settings = settings_service.get_runtime_settings()
 
         # Phase 2: Use per-model overrides if set, otherwise use global settings
-        gpu_layers = model.n_gpu_layers if model.n_gpu_layers is not None else settings.n_gpu_layers
+        gpu_layers = (
+            model.n_gpu_layers
+            if model.n_gpu_layers is not None
+            else settings.n_gpu_layers
+        )
         ctx_size = model.ctx_size if model.ctx_size is not None else settings.ctx_size
         threads = model.n_threads if model.n_threads is not None else settings.threads
-        batch_size = model.batch_size if model.batch_size is not None else settings.batch_size
+        batch_size = (
+            model.batch_size if model.batch_size is not None else settings.batch_size
+        )
 
         logger.info(
             f"Runtime settings for {model.model_id}: "
@@ -266,14 +276,22 @@ class LlamaServerManager:
         # Build command with per-model or global settings
         cmd = [
             str(self.llama_server_path),
-            "--model", str(model.file_path),
-            "--host", self.host,
-            "--port", str(model.port),
-            "--ctx-size", str(ctx_size),
-            "--n-gpu-layers", str(gpu_layers),
-            "--threads", str(threads),
-            "--batch-size", str(batch_size),
-            "--ubatch-size", str(settings.ubatch_size),
+            "--model",
+            str(model.file_path),
+            "--host",
+            self.host,
+            "--port",
+            str(model.port),
+            "--ctx-size",
+            str(ctx_size),
+            "--n-gpu-layers",
+            str(gpu_layers),
+            "--threads",
+            str(threads),
+            "--batch-size",
+            str(batch_size),
+            "--ubatch-size",
+            str(settings.ubatch_size),
         ]
 
         # Add optional flags based on settings
@@ -294,35 +312,34 @@ class LlamaServerManager:
                 stderr=subprocess.PIPE,
                 text=True,
                 bufsize=1,  # Line-buffered
-                universal_newlines=True
+                universal_newlines=True,
             )
 
             server = ServerProcess(model=model, process=process)
             self.servers[model.model_id] = server
 
             logger.info(
-                f"Launched llama-server process: "
-                f"PID {process.pid} on port {model.port}"
+                f"Launched llama-server process: PID {process.pid} on port {model.port}"
             )
 
             # Emit model state event: loading -> active
             try:
-                asyncio.create_task(emit_model_state_event(
-                    model_id=model.model_id,
-                    previous_state="stopped",
-                    current_state="loading",
-                    reason=f"Server process started (PID: {process.pid})",
-                    port=model.port
-                ))
+                asyncio.create_task(
+                    emit_model_state_event(
+                        model_id=model.model_id,
+                        previous_state="stopped",
+                        current_state="loading",
+                        reason=f"Server process started (PID: {process.pid})",
+                        port=model.port,
+                    )
+                )
             except Exception as e:
                 logger.debug(f"Failed to emit model state event: {e}")
 
             # Start log streaming thread (if WebSocket manager available)
             if self.websocket_manager:
                 log_thread = threading.Thread(
-                    target=self._stream_logs,
-                    args=(server,),
-                    daemon=True
+                    target=self._stream_logs, args=(server,), daemon=True
                 )
                 log_thread.start()
                 logger.debug(f"Started log streaming thread for {model.model_id}")
@@ -334,18 +351,19 @@ class LlamaServerManager:
 
         except Exception as e:
             logger.error(
-                f"Failed to start server for {model.model_id}: {e}",
-                exc_info=True
+                f"Failed to start server for {model.model_id}: {e}", exc_info=True
             )
 
             # Emit error event
             try:
-                asyncio.create_task(emit_error_event(
-                    error_type=type(e).__name__,
-                    error_message=f"Failed to start server: {str(e)}",
-                    component="LlamaServerManager",
-                    recovery_action="Check model file path and llama-server binary"
-                ))
+                asyncio.create_task(
+                    emit_error_event(
+                        error_type=type(e).__name__,
+                        error_message=f"Failed to start server: {str(e)}",
+                        component="LlamaServerManager",
+                        recovery_action="Check model file path and llama-server binary",
+                    )
+                )
             except Exception as emit_err:
                 logger.debug(f"Failed to emit error event: {emit_err}")
 
@@ -354,11 +372,13 @@ class LlamaServerManager:
                 details={
                     "model_id": model.model_id,
                     "port": model.port,
-                    "binary": str(self.llama_server_path)
-                }
+                    "binary": str(self.llama_server_path),
+                },
             )
 
-    async def _connect_to_external_server(self, model: DiscoveredModel) -> ServerProcess:
+    async def _connect_to_external_server(
+        self, model: DiscoveredModel
+    ) -> ServerProcess:
         """Connect to externally-managed llama-server (Metal acceleration mode).
 
         Instead of launching a subprocess, this checks if a server is already
@@ -374,7 +394,9 @@ class LlamaServerManager:
         Raises:
             SynapseException: If external server is not reachable
         """
-        logger.info(f"🔌 Connecting to external Metal-accelerated server on port {model.port}...")
+        logger.info(
+            f"🔌 Connecting to external Metal-accelerated server on port {model.port}..."
+        )
 
         # Check health endpoint on host (via host.docker.internal)
         health_url = f"http://host.docker.internal:{model.port}/health"
@@ -387,11 +409,7 @@ class LlamaServerManager:
                     logger.info(f"✅ External server ready at {health_url}")
 
                     # Create virtual ServerProcess for external server
-                    server = ServerProcess(
-                        model=model,
-                        process=None,
-                        is_external=True
-                    )
+                    server = ServerProcess(model=model, process=None, is_external=True)
                     server.is_ready = True
                     self.servers[model.model_id] = server
 
@@ -399,7 +417,7 @@ class LlamaServerManager:
                 else:
                     raise SynapseException(
                         f"External server returned {response.status_code}",
-                        details={"url": health_url, "status": response.status_code}
+                        details={"url": health_url, "status": response.status_code},
                     )
 
         except httpx.RequestError as e:
@@ -407,11 +425,7 @@ class LlamaServerManager:
             raise SynapseException(
                 f"External Metal-accelerated server not running on port {model.port}. "
                 f"Start servers with: ./scripts/start-host-llama-servers.sh",
-                details={
-                    "port": model.port,
-                    "health_url": health_url,
-                    "error": str(e)
-                }
+                details={"port": model.port, "health_url": health_url, "error": str(e)},
             )
 
     async def _ensure_metal_servers_started(self) -> None:
@@ -433,7 +447,9 @@ class LlamaServerManager:
         try:
             async with httpx.AsyncClient(timeout=10.0) as client:
                 # Check host API status
-                status_response = await client.get(f"{self.host_api_url}/api/servers/status")
+                status_response = await client.get(
+                    f"{self.host_api_url}/api/servers/status"
+                )
                 status_data = status_response.json()
 
                 if status_data.get("running"):
@@ -446,7 +462,7 @@ class LlamaServerManager:
 
                 start_response = await client.post(
                     f"{self.host_api_url}/api/servers/start",
-                    timeout=35.0  # Allow time for script execution
+                    timeout=35.0,  # Allow time for script execution
                 )
 
                 if start_response.status_code == 200:
@@ -458,7 +474,7 @@ class LlamaServerManager:
                     error_detail = start_response.json().get("detail", "Unknown error")
                     raise SynapseException(
                         f"Host API failed to start servers: {error_detail}",
-                        details={"status_code": start_response.status_code}
+                        details={"status_code": start_response.status_code},
                     )
 
         except httpx.RequestError as e:
@@ -466,7 +482,7 @@ class LlamaServerManager:
             raise SynapseException(
                 f"Host API not available at {self.host_api_url}. "
                 "Ensure docker-compose started all services correctly.",
-                details={"host_api_url": self.host_api_url, "error": str(e)}
+                details={"host_api_url": self.host_api_url, "error": str(e)},
             )
 
     async def _wait_for_readiness(self, server: ServerProcess) -> None:
@@ -501,8 +517,8 @@ class LlamaServerManager:
                     "Server process died during startup",
                     details={
                         "model_id": server.model.model_id,
-                        "uptime": server.get_uptime_seconds()
-                    }
+                        "uptime": server.get_uptime_seconds(),
+                    },
                 )
 
             # Non-blocking read of stderr for readiness indicators
@@ -514,7 +530,7 @@ class LlamaServerManager:
                     [server.process.stderr],
                     [],
                     [],
-                    0.1  # 100ms timeout
+                    0.1,  # 100ms timeout
                 )
 
                 if ready_fds:
@@ -529,10 +545,13 @@ class LlamaServerManager:
                             "server is listening",
                             "listening on",
                             "server started",
-                            "ready to receive requests"
+                            "ready to receive requests",
                         ]
 
-                        if any(indicator in line_lower for indicator in readiness_indicators):
+                        if any(
+                            indicator in line_lower
+                            for indicator in readiness_indicators
+                        ):
                             server.is_ready = True
                             elapsed = server.get_uptime_seconds()
                             logger.info(
@@ -542,13 +561,15 @@ class LlamaServerManager:
 
                             # Emit model state event: loading -> active
                             try:
-                                asyncio.create_task(emit_model_state_event(
-                                    model_id=server.model.model_id,
-                                    previous_state="loading",
-                                    current_state="active",
-                                    reason=f"Server ready (startup took {elapsed}s)",
-                                    port=server.port
-                                ))
+                                asyncio.create_task(
+                                    emit_model_state_event(
+                                        model_id=server.model.model_id,
+                                        previous_state="loading",
+                                        current_state="active",
+                                        reason=f"Server ready (startup took {elapsed}s)",
+                                        port=server.port,
+                                    )
+                                )
                             except Exception as e:
                                 logger.debug(f"Failed to emit model state event: {e}")
                             return
@@ -558,14 +579,16 @@ class LlamaServerManager:
                             "error loading model",
                             "failed to load",
                             "ggml_init_cublas: failed",
-                            "cannot open model file"
+                            "cannot open model file",
                         ]
 
                         if any(error in line_lower for error in error_indicators):
-                            logger.error(f"Critical error during startup: {line.strip()}")
+                            logger.error(
+                                f"Critical error during startup: {line.strip()}"
+                            )
                             raise SynapseException(
                                 f"Server startup failed with error: {line.strip()}",
-                                details={"model_id": server.model.model_id}
+                                details={"model_id": server.model.model_id},
                             )
 
                         # Log other output at debug level
@@ -628,7 +651,11 @@ class LlamaServerManager:
                 level = "INFO"
                 line_lower = line.lower()
 
-                if "error" in line_lower or "failed" in line_lower or "exception" in line_lower:
+                if (
+                    "error" in line_lower
+                    or "failed" in line_lower
+                    or "exception" in line_lower
+                ):
                     level = "ERROR"
                 elif "warn" in line_lower or "warning" in line_lower:
                     level = "WARN"
@@ -639,7 +666,7 @@ class LlamaServerManager:
                     "model_id": server.model.model_id,
                     "port": server.port,
                     "level": level,
-                    "message": line.strip()
+                    "message": line.strip(),
                 }
 
                 # Broadcast to WebSocket clients
@@ -651,16 +678,14 @@ class LlamaServerManager:
 
         except Exception as e:
             logger.error(
-                f"Log streaming error for {server.model.model_id}: {e}",
-                exc_info=True
+                f"Log streaming error for {server.model.model_id}: {e}", exc_info=True
             )
 
         finally:
             logger.info(f"Log stream ended for {server.model.model_id}")
 
     async def start_all(
-        self,
-        models: List[DiscoveredModel]
+        self, models: List[DiscoveredModel]
     ) -> Dict[str, ServerProcess]:
         """Start servers for multiple models concurrently.
 
@@ -697,17 +722,13 @@ class LlamaServerManager:
 
         for model, result in zip(models, results):
             if isinstance(result, Exception):
-                logger.error(
-                    f"Failed to start server for {model.model_id}: {result}"
-                )
+                logger.error(f"Failed to start server for {model.model_id}: {result}")
                 failed.append(model.model_id)
             else:
                 started[model.model_id] = result
 
         # Log summary
-        logger.info(
-            f"✅ Successfully started {len(started)}/{len(models)} servers"
-        )
+        logger.info(f"✅ Successfully started {len(started)}/{len(models)} servers")
 
         if failed:
             logger.warning(f"❌ Failed to start: {', '.join(failed)}")
@@ -773,13 +794,15 @@ class LlamaServerManager:
         finally:
             # Emit model state event: active -> stopped
             try:
-                asyncio.create_task(emit_model_state_event(
-                    model_id=model_id,
-                    previous_state="active",
-                    current_state="stopped",
-                    reason="Server stopped by user request",
-                    port=server.port
-                ))
+                asyncio.create_task(
+                    emit_model_state_event(
+                        model_id=model_id,
+                        previous_state="active",
+                        current_state="stopped",
+                        reason="Server stopped by user request",
+                        port=server.port,
+                    )
+                )
             except Exception as e:
                 logger.debug(f"Failed to emit model state event: {e}")
 
@@ -803,20 +826,26 @@ class LlamaServerManager:
                 async with httpx.AsyncClient(timeout=10.0) as client:
                     stop_response = await client.post(
                         f"{self.host_api_url}/api/servers/stop",
-                        timeout=35.0  # Allow time for graceful shutdown
+                        timeout=35.0,  # Allow time for graceful shutdown
                     )
 
                     if stop_response.status_code == 200:
-                        logger.info("✅ Metal servers stopped successfully via host API")
+                        logger.info(
+                            "✅ Metal servers stopped successfully via host API"
+                        )
                         # Clear internal server tracking
                         self.servers.clear()
                         return
                     else:
-                        error_detail = stop_response.json().get("detail", "Unknown error")
-                        logger.error(f"❌ Host API failed to stop servers: {error_detail}")
+                        error_detail = stop_response.json().get(
+                            "detail", "Unknown error"
+                        )
+                        logger.error(
+                            f"❌ Host API failed to stop servers: {error_detail}"
+                        )
                         raise SynapseException(
                             f"Host API failed to stop servers: {error_detail}",
-                            details={"status_code": stop_response.status_code}
+                            details={"status_code": stop_response.status_code},
                         )
 
             except httpx.RequestError as e:
@@ -824,7 +853,7 @@ class LlamaServerManager:
                 raise SynapseException(
                     f"Host API not available at {self.host_api_url}. "
                     "Servers may still be running on host.",
-                    details={"host_api_url": self.host_api_url, "error": str(e)}
+                    details={"host_api_url": self.host_api_url, "error": str(e)},
                 )
 
         # Internal server mode - stop servers managed by this process
@@ -863,7 +892,7 @@ class LlamaServerManager:
             "total_servers": len(self.servers),
             "ready_servers": sum(1 for s in self.servers.values() if s.is_ready),
             "running_servers": sum(1 for s in self.servers.values() if s.is_running()),
-            "servers": servers_status
+            "servers": servers_status,
         }
 
     def get_server(self, model_id: str) -> Optional[ServerProcess]:

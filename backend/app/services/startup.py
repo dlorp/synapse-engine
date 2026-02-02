@@ -31,11 +31,7 @@ logger = logging.getLogger(__name__)
 class StartupService:
     """Orchestrates PRAXIS startup sequence."""
 
-    def __init__(
-        self,
-        config: AppConfig,
-        profile_name: Optional[str] = None
-    ):
+    def __init__(self, config: AppConfig, profile_name: Optional[str] = None):
         """Initialize startup service.
 
         Args:
@@ -121,7 +117,7 @@ class StartupService:
             logger.error(f"❌ STARTUP FAILED: {e}", exc_info=True)
             raise SynapseException(
                 f"PRAXIS startup failed: {e}",
-                details={"phase": "startup", "profile": self.profile_name}
+                details={"phase": "startup", "profile": self.profile_name},
             )
 
     async def _discover_models(self) -> ModelRegistry:
@@ -131,19 +127,12 @@ class StartupService:
             ModelRegistry instance
         """
         # Get paths from environment or config
-        scan_path = Path(os.getenv(
-            "MODEL_SCAN_PATH",
-            "${PRAXIS_MODEL_PATH}/"
-        ))
-        registry_path = Path(os.getenv(
-            "REGISTRY_PATH",
-            "data/model_registry.json"
-        ))
+        scan_path = Path(os.getenv("MODEL_SCAN_PATH", "${PRAXIS_MODEL_PATH}/"))
+        registry_path = Path(os.getenv("REGISTRY_PATH", "data/model_registry.json"))
 
         # Initialize discovery service
         self.discovery_service = ModelDiscoveryService(
-            scan_path=scan_path,
-            port_range=(8080, 8099)
+            scan_path=scan_path, port_range=(8080, 8099)
         )
 
         # Load cached registry or discover
@@ -164,7 +153,7 @@ class StartupService:
             return ModelRegistry(
                 models={},
                 scan_path=str(scan_path),
-                last_scan=datetime.now().isoformat()
+                last_scan=datetime.now().isoformat(),
             )
 
         logger.info(f"Discovering models in: {scan_path}")
@@ -191,8 +180,7 @@ class StartupService:
             # Validate profile against registry
             if self.registry:
                 missing = self.profile_manager.validate_profile(
-                    profile,
-                    list(self.registry.models.keys())
+                    profile, list(self.registry.models.keys())
                 )
                 if missing:
                     logger.warning(
@@ -235,15 +223,16 @@ class StartupService:
             return
 
         # Get llama-server path
-        llama_server_path = Path(os.getenv(
-            "LLAMA_SERVER_PATH",
-            "/usr/local/bin/llama-server"
-        ))
+        llama_server_path = Path(
+            os.getenv("LLAMA_SERVER_PATH", "/usr/local/bin/llama-server")
+        )
 
         # Check for external server mode (Metal acceleration on macOS)
         use_external_servers_env = os.getenv("USE_EXTERNAL_SERVERS", "false")
         use_external_servers = use_external_servers_env.lower() == "true"
-        logger.info(f"🔍 DEBUG: USE_EXTERNAL_SERVERS env var = '{use_external_servers_env}'")
+        logger.info(
+            f"🔍 DEBUG: USE_EXTERNAL_SERVERS env var = '{use_external_servers_env}'"
+        )
         logger.info(f"🔍 DEBUG: use_external_servers flag = {use_external_servers}")
 
         # Initialize server manager
@@ -252,7 +241,7 @@ class StartupService:
             max_startup_time=int(os.getenv("MODEL_MAX_STARTUP_TIME", "120")),
             readiness_check_interval=2,
             host="0.0.0.0",  # Docker: bind to all interfaces
-            use_external_servers=use_external_servers
+            use_external_servers=use_external_servers,
         )
 
         # Launch servers (concurrent or sequential based on config)
@@ -280,8 +269,8 @@ class StartupService:
 
         status = self.server_manager.get_status_summary()
 
-        ready = status['ready_servers']
-        total = status['total_servers']
+        ready = status["ready_servers"]
+        total = status["total_servers"]
 
         if ready == total and total > 0:
             logger.info(f"✅ All {total} servers ready!")

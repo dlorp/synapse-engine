@@ -33,15 +33,11 @@ class WebSearchAugmenter:
         from app.services.websearch import get_searxng_client
 
         self.searxng_client = get_searxng_client(
-            base_url="http://searxng:8080",
-            timeout=5,
-            max_results=max_results
+            base_url="http://searxng:8080", timeout=5, max_results=max_results
         )
         self.max_results = max_results
 
-        logger.info(
-            f"Initialized WebSearchAugmenter: max_results={max_results}"
-        )
+        logger.info(f"Initialized WebSearchAugmenter: max_results={max_results}")
 
     async def augment(self, query: str) -> List:
         """Perform web search and convert results to DocumentChunk format.
@@ -83,9 +79,9 @@ class WebSearchAugmenter:
                     chunk_index=idx,
                     start_pos=0,
                     end_pos=len(chunk_content),
-                    language='web',  # Special marker to identify web results
+                    language="web",  # Special marker to identify web results
                     modified_time=datetime.utcnow(),
-                    relevance_score=result.score
+                    relevance_score=result.score,
                 )
                 chunks.append(chunk)
 

@@ -21,11 +21,7 @@ from collections import deque
 from typing import AsyncIterator, Deque, Optional, Set
 
 from app.core.logging import get_logger
-from app.models.events import (
-    EventSeverity,
-    EventType,
-    SystemEvent
-)
+from app.models.events import EventSeverity, EventType, SystemEvent
 
 logger = get_logger(__name__)
 
@@ -130,7 +126,7 @@ class EventBus:
         event_type: EventType,
         message: str,
         severity: EventSeverity = EventSeverity.INFO,
-        metadata: Optional[dict] = None
+        metadata: Optional[dict] = None,
     ) -> None:
         """Publish a system event to all subscribers.
 
@@ -161,14 +157,14 @@ class EventBus:
             type=event_type,
             message=message,
             severity=severity,
-            metadata=metadata or {}
+            metadata=metadata or {},
         )
 
         try:
             # Add to main queue (blocks if full - backpressure)
             await asyncio.wait_for(
                 self._queue.put(event),
-                timeout=5.0  # Don't block forever
+                timeout=5.0,  # Don't block forever
             )
 
             # Add to history buffer for new subscribers
@@ -176,13 +172,13 @@ class EventBus:
 
             logger.debug(
                 f"Event published: {event_type.value} - {message}",
-                extra={"event_type": event_type.value, "severity": severity.value}
+                extra={"event_type": event_type.value, "severity": severity.value},
             )
 
         except asyncio.TimeoutError:
             logger.error(
                 f"Failed to publish event (queue full): {event_type.value} - {message}",
-                extra={"event_type": event_type.value}
+                extra={"event_type": event_type.value},
             )
 
     async def publish_event(self, event: SystemEvent) -> None:
@@ -211,21 +207,18 @@ class EventBus:
             await event_bus.publish_event(event)
         """
         try:
-            await asyncio.wait_for(
-                self._queue.put(event),
-                timeout=5.0
-            )
+            await asyncio.wait_for(self._queue.put(event), timeout=5.0)
             self._event_history.append(event)
 
             logger.debug(
                 f"Event published: {event.type} - {event.message}",
-                extra={"event_type": event.type, "severity": event.severity}
+                extra={"event_type": event.type, "severity": event.severity},
             )
 
         except asyncio.TimeoutError:
             logger.error(
                 f"Failed to publish event (queue full): {event.type} - {event.message}",
-                extra={"event_type": event.type}
+                extra={"event_type": event.type},
             )
 
     async def emit_pipeline_event(
@@ -233,7 +226,7 @@ class EventBus:
         query_id: str,
         stage: str,
         event_type: EventType,
-        metadata: Optional[dict] = None
+        metadata: Optional[dict] = None,
     ) -> None:
         """Emit a pipeline stage event.
 
@@ -260,16 +253,13 @@ class EventBus:
             EventType.PIPELINE_STAGE_COMPLETE: f"Pipeline stage completed: {stage}",
             EventType.PIPELINE_STAGE_FAILED: f"Pipeline stage failed: {stage}",
             EventType.PIPELINE_COMPLETE: "Query pipeline completed",
-            EventType.PIPELINE_FAILED: "Query pipeline failed"
+            EventType.PIPELINE_FAILED: "Query pipeline failed",
         }
 
         message = event_messages.get(event_type, f"Pipeline event: {stage}")
 
         # Build event metadata
-        event_metadata = {
-            "query_id": query_id,
-            "stage": stage
-        }
+        event_metadata = {"query_id": query_id, "stage": stage}
         if metadata:
             event_metadata.update(metadata)
 
@@ -283,13 +273,13 @@ class EventBus:
             event_type=event_type,
             message=message,
             severity=severity,
-            metadata=event_metadata
+            metadata=event_metadata,
         )
 
     async def subscribe(
         self,
         event_types: Optional[Set[EventType]] = None,
-        min_severity: EventSeverity = EventSeverity.INFO
+        min_severity: EventSeverity = EventSeverity.INFO,
     ) -> AsyncIterator[SystemEvent]:
         """Subscribe to system events with optional filtering.
 
@@ -334,12 +324,11 @@ class EventBus:
             for event in list(self._event_history):
                 if self._should_send_event(event, event_types, min_severity):
                     try:
-                        await asyncio.wait_for(
-                            subscriber_queue.put(event),
-                            timeout=1.0
-                        )
+                        await asyncio.wait_for(subscriber_queue.put(event), timeout=1.0)
                     except asyncio.TimeoutError:
-                        logger.warning("Timeout sending historical event to new subscriber")
+                        logger.warning(
+                            "Timeout sending historical event to new subscriber"
+                        )
                         break
 
             # Stream new events
@@ -400,7 +389,7 @@ class EventBus:
                             # Non-blocking put with timeout (drop slow clients)
                             await asyncio.wait_for(
                                 subscriber_queue.put(event),
-                                timeout=1.0  # 1 second max per subscriber (increased from 100ms)
+                                timeout=1.0,  # 1 second max per subscriber (increased from 100ms)
                             )
                         except asyncio.TimeoutError:
                             # Subscriber is too slow - mark for removal
@@ -427,7 +416,7 @@ class EventBus:
         self,
         event: SystemEvent,
         event_types: Optional[Set[EventType]],
-        min_severity: EventSeverity
+        min_severity: EventSeverity,
     ) -> bool:
         """Check if event matches subscriber filters.
 
@@ -447,7 +436,7 @@ class EventBus:
         severity_order = {
             EventSeverity.INFO: 0,
             EventSeverity.WARNING: 1,
-            EventSeverity.ERROR: 2
+            EventSeverity.ERROR: 2,
         }
 
         if severity_order[event.severity] < severity_order[min_severity]:
@@ -469,7 +458,7 @@ class EventBus:
             "active_subscribers": len(self._subscribers),
             "queue_size": self._queue.qsize(),
             "history_size": len(self._event_history),
-            "running": self._running
+            "running": self._running,
         }
 
 

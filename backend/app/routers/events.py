@@ -27,8 +27,12 @@ logger = get_logger(__name__)
 @router.websocket("/ws/events")
 async def websocket_events(
     websocket: WebSocket,
-    types: Optional[str] = Query(None, description="Comma-separated event types to filter"),
-    severity: str = Query("info", description="Minimum severity level (info, warning, error)")
+    types: Optional[str] = Query(
+        None, description="Comma-separated event types to filter"
+    ),
+    severity: str = Query(
+        "info", description="Minimum severity level (info, warning, error)"
+    ),
 ) -> None:
     """WebSocket endpoint for real-time system event streaming.
 
@@ -115,9 +119,7 @@ async def websocket_events(
     if types:
         try:
             event_types_filter = {
-                EventType(t.strip().lower())
-                for t in types.split(",")
-                if t.strip()
+                EventType(t.strip().lower()) for t in types.split(",") if t.strip()
             }
             logger.info(f"Event type filter: {event_types_filter}")
         except ValueError as e:
@@ -144,8 +146,7 @@ async def websocket_events(
 
         # Create subscription task
         subscription = event_bus.subscribe(
-            event_types=event_types_filter,
-            min_severity=min_severity
+            event_types=event_types_filter, min_severity=min_severity
         )
 
         # Create subscription iterator
@@ -157,12 +158,11 @@ async def websocket_events(
                 # Use asyncio.wait with FIRST_COMPLETED to handle concurrent operations
                 pending = {
                     asyncio.create_task(websocket.receive_text(), name="receive"),
-                    asyncio.create_task(event_iterator.__anext__(), name="event")
+                    asyncio.create_task(event_iterator.__anext__(), name="event"),
                 }
 
                 done, pending_remaining = await asyncio.wait(
-                    pending,
-                    return_when=asyncio.FIRST_COMPLETED
+                    pending, return_when=asyncio.FIRST_COMPLETED
                 )
 
                 # Cancel remaining tasks
@@ -185,7 +185,9 @@ async def websocket_events(
                                     await websocket.send_json({"type": "pong"})
                             except (json.JSONDecodeError, ValueError):
                                 # Ignore non-JSON messages
-                                logger.debug(f"Received non-JSON WebSocket message: {text}")
+                                logger.debug(
+                                    f"Received non-JSON WebSocket message: {text}"
+                                )
                         except WebSocketDisconnect:
                             logger.info("WebSocket disconnected")
                             return
@@ -205,7 +207,9 @@ async def websocket_events(
                             logger.info("WebSocket disconnected while sending event")
                             return
                         except Exception as e:
-                            logger.error(f"Error sending event to WebSocket client: {e}")
+                            logger.error(
+                                f"Error sending event to WebSocket client: {e}"
+                            )
                             return
 
         except asyncio.CancelledError:
@@ -270,14 +274,13 @@ async def get_event_stats() -> dict:
             "active_subscribers": 0,
             "queue_size": 0,
             "history_size": 0,
-            "running": False
+            "running": False,
         }
 
 
 @router.post("/api/events/test")
 async def publish_test_event(
-    event_type: str = "query_route",
-    message: str = "Test event from API"
+    event_type: str = "query_route", message: str = "Test event from API"
 ) -> dict:
     """Publish a test event for debugging WebSocket connections.
 
@@ -297,16 +300,9 @@ async def publish_test_event(
             event_type=EventType(event_type),
             message=message,
             severity=EventSeverity.INFO,
-            metadata={"source": "test_endpoint"}
+            metadata={"source": "test_endpoint"},
         )
-        return {
-            "success": True,
-            "event_type": event_type,
-            "message": message
-        }
+        return {"success": True, "event_type": event_type, "message": message}
     except Exception as e:
         logger.error(f"Failed to publish test event: {e}", exc_info=True)
-        return {
-            "success": False,
-            "error": str(e)
-        }
+        return {"success": False, "error": str(e)}

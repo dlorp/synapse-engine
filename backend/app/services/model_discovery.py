@@ -33,46 +33,46 @@ class ModelDiscoveryService:
 
     # Pattern 1: qwen2.5-coder-14b-instruct-q4_k_m.gguf
     PATTERN_1 = re.compile(
-        r'^(?P<family>[\w]+)'
-        r'(?P<version>[\d.]+)?'
-        r'(?:-(?P<variant>[\w-]+?))?'
-        r'-(?P<size>\d+)b'
-        r'(?:-(?P<suffix>instruct|chat|coder))?'
-        r'-(?P<quant>q\d+_[\w]+|f\d+)'
-        r'\.gguf$',
-        re.IGNORECASE
+        r"^(?P<family>[\w]+)"
+        r"(?P<version>[\d.]+)?"
+        r"(?:-(?P<variant>[\w-]+?))?"
+        r"-(?P<size>\d+)b"
+        r"(?:-(?P<suffix>instruct|chat|coder))?"
+        r"-(?P<quant>q\d+_[\w]+|f\d+)"
+        r"\.gguf$",
+        re.IGNORECASE,
     )
 
     # Pattern 2: DeepSeek-R1-0528-Qwen3-8B-Q4_K_M.gguf or Qwen3-VL-4B-Instruct-Q4_K_M.gguf
     PATTERN_2 = re.compile(
-        r'^(?P<family>[\w]+)'
-        r'-(?P<variant>[\w\d]+)'
-        r'(?:-(?P<version>[\d]+))?'
-        r'(?:-(?P<submodel>[\w\d]+))?'
-        r'-(?P<size>\d+)B'
-        r'(?:-(?P<suffix>Instruct|Chat|Coder))?'
-        r'-(?P<quant>Q\d+_[\w]+|F\d+)'
-        r'\.gguf$'
+        r"^(?P<family>[\w]+)"
+        r"-(?P<variant>[\w\d]+)"
+        r"(?:-(?P<version>[\d]+))?"
+        r"(?:-(?P<submodel>[\w\d]+))?"
+        r"-(?P<size>\d+)B"
+        r"(?:-(?P<suffix>Instruct|Chat|Coder))?"
+        r"-(?P<quant>Q\d+_[\w]+|F\d+)"
+        r"\.gguf$"
     )
 
     # Pattern 3: gpt-oss-20b-Q4_K_M.gguf or Qwen3-4B-Q4_K_M.gguf (simple format)
     PATTERN_3 = re.compile(
-        r'^(?P<family>[\w-]+?)'
-        r'-(?P<size>\d+)[bB]'
-        r'-(?P<quant>[qQfF]\d+_[\w]+|[fF]\d+)'
-        r'\.gguf$',
-        re.IGNORECASE
+        r"^(?P<family>[\w-]+?)"
+        r"-(?P<size>\d+)[bB]"
+        r"-(?P<quant>[qQfF]\d+_[\w]+|[fF]\d+)"
+        r"\.gguf$",
+        re.IGNORECASE,
     )
 
     # Keywords for detecting thinking/reasoning models
-    THINKING_KEYWORDS = ['r1', 'o1', 'reasoning', 'think']
+    THINKING_KEYWORDS = ["r1", "o1", "reasoning", "think"]
 
     def __init__(
         self,
         scan_path: Path,
         port_range: Tuple[int, int] = (8080, 8099),
         powerful_threshold: float = 14.0,
-        fast_threshold: float = 7.0
+        fast_threshold: float = 7.0,
     ):
         """Initialize model discovery service.
 
@@ -127,7 +127,11 @@ class ModelDiscoveryService:
                 model = self._parse_model_file(gguf_file)
                 if model:
                     discovered_models.append(model)
-                    tier_str = model.assigned_tier if isinstance(model.assigned_tier, str) else model.assigned_tier.value
+                    tier_str = (
+                        model.assigned_tier
+                        if isinstance(model.assigned_tier, str)
+                        else model.assigned_tier.value
+                    )
                     logger.info(
                         f"Parsed: {model.filename} -> "
                         f"{model.get_display_name()} [{tier_str}]"
@@ -140,10 +144,25 @@ class ModelDiscoveryService:
         # Sort by tier (POWERFUL first), then size (descending), then quantization
         discovered_models.sort(
             key=lambda m: (
-                0 if (m.assigned_tier if isinstance(m.assigned_tier, str) else m.assigned_tier.value) == 'powerful' else
-                1 if (m.assigned_tier if isinstance(m.assigned_tier, str) else m.assigned_tier.value) == 'balanced' else 2,
+                0
+                if (
+                    m.assigned_tier
+                    if isinstance(m.assigned_tier, str)
+                    else m.assigned_tier.value
+                )
+                == "powerful"
+                else 1
+                if (
+                    m.assigned_tier
+                    if isinstance(m.assigned_tier, str)
+                    else m.assigned_tier.value
+                )
+                == "balanced"
+                else 2,
                 -m.size_params,
-                m.quantization if isinstance(m.quantization, str) else m.quantization.value
+                m.quantization
+                if isinstance(m.quantization, str)
+                else m.quantization.value,
             )
         )
 
@@ -166,8 +185,8 @@ class ModelDiscoveryService:
             port_range=self.port_range,
             tier_thresholds={
                 "powerful_min": self.powerful_threshold,
-                "fast_max": self.fast_threshold
-            }
+                "fast_max": self.fast_threshold,
+            },
         )
 
         logger.info(
@@ -195,7 +214,9 @@ class ModelDiscoveryService:
         logger.debug(f"Parsing: {filename}")
 
         # Try each pattern in order
-        for pattern_num, pattern in enumerate([self.PATTERN_1, self.PATTERN_2, self.PATTERN_3], 1):
+        for pattern_num, pattern in enumerate(
+            [self.PATTERN_1, self.PATTERN_2, self.PATTERN_3], 1
+        ):
             match = pattern.match(filename)
             if match:
                 groups = match.groupdict()
@@ -206,7 +227,7 @@ class ModelDiscoveryService:
                 except Exception as e:
                     logger.error(
                         f"Failed to create model from match (pattern {pattern_num}): {e}",
-                        exc_info=True
+                        exc_info=True,
                     )
                     return None
 
@@ -214,9 +235,7 @@ class ModelDiscoveryService:
         return None
 
     def _create_model_from_match(
-        self,
-        file_path: Path,
-        groups: Dict[str, Optional[str]]
+        self, file_path: Path, groups: Dict[str, Optional[str]]
     ) -> DiscoveredModel:
         """Create DiscoveredModel from regex match groups.
 
@@ -231,9 +250,9 @@ class ModelDiscoveryService:
             ValueError: If required fields are missing or invalid
         """
         # Extract required fields
-        family = groups['family'].lower()
-        size_str = groups['size']
-        quant_str = groups['quant'].lower()
+        family = groups["family"].lower()
+        size_str = groups["size"]
+        quant_str = groups["quant"].lower()
 
         # Parse size (handle both "7" and "7b" formats)
         try:
@@ -246,20 +265,24 @@ class ModelDiscoveryService:
             quantization = QuantizationLevel(quant_str)
         except ValueError:
             # Try normalizing common variations
-            normalized_quant = quant_str.replace('-', '_')
+            normalized_quant = quant_str.replace("-", "_")
             try:
                 quantization = QuantizationLevel(normalized_quant)
             except ValueError:
                 raise ValueError(f"Unknown quantization level: {quant_str}")
 
         # Extract optional fields
-        version = groups.get('version')
-        suffix = groups.get('suffix', '').lower() if groups.get('suffix') else ''
+        version = groups.get("version")
+        suffix = groups.get("suffix", "").lower() if groups.get("suffix") else ""
 
         # Detect model capabilities from filename and suffix
         filename_lower = file_path.name.lower()
-        is_instruct = 'instruct' in filename_lower or 'chat' in filename_lower or suffix in ['instruct', 'chat']
-        is_coder = 'coder' in filename_lower or suffix == 'coder'
+        is_instruct = (
+            "instruct" in filename_lower
+            or "chat" in filename_lower
+            or suffix in ["instruct", "chat"]
+        )
+        is_coder = "coder" in filename_lower or suffix == "coder"
         is_thinking = self._is_thinking_model(file_path.name, groups)
 
         # Assign tier based on model characteristics (do this first)
@@ -276,13 +299,13 @@ class ModelDiscoveryService:
             is_coder=is_coder,
             assigned_tier=ModelTier.BALANCED,  # Placeholder for assessment
             model_id="temp",  # Temporary
-            enabled=False
+            enabled=False,
         )
 
         assigned_tier = self._assign_tier(temp_model)
 
         # Extract variant information for unique ID
-        variant = groups.get('variant') or groups.get('submodel')
+        variant = groups.get("variant") or groups.get("submodel")
 
         # Generate model ID using the assigned tier
         model_id = self._generate_model_id_from_parts(
@@ -291,7 +314,7 @@ class ModelDiscoveryService:
             variant=variant,
             size_params=size_params,
             quantization=quantization,
-            tier=assigned_tier
+            tier=assigned_tier,
         )
 
         # Create final model with proper tier and ID
@@ -307,12 +330,14 @@ class ModelDiscoveryService:
             is_coder=is_coder,
             assigned_tier=assigned_tier,
             model_id=model_id,
-            enabled=False
+            enabled=False,
         )
 
         return model
 
-    def _is_thinking_model(self, filename: str, groups: Dict[str, Optional[str]]) -> bool:
+    def _is_thinking_model(
+        self, filename: str, groups: Dict[str, Optional[str]]
+    ) -> bool:
         """Detect if model is a thinking/reasoning model.
 
         Checks for keywords like 'r1', 'o1', 'reasoning', 'think' in the
@@ -329,13 +354,17 @@ class ModelDiscoveryService:
         filename_lower = filename.lower()
         for keyword in self.THINKING_KEYWORDS:
             if keyword in filename_lower:
-                logger.debug(f"Detected thinking model (keyword '{keyword}'): {filename}")
+                logger.debug(
+                    f"Detected thinking model (keyword '{keyword}'): {filename}"
+                )
                 return True
 
         # Check variant/submodel fields
-        for field in ['variant', 'submodel']:
+        for field in ["variant", "submodel"]:
             value = groups.get(field)
-            if value and any(keyword in value.lower() for keyword in self.THINKING_KEYWORDS):
+            if value and any(
+                keyword in value.lower() for keyword in self.THINKING_KEYWORDS
+            ):
                 logger.debug(f"Detected thinking model (field '{field}'): {filename}")
                 return True
 
@@ -358,9 +387,7 @@ class ModelDiscoveryService:
         """
         # Thinking models always go to POWERFUL tier
         if model.is_effectively_thinking():
-            logger.debug(
-                f"Assigning POWERFUL tier to thinking model: {model.filename}"
-            )
+            logger.debug(f"Assigning POWERFUL tier to thinking model: {model.filename}")
             return ModelTier.POWERFUL
 
         # Large models go to POWERFUL tier
@@ -373,13 +400,23 @@ class ModelDiscoveryService:
 
         # Small models with low quantization go to FAST tier
         low_quants = [
-            'q2_k', 'q2_k_s',
-            'q3_k', 'q3_k_m', 'q3_k_s',
-            'q4_0', 'q4_k', 'q4_k_m', 'q4_k_s'
+            "q2_k",
+            "q2_k_s",
+            "q3_k",
+            "q3_k_m",
+            "q3_k_s",
+            "q4_0",
+            "q4_k",
+            "q4_k_m",
+            "q4_k_s",
         ]
         # Handle both enum and string values (Pydantic may convert)
-        quant_value = model.quantization if isinstance(model.quantization, str) else model.quantization.value
-        if (model.size_params < self.fast_threshold and quant_value in low_quants):
+        quant_value = (
+            model.quantization
+            if isinstance(model.quantization, str)
+            else model.quantization.value
+        )
+        if model.size_params < self.fast_threshold and quant_value in low_quants:
             logger.debug(
                 f"Assigning FAST tier (size {model.size_params}B < {self.fast_threshold}B, "
                 f"low quant {quant_value}): {model.filename}"
@@ -397,7 +434,7 @@ class ModelDiscoveryService:
         variant: Optional[str],
         size_params: float,
         quantization: QuantizationLevel,
-        tier: ModelTier
+        tier: ModelTier,
     ) -> str:
         """Generate unique model identifier from parts.
 
@@ -419,19 +456,19 @@ class ModelDiscoveryService:
             Generated model ID string
         """
         # Normalize components
-        family_clean = family.replace('-', '').replace('_', '').lower()
+        family_clean = family.replace("-", "").replace("_", "").lower()
 
         # Build ID parts
         id_parts = [family_clean]
 
         # Add variant if present (helps distinguish VL, R1, etc.)
         if variant:
-            variant_clean = variant.replace('-', '').replace('_', '').lower()
+            variant_clean = variant.replace("-", "").replace("_", "").lower()
             id_parts.append(variant_clean)
 
         # Add version if present
         if version:
-            version_clean = version.replace('.', 'p').replace('-', '').lower()
+            version_clean = version.replace(".", "p").replace("-", "").lower()
             id_parts.append(version_clean)
 
         # Get enum values explicitly (enums inherit from str, so isinstance doesn't work)
@@ -439,9 +476,9 @@ class ModelDiscoveryService:
             quant_value = quantization.value
         else:
             quant_value = str(quantization)
-        quant_clean = quant_value.replace('_', '').replace('-', '').lower()
+        quant_clean = quant_value.replace("_", "").replace("-", "").lower()
 
-        size_clean = f"{size_params}b".replace('.', 'p')
+        size_clean = f"{size_params}b".replace(".", "p")
 
         # Get enum value explicitly
         if isinstance(tier, ModelTier):
@@ -470,9 +507,9 @@ class ModelDiscoveryService:
         path.parent.mkdir(parents=True, exist_ok=True)
 
         try:
-            with open(path, 'w', encoding='utf-8') as f:
+            with open(path, "w", encoding="utf-8") as f:
                 # Convert to dict and write
-                registry_dict = registry.model_dump(mode='json')
+                registry_dict = registry.model_dump(mode="json")
                 json.dump(registry_dict, f, indent=2, ensure_ascii=False)
 
             logger.info(f"Registry saved to: {path.absolute()}")
@@ -497,7 +534,7 @@ class ModelDiscoveryService:
             raise FileNotFoundError(f"Registry file not found: {path}")
 
         try:
-            with open(path, 'r', encoding='utf-8') as f:
+            with open(path, "r", encoding="utf-8") as f:
                 registry_dict = json.load(f)
 
             registry = ModelRegistry(**registry_dict)

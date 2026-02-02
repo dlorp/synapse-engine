@@ -51,12 +51,10 @@ class GitStatusTool(BaseTool):
     """
 
     name = ToolName.GIT_STATUS
-    description = "Get the current git status showing modified, staged, and untracked files"
-    parameter_schema = {
-        "type": "object",
-        "properties": {},
-        "required": []
-    }
+    description = (
+        "Get the current git status showing modified, staged, and untracked files"
+    )
+    parameter_schema = {"type": "object", "properties": {}, "required": []}
 
     def __init__(self, workspace_root: str):
         """Initialize git status tool.
@@ -85,16 +83,18 @@ class GitStatusTool(BaseTool):
             if not self._is_git_repo():
                 logger.warning(f"Not a git repository: {self.workspace_root}")
                 return ToolResult(
-                    success=False,
-                    error=f"Not a git repository: {self.workspace_root}"
+                    success=False, error=f"Not a git repository: {self.workspace_root}"
                 )
 
             # Run git status --porcelain for machine-readable output
             proc = await asyncio.create_subprocess_exec(
-                "git", "status", "--porcelain", "--branch",
+                "git",
+                "status",
+                "--porcelain",
+                "--branch",
                 cwd=str(self.workspace_root),
                 stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
+                stderr=asyncio.subprocess.PIPE,
             )
             stdout, stderr = await proc.communicate()
 
@@ -102,13 +102,12 @@ class GitStatusTool(BaseTool):
                 error_msg = stderr.decode().strip()
                 logger.error(f"git status failed: {error_msg}")
                 return ToolResult(
-                    success=False,
-                    error=f"git status failed: {error_msg}"
+                    success=False, error=f"git status failed: {error_msg}"
                 )
 
             # Parse output
             output = stdout.decode()
-            lines = output.strip().split('\n')
+            lines = output.strip().split("\n")
 
             # Extract branch info (first line with ##)
             branch_info = ""
@@ -153,8 +152,7 @@ class GitStatusTool(BaseTool):
 
             # Audit log
             logger.info(
-                f"GIT_STATUS: {self.workspace_root} "
-                f"({len(file_lines)} changes)"
+                f"GIT_STATUS: {self.workspace_root} ({len(file_lines)} changes)"
             )
 
             return ToolResult(
@@ -163,15 +161,14 @@ class GitStatusTool(BaseTool):
                 metadata={
                     "branch": branch_info,
                     "change_count": len(file_lines),
-                    "has_changes": len(file_lines) > 0
-                }
+                    "has_changes": len(file_lines) > 0,
+                },
             )
 
         except Exception as e:
             logger.error(f"Error executing git status: {e}", exc_info=True)
             return ToolResult(
-                success=False,
-                error=f"Error executing git status: {str(e)}"
+                success=False, error=f"Error executing git status: {str(e)}"
             )
 
 
@@ -202,15 +199,15 @@ class GitDiffTool(BaseTool):
         "properties": {
             "file": {
                 "type": "string",
-                "description": "Specific file to diff (optional)"
+                "description": "Specific file to diff (optional)",
             },
             "staged": {
                 "type": "boolean",
                 "description": "Show staged changes instead of unstaged (default: false)",
-                "default": False
-            }
+                "default": False,
+            },
         },
-        "required": []
+        "required": [],
     }
 
     def __init__(self, workspace_root: str):
@@ -230,10 +227,7 @@ class GitDiffTool(BaseTool):
         return (self.workspace_root / ".git").exists()
 
     async def execute(
-        self,
-        file: Optional[str] = None,
-        staged: bool = False,
-        **kwargs
+        self, file: Optional[str] = None, staged: bool = False, **kwargs
     ) -> ToolResult:
         """Get git diff.
 
@@ -249,8 +243,7 @@ class GitDiffTool(BaseTool):
             if not self._is_git_repo():
                 logger.warning(f"Not a git repository: {self.workspace_root}")
                 return ToolResult(
-                    success=False,
-                    error=f"Not a git repository: {self.workspace_root}"
+                    success=False, error=f"Not a git repository: {self.workspace_root}"
                 )
 
             # Build git diff command
@@ -266,9 +259,7 @@ class GitDiffTool(BaseTool):
                     try:
                         file_path.relative_to(self.workspace_root)
                     except ValueError:
-                        raise SecurityError(
-                            f"File path outside workspace: {file}"
-                        )
+                        raise SecurityError(f"File path outside workspace: {file}")
                 cmd.append("--")
                 cmd.append(file)
 
@@ -277,17 +268,14 @@ class GitDiffTool(BaseTool):
                 *cmd,
                 cwd=str(self.workspace_root),
                 stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
+                stderr=asyncio.subprocess.PIPE,
             )
             stdout, stderr = await proc.communicate()
 
             if proc.returncode != 0:
                 error_msg = stderr.decode().strip()
                 logger.error(f"git diff failed: {error_msg}")
-                return ToolResult(
-                    success=False,
-                    error=f"git diff failed: {error_msg}"
-                )
+                return ToolResult(success=False, error=f"git diff failed: {error_msg}")
 
             diff_output = stdout.decode()
 
@@ -312,11 +300,7 @@ class GitDiffTool(BaseTool):
             return ToolResult(
                 success=True,
                 output=diff_output,
-                metadata={
-                    "staged": staged,
-                    "file": file,
-                    "has_changes": has_changes
-                }
+                metadata={"staged": staged, "file": file, "has_changes": has_changes},
             )
 
         except SecurityError as e:
@@ -326,8 +310,7 @@ class GitDiffTool(BaseTool):
         except Exception as e:
             logger.error(f"Error executing git diff: {e}", exc_info=True)
             return ToolResult(
-                success=False,
-                error=f"Error executing git diff: {str(e)}"
+                success=False, error=f"Error executing git diff: {str(e)}"
             )
 
 
@@ -362,14 +345,14 @@ class GitLogTool(BaseTool):
                 "description": "Number of commits to show (default: 10)",
                 "default": 10,
                 "minimum": 1,
-                "maximum": 100
+                "maximum": 100,
             },
             "file": {
                 "type": "string",
-                "description": "Show history for specific file (optional)"
-            }
+                "description": "Show history for specific file (optional)",
+            },
         },
-        "required": []
+        "required": [],
     }
 
     def __init__(self, workspace_root: str):
@@ -389,10 +372,7 @@ class GitLogTool(BaseTool):
         return (self.workspace_root / ".git").exists()
 
     async def execute(
-        self,
-        count: int = 10,
-        file: Optional[str] = None,
-        **kwargs
+        self, count: int = 10, file: Optional[str] = None, **kwargs
     ) -> ToolResult:
         """Get commit history.
 
@@ -408,16 +388,16 @@ class GitLogTool(BaseTool):
             if not self._is_git_repo():
                 logger.warning(f"Not a git repository: {self.workspace_root}")
                 return ToolResult(
-                    success=False,
-                    error=f"Not a git repository: {self.workspace_root}"
+                    success=False, error=f"Not a git repository: {self.workspace_root}"
                 )
 
             # Build git log command with pretty format
             cmd = [
-                "git", "log",
+                "git",
+                "log",
                 f"-n{count}",
                 "--pretty=format:%h|%an|%ar|%s",
-                "--decorate=short"
+                "--decorate=short",
             ]
 
             if file:
@@ -427,9 +407,7 @@ class GitLogTool(BaseTool):
                     try:
                         file_path.relative_to(self.workspace_root)
                     except ValueError:
-                        raise SecurityError(
-                            f"File path outside workspace: {file}"
-                        )
+                        raise SecurityError(f"File path outside workspace: {file}")
                 cmd.append("--")
                 cmd.append(file)
 
@@ -438,17 +416,14 @@ class GitLogTool(BaseTool):
                 *cmd,
                 cwd=str(self.workspace_root),
                 stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
+                stderr=asyncio.subprocess.PIPE,
             )
             stdout, stderr = await proc.communicate()
 
             if proc.returncode != 0:
                 error_msg = stderr.decode().strip()
                 logger.error(f"git log failed: {error_msg}")
-                return ToolResult(
-                    success=False,
-                    error=f"git log failed: {error_msg}"
-                )
+                return ToolResult(success=False, error=f"git log failed: {error_msg}")
 
             # Parse and format output
             log_output = stdout.decode()
@@ -456,14 +431,14 @@ class GitLogTool(BaseTool):
                 return ToolResult(
                     success=True,
                     output="No commits found",
-                    metadata={"commit_count": 0}
+                    metadata={"commit_count": 0},
                 )
 
-            lines = log_output.strip().split('\n')
+            lines = log_output.strip().split("\n")
             formatted_output = f"Recent commits (last {len(lines)}):\n\n"
 
             for line in lines:
-                parts = line.split('|', 3)
+                parts = line.split("|", 3)
                 if len(parts) == 4:
                     commit_hash, author, date, message = parts
                     formatted_output += f"{commit_hash}  {message}\n"
@@ -471,17 +446,13 @@ class GitLogTool(BaseTool):
 
             # Audit log
             logger.info(
-                f"GIT_LOG: {self.workspace_root} "
-                f"(count={count}, file={file or 'all'})"
+                f"GIT_LOG: {self.workspace_root} (count={count}, file={file or 'all'})"
             )
 
             return ToolResult(
                 success=True,
                 output=formatted_output,
-                metadata={
-                    "commit_count": len(lines),
-                    "file": file
-                }
+                metadata={"commit_count": len(lines), "file": file},
             )
 
         except SecurityError as e:
@@ -490,10 +461,7 @@ class GitLogTool(BaseTool):
 
         except Exception as e:
             logger.error(f"Error executing git log: {e}", exc_info=True)
-            return ToolResult(
-                success=False,
-                error=f"Error executing git log: {str(e)}"
-            )
+            return ToolResult(success=False, error=f"Error executing git log: {str(e)}")
 
 
 class GitCommitTool(BaseTool):
@@ -532,15 +500,15 @@ class GitCommitTool(BaseTool):
                 "type": "string",
                 "description": "Commit message",
                 "minLength": 1,
-                "maxLength": 1000
+                "maxLength": 1000,
             },
             "files": {
                 "type": "array",
                 "description": "Specific files to stage (optional, default: all changes)",
-                "items": {"type": "string"}
-            }
+                "items": {"type": "string"},
+            },
         },
-        "required": ["message"]
+        "required": ["message"],
     }
     requires_confirmation = True
 
@@ -561,10 +529,7 @@ class GitCommitTool(BaseTool):
         return (self.workspace_root / ".git").exists()
 
     async def execute(
-        self,
-        message: str,
-        files: Optional[List[str]] = None,
-        **kwargs
+        self, message: str, files: Optional[List[str]] = None, **kwargs
     ) -> ToolResult:
         """Create commit (returns confirmation request).
 
@@ -583,8 +548,7 @@ class GitCommitTool(BaseTool):
             if not self._is_git_repo():
                 logger.warning(f"Not a git repository: {self.workspace_root}")
                 return ToolResult(
-                    success=False,
-                    error=f"Not a git repository: {self.workspace_root}"
+                    success=False, error=f"Not a git repository: {self.workspace_root}"
                 )
 
             # Validate files if specified
@@ -595,24 +559,21 @@ class GitCommitTool(BaseTool):
                         try:
                             file_path.relative_to(self.workspace_root)
                         except ValueError:
-                            raise SecurityError(
-                                f"File path outside workspace: {file}"
-                            )
+                            raise SecurityError(f"File path outside workspace: {file}")
 
             # Check if there are changes to commit
             status_proc = await asyncio.create_subprocess_exec(
-                "git", "status", "--porcelain",
+                "git",
+                "status",
+                "--porcelain",
                 cwd=str(self.workspace_root),
                 stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
+                stderr=asyncio.subprocess.PIPE,
             )
             status_stdout, _ = await status_proc.communicate()
 
             if not status_stdout.decode().strip():
-                return ToolResult(
-                    success=False,
-                    error="No changes to commit"
-                )
+                return ToolResult(success=False, error="No changes to commit")
 
             # Format confirmation message
             confirmation_msg = f"Commit message: {message}\n\n"
@@ -633,14 +594,8 @@ class GitCommitTool(BaseTool):
                 output=confirmation_msg,
                 requires_confirmation=True,
                 confirmation_type="git_commit",
-                data={
-                    "message": message,
-                    "files": files
-                },
-                metadata={
-                    "message": message,
-                    "files": files or []
-                }
+                data={"message": message, "files": files},
+                metadata={"message": message, "files": files or []},
             )
 
         except SecurityError as e:
@@ -650,8 +605,7 @@ class GitCommitTool(BaseTool):
         except Exception as e:
             logger.error(f"Error executing git commit: {e}", exc_info=True)
             return ToolResult(
-                success=False,
-                error=f"Error executing git commit: {str(e)}"
+                success=False, error=f"Error executing git commit: {str(e)}"
             )
 
 
@@ -677,11 +631,7 @@ class GitBranchTool(BaseTool):
 
     name = ToolName.GIT_BRANCH
     description = "List branches or get current branch name"
-    parameter_schema = {
-        "type": "object",
-        "properties": {},
-        "required": []
-    }
+    parameter_schema = {"type": "object", "properties": {}, "required": []}
 
     def __init__(self, workspace_root: str):
         """Initialize git branch tool.
@@ -710,16 +660,17 @@ class GitBranchTool(BaseTool):
             if not self._is_git_repo():
                 logger.warning(f"Not a git repository: {self.workspace_root}")
                 return ToolResult(
-                    success=False,
-                    error=f"Not a git repository: {self.workspace_root}"
+                    success=False, error=f"Not a git repository: {self.workspace_root}"
                 )
 
             # Get current branch
             current_proc = await asyncio.create_subprocess_exec(
-                "git", "branch", "--show-current",
+                "git",
+                "branch",
+                "--show-current",
                 cwd=str(self.workspace_root),
                 stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
+                stderr=asyncio.subprocess.PIPE,
             )
             current_stdout, current_stderr = await current_proc.communicate()
 
@@ -727,18 +678,19 @@ class GitBranchTool(BaseTool):
                 error_msg = current_stderr.decode().strip()
                 logger.error(f"git branch --show-current failed: {error_msg}")
                 return ToolResult(
-                    success=False,
-                    error=f"git branch failed: {error_msg}"
+                    success=False, error=f"git branch failed: {error_msg}"
                 )
 
             current_branch = current_stdout.decode().strip()
 
             # Get all branches
             all_proc = await asyncio.create_subprocess_exec(
-                "git", "branch", "-a",
+                "git",
+                "branch",
+                "-a",
                 cwd=str(self.workspace_root),
                 stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
+                stderr=asyncio.subprocess.PIPE,
             )
             all_stdout, all_stderr = await all_proc.communicate()
 
@@ -749,11 +701,11 @@ class GitBranchTool(BaseTool):
                 return ToolResult(
                     success=True,
                     output=f"Current branch: {current_branch}\n(Could not list other branches)",
-                    metadata={"current_branch": current_branch}
+                    metadata={"current_branch": current_branch},
                 )
 
             # Parse and format output
-            branches = all_stdout.decode().strip().split('\n')
+            branches = all_stdout.decode().strip().split("\n")
             formatted_output = f"Current branch: {current_branch}\n\n"
             formatted_output += "All branches:\n"
 
@@ -781,23 +733,19 @@ class GitBranchTool(BaseTool):
                 formatted_output += "\n".join(remote_branches) + "\n"
 
             # Audit log
-            logger.info(
-                f"GIT_BRANCH: {self.workspace_root} "
-                f"(current={current_branch})"
-            )
+            logger.info(f"GIT_BRANCH: {self.workspace_root} (current={current_branch})")
 
             return ToolResult(
                 success=True,
                 output=formatted_output,
                 metadata={
                     "current_branch": current_branch,
-                    "branch_count": len(branches)
-                }
+                    "branch_count": len(branches),
+                },
             )
 
         except Exception as e:
             logger.error(f"Error executing git branch: {e}", exc_info=True)
             return ToolResult(
-                success=False,
-                error=f"Error executing git branch: {str(e)}"
+                success=False, error=f"Error executing git branch: {str(e)}"
             )

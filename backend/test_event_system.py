@@ -16,23 +16,23 @@ import asyncio
 import time
 from typing import List
 
-from app.services.event_bus import get_event_bus, EventBus
+from app.services.event_bus import get_event_bus
 from app.services.event_emitter import (
     emit_query_route_event,
     emit_model_state_event,
     emit_cgrag_event,
     emit_cache_event,
     emit_error_event,
-    emit_performance_event
+    emit_performance_event,
 )
 from app.models.events import SystemEvent, EventType, EventSeverity
 
 
 async def test_event_bus_basic():
     """Test basic event bus functionality."""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("TEST 1: Basic Event Bus Functionality")
-    print("="*60)
+    print("=" * 60)
 
     try:
         event_bus = get_event_bus()
@@ -45,7 +45,7 @@ async def test_event_bus_basic():
     stats = event_bus.get_stats()
     print(f"📊 Event bus stats: {stats}")
 
-    if not stats['running']:
+    if not stats["running"]:
         print("❌ Event bus not running")
         return False
 
@@ -55,53 +55,71 @@ async def test_event_bus_basic():
 
 async def test_event_emission():
     """Test event emission utilities."""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("TEST 2: Event Emission Utilities")
-    print("="*60)
+    print("=" * 60)
 
     tests = [
-        ("Query Route Event", emit_query_route_event(
-            query_id="test_query_001",
-            complexity_score=7.5,
-            selected_tier="Q4",
-            estimated_latency_ms=12000,
-            routing_reason="Complex multi-part analysis"
-        )),
-        ("Model State Event", emit_model_state_event(
-            model_id="test_model_q4",
-            previous_state="idle",
-            current_state="processing",
-            reason="Query dispatched",
-            port=8080
-        )),
-        ("CGRAG Event", emit_cgrag_event(
-            query_id="test_query_001",
-            chunks_retrieved=5,
-            relevance_threshold=0.7,
-            retrieval_time_ms=45,
-            total_tokens=1500,
-            cache_hit=True
-        )),
-        ("Cache Event", emit_cache_event(
-            operation="hit",
-            key="query:test_001:response",
-            hit=True,
-            latency_ms=2,
-            size_bytes=4096
-        )),
-        ("Error Event", emit_error_event(
-            error_type="TestError",
-            error_message="This is a test error",
-            component="TestScript",
-            recovery_action="No action needed - test only"
-        )),
-        ("Performance Event", emit_performance_event(
-            metric_name="test_metric",
-            current_value=100.5,
-            threshold_value=90.0,
-            component="TestComponent",
-            action_required=False
-        ))
+        (
+            "Query Route Event",
+            emit_query_route_event(
+                query_id="test_query_001",
+                complexity_score=7.5,
+                selected_tier="Q4",
+                estimated_latency_ms=12000,
+                routing_reason="Complex multi-part analysis",
+            ),
+        ),
+        (
+            "Model State Event",
+            emit_model_state_event(
+                model_id="test_model_q4",
+                previous_state="idle",
+                current_state="processing",
+                reason="Query dispatched",
+                port=8080,
+            ),
+        ),
+        (
+            "CGRAG Event",
+            emit_cgrag_event(
+                query_id="test_query_001",
+                chunks_retrieved=5,
+                relevance_threshold=0.7,
+                retrieval_time_ms=45,
+                total_tokens=1500,
+                cache_hit=True,
+            ),
+        ),
+        (
+            "Cache Event",
+            emit_cache_event(
+                operation="hit",
+                key="query:test_001:response",
+                hit=True,
+                latency_ms=2,
+                size_bytes=4096,
+            ),
+        ),
+        (
+            "Error Event",
+            emit_error_event(
+                error_type="TestError",
+                error_message="This is a test error",
+                component="TestScript",
+                recovery_action="No action needed - test only",
+            ),
+        ),
+        (
+            "Performance Event",
+            emit_performance_event(
+                metric_name="test_metric",
+                current_value=100.5,
+                threshold_value=90.0,
+                component="TestComponent",
+                action_required=False,
+            ),
+        ),
     ]
 
     success_count = 0
@@ -119,9 +137,9 @@ async def test_event_emission():
 
 async def test_event_filtering():
     """Test event filtering by type and severity."""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("TEST 3: Event Filtering")
-    print("="*60)
+    print("=" * 60)
 
     event_bus = get_event_bus()
 
@@ -132,8 +150,7 @@ async def test_event_filtering():
         """Collect events for 2 seconds."""
         try:
             async for event in event_bus.subscribe(
-                event_types={EventType.ERROR},
-                min_severity=EventSeverity.ERROR
+                event_types={EventType.ERROR}, min_severity=EventSeverity.ERROR
             ):
                 received_events.append(event)
                 print(f"  📩 Received: {event.type} - {event.message}")
@@ -152,18 +169,14 @@ async def test_event_filtering():
 
     # Emit INFO event (should be filtered out)
     await emit_cache_event(
-        operation="hit",
-        key="test:filter",
-        hit=True,
-        latency_ms=1,
-        size_bytes=100
+        operation="hit", key="test:filter", hit=True, latency_ms=1, size_bytes=100
     )
 
     # Emit ERROR event (should be received)
     await emit_error_event(
         error_type="FilterTestError",
         error_message="This error should be received",
-        component="TestScript"
+        component="TestScript",
     )
 
     # Wait for events to be processed
@@ -187,9 +200,9 @@ async def test_event_filtering():
 
 async def test_event_history():
     """Test historical event buffer."""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("TEST 4: Historical Event Buffer")
-    print("="*60)
+    print("=" * 60)
 
     event_bus = get_event_bus()
 
@@ -198,9 +211,9 @@ async def test_event_history():
     for i in range(5):
         await event_bus.publish(
             event_type=EventType.QUERY_ROUTE,
-            message=f"Historical test event {i+1}",
+            message=f"Historical test event {i + 1}",
             severity=EventSeverity.INFO,
-            metadata={"test_id": i+1}
+            metadata={"test_id": i + 1},
         )
 
     await asyncio.sleep(0.2)  # Allow events to be processed
@@ -236,18 +249,22 @@ async def test_event_history():
 
     # Verify we received historical events
     if len(received_events) >= 5:
-        print(f"✅ Historical event buffer works ({len(received_events)} events received)")
+        print(
+            f"✅ Historical event buffer works ({len(received_events)} events received)"
+        )
         return True
     else:
-        print(f"❌ Historical event buffer failed: only {len(received_events)} events received")
+        print(
+            f"❌ Historical event buffer failed: only {len(received_events)} events received"
+        )
         return False
 
 
 async def test_concurrent_subscribers():
     """Test multiple concurrent subscribers."""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("TEST 5: Concurrent Subscribers")
-    print("="*60)
+    print("=" * 60)
 
     event_bus = get_event_bus()
 
@@ -269,7 +286,7 @@ async def test_concurrent_subscribers():
     tasks = [
         asyncio.create_task(subscribe_and_count(0)),
         asyncio.create_task(subscribe_and_count(1)),
-        asyncio.create_task(subscribe_and_count(2))
+        asyncio.create_task(subscribe_and_count(2)),
     ]
 
     # Wait for subscribers to connect
@@ -284,9 +301,9 @@ async def test_concurrent_subscribers():
     for i in range(3):
         await event_bus.publish(
             event_type=EventType.CACHE,
-            message=f"Concurrent test event {i+1}",
+            message=f"Concurrent test event {i + 1}",
             severity=EventSeverity.INFO,
-            metadata={"test_id": i+1}
+            metadata={"test_id": i + 1},
         )
 
     # Wait for events to be processed
@@ -311,9 +328,9 @@ async def test_concurrent_subscribers():
 
 async def test_performance():
     """Test event system performance."""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("TEST 6: Performance Test")
-    print("="*60)
+    print("=" * 60)
 
     event_bus = get_event_bus()
 
@@ -324,9 +341,9 @@ async def test_performance():
     for i in range(event_count):
         await event_bus.publish(
             event_type=EventType.CACHE,
-            message=f"Performance test event {i+1}",
+            message=f"Performance test event {i + 1}",
             severity=EventSeverity.INFO,
-            metadata={"test_id": i+1}
+            metadata={"test_id": i + 1},
         )
 
     elapsed_ms = (time.perf_counter() - start_time) * 1000
@@ -349,9 +366,9 @@ async def test_performance():
 
 async def run_all_tests():
     """Run all test suites."""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("WEBSOCKET EVENT SYSTEM TEST SUITE")
-    print("="*60)
+    print("=" * 60)
 
     tests = [
         ("Event Bus Basic Functionality", test_event_bus_basic),
@@ -359,7 +376,7 @@ async def run_all_tests():
         ("Event Filtering", test_event_filtering),
         ("Historical Event Buffer", test_event_history),
         ("Concurrent Subscribers", test_concurrent_subscribers),
-        ("Performance", test_performance)
+        ("Performance", test_performance),
     ]
 
     results = []
@@ -371,13 +388,14 @@ async def run_all_tests():
         except Exception as e:
             print(f"\n❌ {test_name} crashed: {e}")
             import traceback
+
             traceback.print_exc()
             results.append((test_name, False))
 
     # Print summary
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("TEST SUMMARY")
-    print("="*60)
+    print("=" * 60)
 
     passed = sum(1 for _, result in results if result)
     total = len(results)

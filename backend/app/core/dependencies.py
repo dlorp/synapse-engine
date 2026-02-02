@@ -31,7 +31,7 @@ def get_app_config() -> AppConfig:
 
 
 def get_request_logger(
-    config: Annotated[AppConfig, Depends(get_app_config)]
+    config: Annotated[AppConfig, Depends(get_app_config)],
 ) -> logging.Logger:
     """Get logger for request handlers.
 

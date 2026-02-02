@@ -27,7 +27,7 @@ from app.models.timeseries import (
     MultiMetricResponse,
     TimeRange,
     TimeSeriesPoint,
-    TimeSeriesResponse
+    TimeSeriesResponse,
 )
 
 
@@ -104,7 +104,7 @@ class MetricsAggregator:
 
     def __init__(
         self,
-        max_retention_seconds: int = 30 * 24 * 60 * 60  # 30 days
+        max_retention_seconds: int = 30 * 24 * 60 * 60,  # 30 days
     ) -> None:
         """Initialize metrics aggregator.
 
@@ -127,7 +127,7 @@ class MetricsAggregator:
 
         logger.info(
             f"MetricsAggregator initialized with {max_retention_seconds}s retention "
-            f"(~{max_retention_seconds / (24*60*60):.1f} days)"
+            f"(~{max_retention_seconds / (24 * 60 * 60):.1f} days)"
         )
 
     async def start(self) -> None:
@@ -149,7 +149,7 @@ class MetricsAggregator:
         self,
         metric_name: MetricType,
         value: float,
-        metadata: Optional[dict[str, Any]] = None
+        metadata: Optional[dict[str, Any]] = None,
     ) -> None:
         """Record a metric data point.
 
@@ -174,7 +174,7 @@ class MetricsAggregator:
                 value=value,
                 model_id=model_id,
                 tier=tier,
-                query_mode=query_mode
+                query_mode=query_mode,
             )
 
             # Append to ring buffer (automatically evicts oldest if at capacity)
@@ -186,8 +186,8 @@ class MetricsAggregator:
                     "metric": metric_name.value,
                     "value": value,
                     "model_id": model_id,
-                    "tier": tier
-                }
+                    "tier": tier,
+                },
             )
 
     async def get_time_series(
@@ -196,7 +196,7 @@ class MetricsAggregator:
         time_range: TimeRange,
         model_id: Optional[str] = None,
         tier: Optional[Literal["Q2", "Q3", "Q4"]] = None,
-        query_mode: Optional[str] = None
+        query_mode: Optional[str] = None,
     ) -> TimeSeriesResponse:
         """Get time-series data for a metric.
 
@@ -223,7 +223,8 @@ class MetricsAggregator:
 
             # Filter data points
             filtered_points = [
-                point for point in buffer
+                point
+                for point in buffer
                 if point.timestamp >= window_start
                 and (model_id is None or point.model_id == model_id)
                 and (tier is None or point.tier == tier)
@@ -235,8 +236,12 @@ class MetricsAggregator:
 
             # Calculate summary statistics
             values = [p.value for p in filtered_points]
-            summary = self._calculate_summary(values) if values else MetricsSummary(
-                min=0.0, max=0.0, avg=0.0, p50=0.0, p95=0.0, p99=0.0
+            summary = (
+                self._calculate_summary(values)
+                if values
+                else MetricsSummary(
+                    min=0.0, max=0.0, avg=0.0, p50=0.0, p95=0.0, p99=0.0
+                )
             )
 
             # Convert to response format
@@ -254,18 +259,16 @@ class MetricsAggregator:
                         metadata={
                             "model_id": p.model_id,
                             "tier": p.tier,
-                            "query_mode": p.query_mode
-                        }
+                            "query_mode": p.query_mode,
+                        },
                     )
                     for p in data_points
                 ],
-                summary=summary
+                summary=summary,
             )
 
     async def get_summary(
-        self,
-        metric_name: MetricType,
-        time_range: TimeRange
+        self, metric_name: MetricType, time_range: TimeRange
     ) -> MetricsSummary:
         """Get statistical summary for a metric.
 
@@ -287,18 +290,19 @@ class MetricsAggregator:
 
             # Filter data points
             values = [
-                point.value for point in buffer
-                if point.timestamp >= window_start
+                point.value for point in buffer if point.timestamp >= window_start
             ]
 
-            return self._calculate_summary(values) if values else MetricsSummary(
-                min=0.0, max=0.0, avg=0.0, p50=0.0, p95=0.0, p99=0.0
+            return (
+                self._calculate_summary(values)
+                if values
+                else MetricsSummary(
+                    min=0.0, max=0.0, avg=0.0, p50=0.0, p95=0.0, p99=0.0
+                )
             )
 
     async def get_comparison(
-        self,
-        metric_names: list[MetricType],
-        time_range: TimeRange
+        self, metric_names: list[MetricType], time_range: TimeRange
     ) -> MultiMetricResponse:
         """Get multi-metric comparison data in Chart.js format.
 
@@ -321,8 +325,7 @@ class MetricsAggregator:
             # Create aligned time buckets
             bucket_count = int(window_seconds / bucket_interval)
             bucket_timestamps = [
-                now - (i * bucket_interval)
-                for i in range(bucket_count, -1, -1)
+                now - (i * bucket_interval) for i in range(bucket_count, -1, -1)
             ]
 
             # Generate labels
@@ -339,8 +342,7 @@ class MetricsAggregator:
 
                 # Filter data points
                 filtered_points = [
-                    point for point in buffer
-                    if point.timestamp >= window_start
+                    point for point in buffer if point.timestamp >= window_start
                 ]
 
                 # Bucket data points and average
@@ -351,7 +353,8 @@ class MetricsAggregator:
 
                     # Find points in this bucket
                     bucket_points = [
-                        p.value for p in filtered_points
+                        p.value
+                        for p in filtered_points
                         if bucket_start <= p.timestamp < bucket_end
                     ]
 
@@ -363,22 +366,17 @@ class MetricsAggregator:
                     ChartJSDataset(
                         label=metric_name.value,
                         data=bucket_values,
-                        metadata={"unit": self._get_metric_unit(metric_name)}
+                        metadata={"unit": self._get_metric_unit(metric_name)},
                     )
                 )
 
             return MultiMetricResponse(
                 time_range=time_range.value,
-                chart_data=ChartJSData(
-                    labels=labels,
-                    datasets=datasets
-                )
+                chart_data=ChartJSData(labels=labels, datasets=datasets),
             )
 
     async def get_model_breakdown(
-        self,
-        metric_name: MetricType,
-        time_range: TimeRange
+        self, metric_name: MetricType, time_range: TimeRange
     ) -> ModelBreakdownResponse:
         """Get per-model breakdown for a metric.
 
@@ -400,7 +398,8 @@ class MetricsAggregator:
 
             # Filter data points
             filtered_points = [
-                point for point in buffer
+                point
+                for point in buffer
                 if point.timestamp >= window_start and point.model_id is not None
             ]
 
@@ -438,12 +437,12 @@ class MetricsAggregator:
                                 metadata={
                                     "model_id": p.model_id,
                                     "tier": p.tier,
-                                    "query_mode": p.query_mode
-                                }
+                                    "query_mode": p.query_mode,
+                                },
                             )
                             for p in downsampled
                         ],
-                        summary=summary
+                        summary=summary,
                     )
                 )
 
@@ -455,7 +454,7 @@ class MetricsAggregator:
                 metric_name=metric_name.value,
                 time_range=time_range.value,
                 unit=unit,
-                models=models
+                models=models,
             )
 
     async def _cleanup_loop(self) -> None:
@@ -497,13 +496,11 @@ class MetricsAggregator:
             if removed_count > 0:
                 logger.info(
                     f"TTL cleanup removed {removed_count} expired data points",
-                    extra={"removed_count": removed_count}
+                    extra={"removed_count": removed_count},
                 )
 
     def _downsample(
-        self,
-        points: list[MetricDataPoint],
-        time_range: TimeRange
+        self, points: list[MetricDataPoint], time_range: TimeRange
     ) -> list[MetricDataPoint]:
         """Downsample data points for long time ranges.
 
@@ -545,7 +542,7 @@ class MetricsAggregator:
                         value=avg_value,
                         model_id=first.model_id,
                         tier=first.tier,
-                        query_mode=first.query_mode
+                        query_mode=first.query_mode,
                     )
                 )
 
@@ -572,7 +569,7 @@ class MetricsAggregator:
                         value=avg_value,
                         model_id=first.model_id,
                         tier=first.tier,
-                        query_mode=first.query_mode
+                        query_mode=first.query_mode,
                     )
                 )
 
@@ -591,9 +588,7 @@ class MetricsAggregator:
             MetricsSummary with min/max/avg/percentiles
         """
         if not values:
-            return MetricsSummary(
-                min=0.0, max=0.0, avg=0.0, p50=0.0, p95=0.0, p99=0.0
-            )
+            return MetricsSummary(min=0.0, max=0.0, avg=0.0, p50=0.0, p95=0.0, p99=0.0)
 
         sorted_values = sorted(values)
 
@@ -603,7 +598,7 @@ class MetricsAggregator:
             avg=round(statistics.mean(values), 2),
             p50=round(statistics.median(sorted_values), 2),
             p95=round(self._percentile(sorted_values, 95), 2),
-            p99=round(self._percentile(sorted_values, 99), 2)
+            p99=round(self._percentile(sorted_values, 99), 2),
         )
 
     def _percentile(self, sorted_values: list[float], p: int) -> float:
@@ -645,7 +640,7 @@ class MetricsAggregator:
             TimeRange.SIX_HOURS: 6 * 3600,
             TimeRange.TWENTY_FOUR_HOURS: 24 * 3600,
             TimeRange.SEVEN_DAYS: 7 * 24 * 3600,
-            TimeRange.THIRTY_DAYS: 30 * 24 * 3600
+            TimeRange.THIRTY_DAYS: 30 * 24 * 3600,
         }
         return mapping[time_range]
 
@@ -663,7 +658,7 @@ class MetricsAggregator:
             TimeRange.SIX_HOURS: 300,  # 5 minutes
             TimeRange.TWENTY_FOUR_HOURS: 600,  # 10 minutes
             TimeRange.SEVEN_DAYS: 3600,  # 1 hour
-            TimeRange.THIRTY_DAYS: 3600  # 1 hour
+            TimeRange.THIRTY_DAYS: 3600,  # 1 hour
         }
         return mapping[time_range]
 
@@ -682,7 +677,7 @@ class MetricsAggregator:
             MetricType.CACHE_HIT_RATE: "%",
             MetricType.COMPLEXITY_SCORE: "score",
             MetricType.CGRAG_RETRIEVAL_TIME: "ms",
-            MetricType.MODEL_LOAD: "%"
+            MetricType.MODEL_LOAD: "%",
         }
         return units.get(metric_name, "")
 

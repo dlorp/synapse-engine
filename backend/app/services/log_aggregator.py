@@ -48,7 +48,7 @@ class LogEntry:
         extra: Optional[Dict[str, Any]] = None,
         request_id: Optional[str] = None,
         trace_id: Optional[str] = None,
-        service_tag: Optional[str] = None
+        service_tag: Optional[str] = None,
     ):
         """Initialize log entry.
 
@@ -82,7 +82,7 @@ class LogEntry:
             "level": self.level,
             "source": self.source,
             "message": self.message,
-            "extra": self.extra
+            "extra": self.extra,
         }
 
         # Add optional fields if present
@@ -96,7 +96,7 @@ class LogEntry:
         return result
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'LogEntry':
+    def from_dict(cls, data: Dict[str, Any]) -> "LogEntry":
         """Create LogEntry from dictionary.
 
         Args:
@@ -113,7 +113,7 @@ class LogEntry:
             extra=data.get("extra", {}),
             request_id=data.get("request_id"),
             trace_id=data.get("trace_id"),
-            service_tag=data.get("service_tag")
+            service_tag=data.get("service_tag"),
         )
 
 
@@ -165,7 +165,7 @@ class LogAggregator:
 
         logger.info(
             f"LogAggregator initialized (max_logs={max_logs})",
-            extra={"max_logs": max_logs}
+            extra={"max_logs": max_logs},
         )
 
     async def add_log(
@@ -176,7 +176,7 @@ class LogAggregator:
         extra: Optional[Dict[str, Any]] = None,
         request_id: Optional[str] = None,
         trace_id: Optional[str] = None,
-        service_tag: Optional[str] = None
+        service_tag: Optional[str] = None,
     ) -> None:
         """Add log entry and broadcast via EventBus.
 
@@ -202,7 +202,7 @@ class LogAggregator:
                 extra=extra,
                 request_id=request_id,
                 trace_id=trace_id,
-                service_tag=service_tag
+                service_tag=service_tag,
             )
 
             # Add to circular buffer (auto-discards oldest if full)
@@ -233,7 +233,7 @@ class LogAggregator:
                 "INFO": EventSeverity.INFO,
                 "WARNING": EventSeverity.WARNING,
                 "ERROR": EventSeverity.ERROR,
-                "CRITICAL": EventSeverity.ERROR
+                "CRITICAL": EventSeverity.ERROR,
             }
 
             severity = severity_map.get(entry.level, EventSeverity.INFO)
@@ -243,7 +243,7 @@ class LogAggregator:
                 event_type=EventType.LOG,
                 message=entry.message,
                 severity=severity,
-                metadata=entry.to_dict()
+                metadata=entry.to_dict(),
             )
 
         except Exception as e:
@@ -259,7 +259,7 @@ class LogAggregator:
         search: Optional[str] = None,
         start_time: Optional[str] = None,
         end_time: Optional[str] = None,
-        limit: int = 500
+        limit: int = 500,
     ) -> List[Dict[str, Any]]:
         """Query logs with filtering.
 
@@ -292,38 +292,31 @@ class LogAggregator:
         if level:
             level_upper = level.upper()
             filtered_logs = [
-                log for log in filtered_logs
-                if log.level.upper() == level_upper
+                log for log in filtered_logs if log.level.upper() == level_upper
             ]
 
         # Filter by source (substring match, case-insensitive)
         if source:
             source_lower = source.lower()
             filtered_logs = [
-                log for log in filtered_logs
-                if source_lower in log.source.lower()
+                log for log in filtered_logs if source_lower in log.source.lower()
             ]
 
         # Filter by search text in message (substring match, case-insensitive)
         if search:
             search_lower = search.lower()
             filtered_logs = [
-                log for log in filtered_logs
-                if search_lower in log.message.lower()
+                log for log in filtered_logs if search_lower in log.message.lower()
             ]
 
         # Filter by time range
         if start_time:
             filtered_logs = [
-                log for log in filtered_logs
-                if log.timestamp >= start_time
+                log for log in filtered_logs if log.timestamp >= start_time
             ]
 
         if end_time:
-            filtered_logs = [
-                log for log in filtered_logs
-                if log.timestamp <= end_time
-            ]
+            filtered_logs = [log for log in filtered_logs if log.timestamp <= end_time]
 
         # Apply limit (most recent first)
         # Circular buffer is already chronologically ordered
@@ -389,7 +382,7 @@ class LogAggregator:
             "unique_sources": unique_sources,
             "oldest_log_time": oldest_time,
             "newest_log_time": newest_time,
-            "uptime_seconds": round(uptime, 2)
+            "uptime_seconds": round(uptime, 2),
         }
 
     async def clear(self) -> None:

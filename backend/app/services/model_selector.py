@@ -31,11 +31,7 @@ class ModelSelector:
         request_counts: Load balancing counter per model
     """
 
-    def __init__(
-        self,
-        registry: ModelRegistry,
-        server_manager: LlamaServerManager
-    ):
+    def __init__(self, registry: ModelRegistry, server_manager: LlamaServerManager):
         """Initialize model selector.
 
         Args:
@@ -49,9 +45,11 @@ class ModelSelector:
         logger.info(
             "ModelSelector initialized",
             extra={
-                'total_models': len(registry.models),
-                'enabled_models': len([m for m in registry.models.values() if m.enabled])
-            }
+                "total_models": len(registry.models),
+                "enabled_models": len(
+                    [m for m in registry.models.values() if m.enabled]
+                ),
+            },
         )
 
     def is_model_available(self, model: DiscoveredModel) -> bool:
@@ -98,8 +96,7 @@ class ModelSelector:
         except ValueError:
             logger.error(f"Invalid tier: {tier}")
             raise NoModelsAvailableError(
-                tier=tier,
-                details={'valid_tiers': ['fast', 'balanced', 'powerful']}
+                tier=tier, details={"valid_tiers": ["fast", "balanced", "powerful"]}
             )
 
         # Get all models in the requested tier
@@ -107,8 +104,7 @@ class ModelSelector:
 
         # Filter to only available (enabled AND running) models
         available_models = [
-            model for model in tier_models
-            if self.is_model_available(model)
+            model for model in tier_models if self.is_model_available(model)
         ]
 
         if not available_models:
@@ -122,21 +118,21 @@ class ModelSelector:
             logger.error(
                 f"No available models in tier {tier}",
                 extra={
-                    'tier': tier,
-                    'tier_total_models': len(tier_models),
-                    'tier_enabled_models': len([m for m in tier_models if m.enabled]),
-                    'tier_running_models': len(available_models),
-                    'available_tiers': list(available_tiers)
-                }
+                    "tier": tier,
+                    "tier_total_models": len(tier_models),
+                    "tier_enabled_models": len([m for m in tier_models if m.enabled]),
+                    "tier_running_models": len(available_models),
+                    "available_tiers": list(available_tiers),
+                },
             )
 
             raise NoModelsAvailableError(
                 tier=tier,
                 details={
-                    'available_tiers': list(available_tiers),
-                    'tier_total_models': len(tier_models),
-                    'tier_enabled_models': len([m for m in tier_models if m.enabled])
-                }
+                    "available_tiers": list(available_tiers),
+                    "tier_total_models": len(tier_models),
+                    "tier_enabled_models": len([m for m in tier_models if m.enabled]),
+                },
             )
 
         # For single model, return it
@@ -145,28 +141,25 @@ class ModelSelector:
             self._request_counts[selected.model_id] += 1
             logger.debug(
                 f"Selected only model in tier {tier}: {selected.model_id}",
-                extra={'tier': tier, 'model_id': selected.model_id}
+                extra={"tier": tier, "model_id": selected.model_id},
             )
             return selected
 
         # For multiple models, use round-robin based on request counts
-        selected = min(
-            available_models,
-            key=lambda m: self._request_counts[m.model_id]
-        )
+        selected = min(available_models, key=lambda m: self._request_counts[m.model_id])
 
         self._request_counts[selected.model_id] += 1
 
         logger.debug(
             f"Selected model {selected.model_id} for tier {tier} (round-robin)",
             extra={
-                'tier': tier,
-                'model_id': selected.model_id,
-                'request_counts': {
+                "tier": tier,
+                "model_id": selected.model_id,
+                "request_counts": {
                     m.model_id: self._request_counts[m.model_id]
                     for m in available_models
-                }
-            }
+                },
+            },
         )
 
         return selected
@@ -178,7 +171,8 @@ class ModelSelector:
             List of DiscoveredModel instances that are available
         """
         return [
-            model for model in self.registry.models.values()
+            model
+            for model in self.registry.models.values()
             if self.is_model_available(model)
         ]
 

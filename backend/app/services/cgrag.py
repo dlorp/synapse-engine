@@ -69,6 +69,7 @@ class DocumentChunk(BaseModel):
         modified_time: Source file modification time
         relevance_score: Similarity score from retrieval (0.0-1.0)
     """
+
     id: str = Field(default_factory=lambda: str(uuid4()))
     file_path: str
     content: str
@@ -94,6 +95,7 @@ class CGRAGResult(BaseModel):
         cache_hit: Whether result was served from cache
         top_scores: Relevance scores of top artifacts
     """
+
     artifacts: List[DocumentChunk]
     tokens_used: int
     candidates_considered: int
@@ -116,7 +118,7 @@ class CGRAGIndexer:
     """
 
     # Supported file extensions
-    SUPPORTED_EXTENSIONS = {'.md', '.py', '.txt', '.yaml', '.yml', '.json', '.rst'}
+    SUPPORTED_EXTENSIONS = {".md", ".py", ".txt", ".yaml", ".yml", ".json", ".rst"}
 
     def __init__(self, embedding_model: str = "all-MiniLM-L6-v2"):
         """Initialize indexer with sentence-transformers model.
@@ -136,7 +138,7 @@ class CGRAGIndexer:
         directory: Path,
         chunk_size: int = 512,
         chunk_overlap: int = 50,
-        batch_size: int = 32
+        batch_size: int = 32,
     ) -> int:
         """Recursively index all documents in directory.
 
@@ -186,7 +188,7 @@ class CGRAGIndexer:
         elapsed = time.time() - start_time
         logger.info(
             f"Indexing complete: {len(all_chunks)} chunks in {elapsed:.2f}s "
-            f"({len(all_chunks)/elapsed:.1f} chunks/sec)"
+            f"({len(all_chunks) / elapsed:.1f} chunks/sec)"
         )
 
         return len(all_chunks)
@@ -201,16 +203,13 @@ class CGRAGIndexer:
             List of file paths
         """
         files = []
-        for path in directory.rglob('*'):
+        for path in directory.rglob("*"):
             if path.is_file() and path.suffix in self.SUPPORTED_EXTENSIONS:
                 files.append(path)
         return sorted(files)
 
     async def _chunk_file(
-        self,
-        file_path: Path,
-        chunk_size: int,
-        chunk_overlap: int
+        self, file_path: Path, chunk_size: int, chunk_overlap: int
     ) -> List[DocumentChunk]:
         """Read and chunk a single file.
 
@@ -224,10 +223,10 @@ class CGRAGIndexer:
         """
         # Read file content
         try:
-            content = file_path.read_text(encoding='utf-8')
+            content = file_path.read_text(encoding="utf-8")
         except UnicodeDecodeError:
             # Try latin-1 as fallback
-            content = file_path.read_text(encoding='latin-1')
+            content = file_path.read_text(encoding="latin-1")
 
         # Get file metadata
         stats = file_path.stat()
@@ -245,10 +244,10 @@ class CGRAGIndexer:
             # Extract chunk words
             end_word_idx = min(start_word_idx + chunk_size, len(words))
             chunk_words = words[start_word_idx:end_word_idx]
-            chunk_content = ' '.join(chunk_words)
+            chunk_content = " ".join(chunk_words)
 
             # Calculate character positions (approximate)
-            start_pos = len(' '.join(words[:start_word_idx]))
+            start_pos = len(" ".join(words[:start_word_idx]))
             end_pos = start_pos + len(chunk_content)
 
             # Create chunk
@@ -259,14 +258,14 @@ class CGRAGIndexer:
                 start_pos=start_pos,
                 end_pos=end_pos,
                 language=self._detect_language(file_path.suffix),
-                modified_time=modified_time
+                modified_time=modified_time,
             )
             chunks.append(chunk)
 
             # Move to next chunk with overlap
             if end_word_idx >= len(words):
                 break
-            start_word_idx += (chunk_size - chunk_overlap)
+            start_word_idx += chunk_size - chunk_overlap
             chunk_index += 1
 
         return chunks
@@ -281,21 +280,19 @@ class CGRAGIndexer:
             Language identifier or None
         """
         language_map = {
-            '.py': 'python',
-            '.js': 'javascript',
-            '.ts': 'typescript',
-            '.md': 'markdown',
-            '.yaml': 'yaml',
-            '.yml': 'yaml',
-            '.json': 'json',
-            '.rst': 'restructuredtext'
+            ".py": "python",
+            ".js": "javascript",
+            ".ts": "typescript",
+            ".md": "markdown",
+            ".yaml": "yaml",
+            ".yml": "yaml",
+            ".json": "json",
+            ".rst": "restructuredtext",
         }
         return language_map.get(extension)
 
     async def _generate_embeddings_batched(
-        self,
-        chunks: List[DocumentChunk],
-        batch_size: int
+        self, chunks: List[DocumentChunk], batch_size: int
     ) -> np.ndarray:
         """Generate embeddings for chunks in batches.
 
@@ -306,7 +303,9 @@ class CGRAGIndexer:
         Returns:
             NumPy array of embeddings (n_chunks x embedding_dim)
         """
-        logger.info(f"Generating embeddings for {len(chunks)} chunks (batch_size={batch_size})")
+        logger.info(
+            f"Generating embeddings for {len(chunks)} chunks (batch_size={batch_size})"
+        )
 
         # Extract texts
         texts = [chunk.content for chunk in chunks]
@@ -315,16 +314,16 @@ class CGRAGIndexer:
         # Note: encode() already batches internally, but we can still batch our inputs
         all_embeddings = []
         for i in range(0, len(texts), batch_size):
-            batch_texts = texts[i:i + batch_size]
+            batch_texts = texts[i : i + batch_size]
             # Run encoding in thread pool to avoid blocking event loop
             loop = asyncio.get_event_loop()
+
             # Create a partial function with show_progress_bar parameter
             def encode_fn():
                 return self.encoder.encode(
-                            batch_texts,
-                            show_progress_bar=False,
-                            convert_to_numpy=True
-                        )
+                    batch_texts, show_progress_bar=False, convert_to_numpy=True
+                )
+
             batch_embeddings = await loop.run_in_executor(None, encode_fn)
             all_embeddings.append(batch_embeddings)
 
@@ -394,12 +393,14 @@ class CGRAGIndexer:
         metadata = {
             "embedding_model_name": self.embedding_model_name,
             "embedding_dim": self.embedding_dim,
-            "chunks": [chunk.model_dump() for chunk in self.chunks]
+            "chunks": [chunk.model_dump() for chunk in self.chunks],
         }
-        with open(metadata_path, 'wb') as f:
+        with open(metadata_path, "wb") as f:
             pickle.dump(metadata, f)
 
-        logger.info(f"Saved {len(self.chunks)} chunks with embedding model: {self.embedding_model_name}")
+        logger.info(
+            f"Saved {len(self.chunks)} chunks with embedding model: {self.embedding_model_name}"
+        )
 
     @classmethod
     def load_index(cls, index_path: Path, metadata_path: Path) -> "CGRAGIndexer":
@@ -424,12 +425,14 @@ class CGRAGIndexer:
             raise FileNotFoundError(f"Metadata file not found: {metadata_path}")
 
         # Load chunk metadata
-        with open(metadata_path, 'rb') as f:
+        with open(metadata_path, "rb") as f:
             loaded_data = pickle.load(f)
 
         # Handle both old format (list of chunks) and new format (dict with metadata)
         if isinstance(loaded_data, dict):
-            embedding_model_name = loaded_data.get("embedding_model_name", "all-MiniLM-L6-v2")
+            embedding_model_name = loaded_data.get(
+                "embedding_model_name", "all-MiniLM-L6-v2"
+            )
             chunk_data = loaded_data.get("chunks", [])
             logger.info(f"Loaded index with embedding model: {embedding_model_name}")
         else:
@@ -483,11 +486,7 @@ class CGRAGRetriever:
         min_relevance: Minimum relevance threshold (0.0-1.0)
     """
 
-    def __init__(
-        self,
-        indexer: CGRAGIndexer,
-        min_relevance: float = 0.7
-    ):
+    def __init__(self, indexer: CGRAGIndexer, min_relevance: float = 0.7):
         """Initialize retriever with indexer.
 
         Args:
@@ -501,10 +500,7 @@ class CGRAGRetriever:
             raise ValueError("Indexer has no index. Load or build index first.")
 
     async def retrieve(
-        self,
-        query: str,
-        token_budget: int = 8000,
-        max_artifacts: int = 20
+        self, query: str, token_budget: int = 8000, max_artifacts: int = 20
     ) -> CGRAGResult:
         """Retrieve relevant artifacts within token budget.
 
@@ -523,12 +519,12 @@ class CGRAGRetriever:
 
         # Embed query
         loop = asyncio.get_event_loop()
+
         def encode_fn():
             return self.indexer.encoder.encode(
-                    [query],
-                    show_progress_bar=False,
-                    convert_to_numpy=True
-                )
+                [query], show_progress_bar=False, convert_to_numpy=True
+            )
+
         query_embedding = await loop.run_in_executor(None, encode_fn)
         query_embedding = query_embedding[0].reshape(1, -1)
 
@@ -575,13 +571,11 @@ class CGRAGRetriever:
             candidates_considered=len(candidates),
             retrieval_time_ms=elapsed_ms,
             cache_hit=False,
-            top_scores=top_scores
+            top_scores=top_scores,
         )
 
     def _pack_artifacts(
-        self,
-        candidates: List[DocumentChunk],
-        token_budget: int
+        self, candidates: List[DocumentChunk], token_budget: int
     ) -> Tuple[List[DocumentChunk], int]:
         """Pack artifacts within token budget using greedy algorithm.
 
@@ -596,9 +590,7 @@ class CGRAGRetriever:
         """
         # Sort by relevance score (descending)
         sorted_candidates = sorted(
-            candidates,
-            key=lambda c: c.relevance_score,
-            reverse=True
+            candidates, key=lambda c: c.relevance_score, reverse=True
         )
 
         selected = []

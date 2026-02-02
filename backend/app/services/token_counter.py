@@ -61,13 +61,10 @@ class TokenCounter:
             self._encoding_name = encoding_name
             logger.info(
                 f"TokenCounter initialized with encoding: {encoding_name}",
-                extra={"encoding": encoding_name}
+                extra={"encoding": encoding_name},
             )
         except Exception as e:
-            logger.error(
-                f"Failed to initialize tiktoken encoding: {e}",
-                exc_info=True
-            )
+            logger.error(f"Failed to initialize tiktoken encoding: {e}", exc_info=True)
             raise ValueError(f"Invalid encoding name: {encoding_name}") from e
 
     def count_tokens(self, text: str) -> int:
@@ -94,7 +91,7 @@ class TokenCounter:
             logger.error(
                 f"Error counting tokens: {e}",
                 extra={"text_length": len(text)},
-                exc_info=True
+                exc_info=True,
             )
             # Fallback to rough estimation
             return self._estimate_tokens(text)
@@ -135,10 +132,7 @@ class TokenCounter:
             ... })
             >>> print(counts)  # Output: {'system': 5, 'user': 1}
         """
-        return {
-            key: self.count_tokens(text)
-            for key, text in text_dict.items()
-        }
+        return {key: self.count_tokens(text) for key, text in text_dict.items()}
 
     def _estimate_tokens(self, text: str) -> int:
         """Fallback token estimation using word counting.
@@ -159,19 +153,13 @@ class TokenCounter:
 
         logger.warning(
             f"Using fallback token estimation: {estimated_tokens} tokens",
-            extra={
-                "word_count": word_count,
-                "estimated_tokens": estimated_tokens
-            }
+            extra={"word_count": word_count, "estimated_tokens": estimated_tokens},
         )
 
         return estimated_tokens
 
     def truncate_to_token_limit(
-        self,
-        text: str,
-        max_tokens: int,
-        suffix: str = "..."
+        self, text: str, max_tokens: int, suffix: str = "..."
     ) -> str:
         """Truncate text to fit within token limit.
 
@@ -218,7 +206,7 @@ class TokenCounter:
             logger.error(
                 f"Error truncating text: {e}",
                 extra={"max_tokens": max_tokens},
-                exc_info=True
+                exc_info=True,
             )
             # Fallback to character-based truncation
             chars_per_token = 4  # Rough approximation
@@ -227,7 +215,7 @@ class TokenCounter:
             if len(text) <= max_chars:
                 return text
 
-            return text[:max_chars - len(suffix)] + suffix
+            return text[: max_chars - len(suffix)] + suffix
 
 
 # Global singleton instance

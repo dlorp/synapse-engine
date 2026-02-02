@@ -30,9 +30,7 @@ async def test_server_manager():
 
     # Load model registry from Phase 1
     print("[1/6] Loading model registry...")
-    discovery = ModelDiscoveryService(
-        scan_path=Path("${PRAXIS_MODEL_PATH}/")
-    )
+    discovery = ModelDiscoveryService(scan_path=Path("${PRAXIS_MODEL_PATH}/"))
 
     registry_path = Path("data/model_registry.json")
     if not registry_path.exists():
@@ -62,7 +60,7 @@ async def test_server_manager():
     print(f"   Port: {test_model.port}")
     # Handle tier as either enum or string
     tier = test_model.get_effective_tier()
-    tier_str = tier.value if hasattr(tier, 'value') else tier
+    tier_str = tier.value if hasattr(tier, "value") else tier
     print(f"   Tier: {tier_str}")
     print(f"   Thinking: {test_model.is_effectively_thinking()}")
     print()
@@ -72,7 +70,7 @@ async def test_server_manager():
     manager = LlamaServerManager(
         llama_server_path=Path("/usr/local/bin/llama-server"),
         max_startup_time=60,  # 1 minute timeout for testing
-        readiness_check_interval=2
+        readiness_check_interval=2,
     )
     print("✅ Manager initialized")
     print(f"   Binary: {manager.llama_server_path}")
@@ -105,8 +103,8 @@ async def test_server_manager():
         print(f"   Running servers: {status['running_servers']}")
         print()
 
-        if status['servers']:
-            server_info = status['servers'][0]
+        if status["servers"]:
+            server_info = status["servers"][0]
             print("Server Details:")
             print(f"   Model: {server_info['display_name']}")
             print(f"   PID: {server_info['pid']}")
@@ -162,6 +160,7 @@ async def test_server_manager():
         print(f"❌ Error during test: {e}")
         print()
         import traceback
+
         traceback.print_exc()
 
         # Attempt cleanup
@@ -182,15 +181,14 @@ async def test_concurrent_startup():
     print()
 
     print("[1/3] Loading models...")
-    discovery = ModelDiscoveryService(
-        scan_path=Path("${PRAXIS_MODEL_PATH}/")
-    )
+    discovery = ModelDiscoveryService(scan_path=Path("${PRAXIS_MODEL_PATH}/"))
     registry = discovery.load_registry(Path("data/model_registry.json"))
 
     # Select 2 fast models for concurrent test
     # Note: Only select models that exist in the registry
     available_fast_models = [
-        model_id for model_id, model in registry.models.items()
+        model_id
+        for model_id, model in registry.models.items()
         if "fast" in model_id and model.port is not None
     ]
 
@@ -202,7 +200,7 @@ async def test_concurrent_startup():
 
     test_models = [
         registry.models[available_fast_models[0]],
-        registry.models[available_fast_models[1]]
+        registry.models[available_fast_models[1]],
     ]
 
     for model in test_models:
@@ -215,8 +213,7 @@ async def test_concurrent_startup():
 
     print("[2/3] Starting servers concurrently...")
     manager = LlamaServerManager(
-        llama_server_path=Path("/usr/local/bin/llama-server"),
-        max_startup_time=90
+        llama_server_path=Path("/usr/local/bin/llama-server"), max_startup_time=90
     )
 
     try:
@@ -238,6 +235,7 @@ async def test_concurrent_startup():
     except Exception as e:
         print(f"❌ Error: {e}")
         import traceback
+
         traceback.print_exc()
 
         # Cleanup
@@ -261,7 +259,7 @@ if __name__ == "__main__":
     print("Run concurrent startup test? (will start 2 servers simultaneously)")
     response = input("Continue? [y/N]: ").strip().lower()
 
-    if response == 'y':
+    if response == "y":
         print()
         asyncio.run(test_concurrent_startup())
     else:

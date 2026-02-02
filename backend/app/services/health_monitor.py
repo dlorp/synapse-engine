@@ -88,7 +88,7 @@ class HealthMonitor:
     def __init__(
         self,
         check_interval: int = 60,
-        health_endpoint: str = "http://localhost:8000/api/health/ready"
+        health_endpoint: str = "http://localhost:8000/api/health/ready",
     ) -> None:
         """Initialize health monitor with configurable check interval.
 
@@ -173,15 +173,12 @@ class HealthMonitor:
         try:
             # Query health endpoint
             async with httpx.AsyncClient() as client:
-                response = await client.get(
-                    self.health_endpoint,
-                    timeout=5.0
-                )
+                response = await client.get(self.health_endpoint, timeout=5.0)
 
                 if response.status_code != 200:
                     logger.warning(
                         f"Health endpoint returned {response.status_code}",
-                        extra={'status_code': response.status_code}
+                        extra={"status_code": response.status_code},
                     )
                     return
 
@@ -195,20 +192,21 @@ class HealthMonitor:
                     await self._emit_degraded_alert(components)
                     self.degraded_since = datetime.utcnow()
                     logger.warning(
-                        "System health DEGRADED",
-                        extra={'components': components}
+                        "System health DEGRADED", extra={"components": components}
                     )
 
                 elif current_status == "ok" and self.last_status == "degraded":
                     # Transition: degraded → ok
                     await self._emit_recovery_alert()
                     degraded_duration = (
-                        datetime.utcnow() - self.degraded_since
-                    ).total_seconds() if self.degraded_since else 0
+                        (datetime.utcnow() - self.degraded_since).total_seconds()
+                        if self.degraded_since
+                        else 0
+                    )
                     self.degraded_since = None
                     logger.info(
                         f"System health RECOVERED after {degraded_duration:.0f}s",
-                        extra={'degraded_duration_seconds': degraded_duration}
+                        extra={"degraded_duration_seconds": degraded_duration},
                     )
 
                 # Update last status
@@ -217,7 +215,7 @@ class HealthMonitor:
         except httpx.TimeoutException:
             logger.warning(
                 f"Health endpoint timeout ({self.health_endpoint})",
-                extra={'endpoint': self.health_endpoint}
+                extra={"endpoint": self.health_endpoint},
             )
         except Exception as e:
             logger.error(f"Health check failed: {e}", exc_info=True)
@@ -255,8 +253,8 @@ class HealthMonitor:
                     "source": "health_monitor",
                     "failed_components": failed_components,
                     "all_components": components,
-                    "degraded_at": datetime.utcnow().isoformat()
-                }
+                    "degraded_at": datetime.utcnow().isoformat(),
+                },
             )
 
             logger.info(f"Emitted degraded alert: {message}")
@@ -277,8 +275,10 @@ class HealthMonitor:
 
             # Calculate degradation duration
             degraded_duration_seconds = (
-                datetime.utcnow() - self.degraded_since
-            ).total_seconds() if self.degraded_since else 0
+                (datetime.utcnow() - self.degraded_since).total_seconds()
+                if self.degraded_since
+                else 0
+            )
 
             # Build recovery message
             if degraded_duration_seconds > 0:
@@ -295,8 +295,8 @@ class HealthMonitor:
                 metadata={
                     "source": "health_monitor",
                     "degraded_duration_seconds": round(degraded_duration_seconds, 2),
-                    "recovered_at": datetime.utcnow().isoformat()
-                }
+                    "recovered_at": datetime.utcnow().isoformat(),
+                },
             )
 
             logger.info(f"Emitted recovery alert: {message}")
@@ -353,8 +353,10 @@ class HealthMonitor:
         return {
             "running": self.running,
             "last_status": self.last_status,
-            "degraded_since": self.degraded_since.isoformat() if self.degraded_since else None,
-            "check_interval": self.check_interval
+            "degraded_since": self.degraded_since.isoformat()
+            if self.degraded_since
+            else None,
+            "check_interval": self.check_interval,
         }
 
 
@@ -372,7 +374,9 @@ def get_health_monitor() -> HealthMonitor:
         RuntimeError: If health monitor not initialized
     """
     if _health_monitor is None:
-        raise RuntimeError("HealthMonitor not initialized - call init_health_monitor() first")
+        raise RuntimeError(
+            "HealthMonitor not initialized - call init_health_monitor() first"
+        )
     return _health_monitor
 
 

@@ -43,6 +43,7 @@ from app.services.code_chat.tools.git import (
 # Fixtures
 # =============================================================================
 
+
 @pytest.fixture
 def workspace_dir() -> Generator[Path, None, None]:
     """Create a temporary workspace directory."""
@@ -91,6 +92,7 @@ def delete_file_tool(workspace_dir: Path) -> DeleteFileTool:
 # BaseTool Tests
 # =============================================================================
 
+
 class TestToolRegistry:
     """Tests for ToolRegistry."""
 
@@ -128,11 +130,14 @@ class TestToolRegistry:
 # File Operation Tool Tests
 # =============================================================================
 
+
 class TestReadFileTool:
     """Tests for ReadFileTool."""
 
     @pytest.mark.asyncio
-    async def test_read_file_success(self, read_file_tool: ReadFileTool, workspace_dir: Path):
+    async def test_read_file_success(
+        self, read_file_tool: ReadFileTool, workspace_dir: Path
+    ):
         """Test reading a file successfully."""
         result = await read_file_tool.execute(path="test.py")
         assert result.success is True
@@ -144,7 +149,10 @@ class TestReadFileTool:
         """Test reading a non-existent file."""
         result = await read_file_tool.execute(path="nonexistent.py")
         assert result.success is False
-        assert "not found" in result.error.lower() or "does not exist" in result.error.lower()
+        assert (
+            "not found" in result.error.lower()
+            or "does not exist" in result.error.lower()
+        )
 
     @pytest.mark.asyncio
     async def test_read_file_path_traversal(self, read_file_tool: ReadFileTool):
@@ -165,11 +173,12 @@ class TestWriteFileTool:
     """Tests for WriteFileTool."""
 
     @pytest.mark.asyncio
-    async def test_write_file_success(self, write_file_tool: WriteFileTool, workspace_dir: Path):
+    async def test_write_file_success(
+        self, write_file_tool: WriteFileTool, workspace_dir: Path
+    ):
         """Test writing a file successfully."""
         result = await write_file_tool.execute(
-            path="new_file.txt",
-            content="Hello, World!"
+            path="new_file.txt", content="Hello, World!"
         )
         assert result.success is True
 
@@ -182,18 +191,18 @@ class TestWriteFileTool:
     async def test_write_file_path_traversal(self, write_file_tool: WriteFileTool):
         """Test path traversal prevention on write."""
         result = await write_file_tool.execute(
-            path="../outside.txt",
-            content="malicious content"
+            path="../outside.txt", content="malicious content"
         )
         assert result.success is False
         assert "security" in result.error.lower() or "outside" in result.error.lower()
 
     @pytest.mark.asyncio
-    async def test_write_file_creates_parent_dirs(self, write_file_tool: WriteFileTool, workspace_dir: Path):
+    async def test_write_file_creates_parent_dirs(
+        self, write_file_tool: WriteFileTool, workspace_dir: Path
+    ):
         """Test that parent directories are created."""
         result = await write_file_tool.execute(
-            path="new_dir/another/file.txt",
-            content="deep content"
+            path="new_dir/another/file.txt", content="deep content"
         )
         assert result.success is True
 
@@ -213,7 +222,9 @@ class TestListDirectoryTool:
         assert "subdir" in result.output
 
     @pytest.mark.asyncio
-    async def test_list_directory_path_traversal(self, list_dir_tool: ListDirectoryTool):
+    async def test_list_directory_path_traversal(
+        self, list_dir_tool: ListDirectoryTool
+    ):
         """Test path traversal prevention on list."""
         result = await list_dir_tool.execute(path="../..")
         assert result.success is False
@@ -224,7 +235,9 @@ class TestDeleteFileTool:
     """Tests for DeleteFileTool."""
 
     @pytest.mark.asyncio
-    async def test_delete_file_success(self, delete_file_tool: DeleteFileTool, workspace_dir: Path):
+    async def test_delete_file_success(
+        self, delete_file_tool: DeleteFileTool, workspace_dir: Path
+    ):
         """Test deleting a file successfully."""
         # Create a file to delete
         to_delete = workspace_dir / "to_delete.txt"
@@ -252,6 +265,7 @@ class TestDeleteFileTool:
 # Search Tool Tests
 # =============================================================================
 
+
 class TestSearchCodeTool:
     """Tests for SearchCodeTool."""
 
@@ -268,7 +282,9 @@ class TestSearchCodeTool:
         return retriever
 
     @pytest.mark.asyncio
-    async def test_search_code_success(self, search_tool: SearchCodeTool, workspace_dir: Path, mock_retriever):
+    async def test_search_code_success(
+        self, search_tool: SearchCodeTool, workspace_dir: Path, mock_retriever
+    ):
         """Test searching code successfully."""
         from app.services.cgrag import CGRAGResult, DocumentChunk
 
@@ -283,26 +299,33 @@ class TestSearchCodeTool:
             chunk_index=0,
             start_pos=0,
             end_pos=20,
-            relevance_score=0.95
+            relevance_score=0.95,
         )
         mock_result = CGRAGResult(
             artifacts=[mock_chunk],
             tokens_used=10,
             candidates_considered=5,
             retrieval_time_ms=25.0,
-            top_scores=[0.95]
+            top_scores=[0.95],
         )
         mock_retriever.retrieve = AsyncMock(return_value=mock_result)
 
-        with patch('app.services.code_chat.context.get_retriever_for_context', new_callable=AsyncMock) as mock_get_retriever:
+        with patch(
+            "app.services.code_chat.context.get_retriever_for_context",
+            new_callable=AsyncMock,
+        ) as mock_get_retriever:
             mock_get_retriever.return_value = mock_retriever
 
-            result = await search_tool.execute(query="def hello", context_name="test_context")
+            result = await search_tool.execute(
+                query="def hello", context_name="test_context"
+            )
             assert result.success is True
             assert "func.py" in result.output or "hello" in result.output
 
     @pytest.mark.asyncio
-    async def test_search_code_no_results(self, search_tool: SearchCodeTool, mock_retriever):
+    async def test_search_code_no_results(
+        self, search_tool: SearchCodeTool, mock_retriever
+    ):
         """Test search with no results."""
         from app.services.cgrag import CGRAGResult
 
@@ -312,14 +335,19 @@ class TestSearchCodeTool:
             tokens_used=0,
             candidates_considered=0,
             retrieval_time_ms=10.0,
-            top_scores=[]
+            top_scores=[],
         )
         mock_retriever.retrieve = AsyncMock(return_value=mock_result)
 
-        with patch('app.services.code_chat.context.get_retriever_for_context', new_callable=AsyncMock) as mock_get_retriever:
+        with patch(
+            "app.services.code_chat.context.get_retriever_for_context",
+            new_callable=AsyncMock,
+        ) as mock_get_retriever:
             mock_get_retriever.return_value = mock_retriever
 
-            result = await search_tool.execute(query="nonexistent_function_xyz", context_name="test_context")
+            result = await search_tool.execute(
+                query="nonexistent_function_xyz", context_name="test_context"
+            )
             assert result.success is True
             # No results is still a successful search
             assert "No results found" in result.output
@@ -334,7 +362,9 @@ class TestGrepFilesTool:
         return tool
 
     @pytest.mark.asyncio
-    async def test_grep_files_success(self, grep_tool: GrepFilesTool, workspace_dir: Path):
+    async def test_grep_files_success(
+        self, grep_tool: GrepFilesTool, workspace_dir: Path
+    ):
         """Test grepping files successfully."""
         (workspace_dir / "search.py").write_text("# TODO: fix this\nprint('done')\n")
 
@@ -343,7 +373,9 @@ class TestGrepFilesTool:
         assert "TODO" in result.output or "search.py" in result.output
 
     @pytest.mark.asyncio
-    async def test_grep_with_file_pattern(self, grep_tool: GrepFilesTool, workspace_dir: Path):
+    async def test_grep_with_file_pattern(
+        self, grep_tool: GrepFilesTool, workspace_dir: Path
+    ):
         """Test grepping with file pattern filter."""
         (workspace_dir / "code.py").write_text("error = 1")
         (workspace_dir / "code.js").write_text("error = 2")
@@ -356,6 +388,7 @@ class TestGrepFilesTool:
 # =============================================================================
 # Execution Tool Tests
 # =============================================================================
+
 
 class TestRunPythonTool:
     """Tests for RunPythonTool."""
@@ -371,10 +404,10 @@ class TestRunPythonTool:
         mock_response.json.return_value = {
             "output": "Hello, World!\n",
             "error": None,
-            "execution_time_ms": 1.5
+            "execution_time_ms": 1.5,
         }
 
-        with patch('httpx.AsyncClient') as mock_client:
+        with patch("httpx.AsyncClient") as mock_client:
             mock_instance = AsyncMock()
             mock_instance.post = AsyncMock(return_value=mock_response)
             mock_client.return_value.__aenter__ = AsyncMock(return_value=mock_instance)
@@ -403,16 +436,16 @@ class TestRunPythonTool:
         mock_response.json.return_value = {
             "output": "",
             "error": "Import blocked (security): os",
-            "execution_time_ms": 0
+            "execution_time_ms": 0,
         }
 
-        with patch('httpx.AsyncClient') as mock_client:
+        with patch("httpx.AsyncClient") as mock_client:
             mock_instance = AsyncMock()
             mock_instance.post = AsyncMock(return_value=mock_response)
             mock_client.return_value.__aenter__ = AsyncMock(return_value=mock_instance)
             mock_client.return_value.__aexit__ = AsyncMock()
 
-            result = await tool.execute(code='import os')
+            result = await tool.execute(code="import os")
 
             assert result.success is False
             assert "Import blocked" in result.error
@@ -631,7 +664,7 @@ class TestRunShellTool:
         """Test that long-running commands timeout."""
         # Mock whitelist validation to allow 'sleep' for this test
         # (sleep is not normally whitelisted, but we need it to test timeout logic)
-        with patch.object(shell_tool, '_validate_command', return_value=(True, "")):
+        with patch.object(shell_tool, "_validate_command", return_value=(True, "")):
             result = await shell_tool.execute(command="sleep 100", timeout=1)
         assert result.success is False
         assert "timed out" in result.error.lower()
@@ -682,6 +715,7 @@ class TestRunShellTool:
 # Integration Tests
 # =============================================================================
 
+
 class TestToolIntegration:
     """Integration tests for tool combinations."""
 
@@ -728,6 +762,7 @@ class TestToolIntegration:
 # Security Tests
 # =============================================================================
 
+
 class TestSecurityConstraints:
     """Tests for security constraints across all tools."""
 
@@ -771,6 +806,7 @@ class TestSecurityConstraints:
 # =============================================================================
 # Git Tools Tests
 # =============================================================================
+
 
 @pytest.fixture
 def git_workspace() -> Generator[Path, None, None]:
@@ -836,9 +872,7 @@ class TestGitStatusTool:
 
     @pytest.mark.asyncio
     async def test_git_status_modified_file(
-        self,
-        git_status_tool: GitStatusTool,
-        git_workspace: Path
+        self, git_status_tool: GitStatusTool, git_workspace: Path
     ):
         """Test git status with modified file."""
         # Modify a file
@@ -852,9 +886,7 @@ class TestGitStatusTool:
 
     @pytest.mark.asyncio
     async def test_git_status_staged_file(
-        self,
-        git_status_tool: GitStatusTool,
-        git_workspace: Path
+        self, git_status_tool: GitStatusTool, git_workspace: Path
     ):
         """Test git status with staged file."""
         # Modify and stage a file
@@ -868,9 +900,7 @@ class TestGitStatusTool:
 
     @pytest.mark.asyncio
     async def test_git_status_untracked_file(
-        self,
-        git_status_tool: GitStatusTool,
-        git_workspace: Path
+        self, git_status_tool: GitStatusTool, git_workspace: Path
     ):
         """Test git status with untracked file."""
         # Create new file
@@ -903,9 +933,7 @@ class TestGitDiffTool:
 
     @pytest.mark.asyncio
     async def test_git_diff_modified_file(
-        self,
-        git_diff_tool: GitDiffTool,
-        git_workspace: Path
+        self, git_diff_tool: GitDiffTool, git_workspace: Path
     ):
         """Test git diff with modified file."""
         # Modify file
@@ -918,9 +946,7 @@ class TestGitDiffTool:
 
     @pytest.mark.asyncio
     async def test_git_diff_specific_file(
-        self,
-        git_diff_tool: GitDiffTool,
-        git_workspace: Path
+        self, git_diff_tool: GitDiffTool, git_workspace: Path
     ):
         """Test git diff for specific file."""
         # Modify files
@@ -934,9 +960,7 @@ class TestGitDiffTool:
 
     @pytest.mark.asyncio
     async def test_git_diff_staged(
-        self,
-        git_diff_tool: GitDiffTool,
-        git_workspace: Path
+        self, git_diff_tool: GitDiffTool, git_workspace: Path
     ):
         """Test git diff for staged changes."""
         # Modify and stage file
@@ -969,9 +993,7 @@ class TestGitLogTool:
 
     @pytest.mark.asyncio
     async def test_git_log_custom_count(
-        self,
-        git_log_tool: GitLogTool,
-        git_workspace: Path
+        self, git_log_tool: GitLogTool, git_workspace: Path
     ):
         """Test git log with custom count."""
         # Create more commits
@@ -986,14 +1008,14 @@ class TestGitLogTool:
 
     @pytest.mark.asyncio
     async def test_git_log_file_specific(
-        self,
-        git_log_tool: GitLogTool,
-        git_workspace: Path
+        self, git_log_tool: GitLogTool, git_workspace: Path
     ):
         """Test git log for specific file."""
         # Create commits affecting different files
         (git_workspace / "test.py").write_text('print("modified")\n')
-        os.system(f"cd {git_workspace} && git add test.py && git commit -m 'Modified test.py'")
+        os.system(
+            f"cd {git_workspace} && git add test.py && git commit -m 'Modified test.py'"
+        )
 
         result = await git_log_tool.execute(file="test.py")
         assert result.success is True
@@ -1013,9 +1035,7 @@ class TestGitCommitTool:
 
     @pytest.mark.asyncio
     async def test_git_commit_requires_confirmation(
-        self,
-        git_commit_tool: GitCommitTool,
-        git_workspace: Path
+        self, git_commit_tool: GitCommitTool, git_workspace: Path
     ):
         """Test that git commit requires confirmation."""
         # Modify file
@@ -1029,9 +1049,7 @@ class TestGitCommitTool:
 
     @pytest.mark.asyncio
     async def test_git_commit_specific_files(
-        self,
-        git_commit_tool: GitCommitTool,
-        git_workspace: Path
+        self, git_commit_tool: GitCommitTool, git_workspace: Path
     ):
         """Test git commit with specific files."""
         # Modify files
@@ -1039,8 +1057,7 @@ class TestGitCommitTool:
         (git_workspace / "README.md").write_text("# New README\n")
 
         result = await git_commit_tool.execute(
-            message="Commit test.py only",
-            files=["test.py"]
+            message="Commit test.py only", files=["test.py"]
         )
         assert result.success is True
         assert result.requires_confirmation is True
@@ -1077,9 +1094,7 @@ class TestGitBranchTool:
 
     @pytest.mark.asyncio
     async def test_git_branch_multiple_branches(
-        self,
-        git_branch_tool: GitBranchTool,
-        git_workspace: Path
+        self, git_branch_tool: GitBranchTool, git_workspace: Path
     ):
         """Test git branch with multiple branches."""
         # Create new branch

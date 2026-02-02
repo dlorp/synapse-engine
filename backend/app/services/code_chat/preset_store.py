@@ -50,7 +50,9 @@ class PresetStore:
         """Initialize preset store and load custom presets from disk."""
         self._custom_presets: Dict[str, ModelPreset] = {}
         self._load()
-        logger.info(f"PresetStore initialized with {len(self._custom_presets)} custom presets")
+        logger.info(
+            f"PresetStore initialized with {len(self._custom_presets)} custom presets"
+        )
 
     def _load(self) -> None:
         """Load custom presets from JSON file.
@@ -67,8 +69,8 @@ class PresetStore:
             for name, preset_data in data.items():
                 try:
                     # Respect is_custom from JSON, default to True for backwards compatibility
-                    if 'is_custom' not in preset_data:
-                        preset_data['is_custom'] = True
+                    if "is_custom" not in preset_data:
+                        preset_data["is_custom"] = True
                     preset = ModelPreset(**preset_data)
                     self._custom_presets[name] = preset
                 except Exception as e:
@@ -120,8 +122,7 @@ class PresetStore:
 
         # Then custom presets (sorted by name for consistency)
         custom_sorted = sorted(
-            self._custom_presets.values(),
-            key=lambda p: p.name.lower()
+            self._custom_presets.values(), key=lambda p: p.name.lower()
         )
         all_presets.extend(custom_sorted)
 
@@ -305,10 +306,7 @@ class PresetStore:
             >>> print([p.name for p in custom_only])
             ['fast_coding', 'research_deep']
         """
-        return sorted(
-            self._custom_presets.values(),
-            key=lambda p: p.name.lower()
-        )
+        return sorted(self._custom_presets.values(), key=lambda p: p.name.lower())
 
     def is_custom(self, name: str) -> bool:
         """Check if a preset is custom (not built-in).

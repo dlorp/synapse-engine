@@ -20,7 +20,7 @@ class SynapseException(Exception):
         self,
         message: str,
         details: Optional[Dict[str, Any]] = None,
-        status_code: int = 500
+        status_code: int = 500,
     ) -> None:
         """Initialize Synapse exception.
 
@@ -41,9 +41,9 @@ class SynapseException(Exception):
             Dictionary containing error message and details
         """
         return {
-            'error': self.__class__.__name__,
-            'message': self.message,
-            'details': self.details
+            "error": self.__class__.__name__,
+            "message": self.message,
+            "details": self.details,
         }
 
 
@@ -54,11 +54,7 @@ class ConfigurationError(SynapseException):
     that prevents proper initialization or operation.
     """
 
-    def __init__(
-        self,
-        message: str,
-        details: Optional[Dict[str, Any]] = None
-    ) -> None:
+    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None) -> None:
         """Initialize configuration error.
 
         Args:
@@ -68,7 +64,7 @@ class ConfigurationError(SynapseException):
         super().__init__(
             message=message,
             details=details,
-            status_code=500  # Internal server error
+            status_code=500,  # Internal server error
         )
 
 
@@ -79,11 +75,7 @@ class ModelNotFoundError(SynapseException):
     is not configured in the system.
     """
 
-    def __init__(
-        self,
-        model_id: str,
-        details: Optional[Dict[str, Any]] = None
-    ) -> None:
+    def __init__(self, model_id: str, details: Optional[Dict[str, Any]] = None) -> None:
         """Initialize model not found error.
 
         Args:
@@ -91,12 +83,12 @@ class ModelNotFoundError(SynapseException):
             details: Additional error context
         """
         error_details = details or {}
-        error_details['model_id'] = model_id
+        error_details["model_id"] = model_id
 
         super().__init__(
             message=f"Model not found: {model_id}",
             details=error_details,
-            status_code=404  # Not found
+            status_code=404,  # Not found
         )
 
 
@@ -109,10 +101,7 @@ class ModelUnavailableError(SynapseException):
     """
 
     def __init__(
-        self,
-        model_id: str,
-        reason: str,
-        details: Optional[Dict[str, Any]] = None
+        self, model_id: str, reason: str, details: Optional[Dict[str, Any]] = None
     ) -> None:
         """Initialize model unavailable error.
 
@@ -122,13 +111,13 @@ class ModelUnavailableError(SynapseException):
             details: Additional error context
         """
         error_details = details or {}
-        error_details['model_id'] = model_id
-        error_details['reason'] = reason
+        error_details["model_id"] = model_id
+        error_details["reason"] = reason
 
         super().__init__(
             message=f"Model unavailable: {model_id} - {reason}",
             details=error_details,
-            status_code=503  # Service unavailable
+            status_code=503,  # Service unavailable
         )
 
 
@@ -139,11 +128,7 @@ class NoModelsAvailableError(SynapseException):
     in a requested tier (or all tiers if fallback fails) are unavailable.
     """
 
-    def __init__(
-        self,
-        tier: str,
-        details: Optional[Dict[str, Any]] = None
-    ) -> None:
+    def __init__(self, tier: str, details: Optional[Dict[str, Any]] = None) -> None:
         """Initialize no models available error.
 
         Args:
@@ -151,12 +136,12 @@ class NoModelsAvailableError(SynapseException):
             details: Additional error context
         """
         error_details = details or {}
-        error_details['tier'] = tier
+        error_details["tier"] = tier
 
         super().__init__(
             message=f"No models available in tier: {tier}",
             details=error_details,
-            status_code=503  # Service unavailable
+            status_code=503,  # Service unavailable
         )
 
 
@@ -171,7 +156,7 @@ class QueryTimeoutError(SynapseException):
         self,
         model_id: str,
         timeout_seconds: int,
-        details: Optional[Dict[str, Any]] = None
+        details: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Initialize query timeout error.
 
@@ -181,13 +166,13 @@ class QueryTimeoutError(SynapseException):
             details: Additional error context
         """
         error_details = details or {}
-        error_details['model_id'] = model_id
-        error_details['timeout_seconds'] = timeout_seconds
+        error_details["model_id"] = model_id
+        error_details["timeout_seconds"] = timeout_seconds
 
         super().__init__(
             message=f"Query to {model_id} exceeded timeout of {timeout_seconds}s",
             details=error_details,
-            status_code=504  # Gateway timeout
+            status_code=504,  # Gateway timeout
         )
 
 
@@ -198,11 +183,7 @@ class ValidationError(SynapseException):
     that failed validation checks.
     """
 
-    def __init__(
-        self,
-        message: str,
-        details: Optional[Dict[str, Any]] = None
-    ) -> None:
+    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None) -> None:
         """Initialize validation error.
 
         Args:
@@ -212,5 +193,5 @@ class ValidationError(SynapseException):
         super().__init__(
             message=message,
             details=details,
-            status_code=422  # Unprocessable entity
+            status_code=422,  # Unprocessable entity
         )

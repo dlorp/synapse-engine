@@ -31,42 +31,33 @@ class ModelMetrics(BaseModel):
     tokens_per_second: List[float] = Field(
         default_factory=list,
         description="Token generation rate history (tokens/sec)",
-        alias="tokensPerSecond"
+        alias="tokensPerSecond",
     )
     current_tokens_per_second: float = Field(
-        0.0,
-        description="Most recent tokens/sec value",
-        alias="currentTokensPerSecond"
+        0.0, description="Most recent tokens/sec value", alias="currentTokensPerSecond"
     )
 
     # Memory usage metrics
     memory_gb: List[float] = Field(
         default_factory=list,
         description="VRAM usage history (gigabytes)",
-        alias="memoryGb"
+        alias="memoryGb",
     )
     current_memory_gb: float = Field(
-        0.0,
-        description="Most recent memory usage in GB",
-        alias="currentMemoryGb"
+        0.0, description="Most recent memory usage in GB", alias="currentMemoryGb"
     )
 
     # Latency metrics
     latency_ms: List[float] = Field(
         default_factory=list,
         description="Health check latency history (milliseconds)",
-        alias="latencyMs"
+        alias="latencyMs",
     )
     current_latency_ms: float = Field(
-        0.0,
-        description="Most recent latency in ms",
-        alias="currentLatencyMs"
+        0.0, description="Most recent latency in ms", alias="currentLatencyMs"
     )
 
-    model_config = ConfigDict(
-        from_attributes=True,
-        populate_by_name=True
-    )
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 
 class AllModelsMetricsResponse(BaseModel):
@@ -77,16 +68,7 @@ class AllModelsMetricsResponse(BaseModel):
         timestamp: ISO 8601 timestamp of response
     """
 
-    models: List[ModelMetrics] = Field(
-        ...,
-        description="Metrics for each model"
-    )
-    timestamp: str = Field(
-        ...,
-        description="ISO 8601 timestamp of response"
-    )
+    models: List[ModelMetrics] = Field(..., description="Metrics for each model")
+    timestamp: str = Field(..., description="ISO 8601 timestamp of response")
 
-    model_config = ConfigDict(
-        from_attributes=True,
-        populate_by_name=True
-    )
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)

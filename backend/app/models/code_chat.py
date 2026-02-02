@@ -32,6 +32,7 @@ class AgentState(str, Enum):
     - ERROR: Encountered unrecoverable error
     - CANCELLED: User or system cancelled execution
     """
+
     IDLE = "idle"
     PLANNING = "planning"
     EXECUTING = "executing"
@@ -51,6 +52,7 @@ class ToolName(str, Enum):
     - Execution: run_python, run_shell
     - MCP Tools: git_*, get_diagnostics, get_definitions, get_references, get_project_info
     """
+
     # File operations
     READ_FILE = "read_file"
     WRITE_FILE = "write_file"
@@ -102,21 +104,15 @@ class ToolModelConfig(BaseModel):
         ...     max_tokens=2048
         ... )
     """
+
     tier: Literal["fast", "balanced", "powerful"] = Field(
-        default="balanced",
-        description="Model tier for this tool"
+        default="balanced", description="Model tier for this tool"
     )
     temperature: float = Field(
-        default=0.7,
-        ge=0.0,
-        le=2.0,
-        description="Sampling temperature"
+        default=0.7, ge=0.0, le=2.0, description="Sampling temperature"
     )
     max_tokens: int = Field(
-        default=2048,
-        ge=1,
-        le=4096,
-        description="Maximum tokens to generate"
+        default=2048, ge=1, le=4096, description="Maximum tokens to generate"
     )
 
     model_config = ConfigDict(from_attributes=True)
@@ -149,29 +145,20 @@ class ModelPreset(BaseModel):
         ...     tool_configs={ToolName.READ_FILE: ToolModelConfig(tier="fast")}
         ... )
     """
-    name: str = Field(
-        ...,
-        description="Preset identifier"
-    )
-    description: str = Field(
-        ...,
-        description="Human-readable description"
-    )
+
+    name: str = Field(..., description="Preset identifier")
+    description: str = Field(..., description="Human-readable description")
     system_prompt: Optional[str] = Field(
-        default=None,
-        description="System prompt template for LLM interactions"
+        default=None, description="System prompt template for LLM interactions"
     )
     planning_tier: Literal["fast", "balanced", "powerful"] = Field(
-        ...,
-        description="Model tier for planning phase"
+        ..., description="Model tier for planning phase"
     )
     tool_configs: Dict[ToolName, ToolModelConfig] = Field(
-        default_factory=dict,
-        description="Per-tool model configurations"
+        default_factory=dict, description="Per-tool model configurations"
     )
     is_custom: bool = Field(
-        default=False,
-        description="Whether this is a user-created custom preset"
+        default=False, description="Whether this is a user-created custom preset"
     )
 
     model_config = ConfigDict(from_attributes=True)
@@ -195,13 +182,10 @@ class ToolCall(BaseModel):
         ...     args={"path": "src/main.py"}
         ... )
     """
-    tool: ToolName = Field(
-        ...,
-        description="Tool to execute"
-    )
+
+    tool: ToolName = Field(..., description="Tool to execute")
     args: Dict[str, Any] = Field(
-        default_factory=dict,
-        description="Tool-specific arguments"
+        default_factory=dict, description="Tool-specific arguments"
     )
 
     model_config = ConfigDict(from_attributes=True)
@@ -226,33 +210,23 @@ class ToolResult(BaseModel):
         ...     requires_confirmation=False
         ... )
     """
-    success: bool = Field(
-        ...,
-        description="Whether tool execution succeeded"
-    )
-    output: str = Field(
-        default="",
-        description="Tool output text"
-    )
+
+    success: bool = Field(..., description="Whether tool execution succeeded")
+    output: str = Field(default="", description="Tool output text")
     error: Optional[str] = Field(
-        default=None,
-        description="Error message if execution failed"
+        default=None, description="Error message if execution failed"
     )
     requires_confirmation: bool = Field(
-        default=False,
-        description="Whether user confirmation is needed"
+        default=False, description="Whether user confirmation is needed"
     )
     confirmation_type: Optional[str] = Field(
-        default=None,
-        description="Type of confirmation needed"
+        default=None, description="Type of confirmation needed"
     )
     data: Optional[Dict[str, Any]] = Field(
-        default=None,
-        description="Structured data from tool"
+        default=None, description="Structured data from tool"
     )
     metadata: Optional[Dict[str, Any]] = Field(
-        default=None,
-        description="Additional metadata"
+        default=None, description="Additional metadata"
     )
 
     model_config = ConfigDict(from_attributes=True)
@@ -283,34 +257,19 @@ class ReActStep(BaseModel):
         ...     timestamp=datetime.now()
         ... )
     """
-    step_number: int = Field(
-        ...,
-        ge=1,
-        description="Sequential step number"
-    )
-    thought: str = Field(
-        ...,
-        description="Agent's reasoning"
-    )
+
+    step_number: int = Field(..., ge=1, description="Sequential step number")
+    thought: str = Field(..., description="Agent's reasoning")
     action: Optional[ToolCall] = Field(
-        default=None,
-        description="Tool call selected (None if final answer)"
+        default=None, description="Tool call selected (None if final answer)"
     )
     observation: Optional[str] = Field(
-        default=None,
-        description="Tool execution result"
+        default=None, description="Tool execution result"
     )
-    state: AgentState = Field(
-        ...,
-        description="Current agent state"
-    )
-    model_tier: str = Field(
-        ...,
-        description="Model tier used for this step"
-    )
+    state: AgentState = Field(..., description="Current agent state")
+    model_tier: str = Field(..., description="Model tier used for this step")
     timestamp: datetime = Field(
-        default_factory=datetime.now,
-        description="Step execution timestamp"
+        default_factory=datetime.now, description="Step execution timestamp"
     )
 
     model_config = ConfigDict(from_attributes=True)
@@ -338,45 +297,27 @@ class CodeChatRequest(BaseModel):
         ...     preset="coding"
         ... )
     """
+
     query: str = Field(
-        ...,
-        min_length=1,
-        max_length=10000,
-        description="User query/instruction"
+        ..., min_length=1, max_length=10000, description="User query/instruction"
     )
     session_id: Optional[str] = Field(
-        default=None,
-        description="Session identifier for conversation continuity"
+        default=None, description="Session identifier for conversation continuity"
     )
-    workspace_path: str = Field(
-        ...,
-        description="User-selected workspace directory"
-    )
+    workspace_path: str = Field(..., description="User-selected workspace directory")
     context_name: Optional[str] = Field(
-        default=None,
-        description="Selected CGRAG index name"
+        default=None, description="Selected CGRAG index name"
     )
-    use_cgrag: bool = Field(
-        default=True,
-        description="Enable CGRAG context retrieval"
-    )
+    use_cgrag: bool = Field(default=True, description="Enable CGRAG context retrieval")
     use_web_search: bool = Field(
-        default=True,
-        description="Enable web search for queries"
+        default=True, description="Enable web search for queries"
     )
     max_iterations: int = Field(
-        default=15,
-        ge=1,
-        le=50,
-        description="Maximum ReAct loop iterations"
+        default=15, ge=1, le=50, description="Maximum ReAct loop iterations"
     )
-    preset: str = Field(
-        default="balanced",
-        description="Named preset to use"
-    )
+    preset: str = Field(default="balanced", description="Named preset to use")
     tool_overrides: Optional[Dict[str, ToolModelConfig]] = Field(
-        default=None,
-        description="Override specific tool configurations"
+        default=None, description="Override specific tool configurations"
     )
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
@@ -405,6 +346,7 @@ class CodeChatStreamEvent(BaseModel):
         ...     step_number=2
         ... )
     """
+
     type: Literal[
         "state",
         "thought",
@@ -415,38 +357,23 @@ class CodeChatStreamEvent(BaseModel):
         "error",
         "cancelled",
         "context",
-        "diff_preview"
-    ] = Field(
-        ...,
-        description="Event type"
-    )
-    content: Optional[str] = Field(
-        default=None,
-        description="Event content text"
-    )
+        "diff_preview",
+    ] = Field(..., description="Event type")
+    content: Optional[str] = Field(default=None, description="Event content text")
     state: Optional[AgentState] = Field(
-        default=None,
-        description="Agent state (for state events)"
+        default=None, description="Agent state (for state events)"
     )
-    tier: Optional[str] = Field(
-        default=None,
-        description="Model tier used"
-    )
+    tier: Optional[str] = Field(default=None, description="Model tier used")
     tool: Optional[ToolCall] = Field(
-        default=None,
-        description="Tool call (for action events)"
+        default=None, description="Tool call (for action events)"
     )
-    step_number: Optional[int] = Field(
-        default=None,
-        description="ReAct step number"
-    )
+    step_number: Optional[int] = Field(default=None, description="ReAct step number")
     timestamp: datetime = Field(
-        default_factory=datetime.now,
-        description="Event timestamp"
+        default_factory=datetime.now, description="Event timestamp"
     )
     data: Optional[Dict[str, Any]] = Field(
         default=None,
-        description="Additional event data (action_id, diff_preview, etc.)"
+        description="Additional event data (action_id, diff_preview, etc.)",
     )
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
@@ -475,25 +402,15 @@ class DirectoryInfo(BaseModel):
         ...     project_type="python"
         ... )
     """
-    name: str = Field(
-        ...,
-        description="Directory name"
-    )
-    path: str = Field(
-        ...,
-        description="Absolute path"
-    )
-    is_directory: bool = Field(
-        default=True,
-        description="Always True for directories"
-    )
+
+    name: str = Field(..., description="Directory name")
+    path: str = Field(..., description="Absolute path")
+    is_directory: bool = Field(default=True, description="Always True for directories")
     is_git_repo: bool = Field(
-        default=False,
-        description="Whether directory contains .git"
+        default=False, description="Whether directory contains .git"
     )
     project_type: Optional[str] = Field(
-        default=None,
-        description="Detected project type"
+        default=None, description="Detected project type"
     )
 
     model_config = ConfigDict(from_attributes=True)
@@ -516,25 +433,19 @@ class WorkspaceListResponse(BaseModel):
         ...     parent_path="/home"
         ... )
     """
-    current_path: str = Field(
-        ...,
-        description="Current directory path"
-    )
+
+    current_path: str = Field(..., description="Current directory path")
     directories: List[DirectoryInfo] = Field(
-        default_factory=list,
-        description="List of subdirectories"
+        default_factory=list, description="List of subdirectories"
     )
     parent_path: Optional[str] = Field(
-        default=None,
-        description="Parent directory path"
+        default=None, description="Parent directory path"
     )
     is_git_repo: bool = Field(
-        default=False,
-        description="Whether current path is git repo"
+        default=False, description="Whether current path is git repo"
     )
     project_type: Optional[str] = Field(
-        default=None,
-        description="Detected project type"
+        default=None, description="Detected project type"
     )
 
     model_config = ConfigDict(from_attributes=True)
@@ -561,33 +472,23 @@ class ProjectInfo(BaseModel):
         ...     entry_points=["app/main.py"]
         ... )
     """
-    type: str = Field(
-        ...,
-        description="Project type"
-    )
-    name: Optional[str] = Field(
-        default=None,
-        description="Project name from manifest"
-    )
+
+    type: str = Field(..., description="Project type")
+    name: Optional[str] = Field(default=None, description="Project name from manifest")
     version: Optional[str] = Field(
-        default=None,
-        description="Project version from manifest"
+        default=None, description="Project version from manifest"
     )
     dependencies: List[str] = Field(
-        default_factory=list,
-        description="Runtime dependencies"
+        default_factory=list, description="Runtime dependencies"
     )
     dev_dependencies: List[str] = Field(
-        default_factory=list,
-        description="Dev dependencies"
+        default_factory=list, description="Dev dependencies"
     )
     scripts: Dict[str, str] = Field(
-        default_factory=dict,
-        description="Available scripts"
+        default_factory=dict, description="Available scripts"
     )
     entry_points: List[str] = Field(
-        default_factory=list,
-        description="Main entry points"
+        default_factory=list, description="Main entry points"
     )
 
     model_config = ConfigDict(from_attributes=True)
@@ -613,29 +514,20 @@ class WorkspaceValidation(BaseModel):
         ...     has_cgrag_index=True
         ... )
     """
-    valid: bool = Field(
-        ...,
-        description="Whether path is valid and accessible"
-    )
+
+    valid: bool = Field(..., description="Whether path is valid and accessible")
     is_git_repo: bool = Field(
-        default=False,
-        description="Whether path is a git repository"
+        default=False, description="Whether path is a git repository"
     )
     project_info: Optional[ProjectInfo] = Field(
-        default=None,
-        description="Detected project information"
+        default=None, description="Detected project information"
     )
-    file_count: int = Field(
-        default=0,
-        description="Number of files in workspace"
-    )
+    file_count: int = Field(default=0, description="Number of files in workspace")
     has_cgrag_index: bool = Field(
-        default=False,
-        description="Whether workspace has associated CGRAG index"
+        default=False, description="Whether workspace has associated CGRAG index"
     )
     error: Optional[str] = Field(
-        default=None,
-        description="Error message if validation failed"
+        default=None, description="Error message if validation failed"
     )
 
     model_config = ConfigDict(from_attributes=True)
@@ -667,30 +559,14 @@ class ContextInfo(BaseModel):
         ...     embedding_model="all-MiniLM-L6-v2"
         ... )
     """
-    name: str = Field(
-        ...,
-        description="Context identifier"
-    )
-    path: str = Field(
-        ...,
-        description="Path to index files"
-    )
-    chunk_count: int = Field(
-        ...,
-        ge=0,
-        description="Number of chunks in index"
-    )
-    last_indexed: datetime = Field(
-        ...,
-        description="Last indexing timestamp"
-    )
-    source_path: str = Field(
-        ...,
-        description="Source directory that was indexed"
-    )
+
+    name: str = Field(..., description="Context identifier")
+    path: str = Field(..., description="Path to index files")
+    chunk_count: int = Field(..., ge=0, description="Number of chunks in index")
+    last_indexed: datetime = Field(..., description="Last indexing timestamp")
+    source_path: str = Field(..., description="Source directory that was indexed")
     embedding_model: str = Field(
-        default="all-MiniLM-L6-v2",
-        description="Embedding model used"
+        default="all-MiniLM-L6-v2", description="Embedding model used"
     )
 
     model_config = ConfigDict(from_attributes=True)
@@ -710,19 +586,13 @@ class CreateContextRequest(BaseModel):
         ...     source_path="/home/user/my-project"
         ... )
     """
+
     name: str = Field(
-        ...,
-        min_length=1,
-        max_length=100,
-        description="Context identifier"
+        ..., min_length=1, max_length=100, description="Context identifier"
     )
-    source_path: str = Field(
-        ...,
-        description="Source directory to index"
-    )
+    source_path: str = Field(..., description="Source directory to index")
     embedding_model: str = Field(
-        default="all-MiniLM-L6-v2",
-        description="Embedding model to use"
+        default="all-MiniLM-L6-v2", description="Embedding model to use"
     )
 
     model_config = ConfigDict(from_attributes=True)
@@ -748,19 +618,10 @@ class DiffLine(BaseModel):
         ...     content="print('Hello, world!')"
         ... )
     """
-    line_number: int = Field(
-        ...,
-        ge=1,
-        description="Line number in file"
-    )
-    type: Literal["add", "remove", "context"] = Field(
-        ...,
-        description="Line type"
-    )
-    content: str = Field(
-        ...,
-        description="Line content"
-    )
+
+    line_number: int = Field(..., ge=1, description="Line number in file")
+    type: Literal["add", "remove", "context"] = Field(..., description="Line type")
+    content: str = Field(..., description="Line content")
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -784,25 +645,17 @@ class DiffPreview(BaseModel):
         ...     change_type="modify"
         ... )
     """
-    file_path: str = Field(
-        ...,
-        description="Path to file being modified"
-    )
+
+    file_path: str = Field(..., description="Path to file being modified")
     original_content: Optional[str] = Field(
-        default=None,
-        description="Original file contents (None for new files)"
+        default=None, description="Original file contents (None for new files)"
     )
-    new_content: str = Field(
-        ...,
-        description="New file contents"
-    )
+    new_content: str = Field(..., description="New file contents")
     diff_lines: List[DiffLine] = Field(
-        default_factory=list,
-        description="Unified diff lines"
+        default_factory=list, description="Unified diff lines"
     )
     change_type: Literal["create", "modify", "delete"] = Field(
-        ...,
-        description="Type of change"
+        ..., description="Type of change"
     )
 
     model_config = ConfigDict(from_attributes=True)
@@ -830,21 +683,14 @@ class ConversationTurn(BaseModel):
         ...     timestamp=datetime.now()
         ... )
     """
-    query: str = Field(
-        ...,
-        description="User query"
-    )
-    response: str = Field(
-        ...,
-        description="Agent response"
-    )
+
+    query: str = Field(..., description="User query")
+    response: str = Field(..., description="Agent response")
     tools_used: List[str] = Field(
-        default_factory=list,
-        description="Tools used in this turn"
+        default_factory=list, description="Tools used in this turn"
     )
     timestamp: datetime = Field(
-        default_factory=datetime.now,
-        description="Turn timestamp"
+        default_factory=datetime.now, description="Turn timestamp"
     )
 
     model_config = ConfigDict(from_attributes=True)
@@ -1185,51 +1031,46 @@ PRESETS: Dict[str, ModelPreset] = {
         system_prompt=SYSTEM_PROMPT_DEFAULT,
         planning_tier="balanced",
         is_custom=False,
-        tool_configs={}
+        tool_configs={},
     ),
-
     "SYNAPSE_ANALYST": ModelPreset(
         name="SYNAPSE_ANALYST",
         description="Deep analytical substrate optimized for decomposition, synthesis, and multi-layered reasoning",
         system_prompt=SYSTEM_PROMPT_ANALYST,
         planning_tier="powerful",
         is_custom=False,
-        tool_configs={}
+        tool_configs={},
     ),
-
     "SYNAPSE_CODER": ModelPreset(
         name="SYNAPSE_CODER",
         description="Code generation substrate with architecture design, debugging, and implementation protocols",
         system_prompt=SYSTEM_PROMPT_CODER,
         planning_tier="balanced",
         is_custom=False,
-        tool_configs={}
+        tool_configs={},
     ),
-
     "SYNAPSE_CREATIVE": ModelPreset(
         name="SYNAPSE_CREATIVE",
         description="Ideation substrate for divergent thinking, concept exploration, and creative synthesis",
         system_prompt=SYSTEM_PROMPT_CREATIVE,
         planning_tier="balanced",
         is_custom=False,
-        tool_configs={}
+        tool_configs={},
     ),
-
     "SYNAPSE_RESEARCH": ModelPreset(
         name="SYNAPSE_RESEARCH",
         description="Information gathering substrate with fact verification and comprehensive knowledge synthesis",
         system_prompt=SYSTEM_PROMPT_RESEARCH,
         planning_tier="powerful",
         is_custom=False,
-        tool_configs={}
+        tool_configs={},
     ),
-
     "SYNAPSE_JUDGE": ModelPreset(
         name="SYNAPSE_JUDGE",
         description="Evaluation substrate for balanced assessment, moderation, and critical analysis",
         system_prompt=SYSTEM_PROMPT_JUDGE,
         planning_tier="powerful",
         is_custom=False,
-        tool_configs={}
+        tool_configs={},
     ),
 }

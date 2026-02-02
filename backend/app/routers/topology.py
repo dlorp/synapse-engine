@@ -18,7 +18,7 @@ from app.models.topology import (
     ComponentNode,
     DataFlowPath,
     HealthMetrics,
-    SystemTopology
+    SystemTopology,
 )
 from app.services.topology_manager import get_topology_manager
 
@@ -89,16 +89,10 @@ async def get_system_topology() -> SystemTopology:
         return topology
     except RuntimeError as e:
         logger.error(f"Topology manager not initialized: {e}")
-        raise HTTPException(
-            status_code=503,
-            detail="Topology manager not available"
-        )
+        raise HTTPException(status_code=503, detail="Topology manager not available")
     except Exception as e:
         logger.error(f"Failed to get topology: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to get topology: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to get topology: {str(e)}")
 
 
 @router.get("/health/{component_id}", response_model=HealthMetrics)
@@ -137,8 +131,7 @@ async def get_component_health(component_id: str) -> HealthMetrics:
 
         if metrics is None:
             raise HTTPException(
-                status_code=404,
-                detail=f"Component '{component_id}' not found"
+                status_code=404, detail=f"Component '{component_id}' not found"
             )
 
         return metrics
@@ -146,18 +139,11 @@ async def get_component_health(component_id: str) -> HealthMetrics:
         raise
     except RuntimeError as e:
         logger.error(f"Topology manager not initialized: {e}")
-        raise HTTPException(
-            status_code=503,
-            detail="Topology manager not available"
-        )
+        raise HTTPException(status_code=503, detail="Topology manager not available")
     except Exception as e:
-        logger.error(
-            f"Failed to get health for {component_id}: {e}",
-            exc_info=True
-        )
+        logger.error(f"Failed to get health for {component_id}: {e}", exc_info=True)
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to get component health: {str(e)}"
+            status_code=500, detail=f"Failed to get component health: {str(e)}"
         )
 
 
@@ -199,7 +185,7 @@ async def get_data_flow_path(query_id: str) -> DataFlowPath:
         if flow_path is None:
             raise HTTPException(
                 status_code=404,
-                detail=f"Data flow path for query '{query_id}' not found"
+                detail=f"Data flow path for query '{query_id}' not found",
             )
 
         return flow_path
@@ -207,18 +193,11 @@ async def get_data_flow_path(query_id: str) -> DataFlowPath:
         raise
     except RuntimeError as e:
         logger.error(f"Topology manager not initialized: {e}")
-        raise HTTPException(
-            status_code=503,
-            detail="Topology manager not available"
-        )
+        raise HTTPException(status_code=503, detail="Topology manager not available")
     except Exception as e:
-        logger.error(
-            f"Failed to get data flow for {query_id}: {e}",
-            exc_info=True
-        )
+        logger.error(f"Failed to get data flow for {query_id}: {e}", exc_info=True)
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to get data flow path: {str(e)}"
+            status_code=500, detail=f"Failed to get data flow path: {str(e)}"
         )
 
 
@@ -260,15 +239,11 @@ async def get_topology_nodes() -> List[ComponentNode]:
         return topology.nodes
     except RuntimeError as e:
         logger.error(f"Topology manager not initialized: {e}")
-        raise HTTPException(
-            status_code=503,
-            detail="Topology manager not available"
-        )
+        raise HTTPException(status_code=503, detail="Topology manager not available")
     except Exception as e:
         logger.error(f"Failed to get topology nodes: {e}", exc_info=True)
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to get topology nodes: {str(e)}"
+            status_code=500, detail=f"Failed to get topology nodes: {str(e)}"
         )
 
 
@@ -315,13 +290,9 @@ async def get_topology_connections() -> List[ComponentConnection]:
         return topology.connections
     except RuntimeError as e:
         logger.error(f"Topology manager not initialized: {e}")
-        raise HTTPException(
-            status_code=503,
-            detail="Topology manager not available"
-        )
+        raise HTTPException(status_code=503, detail="Topology manager not available")
     except Exception as e:
         logger.error(f"Failed to get topology connections: {e}", exc_info=True)
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to get topology connections: {str(e)}"
+            status_code=500, detail=f"Failed to get topology connections: {str(e)}"
         )

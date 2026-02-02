@@ -142,7 +142,7 @@ class CacheMetrics:
                 db=config.redis.db,
                 password=config.redis.password,
                 socket_connect_timeout=2,
-                decode_responses=True
+                decode_responses=True,
             )
 
             # DBSIZE is O(1) - returns number of keys in current DB
@@ -188,7 +188,7 @@ class CacheMetrics:
             "hit_rate_percent": round(hit_rate, 2),
             "cache_size": cache_size,
             "uptime_seconds": round(uptime, 2),
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }
 
     async def reset(self) -> None:
@@ -221,7 +221,9 @@ def get_cache_metrics() -> CacheMetrics:
         RuntimeError: If cache metrics not initialized
     """
     if _cache_metrics is None:
-        raise RuntimeError("CacheMetrics not initialized - call init_cache_metrics() first")
+        raise RuntimeError(
+            "CacheMetrics not initialized - call init_cache_metrics() first"
+        )
     return _cache_metrics
 
 

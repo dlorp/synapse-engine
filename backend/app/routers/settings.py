@@ -19,6 +19,7 @@ router = APIRouter(prefix="/api/settings", tags=["settings"])
 
 class SettingsResponse(BaseModel):
     """Response model for settings operations."""
+
     success: bool
     settings: RuntimeSettings
     restart_required: bool = False
@@ -29,11 +30,13 @@ class SettingsResponse(BaseModel):
 
 class SettingsUpdateRequest(BaseModel):
     """Request model for settings updates."""
+
     settings: RuntimeSettings
 
 
 class SettingsImportRequest(BaseModel):
     """Request model for importing settings from JSON."""
+
     json_data: str
 
 
@@ -53,14 +56,13 @@ async def get_settings():
             settings=settings,
             restart_required=False,
             message="Settings retrieved successfully",
-            metadata=metadata
+            metadata=metadata,
         )
 
     except Exception as e:
         logger.error(f"Failed to get settings: {e}")
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to retrieve settings: {str(e)}"
+            status_code=500, detail=f"Failed to retrieve settings: {str(e)}"
         )
 
 
@@ -78,9 +80,12 @@ async def update_settings(request: SettingsUpdateRequest):
         SettingsResponse with updated settings and restart flag
     """
     try:
-        success, updated_settings, restart_required, errors = await settings_service.update_runtime_settings(
-            request.settings
-        )
+        (
+            success,
+            updated_settings,
+            restart_required,
+            errors,
+        ) = await settings_service.update_runtime_settings(request.settings)
 
         if not success:
             return SettingsResponse(
@@ -88,7 +93,7 @@ async def update_settings(request: SettingsUpdateRequest):
                 settings=settings_service.get_runtime_settings(),  # Return current settings
                 restart_required=False,
                 validation_errors=errors,
-                message="Settings validation failed"
+                message="Settings validation failed",
             )
 
         message = "Settings updated successfully"
@@ -100,21 +105,17 @@ async def update_settings(request: SettingsUpdateRequest):
             settings=updated_settings,
             restart_required=restart_required,
             message=message,
-            metadata=await settings_service.get_settings_metadata()
+            metadata=await settings_service.get_settings_metadata(),
         )
 
     except ValidationError as e:
         logger.warning(f"Settings validation failed: {e}")
-        raise HTTPException(
-            status_code=400,
-            detail=f"Invalid settings: {str(e)}"
-        )
+        raise HTTPException(status_code=400, detail=f"Invalid settings: {str(e)}")
 
     except Exception as e:
         logger.error(f"Failed to update settings: {e}")
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to update settings: {str(e)}"
+            status_code=500, detail=f"Failed to update settings: {str(e)}"
         )
 
 
@@ -141,14 +142,13 @@ async def validate_settings(request: SettingsUpdateRequest):
             settings=request.settings if is_valid else current_settings,
             restart_required=restart_required,
             validation_errors=errors,
-            message="Validation successful" if is_valid else "Validation failed"
+            message="Validation successful" if is_valid else "Validation failed",
         )
 
     except Exception as e:
         logger.error(f"Failed to validate settings: {e}")
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to validate settings: {str(e)}"
+            status_code=500, detail=f"Failed to validate settings: {str(e)}"
         )
 
 
@@ -169,14 +169,13 @@ async def reset_settings():
             settings=defaults,
             restart_required=True,  # Assume defaults differ from current
             message="Settings reset to defaults successfully",
-            metadata=await settings_service.get_settings_metadata()
+            metadata=await settings_service.get_settings_metadata(),
         )
 
     except Exception as e:
         logger.error(f"Failed to reset settings: {e}")
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to reset settings: {str(e)}"
+            status_code=500, detail=f"Failed to reset settings: {str(e)}"
         )
 
 
@@ -193,14 +192,13 @@ async def export_settings():
         return {
             "success": True,
             "json_data": json_str,
-            "message": "Settings exported successfully"
+            "message": "Settings exported successfully",
         }
 
     except Exception as e:
         logger.error(f"Failed to export settings: {e}")
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to export settings: {str(e)}"
+            status_code=500, detail=f"Failed to export settings: {str(e)}"
         )
 
 
@@ -218,16 +216,18 @@ async def import_settings(request: SettingsImportRequest):
         SettingsResponse with imported settings (not saved)
     """
     try:
-        success, imported_settings, errors = await settings_service.import_settings_json(
-            request.json_data
-        )
+        (
+            success,
+            imported_settings,
+            errors,
+        ) = await settings_service.import_settings_json(request.json_data)
 
         if not success or imported_settings is None:
             return SettingsResponse(
                 success=False,
                 settings=settings_service.get_runtime_settings(),
                 validation_errors=errors,
-                message="Settings import failed"
+                message="Settings import failed",
             )
 
         current_settings = settings_service.get_runtime_settings()
@@ -237,14 +237,13 @@ async def import_settings(request: SettingsImportRequest):
             success=True,
             settings=imported_settings,
             restart_required=restart_required,
-            message="Settings imported successfully (not saved - use PUT to save)"
+            message="Settings imported successfully (not saved - use PUT to save)",
         )
 
     except Exception as e:
         logger.error(f"Failed to import settings: {e}")
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to import settings: {str(e)}"
+            status_code=500, detail=f"Failed to import settings: {str(e)}"
         )
 
 
@@ -263,22 +262,18 @@ async def get_settings_schema():
         return {
             "success": True,
             "schema": schema,
-            "message": "Settings schema retrieved successfully"
+            "message": "Settings schema retrieved successfully",
         }
 
     except Exception as e:
         logger.error(f"Failed to get settings schema: {e}")
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to retrieve settings schema: {str(e)}"
+            status_code=500, detail=f"Failed to retrieve settings schema: {str(e)}"
         )
 
 
 @router.get("/vram-estimate")
-async def estimate_vram(
-    model_size_b: float = 8.0,
-    quantization: str = "Q4_K_M"
-):
+async def estimate_vram(model_size_b: float = 8.0, quantization: str = "Q4_K_M"):
     """Estimate VRAM usage per model with current settings.
 
     Query parameters:
@@ -292,14 +287,12 @@ async def estimate_vram(
         # Validate model_size_b range
         if model_size_b < 0.1 or model_size_b > 100.0:
             raise HTTPException(
-                status_code=400,
-                detail="model_size_b must be between 0.1 and 100.0"
+                status_code=400, detail="model_size_b must be between 0.1 and 100.0"
             )
 
         settings = settings_service.get_runtime_settings()
         vram_gb = settings.estimate_vram_per_model(
-            model_size_b=model_size_b,
-            quantization=quantization
+            model_size_b=model_size_b, quantization=quantization
         )
 
         return {
@@ -309,14 +302,13 @@ async def estimate_vram(
             "quantization": quantization,
             "settings": {
                 "n_gpu_layers": settings.n_gpu_layers,
-                "ctx_size": settings.ctx_size
+                "ctx_size": settings.ctx_size,
             },
-            "message": f"Estimated VRAM: {vram_gb} GB"
+            "message": f"Estimated VRAM: {vram_gb} GB",
         }
 
     except Exception as e:
         logger.error(f"Failed to estimate VRAM: {e}")
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to estimate VRAM: {str(e)}"
+            status_code=500, detail=f"Failed to estimate VRAM: {str(e)}"
         )
