@@ -291,8 +291,11 @@ class GitDiffTool(BaseTool):
 
             diff_output = stdout.decode()
 
+            # Track whether there are actual changes
+            has_changes = bool(diff_output.strip())
+
             # Format output message
-            if not diff_output.strip():
+            if not has_changes:
                 output_msg = "No changes"
                 if staged:
                     output_msg += " in staging area"
@@ -312,7 +315,7 @@ class GitDiffTool(BaseTool):
                 metadata={
                     "staged": staged,
                     "file": file,
-                    "has_changes": bool(diff_output.strip() and diff_output != output_msg)
+                    "has_changes": has_changes
                 }
             )
 
