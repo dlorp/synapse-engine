@@ -7,12 +7,11 @@ YAML loading, and configuration validation edge cases.
 import os
 import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 import pytest
-import yaml
 
-from app.core.config import ConfigLoader, Settings, get_config, load_config
+from app.core.config import ConfigLoader, Settings, get_config
 from app.core.exceptions import ConfigurationError
 
 

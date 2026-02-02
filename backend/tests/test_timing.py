@@ -6,7 +6,7 @@ measuring execution time with proper edge case handling.
 
 import time
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 from app.utils.timing import Timer, timed_operation
 
@@ -224,7 +224,7 @@ class TestTimedOperation:
     def test_exception_still_logs(self, mock_logger):
         """Test that exception doesn't prevent logging."""
         try:
-            with timed_operation("logged_error") as timer:
+            with timed_operation("logged_error"):
                 raise ValueError("Error")
         except ValueError:
             pass

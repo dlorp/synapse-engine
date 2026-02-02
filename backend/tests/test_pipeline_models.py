@@ -5,7 +5,6 @@ PipelineStage, PipelineStatus, SystemEvent, and related event models.
 """
 
 from datetime import datetime
-from typing import Any, Dict
 
 import pytest
 from pydantic import ValidationError as PydanticValidationError
