@@ -1,27 +1,61 @@
 
-# S.Y.N.A.P.S.E. ENGINE 
+# S.Y.N.A.P.S.E. ENGINE 🧠⚡
 
 [![CI](https://github.com/dlorp/synapse-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/dlorp/synapse-engine/actions/workflows/ci.yml)
-
-![til](docs/features/synapseEngine.gif)
-
-### Query Modes
-![Query Modes](docs/screenshot-query-modes.png)
-
-### System Architecture
-![System Architecture Topology](docs/screenshot-topology.png)
-
-### Model Management
-![Discovered Models](docs/screenshot-models.png)
-
-### System Status
-![System Status](docs/screenshot-status.png)
+[![License](https://img.shields.io/github/license/dlorp/synapse-engine)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.10+-blue?logo=python&logoColor=white)](https://www.python.org/)
+[![GitHub stars](https://img.shields.io/github/stars/dlorp/synapse-engine?style=social)](https://github.com/dlorp/synapse-engine)
 
 **Scalable Yoked Network for Adaptive Praxial System Emergence**
 
-> Interlinked cognition — thought in motion.
+> *Interlinked cognition — thought in motion.*
 
 **Status:** v5.1 Prod Ready ✅ | TUI Navigation ✅ | Metal Acceleration ✅ | CGRAG Operational ✅
+
+---
+
+![S.Y.N.A.P.S.E. ENGINE in action](docs/features/synapseEngine.gif)
+*Watch multiple LLMs collaborate in real-time — this is what AI orchestration looks like.*
+
+---
+
+## 🎯 What is S.Y.N.A.P.S.E. ENGINE?
+
+Ever wished you could make your local LLMs actually *work together* instead of just answering questions one at a time? That's exactly what S.Y.N.A.P.S.E. ENGINE does.
+
+It's a distributed orchestration platform that coordinates multiple quantized models across performance tiers (FAST/BALANCED/POWERFUL), performs sub-100ms contextual retrieval (CGRAG), and runs multi-stage refinement, consensus, and debate workflows. All from a slick WebUI — no YAML wrangling required.
+
+### 📸 See It In Action
+
+<details>
+<summary><b>🎨 Query Modes</b> — Pick your orchestration style</summary>
+
+![Query Modes Interface](docs/screenshot-query-modes.png)
+*Two-Stage, Council Debate, Consensus, Benchmark — choose how your models collaborate*
+</details>
+
+<details>
+<summary><b>🔧 System Architecture</b> — The neural substrate visualized</summary>
+
+![System Architecture Topology](docs/screenshot-topology.png)
+*Interactive topology diagram showing component relationships and data flow*
+</details>
+
+<details>
+<summary><b>🤖 Model Management</b> — Your LLM army at a glance</summary>
+
+![Discovered Models](docs/screenshot-models.png)
+*Auto-discovers GGUF models from your HuggingFace cache, one-click enable/disable*
+</details>
+
+<details>
+<summary><b>📊 System Status</b> — Real-time monitoring</summary>
+
+![System Status Dashboard](docs/screenshot-status.png)
+*Live VRAM tracking, query metrics, and server health — know exactly what's happening*
+</details>
+
+---
 
 > **New to S.Y.N.A.P.S.E. ENGINE?** Start with [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md) for a high-level understanding of the project, team structure, and development context.
 
@@ -31,27 +65,20 @@ S.Y.N.A.P.S.E. ENGINE is a distributed orchestration platform for local language
 
 All runtime messages traverse the **NEURAL SUBSTRATE ORCHESTRATOR** — the message bus and governance layer that enforces routing, health checks, and contextual budgeting.
 
-### Key Features
+### 🔥 Key Features
 
-🎨 **WebUI-First** - All control happens in the browser, no YAML editing
-
-⚡ **Fast Startup** - Launches in ~5 seconds with no models loaded (default: NO models enabled)
-
-🔄 **Dynamic Control** - Start/stop models without Docker restart
-
-🚀 **One-Click Metal Servers** - Automatic Metal accelerated llama-server management via Host API
-
-🎯 **Multiple Modes** - Two Stage, Simple, Council (Consensus/Debate), Benchmark, Code Chat (planned)
-
-📚 **CGRAG Integration** - Automatic context retrieval with FAISS (<100ms)
-
-📊 **Real-Time Monitoring** - Live server logs, resource tracking (VRAM, queries, cache hit rate)
-
-🔍 **Auto-Discovery** - Finds GGUF models in your Hugging Face cache
-
-🖼️ **Advanced Visualizations** - Interactive processing pipelines (ProcessingPipelinePanel with React Flow), time series metrics (AdvancedMetricsPanel with Chart.js), system topology diagrams (SystemArchitectureDiagram)
-
-🎛️ **Dashboard Features** - Context window allocation display (ContextWindowPanel), advanced metrics panels, real time event streaming (WebSocket)
+| Feature | What It Does |
+|---------|-------------|
+| 🎨 **WebUI-First** | All control happens in the browser — no YAML editing, no terminal required |
+| ⚡ **Blazing Fast Startup** | Launches in ~5 seconds with no models loaded (you choose what to spin up) |
+| 🔄 **Dynamic Control** | Start/stop models on the fly, no Docker restarts needed |
+| 🚀 **One-Click Metal** | Automatic Metal-accelerated llama-server on Apple Silicon (2-3x faster!) |
+| 🎯 **Multi-Mode Queries** | Two-Stage, Simple, Council Debate, Consensus, Benchmark — pick your poison |
+| 📚 **CGRAG Magic** | Sub-100ms context retrieval via FAISS — your docs, instantly searchable |
+| 📊 **Live Monitoring** | Real-time logs, VRAM tracking, query stats, cache hit rates |
+| 🔍 **Auto-Discovery** | Point it at your HuggingFace cache and watch it find all your GGUF models |
+| 🖼️ **Sexy Visualizations** | React Flow pipelines, Chart.js metrics, interactive topology diagrams |
+| 🎛️ **Dashboard Goodies** | Context window allocation, WebSocket event streaming, and more |
 
 ### What's New in v5.1
 
