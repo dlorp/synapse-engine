@@ -2,6 +2,10 @@
 
 **Scalable Yoked Network for Adaptive Praxial System Emergence**
 
+![License](https://img.shields.io/badge/license-PolyForm%20NC%201.0.0-blue)
+![Python](https://img.shields.io/badge/python-3.11+-blue)
+![CI](https://img.shields.io/github/actions/workflow/status/dlorp/synapse-engine/ci.yml?label=CI)
+
 Distributed orchestration platform for local language models.
 
 ![Screenshot](docs/screenshot-query-modes.png)
