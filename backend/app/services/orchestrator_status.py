@@ -20,7 +20,7 @@ from app.models.orchestrator import (
     ModelTierLabel,
     OrchestratorStatusResponse,
     RoutingDecision,
-    TierUtilization
+    TierUtilization,
 )
 
 
@@ -51,9 +51,9 @@ class OrchestratorStatusService:
         self.decisions: Deque[RoutingDecision] = deque(maxlen=max_decisions)
         self.decision_times: Deque[float] = deque(maxlen=max_decisions)  # ms
         self.tier_stats = {
-            'Q2': {'total': 0, 'active': 0},
-            'Q3': {'total': 0, 'active': 0},
-            'Q4': {'total': 0, 'active': 0},
+            "Q2": {"total": 0, "active": 0},
+            "Q3": {"total": 0, "active": 0},
+            "Q4": {"total": 0, "active": 0},
         }
         self.lock = Lock()
         logger.info(
@@ -65,7 +65,7 @@ class OrchestratorStatusService:
         query: str,
         tier: str,
         complexity_score: float,
-        decision_time_ms: float = 0.0
+        decision_time_ms: float = 0.0,
     ) -> None:
         """Record a query routing decision.
 
@@ -94,7 +94,7 @@ class OrchestratorStatusService:
                 tier=tier_label,
                 complexity=complexity_level,
                 timestamp=datetime.now(timezone.utc).isoformat(),
-                score=round(complexity_score, 2)
+                score=round(complexity_score, 2),
             )
 
             # Add to buffer
@@ -102,7 +102,7 @@ class OrchestratorStatusService:
             self.decision_times.append(decision_time_ms)
 
             # Update tier stats
-            self.tier_stats[tier_label]['total'] += 1
+            self.tier_stats[tier_label]["total"] += 1
 
             logger.debug(
                 f"Recorded routing decision: {tier_label} for query "
@@ -119,7 +119,7 @@ class OrchestratorStatusService:
         """
         with self.lock:
             tier_label = self._map_tier_to_label(tier)
-            self.tier_stats[tier_label]['active'] += 1
+            self.tier_stats[tier_label]["active"] += 1
 
     def mark_request_complete(self, tier: str) -> None:
         """Mark a request as complete for a specific tier.
@@ -129,9 +129,8 @@ class OrchestratorStatusService:
         """
         with self.lock:
             tier_label = self._map_tier_to_label(tier)
-            self.tier_stats[tier_label]['active'] = max(
-                0,
-                self.tier_stats[tier_label]['active'] - 1
+            self.tier_stats[tier_label]["active"] = max(
+                0, self.tier_stats[tier_label]["active"] - 1
             )
 
     def get_status(self) -> OrchestratorStatusResponse:
@@ -161,9 +160,7 @@ class OrchestratorStatusService:
             )
 
             # Total decisions
-            total_decisions = sum(
-                stats['total'] for stats in self.tier_stats.values()
-            )
+            total_decisions = sum(stats["total"] for stats in self.tier_stats.values())
 
             return OrchestratorStatusResponse(
                 tier_utilization=tier_utilization,
@@ -171,7 +168,7 @@ class OrchestratorStatusService:
                 complexity_distribution=complexity_distribution,
                 total_decisions=total_decisions,
                 avg_decision_time_ms=round(avg_decision_time, 2),
-                timestamp=datetime.now(timezone.utc).isoformat()
+                timestamp=datetime.now(timezone.utc).isoformat(),
             )
 
     def _calculate_tier_utilization(self) -> list[TierUtilization]:
@@ -182,25 +179,26 @@ class OrchestratorStatusService:
         """
         utilization = []
 
-        for tier_label in ['Q2', 'Q3', 'Q4']:
+        for tier_label in ["Q2", "Q3", "Q4"]:
             stats = self.tier_stats[tier_label]
-            total = stats['total']
-            active = stats['active']
+            total = stats["total"]
+            active = stats["active"]
 
             # Calculate utilization percentage based on recent activity
             # Use a sliding window of last 20 decisions
             recent_for_tier = sum(
-                1 for d in list(self.decisions)[-20:]
-                if d.tier == tier_label
+                1 for d in list(self.decisions)[-20:] if d.tier == tier_label
             )
-            utilization_percent = min(100, int((recent_for_tier / 20) * 100)) if total > 0 else 0
+            utilization_percent = (
+                min(100, int((recent_for_tier / 20) * 100)) if total > 0 else 0
+            )
 
             utilization.append(
                 TierUtilization(
                     tier=tier_label,  # type: ignore
                     utilization_percent=utilization_percent,
                     active_requests=active,
-                    total_processed=total
+                    total_processed=total,
                 )
             )
 
@@ -214,41 +212,33 @@ class OrchestratorStatusService:
         """
         if not self.decisions:
             # Default distribution when no data
-            return ComplexityDistribution(
-                simple=0,
-                moderate=0,
-                complex=0
-            )
+            return ComplexityDistribution(simple=0, moderate=0, complex=0)
 
         # Count complexity levels
-        counts = {'SIMPLE': 0, 'MODERATE': 0, 'COMPLEX': 0}
+        counts = {"SIMPLE": 0, "MODERATE": 0, "COMPLEX": 0}
         for decision in self.decisions:
             counts[decision.complexity] += 1
 
         total = len(self.decisions)
 
         # Calculate percentages (rounded to integers)
-        simple = int((counts['SIMPLE'] / total) * 100)
-        moderate = int((counts['MODERATE'] / total) * 100)
-        complex = int((counts['COMPLEX'] / total) * 100)
+        simple = int((counts["SIMPLE"] / total) * 100)
+        moderate = int((counts["MODERATE"] / total) * 100)
+        complex = int((counts["COMPLEX"] / total) * 100)
 
         # Ensure sum is exactly 100% (adjust largest category)
         diff = 100 - (simple + moderate + complex)
         if diff != 0:
             # Add difference to largest category
             max_count = max(counts.values())
-            if counts['SIMPLE'] == max_count:
+            if counts["SIMPLE"] == max_count:
                 simple += diff
-            elif counts['MODERATE'] == max_count:
+            elif counts["MODERATE"] == max_count:
                 moderate += diff
             else:
                 complex += diff
 
-        return ComplexityDistribution(
-            simple=simple,
-            moderate=moderate,
-            complex=complex
-        )
+        return ComplexityDistribution(simple=simple, moderate=moderate, complex=complex)
 
     @staticmethod
     def _map_tier_to_label(tier: str) -> ModelTierLabel:
@@ -260,12 +250,8 @@ class OrchestratorStatusService:
         Returns:
             ModelTierLabel ("Q2", "Q3", "Q4")
         """
-        tier_mapping = {
-            'fast': 'Q2',
-            'balanced': 'Q3',
-            'powerful': 'Q4'
-        }
-        return tier_mapping.get(tier.lower(), 'Q2')  # type: ignore
+        tier_mapping = {"fast": "Q2", "balanced": "Q3", "powerful": "Q4"}
+        return tier_mapping.get(tier.lower(), "Q2")  # type: ignore
 
     @staticmethod
     def _map_score_to_complexity(score: float) -> ComplexityLevel:
@@ -278,11 +264,11 @@ class OrchestratorStatusService:
             ComplexityLevel ("SIMPLE", "MODERATE", "COMPLEX")
         """
         if score < 3.0:
-            return 'SIMPLE'
+            return "SIMPLE"
         elif score < 7.0:
-            return 'MODERATE'
+            return "MODERATE"
         else:
-            return 'COMPLEX'
+            return "COMPLEX"
 
 
 # Global singleton instance

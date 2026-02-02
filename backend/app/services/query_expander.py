@@ -26,55 +26,50 @@ class QueryExpander:
     # Domain-specific synonym mappings (defaults, can be extended via synonyms.json)
     SYNONYMS = {
         # Programming concepts
-        'function': ['method', 'procedure', 'routine', 'callable'],
-        'variable': ['parameter', 'argument', 'value', 'identifier'],
-        'error': ['exception', 'failure', 'bug', 'issue'],
-        'class': ['type', 'object', 'structure', 'entity'],
-        'async': ['asynchronous', 'concurrent', 'non-blocking'],
-        'sync': ['synchronous', 'blocking', 'sequential'],
-        'loop': ['iteration', 'cycle', 'repeat'],
-        'condition': ['conditional', 'if-statement', 'branch'],
-
+        "function": ["method", "procedure", "routine", "callable"],
+        "variable": ["parameter", "argument", "value", "identifier"],
+        "error": ["exception", "failure", "bug", "issue"],
+        "class": ["type", "object", "structure", "entity"],
+        "async": ["asynchronous", "concurrent", "non-blocking"],
+        "sync": ["synchronous", "blocking", "sequential"],
+        "loop": ["iteration", "cycle", "repeat"],
+        "condition": ["conditional", "if-statement", "branch"],
         # Actions and operations
-        'explain': ['describe', 'clarify', 'illustrate', 'define'],
-        'compare': ['contrast', 'differentiate', 'distinguish'],
-        'implement': ['create', 'build', 'develop', 'code'],
-        'optimize': ['improve', 'enhance', 'refactor', 'speed up'],
-        'debug': ['troubleshoot', 'diagnose', 'fix'],
-        'test': ['validate', 'verify', 'check'],
-        'analyze': ['examine', 'investigate', 'study'],
-
+        "explain": ["describe", "clarify", "illustrate", "define"],
+        "compare": ["contrast", "differentiate", "distinguish"],
+        "implement": ["create", "build", "develop", "code"],
+        "optimize": ["improve", "enhance", "refactor", "speed up"],
+        "debug": ["troubleshoot", "diagnose", "fix"],
+        "test": ["validate", "verify", "check"],
+        "analyze": ["examine", "investigate", "study"],
         # System concepts
-        'performance': ['speed', 'efficiency', 'throughput', 'latency'],
-        'memory': ['RAM', 'heap', 'storage', 'allocation'],
-        'network': ['connection', 'communication', 'protocol'],
-        'database': ['db', 'datastore', 'persistence', 'storage'],
-        'cache': ['buffer', 'temporary storage', 'memoization'],
-        'api': ['interface', 'endpoint', 'service'],
-
+        "performance": ["speed", "efficiency", "throughput", "latency"],
+        "memory": ["RAM", "heap", "storage", "allocation"],
+        "network": ["connection", "communication", "protocol"],
+        "database": ["db", "datastore", "persistence", "storage"],
+        "cache": ["buffer", "temporary storage", "memoization"],
+        "api": ["interface", "endpoint", "service"],
         # Architecture patterns
-        'pattern': ['design pattern', 'architecture', 'approach'],
-        'service': ['microservice', 'component', 'module'],
-        'client': ['consumer', 'caller', 'user'],
-        'server': ['backend', 'service', 'provider'],
-
+        "pattern": ["design pattern", "architecture", "approach"],
+        "service": ["microservice", "component", "module"],
+        "client": ["consumer", "caller", "user"],
+        "server": ["backend", "service", "provider"],
         # Documentation terms
-        'guide': ['tutorial', 'walkthrough', 'documentation'],
-        'example': ['sample', 'demo', 'illustration'],
-        'reference': ['documentation', 'manual', 'spec'],
-
+        "guide": ["tutorial", "walkthrough", "documentation"],
+        "example": ["sample", "demo", "illustration"],
+        "reference": ["documentation", "manual", "spec"],
         # Common technical terms
-        'config': ['configuration', 'settings', 'parameters'],
-        'log': ['logging', 'record', 'trace'],
-        'monitor': ['observe', 'track', 'watch'],
-        'deploy': ['deployment', 'release', 'publish']
+        "config": ["configuration", "settings", "parameters"],
+        "log": ["logging", "record", "trace"],
+        "monitor": ["observe", "track", "watch"],
+        "deploy": ["deployment", "release", "publish"],
     }
 
     def __init__(
         self,
         max_synonyms_per_term: int = 2,
         synonyms_path: Optional[str] = None,
-        auto_load: bool = True
+        auto_load: bool = True,
     ):
         """Initialize query expander.
 
@@ -125,12 +120,12 @@ class QueryExpander:
         for token in tokens:
             if token in self.SYNONYMS:
                 # Add up to max_synonyms for this term
-                synonyms = self.SYNONYMS[token][:self.max_synonyms]
+                synonyms = self.SYNONYMS[token][: self.max_synonyms]
                 expanded_terms.update(synonyms)
                 logger.debug(f"[EXPAND] '{token}' -> {synonyms}")
 
         # Construct expanded query (original + synonyms)
-        expanded_query = ' '.join(expanded_terms)
+        expanded_query = " ".join(expanded_terms)
 
         logger.info(
             f"[EXPAND] Original query: '{query}' "
@@ -166,7 +161,7 @@ class QueryExpander:
             FileNotFoundError: If file doesn't exist
             ValueError: If JSON format is invalid
         """
-        with open(path, 'r', encoding='utf-8') as f:
+        with open(path, "r", encoding="utf-8") as f:
             synonyms = json.load(f)
 
         # Validate format
@@ -176,9 +171,7 @@ class QueryExpander:
         # Merge with existing synonyms
         self.SYNONYMS.update(synonyms)
 
-        logger.info(
-            f"[EXPAND] Loaded {len(synonyms)} synonym mappings from {path}"
-        )
+        logger.info(f"[EXPAND] Loaded {len(synonyms)} synonym mappings from {path}")
         return len(synonyms)
 
     def load_synonyms_from_file(self, filepath: str):

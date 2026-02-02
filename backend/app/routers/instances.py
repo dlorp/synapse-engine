@@ -50,8 +50,8 @@ def _get_instance_manager() -> InstanceManager:
             detail={
                 "error": "ServiceUnavailable",
                 "message": "Instance manager not initialized",
-                "details": {}
-            }
+                "details": {},
+            },
         )
     return instance_manager
 
@@ -59,6 +59,7 @@ def _get_instance_manager() -> InstanceManager:
 # =============================================================================
 # List & Get Endpoints
 # =============================================================================
+
 
 @router.get("", response_model=InstanceListResponse)
 async def list_instances() -> InstanceListResponse:
@@ -73,9 +74,7 @@ async def list_instances() -> InstanceListResponse:
     by_model = mgr.get_instance_counts_by_model()
 
     return InstanceListResponse(
-        instances=instances,
-        total=len(instances),
-        by_model=by_model
+        instances=instances, total=len(instances), by_model=by_model
     )
 
 
@@ -127,8 +126,8 @@ async def get_instance(instance_id: str) -> InstanceConfig:
             detail={
                 "error": "NotFound",
                 "message": f"Instance not found: {instance_id}",
-                "details": {"instance_id": instance_id}
-            }
+                "details": {"instance_id": instance_id},
+            },
         )
 
     return config
@@ -153,8 +152,8 @@ async def get_instance_status(instance_id: str) -> dict:
             detail={
                 "error": "NotFound",
                 "message": status_info["error"],
-                "details": {"instance_id": instance_id}
-            }
+                "details": {"instance_id": instance_id},
+            },
         )
 
     return status_info
@@ -163,6 +162,7 @@ async def get_instance_status(instance_id: str) -> dict:
 # =============================================================================
 # Create, Update, Delete Endpoints
 # =============================================================================
+
 
 @router.post("", response_model=InstanceConfig, status_code=status.HTTP_201_CREATED)
 async def create_instance(request: CreateInstanceRequest) -> InstanceConfig:
@@ -181,7 +181,9 @@ async def create_instance(request: CreateInstanceRequest) -> InstanceConfig:
 
     try:
         config = mgr.create_instance(request)
-        logger.info(f"Created instance {config.instance_id} for model {request.model_id}")
+        logger.info(
+            f"Created instance {config.instance_id} for model {request.model_id}"
+        )
         return config
     except SynapseException as e:
         logger.error(f"Failed to create instance: {e}")
@@ -190,15 +192,14 @@ async def create_instance(request: CreateInstanceRequest) -> InstanceConfig:
             detail={
                 "error": "CreateFailed",
                 "message": str(e),
-                "details": e.details if hasattr(e, 'details') else {}
-            }
+                "details": e.details if hasattr(e, "details") else {},
+            },
         )
 
 
 @router.put("/{instance_id}", response_model=InstanceConfig)
 async def update_instance(
-    instance_id: str,
-    request: UpdateInstanceRequest
+    instance_id: str, request: UpdateInstanceRequest
 ) -> InstanceConfig:
     """Update an existing instance configuration.
 
@@ -225,8 +226,8 @@ async def update_instance(
             detail={
                 "error": "UpdateFailed",
                 "message": str(e),
-                "details": e.details if hasattr(e, 'details') else {}
-            }
+                "details": e.details if hasattr(e, "details") else {},
+            },
         )
 
 
@@ -253,8 +254,8 @@ async def delete_instance(instance_id: str) -> JSONResponse:
                 detail={
                     "error": "NotFound",
                     "message": f"Instance not found: {instance_id}",
-                    "details": {"instance_id": instance_id}
-                }
+                    "details": {"instance_id": instance_id},
+                },
             )
 
         logger.info(f"Deleted instance {instance_id}")
@@ -262,8 +263,8 @@ async def delete_instance(instance_id: str) -> JSONResponse:
             status_code=status.HTTP_200_OK,
             content={
                 "message": f"Instance {instance_id} deleted successfully",
-                "instance_id": instance_id
-            }
+                "instance_id": instance_id,
+            },
         )
     except SynapseException as e:
         logger.error(f"Failed to delete instance: {e}")
@@ -272,14 +273,15 @@ async def delete_instance(instance_id: str) -> JSONResponse:
             detail={
                 "error": "DeleteFailed",
                 "message": str(e),
-                "details": e.details if hasattr(e, 'details') else {}
-            }
+                "details": e.details if hasattr(e, "details") else {},
+            },
         )
 
 
 # =============================================================================
 # Lifecycle Endpoints (Start/Stop)
 # =============================================================================
+
 
 @router.post("/{instance_id}/start", response_model=InstanceConfig)
 async def start_instance(instance_id: str) -> InstanceConfig:
@@ -307,8 +309,8 @@ async def start_instance(instance_id: str) -> InstanceConfig:
             detail={
                 "error": "StartFailed",
                 "message": str(e),
-                "details": e.details if hasattr(e, 'details') else {}
-            }
+                "details": e.details if hasattr(e, "details") else {},
+            },
         )
 
 
@@ -338,14 +340,15 @@ async def stop_instance(instance_id: str) -> InstanceConfig:
             detail={
                 "error": "StopFailed",
                 "message": str(e),
-                "details": e.details if hasattr(e, 'details') else {}
-            }
+                "details": e.details if hasattr(e, "details") else {},
+            },
         )
 
 
 # =============================================================================
 # Batch Operations
 # =============================================================================
+
 
 @router.post("/start-all")
 async def start_all_instances() -> JSONResponse:
@@ -366,10 +369,7 @@ async def start_all_instances() -> JSONResponse:
                 await mgr.start_instance(config.instance_id)
                 started.append(config.instance_id)
             except Exception as e:
-                failed.append({
-                    "instance_id": config.instance_id,
-                    "error": str(e)
-                })
+                failed.append({"instance_id": config.instance_id, "error": str(e)})
 
     return JSONResponse(
         status_code=status.HTTP_200_OK,
@@ -377,8 +377,8 @@ async def start_all_instances() -> JSONResponse:
             "message": f"Started {len(started)} instances",
             "started": started,
             "failed": failed,
-            "total": len(instances)
-        }
+            "total": len(instances),
+        },
     )
 
 
@@ -400,16 +400,13 @@ async def stop_all_instances() -> JSONResponse:
             await mgr.stop_instance(config.instance_id)
             stopped.append(config.instance_id)
         except Exception as e:
-            failed.append({
-                "instance_id": config.instance_id,
-                "error": str(e)
-            })
+            failed.append({"instance_id": config.instance_id, "error": str(e)})
 
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content={
             "message": f"Stopped {len(stopped)} instances",
             "stopped": stopped,
-            "failed": failed
-        }
+            "failed": failed,
+        },
     )

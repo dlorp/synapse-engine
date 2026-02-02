@@ -16,7 +16,7 @@ from app.models.timeseries import (
     ModelBreakdownResponse,
     MultiMetricResponse,
     TimeRange,
-    TimeSeriesResponse
+    TimeSeriesResponse,
 )
 from app.services.metrics_aggregator import get_metrics_aggregator
 
@@ -74,8 +74,8 @@ router = APIRouter(prefix="/api/timeseries")
                                 "metadata": {
                                     "model_id": "deepseek_r1_8b_q2k",
                                     "tier": "Q2",
-                                    "query_mode": "auto"
-                                }
+                                    "query_mode": "auto",
+                                },
                             }
                         ],
                         "summary": {
@@ -84,33 +84,25 @@ router = APIRouter(prefix="/api/timeseries")
                             "avg": 1350.5,
                             "p50": 1280.0,
                             "p95": 1850.0,
-                            "p99": 2000.0
-                        }
+                            "p99": 2000.0,
+                        },
                     }
                 }
-            }
+            },
         },
         400: {"description": "Invalid metric or time range"},
-        500: {"description": "Internal server error"}
-    }
+        500: {"description": "Internal server error"},
+    },
 )
 async def get_timeseries(
-    metric: MetricType = Query(
-        ...,
-        description="Metric type to retrieve"
-    ),
+    metric: MetricType = Query(..., description="Metric type to retrieve"),
     range: TimeRange = Query(
-        TimeRange.TWENTY_FOUR_HOURS,
-        description="Time range for data"
+        TimeRange.TWENTY_FOUR_HOURS, description="Time range for data"
     ),
-    model: Optional[str] = Query(
-        None,
-        description="Filter by model ID"
-    ),
+    model: Optional[str] = Query(None, description="Filter by model ID"),
     tier: Optional[Literal["Q2", "Q3", "Q4"]] = Query(
-        None,
-        description="Filter by tier"
-    )
+        None, description="Filter by tier"
+    ),
 ) -> TimeSeriesResponse:
     """Get time-series data for a metric.
 
@@ -136,10 +128,7 @@ async def get_timeseries(
         )
 
         response = await aggregator.get_time_series(
-            metric_name=metric,
-            time_range=range,
-            model_id=model,
-            tier=tier
+            metric_name=metric, time_range=range, model_id=model, tier=tier
         )
 
         logger.debug(
@@ -147,8 +136,8 @@ async def get_timeseries(
             extra={
                 "metric": metric.value,
                 "range": range.value,
-                "point_count": len(response.data_points)
-            }
+                "point_count": len(response.data_points),
+            },
         )
 
         return response
@@ -156,14 +145,12 @@ async def get_timeseries(
     except RuntimeError as e:
         logger.error(f"MetricsAggregator not initialized: {e}")
         raise HTTPException(
-            status_code=500,
-            detail="Metrics aggregator not initialized"
+            status_code=500, detail="Metrics aggregator not initialized"
         )
     except Exception as e:
         logger.error(f"Error fetching time-series: {e}", exc_info=True)
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to fetch time-series data: {str(e)}"
+            status_code=500, detail=f"Failed to fetch time-series data: {str(e)}"
         )
 
 
@@ -193,22 +180,16 @@ async def get_timeseries(
                         "avg": 2350.5,
                         "p50": 1850.0,
                         "p95": 5200.0,
-                        "p99": 7800.0
+                        "p99": 7800.0,
                     }
                 }
-            }
+            },
         }
-    }
+    },
 )
 async def get_summary(
-    metric: MetricType = Query(
-        ...,
-        description="Metric type"
-    ),
-    range: TimeRange = Query(
-        TimeRange.TWENTY_FOUR_HOURS,
-        description="Time range"
-    )
+    metric: MetricType = Query(..., description="Metric type"),
+    range: TimeRange = Query(TimeRange.TWENTY_FOUR_HOURS, description="Time range"),
 ) -> MetricsSummary:
     """Get statistical summary for a metric.
 
@@ -225,18 +206,11 @@ async def get_summary(
     try:
         aggregator = get_metrics_aggregator()
 
-        summary = await aggregator.get_summary(
-            metric_name=metric,
-            time_range=range
-        )
+        summary = await aggregator.get_summary(metric_name=metric, time_range=range)
 
         logger.debug(
             f"Summary retrieved: {metric.value} over {range.value}",
-            extra={
-                "metric": metric.value,
-                "range": range.value,
-                "avg": summary.avg
-            }
+            extra={"metric": metric.value, "range": range.value, "avg": summary.avg},
         )
 
         return summary
@@ -244,14 +218,12 @@ async def get_summary(
     except RuntimeError as e:
         logger.error(f"MetricsAggregator not initialized: {e}")
         raise HTTPException(
-            status_code=500,
-            detail="Metrics aggregator not initialized"
+            status_code=500, detail="Metrics aggregator not initialized"
         )
     except Exception as e:
         logger.error(f"Error fetching summary: {e}", exc_info=True)
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to fetch summary: {str(e)}"
+            status_code=500, detail=f"Failed to fetch summary: {str(e)}"
         )
 
 
@@ -282,36 +254,30 @@ async def get_summary(
                             "labels": [
                                 "2025-11-12T00:00:00Z",
                                 "2025-11-12T00:10:00Z",
-                                "2025-11-12T00:20:00Z"
+                                "2025-11-12T00:20:00Z",
                             ],
                             "datasets": [
                                 {
                                     "label": "response_time",
                                     "data": [1250.5, 1180.3, 1320.8],
-                                    "metadata": {"unit": "ms"}
+                                    "metadata": {"unit": "ms"},
                                 },
                                 {
                                     "label": "tokens_per_second",
                                     "data": [45.2, 48.1, 44.8],
-                                    "metadata": {"unit": "tokens/s"}
-                                }
-                            ]
-                        }
+                                    "metadata": {"unit": "tokens/s"},
+                                },
+                            ],
+                        },
                     }
                 }
-            }
+            },
         }
-    }
+    },
 )
 async def get_comparison(
-    metrics: str = Query(
-        ...,
-        description="Comma-separated list of metric types"
-    ),
-    range: TimeRange = Query(
-        TimeRange.TWENTY_FOUR_HOURS,
-        description="Time range"
-    )
+    metrics: str = Query(..., description="Comma-separated list of metric types"),
+    range: TimeRange = Query(TimeRange.TWENTY_FOUR_HOURS, description="Time range"),
 ) -> MultiMetricResponse:
     """Get multi-metric comparison data.
 
@@ -335,8 +301,7 @@ async def get_comparison(
             metric_types = [MetricType(name) for name in metric_names_str]
         except ValueError as e:
             raise HTTPException(
-                status_code=400,
-                detail=f"Invalid metric name: {str(e)}"
+                status_code=400, detail=f"Invalid metric name: {str(e)}"
             )
 
         aggregator = get_metrics_aggregator()
@@ -346,8 +311,7 @@ async def get_comparison(
         )
 
         response = await aggregator.get_comparison(
-            metric_names=metric_types,
-            time_range=range
+            metric_names=metric_types, time_range=range
         )
 
         logger.debug(
@@ -355,8 +319,8 @@ async def get_comparison(
             extra={
                 "metrics": metric_names_str,
                 "range": range.value,
-                "dataset_count": len(response.chart_data.datasets)
-            }
+                "dataset_count": len(response.chart_data.datasets),
+            },
         )
 
         return response
@@ -366,14 +330,12 @@ async def get_comparison(
     except RuntimeError as e:
         logger.error(f"MetricsAggregator not initialized: {e}")
         raise HTTPException(
-            status_code=500,
-            detail="Metrics aggregator not initialized"
+            status_code=500, detail="Metrics aggregator not initialized"
         )
     except Exception as e:
         logger.error(f"Error fetching comparison: {e}", exc_info=True)
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to fetch comparison data: {str(e)}"
+            status_code=500, detail=f"Failed to fetch comparison data: {str(e)}"
         )
 
 
@@ -410,7 +372,7 @@ async def get_comparison(
                                     {
                                         "timestamp": "2025-11-12T10:00:00Z",
                                         "value": 1250.5,
-                                        "metadata": {"model_id": "deepseek_r1_8b_q2k"}
+                                        "metadata": {"model_id": "deepseek_r1_8b_q2k"},
                                     }
                                 ],
                                 "summary": {
@@ -419,25 +381,19 @@ async def get_comparison(
                                     "avg": 1280.5,
                                     "p50": 1250.0,
                                     "p95": 1750.0,
-                                    "p99": 1820.0
-                                }
+                                    "p99": 1820.0,
+                                },
                             }
-                        ]
+                        ],
                     }
                 }
-            }
+            },
         }
-    }
+    },
 )
 async def get_model_breakdown(
-    metric: MetricType = Query(
-        ...,
-        description="Metric type"
-    ),
-    range: TimeRange = Query(
-        TimeRange.TWENTY_FOUR_HOURS,
-        description="Time range"
-    )
+    metric: MetricType = Query(..., description="Metric type"),
+    range: TimeRange = Query(TimeRange.TWENTY_FOUR_HOURS, description="Time range"),
 ) -> ModelBreakdownResponse:
     """Get per-model breakdown for a metric.
 
@@ -459,8 +415,7 @@ async def get_model_breakdown(
         )
 
         response = await aggregator.get_model_breakdown(
-            metric_name=metric,
-            time_range=range
+            metric_name=metric, time_range=range
         )
 
         logger.debug(
@@ -468,8 +423,8 @@ async def get_model_breakdown(
             extra={
                 "metric": metric.value,
                 "range": range.value,
-                "model_count": len(response.models)
-            }
+                "model_count": len(response.models),
+            },
         )
 
         return response
@@ -477,12 +432,10 @@ async def get_model_breakdown(
     except RuntimeError as e:
         logger.error(f"MetricsAggregator not initialized: {e}")
         raise HTTPException(
-            status_code=500,
-            detail="Metrics aggregator not initialized"
+            status_code=500, detail="Metrics aggregator not initialized"
         )
     except Exception as e:
         logger.error(f"Error fetching model breakdown: {e}", exc_info=True)
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to fetch model breakdown: {str(e)}"
+            status_code=500, detail=f"Failed to fetch model breakdown: {str(e)}"
         )

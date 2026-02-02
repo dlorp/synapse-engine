@@ -88,14 +88,11 @@ class PipelineTracker:
 
         # Start stage
         if self._pipeline_manager and self._event_bus:
-            await self._pipeline_manager.start_stage(
-                self.query_id,
-                stage_name
-            )
+            await self._pipeline_manager.start_stage(self.query_id, stage_name)
             await self._event_bus.emit_pipeline_event(
                 query_id=self.query_id,
                 stage=stage_name,
-                event_type=EventType.PIPELINE_STAGE_START
+                event_type=EventType.PIPELINE_STAGE_START,
             )
 
         try:
@@ -108,15 +105,13 @@ class PipelineTracker:
 
             if self._pipeline_manager and self._event_bus:
                 await self._pipeline_manager.complete_stage(
-                    self.query_id,
-                    stage_name,
-                    metadata=metadata
+                    self.query_id, stage_name, metadata=metadata
                 )
                 await self._event_bus.emit_pipeline_event(
                     query_id=self.query_id,
                     stage=stage_name,
                     event_type=EventType.PIPELINE_STAGE_COMPLETE,
-                    metadata=metadata
+                    metadata=metadata,
                 )
 
         except Exception as e:
@@ -125,15 +120,13 @@ class PipelineTracker:
 
             if self._pipeline_manager and self._event_bus:
                 await self._pipeline_manager.fail_stage(
-                    self.query_id,
-                    stage_name,
-                    error_message=error_message
+                    self.query_id, stage_name, error_message=error_message
                 )
                 await self._event_bus.emit_pipeline_event(
                     query_id=self.query_id,
                     stage=stage_name,
                     event_type=EventType.PIPELINE_STAGE_FAILED,
-                    metadata={"error": error_message}
+                    metadata={"error": error_message},
                 )
 
             # Re-raise exception
@@ -143,7 +136,7 @@ class PipelineTracker:
         self,
         model_selected: Optional[str] = None,
         tier: Optional[str] = None,
-        cgrag_artifacts_count: Optional[int] = None
+        cgrag_artifacts_count: Optional[int] = None,
     ) -> None:
         """Mark pipeline as completed successfully.
 
@@ -159,7 +152,7 @@ class PipelineTracker:
                 self.query_id,
                 model_selected=model_selected,
                 tier=tier,
-                cgrag_artifacts_count=cgrag_artifacts_count
+                cgrag_artifacts_count=cgrag_artifacts_count,
             )
             await self._event_bus.emit_pipeline_event(
                 query_id=self.query_id,
@@ -168,8 +161,8 @@ class PipelineTracker:
                 metadata={
                     "model_selected": model_selected,
                     "tier": tier,
-                    "cgrag_artifacts_count": cgrag_artifacts_count
-                }
+                    "cgrag_artifacts_count": cgrag_artifacts_count,
+                },
             )
 
     async def fail_pipeline(self, error_message: str) -> None:
@@ -182,12 +175,11 @@ class PipelineTracker:
 
         if self._pipeline_manager and self._event_bus:
             await self._pipeline_manager.fail_pipeline(
-                self.query_id,
-                error_message=error_message
+                self.query_id, error_message=error_message
             )
             await self._event_bus.emit_pipeline_event(
                 query_id=self.query_id,
                 stage="error",
                 event_type=EventType.PIPELINE_FAILED,
-                metadata={"error": error_message}
+                metadata={"error": error_message},
             )

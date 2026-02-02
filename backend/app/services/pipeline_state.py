@@ -49,7 +49,9 @@ class PipelineStateManager:
             ttl_seconds: How long to keep completed pipelines (seconds)
         """
         self._pipelines: Dict[str, PipelineStatus] = {}
-        self._stage_start_times: Dict[str, Dict[str, float]] = {}  # query_id -> stage -> start_time
+        self._stage_start_times: Dict[
+            str, Dict[str, float]
+        ] = {}  # query_id -> stage -> start_time
         self._lock = asyncio.Lock()
         self._cleanup_interval = cleanup_interval
         self._ttl_seconds = ttl_seconds
@@ -99,19 +101,21 @@ class PipelineStateManager:
         async with self._lock:
             # Initialize all stages as pending
             stages = []
-            for stage_name in ["input", "complexity", "cgrag", "routing", "generation", "response"]:
-                stages.append(
-                    PipelineStage(
-                        stage_name=stage_name,
-                        status="pending"
-                    )
-                )
+            for stage_name in [
+                "input",
+                "complexity",
+                "cgrag",
+                "routing",
+                "generation",
+                "response",
+            ]:
+                stages.append(PipelineStage(stage_name=stage_name, status="pending"))
 
             pipeline_status = PipelineStatus(
                 query_id=query_id,
                 current_stage="input",
                 stages=stages,
-                overall_status="processing"
+                overall_status="processing",
             )
 
             self._pipelines[query_id] = pipeline_status
@@ -120,10 +124,7 @@ class PipelineStateManager:
             logger.debug(f"Created pipeline tracking for query {query_id}")
 
     async def start_stage(
-        self,
-        query_id: str,
-        stage_name: str,
-        metadata: Optional[Dict] = None
+        self, query_id: str, stage_name: str, metadata: Optional[Dict] = None
     ) -> None:
         """Mark a pipeline stage as started.
 
@@ -158,15 +159,12 @@ class PipelineStateManager:
 
                     logger.debug(
                         f"Stage started: {stage_name} for query {query_id}",
-                        extra={"query_id": query_id, "stage": stage_name}
+                        extra={"query_id": query_id, "stage": stage_name},
                     )
                     break
 
     async def complete_stage(
-        self,
-        query_id: str,
-        stage_name: str,
-        metadata: Optional[Dict] = None
+        self, query_id: str, stage_name: str, metadata: Optional[Dict] = None
     ) -> None:
         """Mark a pipeline stage as completed.
 
@@ -192,7 +190,10 @@ class PipelineStateManager:
                     stage.end_time = datetime.now()
 
                     # Calculate duration
-                    if query_id in self._stage_start_times and stage_name in self._stage_start_times[query_id]:
+                    if (
+                        query_id in self._stage_start_times
+                        and stage_name in self._stage_start_times[query_id]
+                    ):
                         start_time = self._stage_start_times[query_id][stage_name]
                         stage.duration_ms = int((time.time() - start_time) * 1000)
 
@@ -205,16 +206,13 @@ class PipelineStateManager:
                         extra={
                             "query_id": query_id,
                             "stage": stage_name,
-                            "duration_ms": stage.duration_ms
-                        }
+                            "duration_ms": stage.duration_ms,
+                        },
                     )
                     break
 
     async def fail_stage(
-        self,
-        query_id: str,
-        stage_name: str,
-        error_message: str
+        self, query_id: str, stage_name: str, error_message: str
     ) -> None:
         """Mark a pipeline stage as failed.
 
@@ -240,7 +238,10 @@ class PipelineStateManager:
                     stage.metadata["error"] = error_message
 
                     # Calculate duration
-                    if query_id in self._stage_start_times and stage_name in self._stage_start_times[query_id]:
+                    if (
+                        query_id in self._stage_start_times
+                        and stage_name in self._stage_start_times[query_id]
+                    ):
                         start_time = self._stage_start_times[query_id][stage_name]
                         stage.duration_ms = int((time.time() - start_time) * 1000)
 
@@ -249,8 +250,8 @@ class PipelineStateManager:
                         extra={
                             "query_id": query_id,
                             "stage": stage_name,
-                            "error": error_message
-                        }
+                            "error": error_message,
+                        },
                     )
                     break
 
@@ -262,7 +263,7 @@ class PipelineStateManager:
         query_id: str,
         model_selected: Optional[str] = None,
         tier: Optional[str] = None,
-        cgrag_artifacts_count: Optional[int] = None
+        cgrag_artifacts_count: Optional[int] = None,
     ) -> None:
         """Mark entire pipeline as completed.
 
@@ -300,15 +301,11 @@ class PipelineStateManager:
                     "query_id": query_id,
                     "total_duration_ms": total_duration,
                     "model": model_selected,
-                    "tier": tier
-                }
+                    "tier": tier,
+                },
             )
 
-    async def fail_pipeline(
-        self,
-        query_id: str,
-        error_message: str
-    ) -> None:
+    async def fail_pipeline(self, query_id: str, error_message: str) -> None:
         """Mark entire pipeline as failed.
 
         Updates overall_status to "failed" and records error information.
@@ -327,7 +324,7 @@ class PipelineStateManager:
 
             logger.error(
                 f"Pipeline failed for query {query_id}: {error_message}",
-                extra={"query_id": query_id, "error": error_message}
+                extra={"query_id": query_id, "error": error_message},
             )
 
     async def get_pipeline(self, query_id: str) -> Optional[PipelineStatus]:
@@ -366,11 +363,16 @@ class PipelineStateManager:
                             for stage in pipeline.stages:
                                 if stage.end_time:
                                     stage_timestamp = stage.end_time.timestamp()
-                                    if latest_time is None or stage_timestamp > latest_time:
+                                    if (
+                                        latest_time is None
+                                        or stage_timestamp > latest_time
+                                    ):
                                         latest_time = stage_timestamp
 
                             # Remove if older than TTL
-                            if latest_time and (current_time - latest_time > self._ttl_seconds):
+                            if latest_time and (
+                                current_time - latest_time > self._ttl_seconds
+                            ):
                                 to_remove.append(query_id)
 
                     # Remove old pipelines
@@ -382,7 +384,7 @@ class PipelineStateManager:
                     if to_remove:
                         logger.info(
                             f"Cleaned up {len(to_remove)} old pipelines",
-                            extra={"removed_count": len(to_remove)}
+                            extra={"removed_count": len(to_remove)},
                         )
 
             except asyncio.CancelledError:
@@ -400,15 +402,21 @@ class PipelineStateManager:
         Returns:
             Dictionary with statistics (active pipelines, completed, failed)
         """
-        processing = sum(1 for p in self._pipelines.values() if p.overall_status == "processing")
-        completed = sum(1 for p in self._pipelines.values() if p.overall_status == "completed")
-        failed = sum(1 for p in self._pipelines.values() if p.overall_status == "failed")
+        processing = sum(
+            1 for p in self._pipelines.values() if p.overall_status == "processing"
+        )
+        completed = sum(
+            1 for p in self._pipelines.values() if p.overall_status == "completed"
+        )
+        failed = sum(
+            1 for p in self._pipelines.values() if p.overall_status == "failed"
+        )
 
         return {
             "total_pipelines": len(self._pipelines),
             "processing": processing,
             "completed": completed,
-            "failed": failed
+            "failed": failed,
         }
 
 
@@ -433,8 +441,7 @@ def get_pipeline_state_manager() -> PipelineStateManager:
 
 
 def init_pipeline_state_manager(
-    cleanup_interval: int = 300,
-    ttl_seconds: int = 3600
+    cleanup_interval: int = 300, ttl_seconds: int = 3600
 ) -> PipelineStateManager:
     """Initialize the global pipeline state manager instance.
 
@@ -449,7 +456,6 @@ def init_pipeline_state_manager(
     """
     global _pipeline_state_manager
     _pipeline_state_manager = PipelineStateManager(
-        cleanup_interval=cleanup_interval,
-        ttl_seconds=ttl_seconds
+        cleanup_interval=cleanup_interval, ttl_seconds=ttl_seconds
     )
     return _pipeline_state_manager

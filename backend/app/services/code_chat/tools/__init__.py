@@ -6,11 +6,7 @@ agentic coding assistant.
 Phase: Code Chat Implementation (Session 2)
 """
 
-from app.services.code_chat.tools.base import (
-    BaseTool,
-    ToolRegistry,
-    SecurityError
-)
+from app.services.code_chat.tools.base import BaseTool, ToolRegistry, SecurityError
 from app.services.code_chat.tools.file_ops import (
     ReadFileTool,
     WriteFileTool,

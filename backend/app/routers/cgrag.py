@@ -33,16 +33,22 @@ _indexing_status = {
 
 class IndexRequest(BaseModel):
     """Request to index a directory."""
+
     directory: str = Field(
         default="/app/docs",
-        description="Directory path to index (relative to container or absolute)"
+        description="Directory path to index (relative to container or absolute)",
     )
-    chunk_size: int = Field(default=512, ge=100, le=2000, description="Target chunk size in words")
-    chunk_overlap: int = Field(default=50, ge=0, le=200, description="Overlap between chunks in words")
+    chunk_size: int = Field(
+        default=512, ge=100, le=2000, description="Target chunk size in words"
+    )
+    chunk_overlap: int = Field(
+        default=50, ge=0, le=200, description="Overlap between chunks in words"
+    )
 
 
 class IndexStatus(BaseModel):
     """Status of the CGRAG index."""
+
     index_exists: bool
     chunks_indexed: int
     index_size_mb: float
@@ -57,6 +63,7 @@ class IndexStatus(BaseModel):
 
 class IndexResponse(BaseModel):
     """Response from indexing operation."""
+
     success: bool
     message: str
     chunks_indexed: int = 0
@@ -66,7 +73,7 @@ class IndexResponse(BaseModel):
     "/status",
     response_model=IndexStatus,
     summary="Get CGRAG index status",
-    description="Returns current status of the CGRAG vector index including chunk count and indexing progress."
+    description="Returns current status of the CGRAG vector index including chunk count and indexing progress.",
 )
 async def get_index_status() -> IndexStatus:
     """Get current CGRAG index status.
@@ -88,7 +95,8 @@ async def get_index_status() -> IndexStatus:
             # Load metadata to get chunk count
             try:
                 import pickle
-                with open(metadata_path, 'rb') as f:
+
+                with open(metadata_path, "rb") as f:
                     chunks = pickle.load(f)
                     chunks_indexed = len(chunks)
             except Exception as e:
@@ -104,7 +112,7 @@ async def get_index_status() -> IndexStatus:
             indexing_total=_indexing_status["total_files"],
             indexing_current_file=_indexing_status["current_file"],
             indexing_error=_indexing_status["error"],
-            supported_extensions=list(CGRAGIndexer.SUPPORTED_EXTENSIONS)
+            supported_extensions=list(CGRAGIndexer.SUPPORTED_EXTENSIONS),
         )
 
     except Exception as e:
@@ -129,19 +137,20 @@ async def _run_indexing(directory: str, chunk_size: int, chunk_overlap: int):
         # Count files first
         files = list(dir_path.rglob("*"))
         supported_files = [
-            f for f in files
+            f
+            for f in files
             if f.is_file() and f.suffix in CGRAGIndexer.SUPPORTED_EXTENSIONS
         ]
         _indexing_status["total_files"] = len(supported_files)
 
-        logger.info(f"Starting CGRAG indexing of {directory} ({len(supported_files)} files)")
+        logger.info(
+            f"Starting CGRAG indexing of {directory} ({len(supported_files)} files)"
+        )
 
         # Create indexer and run indexing
         indexer = CGRAGIndexer()
         chunks_count = await indexer.index_directory(
-            directory=dir_path,
-            chunk_size=chunk_size,
-            chunk_overlap=chunk_overlap
+            directory=dir_path, chunk_size=chunk_size, chunk_overlap=chunk_overlap
         )
 
         # Save index
@@ -167,11 +176,10 @@ async def _run_indexing(directory: str, chunk_size: int, chunk_overlap: int):
     "/index",
     response_model=IndexResponse,
     summary="Start CGRAG indexing",
-    description="Triggers indexing of a directory into the CGRAG vector index. Runs in background."
+    description="Triggers indexing of a directory into the CGRAG vector index. Runs in background.",
 )
 async def start_indexing(
-    request: IndexRequest,
-    background_tasks: BackgroundTasks
+    request: IndexRequest, background_tasks: BackgroundTasks
 ) -> IndexResponse:
     """Start indexing a directory into CGRAG.
 
@@ -187,35 +195,31 @@ async def start_indexing(
     if _indexing_status["is_indexing"]:
         raise HTTPException(
             status_code=409,
-            detail="Indexing already in progress. Check /status for progress."
+            detail="Indexing already in progress. Check /status for progress.",
         )
 
     # Validate directory exists
     dir_path = Path(request.directory)
     if not dir_path.exists():
         raise HTTPException(
-            status_code=400,
-            detail=f"Directory does not exist: {request.directory}"
+            status_code=400, detail=f"Directory does not exist: {request.directory}"
         )
 
     # Start indexing in background
     background_tasks.add_task(
-        _run_indexing,
-        request.directory,
-        request.chunk_size,
-        request.chunk_overlap
+        _run_indexing, request.directory, request.chunk_size, request.chunk_overlap
     )
 
     return IndexResponse(
         success=True,
-        message=f"Indexing started for {request.directory}. Check /api/cgrag/status for progress."
+        message=f"Indexing started for {request.directory}. Check /api/cgrag/status for progress.",
     )
 
 
 @router.get(
     "/directories",
     summary="List available directories for indexing",
-    description="Returns a list of directories that can be indexed."
+    description="Returns a list of directories that can be indexed.",
 )
 async def list_indexable_directories() -> dict:
     """List directories available for indexing.
@@ -237,24 +241,29 @@ async def list_indexable_directories() -> dict:
             # Count indexable files
             files = list(dir_path.rglob("*"))
             indexable = [
-                f for f in files
+                f
+                for f in files
                 if f.is_file() and f.suffix in CGRAGIndexer.SUPPORTED_EXTENSIONS
             ]
-            directories.append({
-                "path": path,
-                "description": description,
-                "file_count": len(indexable),
-                "exists": True
-            })
+            directories.append(
+                {
+                    "path": path,
+                    "description": description,
+                    "file_count": len(indexable),
+                    "exists": True,
+                }
+            )
         else:
-            directories.append({
-                "path": path,
-                "description": description,
-                "file_count": 0,
-                "exists": False
-            })
+            directories.append(
+                {
+                    "path": path,
+                    "description": description,
+                    "file_count": 0,
+                    "exists": False,
+                }
+            )
 
     return {
         "directories": directories,
-        "supported_extensions": list(CGRAGIndexer.SUPPORTED_EXTENSIONS)
+        "supported_extensions": list(CGRAGIndexer.SUPPORTED_EXTENSIONS),
     }

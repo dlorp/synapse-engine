@@ -114,7 +114,10 @@ async def test_get_diagnostics_tool_attributes():
     """Test GetDiagnosticsTool has correct attributes."""
     tool = GetDiagnosticsTool(workspace_root="/tmp")
     assert tool.name == ToolName.GET_DIAGNOSTICS
-    assert "errors" in tool.description.lower() or "diagnostics" in tool.description.lower()
+    assert (
+        "errors" in tool.description.lower()
+        or "diagnostics" in tool.description.lower()
+    )
     assert "file" in tool.parameter_schema["properties"]
 
 
@@ -245,8 +248,9 @@ async def test_get_references_find_usages(python_workspace):
         references = result.data["references"]
         assert len(references) > 0
         # Should find at least the definition and one call
-        assert any("def hello_world" in ref.get("content", "") for ref in references) or \
-               any("hello_world()" in ref.get("content", "") for ref in references)
+        assert any(
+            "def hello_world" in ref.get("content", "") for ref in references
+        ) or any("hello_world()" in ref.get("content", "") for ref in references)
 
 
 @pytest.mark.asyncio
@@ -327,6 +331,7 @@ async def test_all_tools_registered():
         GetReferencesTool,
         GetProjectInfoTool,
     )
+
     assert GetDiagnosticsTool is not None
     assert GetDefinitionsTool is not None
     assert GetReferencesTool is not None

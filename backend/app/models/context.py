@@ -41,27 +41,19 @@ class ContextComponent(BaseModel):
 
     component: str = Field(
         ...,
-        description="Component identifier (system_prompt, cgrag_context, user_query, response_budget)"
+        description="Component identifier (system_prompt, cgrag_context, user_query, response_budget)",
     )
     tokens_used: int = Field(
-        ...,
-        ge=0,
-        description="Actual tokens used by this component"
+        ..., ge=0, description="Actual tokens used by this component"
     )
     tokens_allocated: int = Field(
-        ...,
-        ge=0,
-        description="Tokens allocated/reserved for this component"
+        ..., ge=0, description="Tokens allocated/reserved for this component"
     )
     percentage: float = Field(
-        ...,
-        ge=0.0,
-        le=100.0,
-        description="Percentage of total context window (0-100)"
+        ..., ge=0.0, le=100.0, description="Percentage of total context window (0-100)"
     )
     content_preview: Optional[str] = Field(
-        None,
-        description="Preview of component content (first 100 chars)"
+        None, description="Preview of component content (first 100 chars)"
     )
 
 
@@ -88,29 +80,18 @@ class CGRAGArtifact(BaseModel):
         ... )
     """
 
-    artifact_id: str = Field(
-        ...,
-        description="Unique identifier for the artifact"
-    )
-    source_file: str = Field(
-        ...,
-        description="Original source file path"
-    )
+    artifact_id: str = Field(..., description="Unique identifier for the artifact")
+    source_file: str = Field(..., description="Original source file path")
     relevance_score: float = Field(
         ...,
         ge=0.0,
         le=1.0,
-        description="Similarity score from FAISS retrieval (0.0-1.0)"
+        description="Similarity score from FAISS retrieval (0.0-1.0)",
     )
     token_count: int = Field(
-        ...,
-        ge=0,
-        description="Number of tokens this artifact contributes"
+        ..., ge=0, description="Number of tokens this artifact contributes"
     )
-    content_preview: str = Field(
-        ...,
-        description="First 200 chars of artifact content"
-    )
+    content_preview: str = Field(..., description="First 200 chars of artifact content")
 
 
 class ContextAllocation(BaseModel):
@@ -145,46 +126,28 @@ class ContextAllocation(BaseModel):
         ... )
     """
 
-    query_id: str = Field(
-        ...,
-        description="Unique identifier for the query"
-    )
-    model_id: str = Field(
-        ...,
-        description="Model identifier (e.g., deepseek-r1:8b)"
-    )
+    query_id: str = Field(..., description="Unique identifier for the query")
+    model_id: str = Field(..., description="Model identifier (e.g., deepseek-r1:8b)")
     context_window_size: int = Field(
-        ...,
-        gt=0,
-        description="Model's maximum context window (e.g., 8192)"
+        ..., gt=0, description="Model's maximum context window (e.g., 8192)"
     )
     total_tokens_used: int = Field(
-        ...,
-        ge=0,
-        description="Total tokens used across all components"
+        ..., ge=0, description="Total tokens used across all components"
     )
     tokens_remaining: int = Field(
-        ...,
-        ge=0,
-        description="Tokens remaining for response generation"
+        ..., ge=0, description="Tokens remaining for response generation"
     )
     utilization_percentage: float = Field(
-        ...,
-        ge=0.0,
-        le=100.0,
-        description="Overall context window utilization (0-100)"
+        ..., ge=0.0, le=100.0, description="Overall context window utilization (0-100)"
     )
     components: List[ContextComponent] = Field(
-        ...,
-        description="List of all context components with token allocations"
+        ..., description="List of all context components with token allocations"
     )
     cgrag_artifacts: List[CGRAGArtifact] = Field(
-        default_factory=list,
-        description="List of CGRAG artifacts included in context"
+        default_factory=list, description="List of CGRAG artifacts included in context"
     )
     warning: Optional[str] = Field(
-        None,
-        description="Optional warning message (e.g., if >80% utilization)"
+        None, description="Optional warning message (e.g., if >80% utilization)"
     )
 
 
@@ -204,32 +167,14 @@ class ContextAllocationRequest(BaseModel):
         cgrag_artifacts: Optional list of CGRAG artifacts with metadata
     """
 
-    query_id: str = Field(
-        ...,
-        description="Unique identifier for the query"
-    )
-    model_id: str = Field(
-        ...,
-        description="Model identifier"
-    )
-    system_prompt: str = Field(
-        ...,
-        description="System prompt text"
-    )
-    cgrag_context: str = Field(
-        default="",
-        description="Combined CGRAG context text"
-    )
-    user_query: str = Field(
-        ...,
-        description="User query text"
-    )
+    query_id: str = Field(..., description="Unique identifier for the query")
+    model_id: str = Field(..., description="Model identifier")
+    system_prompt: str = Field(..., description="System prompt text")
+    cgrag_context: str = Field(default="", description="Combined CGRAG context text")
+    user_query: str = Field(..., description="User query text")
     context_window_size: int = Field(
-        ...,
-        gt=0,
-        description="Model's maximum context window"
+        ..., gt=0, description="Model's maximum context window"
     )
     cgrag_artifacts: Optional[List[CGRAGArtifact]] = Field(
-        None,
-        description="Optional list of CGRAG artifacts with metadata"
+        None, description="Optional list of CGRAG artifacts with metadata"
     )

@@ -78,14 +78,13 @@ async def main() -> int:
     # Index directory
     try:
         num_chunks = await indexer.index_directory(
-            directory=docs_dir,
-            chunk_size=chunk_size,
-            chunk_overlap=chunk_overlap
+            directory=docs_dir, chunk_size=chunk_size, chunk_overlap=chunk_overlap
         )
         print(f"\nIndexed {num_chunks} chunks")
     except Exception as e:
         print(f"Error during indexing: {e}")
         import traceback
+
         traceback.print_exc()
         return 1
 
@@ -103,6 +102,7 @@ async def main() -> int:
     except Exception as e:
         print(f"Error saving index: {e}")
         import traceback
+
         traceback.print_exc()
         return 1
 

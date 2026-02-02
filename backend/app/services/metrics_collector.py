@@ -31,7 +31,7 @@ from app.models.metrics import (
     NetworkThroughputMetrics,
     RoutingDecisionMatrix,
     AccuracyMetrics,
-    ModelAvailability
+    ModelAvailability,
 )
 
 
@@ -68,37 +68,37 @@ class MetricsCollector:
 
         # Tier performance (last 20 samples per tier)
         self.tier_performance = {
-            'Q2': {
-                'tokens_per_sec': deque(maxlen=20),
-                'latency_ms': deque(maxlen=20),
-                'request_count': 0,
-                'error_count': 0
+            "Q2": {
+                "tokens_per_sec": deque(maxlen=20),
+                "latency_ms": deque(maxlen=20),
+                "request_count": 0,
+                "error_count": 0,
             },
-            'Q3': {
-                'tokens_per_sec': deque(maxlen=20),
-                'latency_ms': deque(maxlen=20),
-                'request_count': 0,
-                'error_count': 0
+            "Q3": {
+                "tokens_per_sec": deque(maxlen=20),
+                "latency_ms": deque(maxlen=20),
+                "request_count": 0,
+                "error_count": 0,
             },
-            'Q4': {
-                'tokens_per_sec': deque(maxlen=20),
-                'latency_ms': deque(maxlen=20),
-                'request_count': 0,
-                'error_count': 0
-            }
+            "Q4": {
+                "tokens_per_sec": deque(maxlen=20),
+                "latency_ms": deque(maxlen=20),
+                "request_count": 0,
+                "error_count": 0,
+            },
         }
 
         # Routing decision matrix
-        self.routing_matrix = defaultdict(lambda: {'count': 0, 'total_score': 0.0})
+        self.routing_matrix = defaultdict(lambda: {"count": 0, "total_score": 0.0})
         self.routing_decision_times: Deque[float] = deque(maxlen=100)
         self.fallback_count = 0
         self.total_routing_decisions = 0
 
         # Model availability cache (updated periodically)
         self.model_availability = {
-            'Q2': {'available': 0, 'total': 0},
-            'Q3': {'available': 0, 'total': 0},
-            'Q4': {'available': 0, 'total': 0}
+            "Q2": {"available": 0, "total": 0},
+            "Q3": {"available": 0, "total": 0},
+            "Q4": {"available": 0, "total": 0},
         }
 
         # Resource metrics cache
@@ -114,7 +114,7 @@ class MetricsCollector:
         latency_ms: float,
         tokens_generated: int = 0,
         generation_time_ms: float = 0.0,
-        is_error: bool = False
+        is_error: bool = False,
     ) -> None:
         """Record a completed query.
 
@@ -138,16 +138,16 @@ class MetricsCollector:
             # Update tier performance
             if tier in self.tier_performance:
                 stats = self.tier_performance[tier]
-                stats['latency_ms'].append(latency_ms)
-                stats['request_count'] += 1
+                stats["latency_ms"].append(latency_ms)
+                stats["request_count"] += 1
 
                 if is_error:
-                    stats['error_count'] += 1
+                    stats["error_count"] += 1
 
                 # Calculate tokens/sec if generation time available
                 if generation_time_ms > 0 and tokens_generated > 0:
                     tokens_per_sec = (tokens_generated / generation_time_ms) * 1000
-                    stats['tokens_per_sec'].append(tokens_per_sec)
+                    stats["tokens_per_sec"].append(tokens_per_sec)
 
             logger.debug(
                 f"Recorded query: tier={tier}, latency={latency_ms:.2f}ms, "
@@ -160,7 +160,7 @@ class MetricsCollector:
         tier: str,
         score: float,
         decision_time_ms: float,
-        is_fallback: bool = False
+        is_fallback: bool = False,
     ) -> None:
         """Record a routing decision.
 
@@ -176,8 +176,8 @@ class MetricsCollector:
         with self.lock:
             # Update decision matrix
             key = (complexity, tier)
-            self.routing_matrix[key]['count'] += 1
-            self.routing_matrix[key]['total_score'] += score
+            self.routing_matrix[key]["count"] += 1
+            self.routing_matrix[key]["total_score"] += score
 
             # Record decision time
             self.routing_decision_times.append(decision_time_ms)
@@ -193,12 +193,7 @@ class MetricsCollector:
                 f"(score={score:.2f}, time={decision_time_ms:.2f}ms)"
             )
 
-    def update_model_availability(
-        self,
-        tier: str,
-        available: int,
-        total: int
-    ) -> None:
+    def update_model_availability(self, tier: str, available: int, total: int) -> None:
         """Update model availability for a tier.
 
         Args:
@@ -208,8 +203,8 @@ class MetricsCollector:
         """
         with self.lock:
             if tier in self.model_availability:
-                self.model_availability[tier]['available'] = available
-                self.model_availability[tier]['total'] = total
+                self.model_availability[tier]["available"] = available
+                self.model_availability[tier]["total"] = total
 
     def get_query_metrics(self) -> QueryMetrics:
         """Get query metrics with 30-minute rolling window.
@@ -228,9 +223,7 @@ class MetricsCollector:
             recent_queries = [
                 (ts, lat, tier)
                 for ts, lat, tier in zip(
-                    self.query_timestamps,
-                    self.query_latencies,
-                    self.query_tiers
+                    self.query_timestamps, self.query_latencies, self.query_tiers
                 )
                 if ts >= window_start
             ]
@@ -247,8 +240,7 @@ class MetricsCollector:
 
                 # Count queries in this 10s bucket
                 count = sum(
-                    1 for ts, _, _ in recent_queries
-                    if bucket_end >= ts >= bucket_start
+                    1 for ts, _, _ in recent_queries if bucket_end >= ts >= bucket_start
                 )
                 query_rate.insert(0, count / 10.0)  # Convert to queries/sec
 
@@ -262,9 +254,9 @@ class MetricsCollector:
 
             # Tier distribution
             tier_distribution = {
-                'Q2': sum(1 for _, _, tier in recent_queries if tier == 'Q2'),
-                'Q3': sum(1 for _, _, tier in recent_queries if tier == 'Q3'),
-                'Q4': sum(1 for _, _, tier in recent_queries if tier == 'Q4')
+                "Q2": sum(1 for _, _, tier in recent_queries if tier == "Q2"),
+                "Q3": sum(1 for _, _, tier in recent_queries if tier == "Q3"),
+                "Q4": sum(1 for _, _, tier in recent_queries if tier == "Q4"),
             }
 
             return QueryMetrics(
@@ -272,7 +264,7 @@ class MetricsCollector:
                 query_rate=query_rate,
                 total_queries=total_queries,
                 avg_latency_ms=round(avg_latency, 2),
-                tier_distribution=tier_distribution
+                tier_distribution=tier_distribution,
             )
 
     def get_tier_metrics(self) -> TierMetricsResponse:
@@ -286,21 +278,17 @@ class MetricsCollector:
         with self.lock:
             tiers = []
 
-            for tier_name in ['Q2', 'Q3', 'Q4']:
+            for tier_name in ["Q2", "Q3", "Q4"]:
                 stats = self.tier_performance[tier_name]
 
                 # Convert deques to lists
-                tokens_per_sec = list(stats['tokens_per_sec'])
-                latency_ms = list(stats['latency_ms'])
+                tokens_per_sec = list(stats["tokens_per_sec"])
+                latency_ms = list(stats["latency_ms"])
 
                 # Calculate error rate
-                total_requests = stats['request_count']
-                error_count = stats['error_count']
-                error_rate = (
-                    error_count / total_requests
-                    if total_requests > 0
-                    else 0.0
-                )
+                total_requests = stats["request_count"]
+                error_count = stats["error_count"]
+                error_rate = error_count / total_requests if total_requests > 0 else 0.0
 
                 tiers.append(
                     TierMetrics(
@@ -308,7 +296,7 @@ class MetricsCollector:
                         tokens_per_sec=tokens_per_sec,
                         latency_ms=latency_ms,
                         request_count=total_requests,
-                        error_rate=round(error_rate, 3)
+                        error_rate=round(error_rate, 3),
                     )
                 )
 
@@ -322,8 +310,9 @@ class MetricsCollector:
         """
         # Get VRAM/GPU metrics (cross-platform)
         from app.services.gpu_monitor import get_gpu_metrics
+
         vram_used, vram_total, vram_percent, gpu_name = get_gpu_metrics()
-        
+
         if gpu_name:
             logger.debug(f"GPU metrics from: {gpu_name}")
 
@@ -333,8 +322,8 @@ class MetricsCollector:
 
         # Get memory metrics
         memory = psutil.virtual_memory()
-        memory_used = memory.used / (1024 ** 3)  # Convert to GB
-        memory_total = memory.total / (1024 ** 3)
+        memory_used = memory.used / (1024**3)  # Convert to GB
+        memory_total = memory.total / (1024**3)
         memory_percent = memory.percent
 
         # Get FAISS index size
@@ -346,6 +335,7 @@ class MetricsCollector:
         redis_cache_size = 0
         try:
             from app.services.cache_metrics import get_cache_metrics
+
             cache_metrics = get_cache_metrics()
             redis_cache_size = cache_metrics._total_requests
         except RuntimeError:
@@ -358,6 +348,7 @@ class MetricsCollector:
         active_connections = 0
         try:
             from app.services.event_bus import get_event_bus
+
             event_bus_stats = get_event_bus().get_stats()
             active_connections = event_bus_stats.get("active_subscribers", 0)
         except RuntimeError:
@@ -381,26 +372,22 @@ class MetricsCollector:
             vram=VRAMMetrics(
                 used=round(vram_used, 2),
                 total=round(vram_total, 2),
-                percent=round(vram_percent, 1)
+                percent=round(vram_percent, 1),
             ),
-            cpu=CPUMetrics(
-                percent=round(cpu_percent, 1),
-                cores=cpu_cores
-            ),
+            cpu=CPUMetrics(percent=round(cpu_percent, 1), cores=cpu_cores),
             memory=MemoryMetrics(
                 used=round(memory_used, 2),
                 total=round(memory_total, 2),
-                percent=round(memory_percent, 1)
+                percent=round(memory_percent, 1),
             ),
             faiss_index_size=faiss_index_size,
             redis_cache_size=redis_cache_size,
             active_connections=active_connections,
             thread_pool_status=ThreadPoolStatus(
-                active=thread_pool_active,
-                queued=thread_pool_queued
+                active=thread_pool_active, queued=thread_pool_queued
             ),
             disk_io=disk_io,
-            network_throughput=network_throughput
+            network_throughput=network_throughput,
         )
 
     def get_routing_metrics(self) -> RoutingMetrics:
@@ -415,8 +402,8 @@ class MetricsCollector:
             # Build decision matrix
             decision_matrix = []
             for (complexity, tier), data in self.routing_matrix.items():
-                count = data['count']
-                total_score = data['total_score']
+                count = data["count"]
+                total_score = data["total_score"]
                 avg_score = total_score / count if count > 0 else 0.0
 
                 decision_matrix.append(
@@ -424,7 +411,7 @@ class MetricsCollector:
                         complexity=complexity,  # type: ignore
                         tier=tier,  # type: ignore
                         count=count,
-                        avg_score=round(avg_score, 2)
+                        avg_score=round(avg_score, 2),
                     )
                 )
 
@@ -445,8 +432,8 @@ class MetricsCollector:
             model_availability = [
                 ModelAvailability(
                     tier=tier,  # type: ignore
-                    available=data['available'],
-                    total=data['total']
+                    available=data["available"],
+                    total=data["total"],
                 )
                 for tier, data in self.model_availability.items()
             ]
@@ -456,9 +443,9 @@ class MetricsCollector:
                 accuracy_metrics=AccuracyMetrics(
                     total_decisions=self.total_routing_decisions,
                     avg_decision_time_ms=round(avg_decision_time, 2),
-                    fallback_rate=round(fallback_rate, 3)
+                    fallback_rate=round(fallback_rate, 3),
                 ),
-                model_availability=model_availability
+                model_availability=model_availability,
             )
 
     def _get_faiss_index_size(self) -> int:
@@ -515,8 +502,7 @@ class MetricsCollector:
             self.last_io_check = now
 
             return DiskIOMetrics(
-                read_mbps=round(read_mbps, 2),
-                write_mbps=round(write_mbps, 2)
+                read_mbps=round(read_mbps, 2), write_mbps=round(write_mbps, 2)
             )
 
         except Exception as e:
@@ -552,8 +538,7 @@ class MetricsCollector:
             self.last_network_io = net_io
 
             return NetworkThroughputMetrics(
-                rx_mbps=round(rx_mbps, 2),
-                tx_mbps=round(tx_mbps, 2)
+                rx_mbps=round(rx_mbps, 2), tx_mbps=round(tx_mbps, 2)
             )
 
         except Exception as e:

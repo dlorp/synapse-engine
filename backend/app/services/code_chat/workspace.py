@@ -28,18 +28,32 @@ logger = logging.getLogger(__name__)
 # Security: Allowed base paths for workspaces
 ALLOWED_WORKSPACE_ROOTS = [
     "/workspace",  # Docker volume mount
-    "/projects",   # Alternative mount
-    "/home",       # User directories (Linux)
-    "/Users",      # macOS user directories
+    "/projects",  # Alternative mount
+    "/home",  # User directories (Linux)
+    "/Users",  # macOS user directories
 ]
 
 # Directories to exclude from workspace listings
 BLOCKED_DIRECTORIES = {
-    "node_modules", "__pycache__", ".git", ".svn",
-    ".hg", "venv", ".venv", "env", ".tox",
-    "dist", "build", "target", ".pytest_cache",
-    ".mypy_cache", ".ruff_cache", "coverage",
-    ".idea", ".vscode", ".DS_Store",
+    "node_modules",
+    "__pycache__",
+    ".git",
+    ".svn",
+    ".hg",
+    "venv",
+    ".venv",
+    "env",
+    ".tox",
+    "dist",
+    "build",
+    "target",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".ruff_cache",
+    "coverage",
+    ".idea",
+    ".vscode",
+    ".DS_Store",
 }
 
 # Project detection file patterns
@@ -77,11 +91,13 @@ def validate_path(path: str) -> Tuple[bool, Optional[str]]:
 
         # Check if under allowed roots
         is_allowed = any(
-            str(path_obj).startswith(root)
-            for root in ALLOWED_WORKSPACE_ROOTS
+            str(path_obj).startswith(root) for root in ALLOWED_WORKSPACE_ROOTS
         )
         if not is_allowed:
-            return False, f"Path must be under one of: {', '.join(ALLOWED_WORKSPACE_ROOTS)}"
+            return (
+                False,
+                f"Path must be under one of: {', '.join(ALLOWED_WORKSPACE_ROOTS)}",
+            )
 
         # Check if exists
         if not path_obj.exists():

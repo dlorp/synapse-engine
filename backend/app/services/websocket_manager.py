@@ -208,12 +208,11 @@ class WebSocketManager:
                 - models: Dict mapping model_id to log count
         """
         models_stats = {
-            model_id: len(logs)
-            for model_id, logs in self.log_buffer.items()
+            model_id: len(logs) for model_id, logs in self.log_buffer.items()
         }
 
         return {
             "total_models": len(self.log_buffer),
             "total_logs": sum(models_stats.values()),
-            "models": models_stats
+            "models": models_stats,
         }

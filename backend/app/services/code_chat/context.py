@@ -31,18 +31,35 @@ FAISS_INDEX_DIR = Path("/app/data/faiss_indexes")
 # Supported file extensions for indexing
 INDEXABLE_EXTENSIONS = {
     # Code
-    ".py", ".pyi",                          # Python
-    ".ts", ".tsx", ".js", ".jsx",           # JavaScript/TypeScript
-    ".rs",                                  # Rust
-    ".go",                                  # Go
-    ".java", ".kt",                         # JVM languages
-    ".c", ".cpp", ".cc", ".h", ".hpp",      # C/C++
+    ".py",
+    ".pyi",  # Python
+    ".ts",
+    ".tsx",
+    ".js",
+    ".jsx",  # JavaScript/TypeScript
+    ".rs",  # Rust
+    ".go",  # Go
+    ".java",
+    ".kt",  # JVM languages
+    ".c",
+    ".cpp",
+    ".cc",
+    ".h",
+    ".hpp",  # C/C++
     # Markup/Documentation
-    ".md", ".mdx", ".rst",                  # Documentation
-    ".txt",                                 # Plain text
+    ".md",
+    ".mdx",
+    ".rst",  # Documentation
+    ".txt",  # Plain text
     # Configuration
-    ".yaml", ".yml", ".toml", ".json",      # Config files
-    ".html", ".css", ".scss", ".sass",      # Web
+    ".yaml",
+    ".yml",
+    ".toml",
+    ".json",  # Config files
+    ".html",
+    ".css",
+    ".scss",
+    ".sass",  # Web
 }
 
 # Maximum file size to index (1MB)
@@ -63,14 +80,23 @@ class IndexMetadata(BaseModel):
         indexed_files: List of indexed file paths
         index_version: Metadata format version
     """
+
     name: str = Field(..., description="Index identifier")
     source_path: str = Field(..., description="Source directory")
-    embedding_model: str = Field(default="all-MiniLM-L6-v2", description="Embedding model")
+    embedding_model: str = Field(
+        default="all-MiniLM-L6-v2", description="Embedding model"
+    )
     chunk_count: int = Field(..., ge=0, description="Number of chunks")
     file_count: int = Field(..., ge=0, description="Number of files")
-    created_at: datetime = Field(default_factory=datetime.now, description="Creation timestamp")
-    last_indexed: datetime = Field(default_factory=datetime.now, description="Last indexed timestamp")
-    indexed_files: List[str] = Field(default_factory=list, description="Indexed file paths")
+    created_at: datetime = Field(
+        default_factory=datetime.now, description="Creation timestamp"
+    )
+    last_indexed: datetime = Field(
+        default_factory=datetime.now, description="Last indexed timestamp"
+    )
+    indexed_files: List[str] = Field(
+        default_factory=list, description="Indexed file paths"
+    )
     index_version: str = Field(default="1.0", description="Metadata version")
 
 
@@ -143,7 +169,7 @@ async def list_cgrag_indexes() -> List[ContextInfo]:
 
         try:
             # Load metadata
-            with open(metadata_path, 'r') as f:
+            with open(metadata_path, "r") as f:
                 metadata_dict = json.load(f)
 
             metadata = IndexMetadata(**metadata_dict)
@@ -155,7 +181,7 @@ async def list_cgrag_indexes() -> List[ContextInfo]:
                 chunk_count=metadata.chunk_count,
                 last_indexed=metadata.last_indexed,
                 source_path=metadata.source_path,
-                embedding_model=metadata.embedding_model
+                embedding_model=metadata.embedding_model,
             )
             indexes.append(context)
 
@@ -188,9 +214,7 @@ async def get_context_info(name: str) -> Optional[ContextInfo]:
 
 
 async def create_cgrag_index(
-    name: str,
-    source_path: str,
-    embedding_model: str = "all-MiniLM-L6-v2"
+    name: str, source_path: str, embedding_model: str = "all-MiniLM-L6-v2"
 ) -> ContextInfo:
     """Create a new CGRAG index from a source directory.
 
@@ -233,17 +257,18 @@ async def create_cgrag_index(
     # Check if index already exists
     existing = await get_context_info(name)
     if existing:
-        raise ValueError(f"Index '{name}' already exists. Use refresh_cgrag_index() to update.")
+        raise ValueError(
+            f"Index '{name}' already exists. Use refresh_cgrag_index() to update."
+        )
 
     # Ensure index directory exists
     FAISS_INDEX_DIR.mkdir(parents=True, exist_ok=True)
 
     # Emit start event
-    await EventBus.emit("cgrag_index_start", {
-        "name": name,
-        "source_path": source_path,
-        "status": "starting"
-    })
+    await EventBus.emit(
+        "cgrag_index_start",
+        {"name": name, "source_path": source_path, "status": "starting"},
+    )
 
     start_time = time.time()
 
@@ -252,26 +277,21 @@ async def create_cgrag_index(
         files = _collect_indexable_files(source_dir)
         logger.info(f"Found {len(files)} indexable files")
 
-        await EventBus.emit("cgrag_index_progress", {
-            "name": name,
-            "status": "scanning",
-            "files_found": len(files)
-        })
+        await EventBus.emit(
+            "cgrag_index_progress",
+            {"name": name, "status": "scanning", "files_found": len(files)},
+        )
 
         # Create indexer and index directory
         indexer = CGRAGIndexer(embedding_model=embedding_model)
         chunk_count = await indexer.index_directory(
-            directory=source_dir,
-            chunk_size=512,
-            chunk_overlap=50,
-            batch_size=32
+            directory=source_dir, chunk_size=512, chunk_overlap=50, batch_size=32
         )
 
-        await EventBus.emit("cgrag_index_progress", {
-            "name": name,
-            "status": "embedding",
-            "chunk_count": chunk_count
-        })
+        await EventBus.emit(
+            "cgrag_index_progress",
+            {"name": name, "status": "embedding", "chunk_count": chunk_count},
+        )
 
         # Save index and chunks
         index_path = get_index_path(name)
@@ -282,7 +302,7 @@ async def create_cgrag_index(
         logger.info(f"Saved FAISS index to {index_path}")
 
         # Save chunks
-        with open(chunks_path, 'wb') as f:
+        with open(chunks_path, "wb") as f:
             pickle.dump([chunk.model_dump() for chunk in indexer.chunks], f)
         logger.info(f"Saved {len(indexer.chunks)} chunks to {chunks_path}")
 
@@ -293,29 +313,32 @@ async def create_cgrag_index(
             embedding_model=embedding_model,
             chunk_count=chunk_count,
             file_count=len(files),
-            indexed_files=[str(f) for f in files]
+            indexed_files=[str(f) for f in files],
         )
 
         # Save metadata
         metadata_path = get_metadata_path(name)
-        with open(metadata_path, 'w') as f:
-            json.dump(metadata.model_dump(mode='json'), f, indent=2)
+        with open(metadata_path, "w") as f:
+            json.dump(metadata.model_dump(mode="json"), f, indent=2)
         logger.info(f"Saved metadata to {metadata_path}")
 
         elapsed = time.time() - start_time
         logger.info(
             f"Created index '{name}': {chunk_count} chunks from {len(files)} files "
-            f"in {elapsed:.2f}s ({chunk_count/elapsed:.1f} chunks/sec)"
+            f"in {elapsed:.2f}s ({chunk_count / elapsed:.1f} chunks/sec)"
         )
 
         # Emit completion event
-        await EventBus.emit("cgrag_index_complete", {
-            "name": name,
-            "status": "complete",
-            "chunk_count": chunk_count,
-            "file_count": len(files),
-            "elapsed_seconds": elapsed
-        })
+        await EventBus.emit(
+            "cgrag_index_complete",
+            {
+                "name": name,
+                "status": "complete",
+                "chunk_count": chunk_count,
+                "file_count": len(files),
+                "elapsed_seconds": elapsed,
+            },
+        )
 
         # Return ContextInfo
         return ContextInfo(
@@ -324,16 +347,14 @@ async def create_cgrag_index(
             chunk_count=chunk_count,
             last_indexed=metadata.last_indexed,
             source_path=str(source_dir),
-            embedding_model=embedding_model
+            embedding_model=embedding_model,
         )
 
     except Exception as e:
         logger.error(f"Failed to create index '{name}': {e}")
-        await EventBus.emit("cgrag_index_error", {
-            "name": name,
-            "status": "error",
-            "error": str(e)
-        })
+        await EventBus.emit(
+            "cgrag_index_error", {"name": name, "status": "error", "error": str(e)}
+        )
         raise
 
 
@@ -363,7 +384,7 @@ async def refresh_cgrag_index(name: str) -> ContextInfo:
     if not metadata_path.exists():
         raise ValueError(f"Index '{name}' does not exist")
 
-    with open(metadata_path, 'r') as f:
+    with open(metadata_path, "r") as f:
         metadata_dict = json.load(f)
 
     metadata = IndexMetadata(**metadata_dict)
@@ -375,7 +396,7 @@ async def refresh_cgrag_index(name: str) -> ContextInfo:
     return await create_cgrag_index(
         name=name,
         source_path=metadata.source_path,
-        embedding_model=metadata.embedding_model
+        embedding_model=metadata.embedding_model,
     )
 
 
@@ -450,7 +471,7 @@ async def get_retriever_for_context(name: str):
 
     try:
         # Load metadata
-        with open(metadata_path, 'r') as f:
+        with open(metadata_path, "r") as f:
             metadata_dict = json.load(f)
         metadata = IndexMetadata(**metadata_dict)
 
@@ -458,7 +479,7 @@ async def get_retriever_for_context(name: str):
         index = faiss.read_index(str(index_path))
 
         # Load chunks
-        with open(chunks_path, 'rb') as f:
+        with open(chunks_path, "rb") as f:
             chunk_data = pickle.load(f)
         chunks = [DocumentChunk(**data) for data in chunk_data]
 
@@ -496,19 +517,27 @@ def _collect_indexable_files(directory: Path) -> List[Path]:
 
     # Patterns to ignore
     ignore_patterns = {
-        '.git', '__pycache__', 'node_modules', '.venv', 'venv',
-        'dist', 'build', '.next', '.cache', 'coverage'
+        ".git",
+        "__pycache__",
+        "node_modules",
+        ".venv",
+        "venv",
+        "dist",
+        "build",
+        ".next",
+        ".cache",
+        "coverage",
     }
 
     files = []
 
-    for path in directory.rglob('*'):
+    for path in directory.rglob("*"):
         # Skip if not a file
         if not path.is_file():
             continue
 
         # Skip hidden files
-        if any(part.startswith('.') for part in path.parts):
+        if any(part.startswith(".") for part in path.parts):
             continue
 
         # Skip ignored directories

@@ -38,7 +38,7 @@ router = APIRouter(prefix="/api/context", tags=["context"])
 
     Also includes metadata about CGRAG artifacts with relevance scores
     and token contributions.
-    """
+    """,
 )
 async def get_context_allocation(query_id: str) -> ContextAllocation:
     """Get context window allocation for a query.
@@ -113,11 +113,11 @@ async def get_context_allocation(query_id: str) -> ContextAllocation:
         if not allocation:
             logger.warning(
                 f"Context allocation not found for query: {query_id}",
-                extra={"query_id": query_id}
+                extra={"query_id": query_id},
             )
             raise HTTPException(
                 status_code=404,
-                detail=f"Context allocation not found for query: {query_id}"
+                detail=f"Context allocation not found for query: {query_id}",
             )
 
         logger.info(
@@ -125,8 +125,8 @@ async def get_context_allocation(query_id: str) -> ContextAllocation:
             extra={
                 "query_id": query_id,
                 "model_id": allocation.model_id,
-                "utilization": allocation.utilization_percentage
-            }
+                "utilization": allocation.utilization_percentage,
+            },
         )
 
         return allocation
@@ -137,13 +137,9 @@ async def get_context_allocation(query_id: str) -> ContextAllocation:
 
     except RuntimeError as e:
         # Context state manager not initialized
-        logger.error(
-            f"Context state manager not initialized: {e}",
-            exc_info=True
-        )
+        logger.error(f"Context state manager not initialized: {e}", exc_info=True)
         raise HTTPException(
-            status_code=503,
-            detail="Context allocation service not available"
+            status_code=503, detail="Context allocation service not available"
         )
 
     except Exception as e:
@@ -151,11 +147,10 @@ async def get_context_allocation(query_id: str) -> ContextAllocation:
         logger.error(
             f"Error retrieving context allocation: {e}",
             extra={"query_id": query_id},
-            exc_info=True
+            exc_info=True,
         )
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to retrieve context allocation: {str(e)}"
+            status_code=500, detail=f"Failed to retrieve context allocation: {str(e)}"
         )
 
 
@@ -167,7 +162,7 @@ async def get_context_allocation(query_id: str) -> ContextAllocation:
 
     Provides aggregate metrics like total allocations tracked and
     average context window utilization.
-    """
+    """,
 )
 async def get_context_stats() -> dict:
     """Get context allocation statistics.
@@ -195,31 +190,20 @@ async def get_context_stats() -> dict:
         # Get statistics
         stats = context_manager.get_stats()
 
-        logger.debug(
-            f"Retrieved context allocation stats: {stats}",
-            extra=stats
-        )
+        logger.debug(f"Retrieved context allocation stats: {stats}", extra=stats)
 
         return stats
 
     except RuntimeError as e:
         # Context state manager not initialized
-        logger.error(
-            f"Context state manager not initialized: {e}",
-            exc_info=True
-        )
+        logger.error(f"Context state manager not initialized: {e}", exc_info=True)
         raise HTTPException(
-            status_code=503,
-            detail="Context allocation service not available"
+            status_code=503, detail="Context allocation service not available"
         )
 
     except Exception as e:
         # Unexpected error
-        logger.error(
-            f"Error retrieving context stats: {e}",
-            exc_info=True
-        )
+        logger.error(f"Error retrieving context stats: {e}", exc_info=True)
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to retrieve context stats: {str(e)}"
+            status_code=500, detail=f"Failed to retrieve context stats: {str(e)}"
         )

@@ -67,7 +67,7 @@ async def _simulate_sequential_thinking(params: Dict[str, Any]) -> Dict:
         "thoughtNumber": thought_number,
         "totalThoughts": total_thoughts,
         "nextThoughtNeeded": next_needed,
-        "isRevision": params.get("isRevision", False)
+        "isRevision": params.get("isRevision", False),
     }
 
 

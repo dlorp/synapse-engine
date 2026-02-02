@@ -33,30 +33,65 @@ MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB max file size for grep
 
 # Blocked directories for security
 BLOCKED_DIRECTORIES = {
-    '__pycache__',
-    'node_modules',
-    '.git',
-    '.venv',
-    'venv',
-    '.env',
-    'dist',
-    'build',
-    '.cache',
-    '.pytest_cache',
-    '.mypy_cache',
-    '.tox',
-    'coverage',
-    'htmlcov'
+    "__pycache__",
+    "node_modules",
+    ".git",
+    ".venv",
+    "venv",
+    ".env",
+    "dist",
+    "build",
+    ".cache",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".tox",
+    "coverage",
+    "htmlcov",
 }
 
 # Binary file extensions to skip
 BINARY_EXTENSIONS = {
-    '.pyc', '.pyo', '.so', '.o', '.a', '.lib', '.dll', '.exe',
-    '.bin', '.dat', '.db', '.sqlite', '.pkl', '.pickle',
-    '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.ico', '.svg',
-    '.mp3', '.mp4', '.avi', '.mov', '.mkv', '.wav',
-    '.zip', '.tar', '.gz', '.bz2', '.xz', '.7z', '.rar',
-    '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx'
+    ".pyc",
+    ".pyo",
+    ".so",
+    ".o",
+    ".a",
+    ".lib",
+    ".dll",
+    ".exe",
+    ".bin",
+    ".dat",
+    ".db",
+    ".sqlite",
+    ".pkl",
+    ".pickle",
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".gif",
+    ".bmp",
+    ".ico",
+    ".svg",
+    ".mp3",
+    ".mp4",
+    ".avi",
+    ".mov",
+    ".mkv",
+    ".wav",
+    ".zip",
+    ".tar",
+    ".gz",
+    ".bz2",
+    ".xz",
+    ".7z",
+    ".rar",
+    ".pdf",
+    ".doc",
+    ".docx",
+    ".xls",
+    ".xlsx",
+    ".ppt",
+    ".pptx",
 }
 
 
@@ -81,28 +116,28 @@ class SearchCodeTool(BaseTool):
         "properties": {
             "query": {
                 "type": "string",
-                "description": "Search query (semantic search, not keyword)"
+                "description": "Search query (semantic search, not keyword)",
             },
             "context_name": {
                 "type": "string",
-                "description": "CGRAG context/index name (optional if only one exists)"
+                "description": "CGRAG context/index name (optional if only one exists)",
             },
             "max_results": {
                 "type": "integer",
                 "description": "Maximum number of results to return",
                 "default": MAX_SEARCH_CODE_RESULTS,
                 "minimum": 1,
-                "maximum": 50
+                "maximum": 50,
             },
             "min_relevance": {
                 "type": "number",
                 "description": "Minimum relevance score (0.0-1.0)",
                 "default": 0.7,
                 "minimum": 0.0,
-                "maximum": 1.0
-            }
+                "maximum": 1.0,
+            },
         },
-        "required": ["query"]
+        "required": ["query"],
     }
     requires_confirmation = False
 
@@ -119,7 +154,7 @@ class SearchCodeTool(BaseTool):
         query: str,
         context_name: Optional[str] = None,
         max_results: int = MAX_SEARCH_CODE_RESULTS,
-        min_relevance: float = 0.7
+        min_relevance: float = 0.7,
     ) -> ToolResult:
         """Execute semantic code search.
 
@@ -149,10 +184,7 @@ class SearchCodeTool(BaseTool):
                     f"Please select a valid context or create one first."
                 )
                 logger.warning(error_msg)
-                return ToolResult(
-                    success=False,
-                    error=error_msg
-                )
+                return ToolResult(success=False, error=error_msg)
 
             # Update minimum relevance threshold
             retriever.min_relevance = min_relevance
@@ -161,13 +193,13 @@ class SearchCodeTool(BaseTool):
             result = await retriever.retrieve(
                 query=query,
                 token_budget=8000,  # Standard token budget
-                max_artifacts=max_results
+                max_artifacts=max_results,
             )
 
             if not result.artifacts:
                 return ToolResult(
                     success=True,
-                    output=f"No results found for query: '{query}' (min_relevance={min_relevance})"
+                    output=f"No results found for query: '{query}' (min_relevance={min_relevance})",
                 )
 
             # Format results
@@ -175,14 +207,16 @@ class SearchCodeTool(BaseTool):
                 f"Found {len(result.artifacts)} relevant code chunks:",
                 f"Search time: {result.retrieval_time_ms:.1f}ms",
                 f"Tokens used: {result.tokens_used}",
-                ""
+                "",
             ]
 
             for i, artifact in enumerate(result.artifacts, 1):
                 # Extract relative path from workspace root
                 try:
                     file_path = Path(artifact.file_path)
-                    if file_path.is_absolute() and file_path.is_relative_to(self.workspace_root):
+                    if file_path.is_absolute() and file_path.is_relative_to(
+                        self.workspace_root
+                    ):
                         relative_path = file_path.relative_to(self.workspace_root)
                     else:
                         relative_path = file_path
@@ -209,16 +243,13 @@ class SearchCodeTool(BaseTool):
                     "result_count": len(result.artifacts),
                     "tokens_used": result.tokens_used,
                     "retrieval_time_ms": result.retrieval_time_ms,
-                    "top_score": result.top_scores[0] if result.top_scores else 0.0
-                }
+                    "top_score": result.top_scores[0] if result.top_scores else 0.0,
+                },
             )
 
         except Exception as e:
             logger.error(f"search_code failed: {e}", exc_info=True)
-            return ToolResult(
-                success=False,
-                error=f"Search failed: {str(e)}"
-            )
+            return ToolResult(success=False, error=f"Search failed: {str(e)}")
 
 
 class WebSearchTool(BaseTool):
@@ -238,26 +269,21 @@ class WebSearchTool(BaseTool):
     parameter_schema = {
         "type": "object",
         "properties": {
-            "query": {
-                "type": "string",
-                "description": "Search query"
-            },
+            "query": {"type": "string", "description": "Search query"},
             "max_results": {
                 "type": "integer",
                 "description": "Maximum number of results to return",
                 "default": MAX_WEB_SEARCH_RESULTS,
                 "minimum": 1,
-                "maximum": 20
-            }
+                "maximum": 20,
+            },
         },
-        "required": ["query"]
+        "required": ["query"],
     }
     requires_confirmation = False
 
     async def execute(
-        self,
-        query: str,
-        max_results: int = MAX_WEB_SEARCH_RESULTS
+        self, query: str, max_results: int = MAX_WEB_SEARCH_RESULTS
     ) -> ToolResult:
         """Execute web search.
 
@@ -271,7 +297,9 @@ class WebSearchTool(BaseTool):
         try:
             from app.services.websearch import get_searxng_client
 
-            logger.info(f"Executing web_search: query='{query}', max_results={max_results}")
+            logger.info(
+                f"Executing web_search: query='{query}', max_results={max_results}"
+            )
 
             # Get SearXNG client
             client = get_searxng_client()
@@ -287,7 +315,7 @@ class WebSearchTool(BaseTool):
                 if not response.results:
                     return ToolResult(
                         success=True,
-                        output=f"No web search results found for query: '{query}'"
+                        output=f"No web search results found for query: '{query}'",
                     )
 
                 # Format results
@@ -296,7 +324,7 @@ class WebSearchTool(BaseTool):
                     f"Found {response.total_results} results (showing {len(response.results)})",
                     f"Search time: {response.search_time_ms}ms",
                     f"Engines: {', '.join(response.engines_used)}",
-                    ""
+                    "",
                 ]
 
                 for i, result in enumerate(response.results, 1):
@@ -304,7 +332,11 @@ class WebSearchTool(BaseTool):
                     output_lines.append(f"   URL: {result.url}")
                     if result.content:
                         # Truncate long snippets
-                        snippet = result.content[:300] + "..." if len(result.content) > 300 else result.content
+                        snippet = (
+                            result.content[:300] + "..."
+                            if len(result.content) > 300
+                            else result.content
+                        )
                         output_lines.append(f"   {snippet}")
                     if result.published_date:
                         output_lines.append(f"   Published: {result.published_date}")
@@ -324,8 +356,8 @@ class WebSearchTool(BaseTool):
                         "result_count": len(response.results),
                         "total_results": response.total_results,
                         "search_time_ms": response.search_time_ms,
-                        "engines_used": response.engines_used
-                    }
+                        "engines_used": response.engines_used,
+                    },
                 )
 
             finally:
@@ -334,10 +366,7 @@ class WebSearchTool(BaseTool):
 
         except Exception as e:
             logger.error(f"web_search failed: {e}", exc_info=True)
-            return ToolResult(
-                success=False,
-                error=f"Web search failed: {str(e)}"
-            )
+            return ToolResult(success=False, error=f"Web search failed: {str(e)}")
 
 
 class GrepFilesTool(BaseTool):
@@ -359,34 +388,31 @@ class GrepFilesTool(BaseTool):
     parameter_schema = {
         "type": "object",
         "properties": {
-            "pattern": {
-                "type": "string",
-                "description": "Regex pattern to search for"
-            },
+            "pattern": {"type": "string", "description": "Regex pattern to search for"},
             "path": {
                 "type": "string",
                 "description": "Directory or file to search (relative to workspace, default: '.')",
-                "default": "."
+                "default": ".",
             },
             "file_pattern": {
                 "type": "string",
                 "description": "File glob pattern (e.g., '*.py', '*.ts')",
-                "default": "*"
+                "default": "*",
             },
             "case_sensitive": {
                 "type": "boolean",
                 "description": "Whether search is case sensitive",
-                "default": True
+                "default": True,
             },
             "max_results": {
                 "type": "integer",
                 "description": "Maximum number of matches to return",
                 "default": 100,
                 "minimum": 1,
-                "maximum": MAX_GREP_RESULTS
-            }
+                "maximum": MAX_GREP_RESULTS,
+            },
         },
-        "required": ["pattern"]
+        "required": ["pattern"],
     }
     requires_confirmation = False
 
@@ -404,7 +430,7 @@ class GrepFilesTool(BaseTool):
         path: str = ".",
         file_pattern: str = "*",
         case_sensitive: bool = True,
-        max_results: int = 100
+        max_results: int = 100,
     ) -> ToolResult:
         """Execute regex pattern search.
 
@@ -433,10 +459,7 @@ class GrepFilesTool(BaseTool):
                 regex_flags = 0 if case_sensitive else re.IGNORECASE
                 compiled_pattern = re.compile(pattern, regex_flags)
             except re.error as e:
-                return ToolResult(
-                    success=False,
-                    error=f"Invalid regex pattern: {e}"
-                )
+                return ToolResult(success=False, error=f"Invalid regex pattern: {e}")
 
             # Collect files to search
             files_to_search = self._collect_files(search_path, file_pattern)
@@ -444,27 +467,25 @@ class GrepFilesTool(BaseTool):
             if not files_to_search:
                 return ToolResult(
                     success=True,
-                    output=f"No files matched pattern '{file_pattern}' in '{path}'"
+                    output=f"No files matched pattern '{file_pattern}' in '{path}'",
                 )
 
             # Search files for pattern matches
             matches = await self._search_files(
-                files_to_search,
-                compiled_pattern,
-                max_results
+                files_to_search, compiled_pattern, max_results
             )
 
             if not matches:
                 return ToolResult(
                     success=True,
-                    output=f"No matches found for pattern '{pattern}' in {len(files_to_search)} files"
+                    output=f"No matches found for pattern '{pattern}' in {len(files_to_search)} files",
                 )
 
             # Format output
             output_lines = [
                 f"Found {len(matches)} matches for pattern '{pattern}':",
                 f"Searched {len(files_to_search)} files",
-                ""
+                "",
             ]
 
             for file_path, line_num, line_content in matches:
@@ -497,22 +518,16 @@ class GrepFilesTool(BaseTool):
                     "match_count": len(matches),
                     "files_searched": len(files_to_search),
                     "pattern": pattern,
-                    "case_sensitive": case_sensitive
-                }
+                    "case_sensitive": case_sensitive,
+                },
             )
 
         except SecurityError as e:
             logger.error(f"Security violation in grep_files: {e}")
-            return ToolResult(
-                success=False,
-                error=f"Security violation: {str(e)}"
-            )
+            return ToolResult(success=False, error=f"Security violation: {str(e)}")
         except Exception as e:
             logger.error(f"grep_files failed: {e}", exc_info=True)
-            return ToolResult(
-                success=False,
-                error=f"Pattern search failed: {str(e)}"
-            )
+            return ToolResult(success=False, error=f"Pattern search failed: {str(e)}")
 
     def _resolve_and_validate_path(self, path: str) -> Path:
         """Resolve and validate search path within workspace.
@@ -577,7 +592,10 @@ class GrepFilesTool(BaseTool):
                     continue
 
                 # Skip hidden files
-                if any(part.startswith('.') for part in path.parts[len(self.workspace_root.parts):]):
+                if any(
+                    part.startswith(".")
+                    for part in path.parts[len(self.workspace_root.parts) :]
+                ):
                     continue
 
                 # Check file size
@@ -593,10 +611,7 @@ class GrepFilesTool(BaseTool):
         return sorted(files)
 
     async def _search_files(
-        self,
-        files: List[Path],
-        pattern: re.Pattern,
-        max_results: int
+        self, files: List[Path], pattern: re.Pattern, max_results: int
     ) -> List[tuple[Path, int, str]]:
         """Search files for pattern matches.
 
@@ -616,18 +631,16 @@ class GrepFilesTool(BaseTool):
 
             try:
                 # Read file asynchronously
-                async with aiofiles.open(file_path, 'r', encoding='utf-8', errors='replace') as f:
+                async with aiofiles.open(
+                    file_path, "r", encoding="utf-8", errors="replace"
+                ) as f:
                     line_num = 0
                     async for line in f:
                         line_num += 1
 
                         # Search for pattern
                         if pattern.search(line):
-                            matches.append((
-                                file_path,
-                                line_num,
-                                line.rstrip('\n\r')
-                            ))
+                            matches.append((file_path, line_num, line.rstrip("\n\r")))
 
                             if len(matches) >= max_results:
                                 break

@@ -23,35 +23,35 @@ class Settings(BaseSettings):
     """
 
     model_config = SettingsConfigDict(
-        env_file=str(Path(__file__).parent.parent.parent / '.env'),
-        env_file_encoding='utf-8',
+        env_file=str(Path(__file__).parent.parent.parent / ".env"),
+        env_file_encoding="utf-8",
         case_sensitive=False,
-        extra='allow',
-        protected_namespaces=()  # Disable protected namespace warnings for model_* fields
+        extra="allow",
+        protected_namespaces=(),  # Disable protected namespace warnings for model_* fields
     )
 
     # Application settings
-    app_name: str = 'S.Y.N.A.P.S.E. Core (PRAXIS)'
-    service_tag: str = 'prx'
-    codename: str = 'CORE:PRAXIS'
-    environment: str = 'development'
+    app_name: str = "S.Y.N.A.P.S.E. Core (PRAXIS)"
+    service_tag: str = "prx"
+    codename: str = "CORE:PRAXIS"
+    environment: str = "development"
     debug: bool = False
-    host: str = '0.0.0.0'
+    host: str = "0.0.0.0"
     port: int = 8000
 
     # Redis settings
-    redis_host: str = 'localhost'
+    redis_host: str = "localhost"
     redis_port: int = 6379
     redis_db: int = 0
     redis_password: Optional[str] = None
 
     # Logging settings
-    log_level: str = 'INFO'
-    log_format: str = 'json'
+    log_level: str = "INFO"
+    log_format: str = "json"
     log_file: Optional[str] = None
 
     # CGRAG settings
-    embedding_model: str = 'all-MiniLM-L6-v2'
+    embedding_model: str = "all-MiniLM-L6-v2"
     cgrag_token_budget: int = 8000
     cgrag_min_relevance: float = 0.7
 
@@ -64,7 +64,7 @@ class ConfigLoader:
     """
 
     # Pattern for matching ${VAR_NAME} in config values
-    ENV_VAR_PATTERN = re.compile(r'\$\{([A-Za-z0-9_]+)\}')
+    ENV_VAR_PATTERN = re.compile(r"\$\{([A-Za-z0-9_]+)\}")
 
     def __init__(self, config_path: Optional[Path] = None) -> None:
         """Initialize config loader.
@@ -79,13 +79,13 @@ class ConfigLoader:
             # In Docker: .parent.parent.parent = /app (project root in container)
             # Check if running in Docker by looking for /app directory
             file_path = Path(__file__)
-            if str(file_path).startswith('/app/'):
+            if str(file_path).startswith("/app/"):
                 # Running in Docker: /app/app/core/config.py -> /app
                 project_root = file_path.parent.parent.parent
             else:
                 # Running locally: .../backend/app/core/config.py -> project root
                 project_root = file_path.parent.parent.parent.parent
-            config_path = project_root / 'config' / 'default.yaml'
+            config_path = project_root / "config" / "default.yaml"
 
         self.config_path = config_path
         self.settings = Settings()
@@ -109,7 +109,7 @@ class ConfigLoader:
                 if var_name not in env_dict:
                     raise ConfigurationError(
                         f"Environment variable not found: {var_name}",
-                        details={'variable': var_name}
+                        details={"variable": var_name},
                     )
                 return env_dict[var_name]
 
@@ -138,16 +138,16 @@ class ConfigLoader:
             if not self.config_path.exists():
                 raise ConfigurationError(
                     f"Configuration file not found: {self.config_path}",
-                    details={'path': str(self.config_path)}
+                    details={"path": str(self.config_path)},
                 )
 
-            with open(self.config_path, 'r', encoding='utf-8') as f:
+            with open(self.config_path, "r", encoding="utf-8") as f:
                 config_dict = yaml.safe_load(f)
 
             if config_dict is None:
                 raise ConfigurationError(
                     f"Configuration file is empty: {self.config_path}",
-                    details={'path': str(self.config_path)}
+                    details={"path": str(self.config_path)},
                 )
 
             return config_dict
@@ -155,12 +155,12 @@ class ConfigLoader:
         except yaml.YAMLError as e:
             raise ConfigurationError(
                 f"Failed to parse YAML configuration: {e}",
-                details={'path': str(self.config_path)}
+                details={"path": str(self.config_path)},
             ) from e
         except OSError as e:
             raise ConfigurationError(
                 f"Failed to read configuration file: {e}",
-                details={'path': str(self.config_path)}
+                details={"path": str(self.config_path)},
             ) from e
 
     def _build_env_dict(self) -> Dict[str, str]:
@@ -208,38 +208,41 @@ class ConfigLoader:
         config_dict = self._substitute_env_vars(config_dict, env_dict)
 
         # Update top-level settings from pydantic Settings
-        config_dict['app_name'] = self.settings.app_name
-        config_dict['environment'] = self.settings.environment
-        config_dict['debug'] = self.settings.debug
-        config_dict['host'] = self.settings.host
-        config_dict['port'] = self.settings.port
+        config_dict["app_name"] = self.settings.app_name
+        config_dict["environment"] = self.settings.environment
+        config_dict["debug"] = self.settings.debug
+        config_dict["host"] = self.settings.host
+        config_dict["port"] = self.settings.port
 
         # Update Redis settings
-        if 'redis' not in config_dict:
-            config_dict['redis'] = {}
-        config_dict['redis'].update({
-            'host': self.settings.redis_host,
-            'port': self.settings.redis_port,
-            'db': self.settings.redis_db,
-            'password': self.settings.redis_password,
-        })
+        if "redis" not in config_dict:
+            config_dict["redis"] = {}
+        config_dict["redis"].update(
+            {
+                "host": self.settings.redis_host,
+                "port": self.settings.redis_port,
+                "db": self.settings.redis_db,
+                "password": self.settings.redis_password,
+            }
+        )
 
         # Update logging settings
-        if 'logging' not in config_dict:
-            config_dict['logging'] = {}
-        config_dict['logging'].update({
-            'level': self.settings.log_level,
-            'format': self.settings.log_format,
-            'log_file': self.settings.log_file,
-        })
+        if "logging" not in config_dict:
+            config_dict["logging"] = {}
+        config_dict["logging"].update(
+            {
+                "level": self.settings.log_level,
+                "format": self.settings.log_format,
+                "log_file": self.settings.log_file,
+            }
+        )
 
         # Validate with Pydantic
         try:
             return AppConfig(**config_dict)
         except Exception as e:
             raise ConfigurationError(
-                f"Configuration validation failed: {e}",
-                details={'error': str(e)}
+                f"Configuration validation failed: {e}", details={"error": str(e)}
             ) from e
 
 
@@ -276,6 +279,6 @@ def get_config() -> AppConfig:
     if _config is None:
         raise ConfigurationError(
             "Configuration not loaded. Call load_config() first.",
-            details={'hint': 'Call load_config() during application startup'}
+            details={"hint": "Call load_config() during application startup"},
         )
     return _config

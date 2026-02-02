@@ -33,7 +33,7 @@ MAX_READ_LINES = 50000
 MAX_DIRECTORY_ENTRIES = 1000
 
 # Blocked patterns
-BLOCKED_DIRECTORIES = {'node_modules', '__pycache__', '.git', '.venv', 'venv', '.tox'}
+BLOCKED_DIRECTORIES = {"node_modules", "__pycache__", ".git", ".venv", "venv", ".tox"}
 
 
 class ReadFileTool(BaseTool):
@@ -63,15 +63,15 @@ class ReadFileTool(BaseTool):
         "properties": {
             "path": {
                 "type": "string",
-                "description": "Relative or absolute path to file"
+                "description": "Relative or absolute path to file",
             },
             "encoding": {
                 "type": "string",
                 "description": "File encoding (default: utf-8)",
-                "default": "utf-8"
-            }
+                "default": "utf-8",
+            },
         },
-        "required": ["path"]
+        "required": ["path"],
     }
 
     def __init__(self, workspace_root: str):
@@ -143,18 +143,12 @@ class ReadFileTool(BaseTool):
             # Check file exists
             if not resolved_path.exists():
                 logger.warning(f"File not found: {path}")
-                return ToolResult(
-                    success=False,
-                    error=f"File not found: {path}"
-                )
+                return ToolResult(success=False, error=f"File not found: {path}")
 
             # Check is regular file
             if not resolved_path.is_file():
                 logger.warning(f"Not a regular file: {path}")
-                return ToolResult(
-                    success=False,
-                    error=f"Not a regular file: {path}"
-                )
+                return ToolResult(success=False, error=f"Not a regular file: {path}")
 
             # Check file size
             file_size = resolved_path.stat().st_size
@@ -164,11 +158,11 @@ class ReadFileTool(BaseTool):
                 )
                 return ToolResult(
                     success=False,
-                    error=f"File too large: {file_size} bytes (max: {MAX_FILE_SIZE} bytes)"
+                    error=f"File too large: {file_size} bytes (max: {MAX_FILE_SIZE} bytes)",
                 )
 
             # Read file
-            async with aiofiles.open(resolved_path, 'r', encoding=encoding) as f:
+            async with aiofiles.open(resolved_path, "r", encoding=encoding) as f:
                 content = await f.read()
 
             # Audit log
@@ -183,8 +177,8 @@ class ReadFileTool(BaseTool):
                     "path": str(resolved_path),
                     "size_bytes": file_size,
                     "line_count": len(content.splitlines()),
-                    "encoding": encoding
-                }
+                    "encoding": encoding,
+                },
             )
 
         except SecurityError as e:
@@ -196,7 +190,7 @@ class ReadFileTool(BaseTool):
             logger.error(f"Encoding error reading {path}: {e}")
             return ToolResult(
                 success=False,
-                error=f"Encoding error: file may be binary or use different encoding than {encoding}"
+                error=f"Encoding error: file may be binary or use different encoding than {encoding}",
             )
 
         except Exception as e:
@@ -231,19 +225,16 @@ class WriteFileTool(BaseTool):
         "properties": {
             "path": {
                 "type": "string",
-                "description": "Relative or absolute path to file"
+                "description": "Relative or absolute path to file",
             },
-            "content": {
-                "type": "string",
-                "description": "File content to write"
-            },
+            "content": {"type": "string", "description": "File content to write"},
             "create_dirs": {
                 "type": "boolean",
                 "description": "Create parent directories if needed (default: True)",
-                "default": True
-            }
+                "default": True,
+            },
         },
-        "required": ["path", "content"]
+        "required": ["path", "content"],
     }
 
     def __init__(self, workspace_root: str):
@@ -283,11 +274,7 @@ class WriteFileTool(BaseTool):
         return resolved
 
     def _create_diff_preview(
-        self,
-        path: Path,
-        original: Optional[str],
-        new: str,
-        change_type: str
+        self, path: Path, original: Optional[str], new: str, change_type: str
     ) -> DiffPreview:
         """Create diff preview for file changes.
 
@@ -309,7 +296,7 @@ class WriteFileTool(BaseTool):
                 new.splitlines(keepends=True),
                 fromfile=f"a/{path.name}",
                 tofile=f"b/{path.name}",
-                lineterm=""
+                lineterm="",
             )
 
             # Parse diff lines
@@ -323,37 +310,32 @@ class WriteFileTool(BaseTool):
 
                 line_num += 1
                 if line.startswith("+"):
-                    diff_lines.append(DiffLine(
-                        line_number=line_num,
-                        type="add",
-                        content=line[1:]
-                    ))
+                    diff_lines.append(
+                        DiffLine(line_number=line_num, type="add", content=line[1:])
+                    )
                 elif line.startswith("-"):
-                    diff_lines.append(DiffLine(
-                        line_number=line_num,
-                        type="remove",
-                        content=line[1:]
-                    ))
+                    diff_lines.append(
+                        DiffLine(line_number=line_num, type="remove", content=line[1:])
+                    )
                 else:
-                    diff_lines.append(DiffLine(
-                        line_number=line_num,
-                        type="context",
-                        content=line[1:] if line.startswith(" ") else line
-                    ))
+                    diff_lines.append(
+                        DiffLine(
+                            line_number=line_num,
+                            type="context",
+                            content=line[1:] if line.startswith(" ") else line,
+                        )
+                    )
 
         return DiffPreview(
             file_path=str(path),
             original_content=original,
             new_content=new,
             diff_lines=diff_lines,
-            change_type=change_type
+            change_type=change_type,
         )
 
     async def execute(
-        self,
-        path: str,
-        content: str,
-        create_dirs: bool = True
+        self, path: str, content: str, create_dirs: bool = True
     ) -> ToolResult:
         """Write file contents.
 
@@ -367,14 +349,14 @@ class WriteFileTool(BaseTool):
         """
         try:
             # Validate content size
-            content_size = len(content.encode('utf-8'))
+            content_size = len(content.encode("utf-8"))
             if content_size > MAX_FILE_SIZE:
                 logger.warning(
                     f"Content too large: {content_size} bytes > {MAX_FILE_SIZE} bytes"
                 )
                 return ToolResult(
                     success=False,
-                    error=f"Content too large: {content_size} bytes (max: {MAX_FILE_SIZE} bytes)"
+                    error=f"Content too large: {content_size} bytes (max: {MAX_FILE_SIZE} bytes)",
                 )
 
             # Validate and resolve path
@@ -387,13 +369,12 @@ class WriteFileTool(BaseTool):
             if resolved_path.exists():
                 if resolved_path.is_file():
                     # Read original content for diff
-                    async with aiofiles.open(resolved_path, 'r', encoding='utf-8') as f:
+                    async with aiofiles.open(resolved_path, "r", encoding="utf-8") as f:
                         original_content = await f.read()
                     change_type = "modify"
                 else:
                     return ToolResult(
-                        success=False,
-                        error=f"Path exists but is not a file: {path}"
+                        success=False, error=f"Path exists but is not a file: {path}"
                     )
 
             # Create parent directories if needed
@@ -401,15 +382,12 @@ class WriteFileTool(BaseTool):
                 resolved_path.parent.mkdir(parents=True, exist_ok=True)
 
             # Write file
-            async with aiofiles.open(resolved_path, 'w', encoding='utf-8') as f:
+            async with aiofiles.open(resolved_path, "w", encoding="utf-8") as f:
                 await f.write(content)
 
             # Generate diff preview
             diff_preview = self._create_diff_preview(
-                resolved_path,
-                original_content,
-                content,
-                change_type
+                resolved_path, original_content, content, change_type
             )
 
             # Audit log
@@ -425,12 +403,9 @@ class WriteFileTool(BaseTool):
                     "diff_preview": diff_preview.model_dump(),
                     "change_type": change_type,
                     "size_bytes": content_size,
-                    "line_count": len(content.splitlines())
+                    "line_count": len(content.splitlines()),
                 },
-                metadata={
-                    "path": str(resolved_path),
-                    "change_type": change_type
-                }
+                metadata={"path": str(resolved_path), "change_type": change_type},
             )
 
         except SecurityError as e:
@@ -469,22 +444,22 @@ class ListDirectoryTool(BaseTool):
             "path": {
                 "type": "string",
                 "description": "Relative or absolute directory path (default: workspace root)",
-                "default": "."
+                "default": ".",
             },
             "recursive": {
                 "type": "boolean",
                 "description": "List recursively (default: False)",
-                "default": False
+                "default": False,
             },
             "max_depth": {
                 "type": "integer",
                 "description": "Maximum recursion depth (default: 2)",
                 "default": 2,
                 "minimum": 1,
-                "maximum": 10
-            }
+                "maximum": 10,
+            },
         },
-        "required": []
+        "required": [],
     }
 
     def __init__(self, workspace_root: str):
@@ -532,18 +507,14 @@ class ListDirectoryTool(BaseTool):
         Returns:
             Formatted string (e.g., "1.5 MB")
         """
-        for unit in ['B', 'KB', 'MB', 'GB']:
+        for unit in ["B", "KB", "MB", "GB"]:
             if size_bytes < 1024.0:
                 return f"{size_bytes:.1f} {unit}"
             size_bytes /= 1024.0
         return f"{size_bytes:.1f} TB"
 
     def _list_entries(
-        self,
-        path: Path,
-        recursive: bool,
-        max_depth: int,
-        current_depth: int = 0
+        self, path: Path, recursive: bool, max_depth: int, current_depth: int = 0
     ) -> List[str]:
         """Recursively list directory entries.
 
@@ -569,8 +540,11 @@ class ListDirectoryTool(BaseTool):
                     break
 
                 # Skip hidden files (except .gitignore, .env, etc.)
-                if entry.name.startswith('.') and entry.name not in {
-                    '.gitignore', '.env', '.env.example', '.dockerignore'
+                if entry.name.startswith(".") and entry.name not in {
+                    ".gitignore",
+                    ".env",
+                    ".env.example",
+                    ".dockerignore",
                 }:
                     continue
 
@@ -586,10 +560,7 @@ class ListDirectoryTool(BaseTool):
                     # Recurse if enabled and within depth limit
                     if recursive and current_depth < max_depth:
                         sub_entries = self._list_entries(
-                            entry,
-                            recursive,
-                            max_depth,
-                            current_depth + 1
+                            entry, recursive, max_depth, current_depth + 1
                         )
                         entries.extend(sub_entries)
                 else:
@@ -606,10 +577,7 @@ class ListDirectoryTool(BaseTool):
         return entries
 
     async def execute(
-        self,
-        path: str = ".",
-        recursive: bool = False,
-        max_depth: int = 2
+        self, path: str = ".", recursive: bool = False, max_depth: int = 2
     ) -> ToolResult:
         """List directory contents.
 
@@ -628,18 +596,12 @@ class ListDirectoryTool(BaseTool):
             # Check directory exists
             if not resolved_path.exists():
                 logger.warning(f"Directory not found: {path}")
-                return ToolResult(
-                    success=False,
-                    error=f"Directory not found: {path}"
-                )
+                return ToolResult(success=False, error=f"Directory not found: {path}")
 
             # Check is directory
             if not resolved_path.is_dir():
                 logger.warning(f"Not a directory: {path}")
-                return ToolResult(
-                    success=False,
-                    error=f"Not a directory: {path}"
-                )
+                return ToolResult(success=False, error=f"Not a directory: {path}")
 
             # List entries
             entries = self._list_entries(resolved_path, recursive, max_depth)
@@ -660,8 +622,8 @@ class ListDirectoryTool(BaseTool):
                 metadata={
                     "path": str(resolved_path),
                     "entry_count": len(entries),
-                    "recursive": recursive
-                }
+                    "recursive": recursive,
+                },
             )
 
         except SecurityError as e:
@@ -700,10 +662,10 @@ class DeleteFileTool(BaseTool):
         "properties": {
             "path": {
                 "type": "string",
-                "description": "Relative or absolute path to file"
+                "description": "Relative or absolute path to file",
             }
         },
-        "required": ["path"]
+        "required": ["path"],
     }
     requires_confirmation = True
 
@@ -762,26 +724,21 @@ class DeleteFileTool(BaseTool):
             # Check file exists
             if not resolved_path.exists():
                 logger.warning(f"File not found: {path}")
-                return ToolResult(
-                    success=False,
-                    error=f"File not found: {path}"
-                )
+                return ToolResult(success=False, error=f"File not found: {path}")
 
             # Check is regular file (not directory)
             if not resolved_path.is_file():
                 logger.warning(f"Not a regular file: {path}")
                 return ToolResult(
                     success=False,
-                    error=f"Not a regular file (use dedicated directory deletion tool): {path}"
+                    error=f"Not a regular file (use dedicated directory deletion tool): {path}",
                 )
 
             # Get file info
             file_size = resolved_path.stat().st_size
 
             # Audit log
-            logger.info(
-                f"DELETE_FILE requested: {path} ({file_size} bytes)"
-            )
+            logger.info(f"DELETE_FILE requested: {path} ({file_size} bytes)")
 
             # Return confirmation request
             return ToolResult(
@@ -789,10 +746,7 @@ class DeleteFileTool(BaseTool):
                 output=f"Confirm deletion of: {path} ({file_size} bytes)",
                 requires_confirmation=True,
                 confirmation_type="file_delete",
-                metadata={
-                    "path": str(resolved_path),
-                    "size_bytes": file_size
-                }
+                metadata={"path": str(resolved_path), "size_bytes": file_size},
             )
 
         except SecurityError as e:

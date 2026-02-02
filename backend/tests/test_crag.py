@@ -30,7 +30,7 @@ def mock_document_chunks():
             chunk_index=0,
             start_pos=0,
             end_pos=150,
-            relevance_score=0.92
+            relevance_score=0.92,
         ),
         DocumentChunk(
             id="chunk2",
@@ -40,7 +40,7 @@ def mock_document_chunks():
             chunk_index=1,
             start_pos=150,
             end_pos=300,
-            relevance_score=0.88
+            relevance_score=0.88,
         ),
         DocumentChunk(
             id="chunk3",
@@ -49,8 +49,8 @@ def mock_document_chunks():
             chunk_index=0,
             start_pos=0,
             end_pos=80,
-            relevance_score=0.65
-        )
+            relevance_score=0.65,
+        ),
     ]
 
 
@@ -65,7 +65,7 @@ def irrelevant_chunks():
             chunk_index=0,
             start_pos=0,
             end_pos=80,
-            relevance_score=0.35
+            relevance_score=0.35,
         ),
         DocumentChunk(
             id="chunk5",
@@ -74,8 +74,8 @@ def irrelevant_chunks():
             chunk_index=0,
             start_pos=0,
             end_pos=70,
-            relevance_score=0.28
-        )
+            relevance_score=0.28,
+        ),
     ]
 
 
@@ -276,7 +276,7 @@ class TestWebSearchAugmenter:
     async def test_augment_converts_web_results_to_chunks(self):
         """Test web search results are converted to DocumentChunk format."""
         # Mock SearXNG client
-        with patch('app.services.web_augmenter.get_searxng_client') as mock_get_client:
+        with patch("app.services.web_augmenter.get_searxng_client") as mock_get_client:
             mock_client = AsyncMock()
             mock_search_response = Mock()
             mock_search_response.results = [
@@ -284,14 +284,14 @@ class TestWebSearchAugmenter:
                     title="Python Async Guide",
                     url="https://example.com/async",
                     content="Comprehensive guide to async programming in Python",
-                    score=1.0
+                    score=1.0,
                 ),
                 Mock(
                     title="Asyncio Tutorial",
                     url="https://example.com/asyncio",
                     content="Learn asyncio for concurrent Python programming",
-                    score=0.9
-                )
+                    score=0.9,
+                ),
             ]
             mock_search_response.search_time_ms = 250.0
 
@@ -305,7 +305,7 @@ class TestWebSearchAugmenter:
 
             # Verify results
             assert len(chunks) == 2
-            assert all(chunk.language == 'web' for chunk in chunks)
+            assert all(chunk.language == "web" for chunk in chunks)
             assert chunks[0].file_path == "https://example.com/async"
             assert "Python Async Guide" in chunks[0].content
             assert chunks[0].relevance_score == 1.0
@@ -313,7 +313,7 @@ class TestWebSearchAugmenter:
     @pytest.mark.asyncio
     async def test_augment_handles_empty_results(self):
         """Test augmenter handles empty search results gracefully."""
-        with patch('app.services.web_augmenter.get_searxng_client') as mock_get_client:
+        with patch("app.services.web_augmenter.get_searxng_client") as mock_get_client:
             mock_client = AsyncMock()
             mock_search_response = Mock()
             mock_search_response.results = []
@@ -330,7 +330,7 @@ class TestWebSearchAugmenter:
     @pytest.mark.asyncio
     async def test_augment_handles_search_failure(self):
         """Test augmenter handles search failures gracefully."""
-        with patch('app.services.web_augmenter.get_searxng_client') as mock_get_client:
+        with patch("app.services.web_augmenter.get_searxng_client") as mock_get_client:
             mock_client = AsyncMock()
             mock_client.search = AsyncMock(side_effect=Exception("Search failed"))
             mock_get_client.return_value = mock_client
@@ -357,20 +357,19 @@ class TestCRAGOrchestrator:
             candidates_considered=20,
             retrieval_time_ms=85.0,
             cache_hit=False,
-            top_scores=[0.92, 0.88, 0.65]
+            top_scores=[0.92, 0.88, 0.65],
         )
         mock_retriever.retrieve = AsyncMock(return_value=mock_cgrag_result)
 
         orchestrator = CRAGOrchestrator(
             cgrag_retriever=mock_retriever,
             enable_web_search=False,
-            enable_query_expansion=False
+            enable_query_expansion=False,
         )
 
         # Execute CRAG workflow
         result = await orchestrator.retrieve(
-            query="Python async patterns concurrent execution",
-            token_budget=5000
+            query="Python async patterns concurrent execution", token_budget=5000
         )
 
         # Verify fast path
@@ -395,7 +394,7 @@ class TestCRAGOrchestrator:
             candidates_considered=10,
             retrieval_time_ms=80.0,
             cache_hit=False,
-            top_scores=[0.68, 0.62]
+            top_scores=[0.68, 0.62],
         )
 
         # Expanded retrieval (better results)
@@ -406,7 +405,7 @@ class TestCRAGOrchestrator:
             chunk_index=0,
             start_pos=0,
             end_pos=70,
-            relevance_score=0.85
+            relevance_score=0.85,
         )
         expanded_result = CGRAGResult(
             artifacts=[expanded_chunk] + mock_document_chunks[:1],
@@ -414,22 +413,24 @@ class TestCRAGOrchestrator:
             candidates_considered=15,
             retrieval_time_ms=90.0,
             cache_hit=False,
-            top_scores=[0.85, 0.68]
+            top_scores=[0.85, 0.68],
         )
 
         # Configure mock to return different results
-        mock_retriever.retrieve = AsyncMock(side_effect=[initial_result, expanded_result])
+        mock_retriever.retrieve = AsyncMock(
+            side_effect=[initial_result, expanded_result]
+        )
 
         orchestrator = CRAGOrchestrator(
             cgrag_retriever=mock_retriever,
             enable_web_search=False,
-            enable_query_expansion=True
+            enable_query_expansion=True,
         )
 
         # Execute with PARTIAL-triggering query
         result = await orchestrator.retrieve(
             query="async error handling",  # Partial keyword overlap
-            token_budget=5000
+            token_budget=5000,
         )
 
         # Verify query expansion was applied
@@ -449,7 +450,7 @@ class TestCRAGOrchestrator:
             candidates_considered=5,
             retrieval_time_ms=70.0,
             cache_hit=False,
-            top_scores=[0.35, 0.28]
+            top_scores=[0.35, 0.28],
         )
         mock_retriever.retrieve = AsyncMock(return_value=mock_cgrag_result)
 
@@ -461,11 +462,11 @@ class TestCRAGOrchestrator:
             chunk_index=0,
             start_pos=0,
             end_pos=50,
-            language='web',
-            relevance_score=0.95
+            language="web",
+            relevance_score=0.95,
         )
 
-        with patch('app.services.crag.WebSearchAugmenter') as MockAugmenter:
+        with patch("app.services.crag.WebSearchAugmenter") as MockAugmenter:
             mock_augmenter_instance = AsyncMock()
             mock_augmenter_instance.augment = AsyncMock(return_value=[web_chunk])
             MockAugmenter.return_value = mock_augmenter_instance
@@ -473,13 +474,13 @@ class TestCRAGOrchestrator:
             orchestrator = CRAGOrchestrator(
                 cgrag_retriever=mock_retriever,
                 enable_web_search=True,
-                enable_query_expansion=False
+                enable_query_expansion=False,
             )
 
             # Execute with irrelevant-triggering query
             result = await orchestrator.retrieve(
                 query="Kubernetes deployment strategies microservices",
-                token_budget=5000
+                token_budget=5000,
             )
 
             # Verify web search fallback
@@ -488,7 +489,7 @@ class TestCRAGOrchestrator:
             assert result.correction_strategy == "web_search"
             assert result.web_search_used is True
             assert len(result.artifacts) == 1
-            assert result.artifacts[0].language == 'web'
+            assert result.artifacts[0].language == "web"
 
     @pytest.mark.asyncio
     async def test_orchestrator_merge_deduplication(self):
@@ -502,7 +503,7 @@ class TestCRAGOrchestrator:
             content="Content 1",
             chunk_index=0,
             start_pos=0,
-            end_pos=10
+            end_pos=10,
         )
         chunk2 = DocumentChunk(
             id="chunk2",
@@ -510,7 +511,7 @@ class TestCRAGOrchestrator:
             content="Content 2",
             chunk_index=1,
             start_pos=10,
-            end_pos=20
+            end_pos=20,
         )
         chunk1_duplicate = DocumentChunk(
             id="chunk1",  # Same ID as chunk1
@@ -518,20 +519,20 @@ class TestCRAGOrchestrator:
             content="Content 1",
             chunk_index=0,
             start_pos=0,
-            end_pos=10
+            end_pos=10,
         )
 
         orchestrator = CRAGOrchestrator(
             cgrag_retriever=mock_retriever,
             enable_web_search=False,
-            enable_query_expansion=False
+            enable_query_expansion=False,
         )
 
         # Test merge with duplicates
         merged = orchestrator._merge_artifacts(
             original=[chunk1, chunk2],
             expanded=[chunk1_duplicate, chunk2],  # Duplicates
-            token_budget=10000
+            token_budget=10000,
         )
 
         # Should only have 2 unique chunks

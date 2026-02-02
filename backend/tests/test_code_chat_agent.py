@@ -9,7 +9,6 @@ once the ReActAgent implementation is complete.
 Phase: Code Chat Implementation (Session 5)
 """
 
-
 import pytest
 
 from app.models.code_chat import (
@@ -28,34 +27,25 @@ from app.models.code_chat import (
 # Model Tests (these can run now)
 # =============================================================================
 
+
 class TestCodeChatModels:
     """Tests for Code Chat Pydantic models."""
 
     def test_tool_call_creation(self):
         """Test ToolCall model creation."""
-        call = ToolCall(
-            tool=ToolName.READ_FILE,
-            args={"path": "test.py"}
-        )
+        call = ToolCall(tool=ToolName.READ_FILE, args={"path": "test.py"})
         assert call.tool == ToolName.READ_FILE
         assert call.args["path"] == "test.py"
 
     def test_tool_result_success(self):
         """Test successful ToolResult."""
-        result = ToolResult(
-            success=True,
-            output="file contents here"
-        )
+        result = ToolResult(success=True, output="file contents here")
         assert result.success is True
         assert result.error is None
 
     def test_tool_result_failure(self):
         """Test failed ToolResult."""
-        result = ToolResult(
-            success=False,
-            output="",
-            error="File not found"
-        )
+        result = ToolResult(success=False, output="", error="File not found")
         assert result.success is False
         assert "not found" in result.error.lower()
 
@@ -67,7 +57,7 @@ class TestCodeChatModels:
             action=ToolCall(tool=ToolName.READ_FILE, args={"path": "test.py"}),
             observation="File contents...",
             state=AgentState.OBSERVING,
-            model_tier="balanced"
+            model_tier="balanced",
         )
         assert step.step_number == 1
         assert step.state == AgentState.OBSERVING
@@ -75,8 +65,7 @@ class TestCodeChatModels:
     def test_code_chat_request_creation(self):
         """Test CodeChatRequest model creation."""
         request = CodeChatRequest(
-            query="Read the main.py file",
-            workspace_path="/home/user/project"
+            query="Read the main.py file", workspace_path="/home/user/project"
         )
         assert request.query == "Read the main.py file"
         assert request.workspace_path == "/home/user/project"
@@ -91,7 +80,7 @@ class TestCodeChatModels:
             use_cgrag=True,
             use_web_search=False,
             max_iterations=10,
-            preset="quality"
+            preset="quality",
         )
         assert request.context_name == "project_docs"
         assert request.use_cgrag is True
@@ -123,7 +112,7 @@ class TestCodeChatModels:
             type="thought",
             content="I should read the config file",
             tier="balanced",
-            step_number=1
+            step_number=1,
         )
         assert event.type == "thought"
         assert event.content == "I should read the config file"
@@ -134,7 +123,7 @@ class TestCodeChatModels:
         turn = ConversationTurn(
             query="What files are in src?",
             response="There are 5 Python files in src/",
-            tools_used=["list_directory"]
+            tools_used=["list_directory"],
         )
         assert turn.query == "What files are in src?"
         assert "list_directory" in turn.tools_used
@@ -143,6 +132,7 @@ class TestCodeChatModels:
 # =============================================================================
 # Agent Stub Tests (to be expanded when agent is implemented)
 # =============================================================================
+
 
 class TestAgentPlaceholder:
     """Placeholder tests for ReActAgent (to be expanded)."""

@@ -73,9 +73,9 @@ async def test_startup():
             print(f"\n✅ Servers running: {status['total_servers']}")
             print(f"✅ Servers ready: {status['ready_servers']}")
 
-            if status['servers']:
+            if status["servers"]:
                 print("\nServer Details:")
-                for server_status in status['servers']:
+                for server_status in status["servers"]:
                     print(f"  - {server_status['display_name']}")
                     print(f"    Port: {server_status['port']}")
                     print(f"    PID: {server_status['pid']}")
@@ -93,7 +93,9 @@ async def test_startup():
             if service.server_manager:
                 status = service.server_manager.get_status_summary()
                 print("\nFinal Status:")
-                print(f"  Ready servers: {status['ready_servers']}/{status['total_servers']}")
+                print(
+                    f"  Ready servers: {status['ready_servers']}/{status['total_servers']}"
+                )
 
         # Shutdown
         print("\n" + "=" * 70)
@@ -109,6 +111,7 @@ async def test_startup():
     except Exception as e:
         print(f"\n❌ Test failed: {e}")
         import traceback
+
         traceback.print_exc()
 
         # Attempt cleanup

@@ -18,22 +18,23 @@ from pythonjsonlogger import jsonlogger
 from app.models.config import LoggingConfig
 
 # Context variable for request ID tracking across async contexts
-request_id_var: ContextVar[Optional[str]] = ContextVar('request_id', default=None)
+request_id_var: ContextVar[Optional[str]] = ContextVar("request_id", default=None)
 
 # Context variable for trace ID tracking
-trace_id_var: ContextVar[Optional[str]] = ContextVar('trace_id', default=None)
+trace_id_var: ContextVar[Optional[str]] = ContextVar("trace_id", default=None)
 
 # Context variable for session ID tracking
-session_id_var: ContextVar[Optional[str]] = ContextVar('session_id', default=None)
+session_id_var: ContextVar[Optional[str]] = ContextVar("session_id", default=None)
 
 
 class ServiceTag(str, Enum):
     """Canonical service logging tags per SYSTEM_IDENTITY.md"""
-    PRAXIS = "prx"      # CORE:PRAXIS - Orchestrator
-    MEMEX = "mem"       # CORE:MEMEX - Redis cache
-    RECALL = "rec"      # NODE:RECALL - CGRAG/SearXNG
-    NEURAL = "nrl"      # NODE:NEURAL - Host API
-    INTERFACE = "ifc"   # CORE:INTERFACE - Frontend
+
+    PRAXIS = "prx"  # CORE:PRAXIS - Orchestrator
+    MEMEX = "mem"  # CORE:MEMEX - Redis cache
+    RECALL = "rec"  # NODE:RECALL - CGRAG/SearXNG
+    NEURAL = "nrl"  # NODE:NEURAL - Host API
+    INTERFACE = "ifc"  # CORE:INTERFACE - Frontend
 
 
 class RequestIdFilter(logging.Filter):
@@ -52,7 +53,7 @@ class RequestIdFilter(logging.Filter):
         Returns:
             Always True (never filters out records)
         """
-        record.request_id = request_id_var.get() or 'N/A'
+        record.request_id = request_id_var.get() or "N/A"
         return True
 
 
@@ -87,28 +88,28 @@ class StructuredFormatter(logging.Formatter):
         }
 
         # Add trace ID if present
-        if hasattr(record, 'trace_id') and record.trace_id:
-            log_data['trace_id'] = record.trace_id
+        if hasattr(record, "trace_id") and record.trace_id:
+            log_data["trace_id"] = record.trace_id
         else:
             trace_id = trace_id_var.get()
             if trace_id:
-                log_data['trace_id'] = trace_id
+                log_data["trace_id"] = trace_id
 
         # Add session ID if present
-        if hasattr(record, 'session_id') and record.session_id:
-            log_data['session_id'] = record.session_id
+        if hasattr(record, "session_id") and record.session_id:
+            log_data["session_id"] = record.session_id
         else:
             session_id = session_id_var.get()
             if session_id:
-                log_data['session_id'] = session_id
+                log_data["session_id"] = session_id
 
         # Add request ID if present
-        if hasattr(record, 'request_id') and record.request_id != 'N/A':
-            log_data['request_id'] = record.request_id
+        if hasattr(record, "request_id") and record.request_id != "N/A":
+            log_data["request_id"] = record.request_id
 
         # Add exception info if present
         if record.exc_info:
-            log_data['exc_info'] = self.formatException(record.exc_info)
+            log_data["exc_info"] = self.formatException(record.exc_info)
 
         return json.dumps(log_data)
 
@@ -123,7 +124,7 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):
         self,
         log_record: Dict[str, Any],
         record: logging.LogRecord,
-        message_dict: Dict[str, Any]
+        message_dict: Dict[str, Any],
     ) -> None:
         """Add custom fields to JSON log record.
 
@@ -135,17 +136,19 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):
         super().add_fields(log_record, record, message_dict)
 
         # Add standard fields
-        log_record['timestamp'] = self.formatTime(record, self.datefmt)
-        log_record['level'] = record.levelname
-        log_record['logger'] = record.name
-        log_record['request_id'] = getattr(record, 'request_id', 'N/A')
+        log_record["timestamp"] = self.formatTime(record, self.datefmt)
+        log_record["level"] = record.levelname
+        log_record["logger"] = record.name
+        log_record["request_id"] = getattr(record, "request_id", "N/A")
 
         # Add exception info if present
         if record.exc_info:
-            log_record['exc_info'] = self.formatException(record.exc_info)
+            log_record["exc_info"] = self.formatException(record.exc_info)
 
 
-def setup_logging(config: LoggingConfig, service_tag: ServiceTag = ServiceTag.PRAXIS) -> None:
+def setup_logging(
+    config: LoggingConfig, service_tag: ServiceTag = ServiceTag.PRAXIS
+) -> None:
     """Configure application logging based on configuration.
 
     Sets up handlers, formatters, and filters for structured logging with
@@ -171,14 +174,14 @@ def setup_logging(config: LoggingConfig, service_tag: ServiceTag = ServiceTag.PR
     console_handler.addFilter(request_id_filter)
 
     # Configure formatter based on format setting
-    if config.format == 'json':
+    if config.format == "json":
         # Use StructuredFormatter with service tags for JSON format
         formatter = StructuredFormatter(service_tag=service_tag)
     else:
         # Text format with service tag prefix
         formatter = logging.Formatter(
-            fmt=f'%(asctime)s [{service_tag.value}:%(levelname)s] [%(request_id)s] %(name)s: %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S'
+            fmt=f"%(asctime)s [{service_tag.value}:%(levelname)s] [%(request_id)s] %(name)s: %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
         )
 
     console_handler.setFormatter(formatter)
@@ -196,9 +199,9 @@ def setup_logging(config: LoggingConfig, service_tag: ServiceTag = ServiceTag.PR
         root_logger.addHandler(file_handler)
 
     # Set third-party loggers to WARNING to reduce noise
-    logging.getLogger('uvicorn').setLevel(logging.WARNING)
-    logging.getLogger('fastapi').setLevel(logging.WARNING)
-    logging.getLogger('httpx').setLevel(logging.WARNING)
+    logging.getLogger("uvicorn").setLevel(logging.WARNING)
+    logging.getLogger("fastapi").setLevel(logging.WARNING)
+    logging.getLogger("httpx").setLevel(logging.WARNING)
 
 
 def get_logger(name: str) -> logging.Logger:

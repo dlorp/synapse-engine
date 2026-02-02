@@ -33,9 +33,12 @@ def get_app_state():
         Tuple of (model_registry, server_manager, profile_manager, discovery_service)
     """
     from app.main import (
-        model_registry, server_manager, profile_manager,
-        discovery_service
+        model_registry,
+        server_manager,
+        profile_manager,
+        discovery_service,
     )
+
     return model_registry, server_manager, profile_manager, discovery_service
 
 
@@ -61,7 +64,7 @@ async def run_discovery() -> Dict[str, Any]:
     if not discovery_service:
         raise HTTPException(
             status_code=503,
-            detail="Discovery service not initialized. Check server logs."
+            detail="Discovery service not initialized. Check server logs.",
         )
 
     try:
@@ -76,33 +79,32 @@ async def run_discovery() -> Dict[str, Any]:
 
         # Update global state
         import app.main
+
         app.main.model_registry = registry
 
         # Also update router state for backward compatibility
         from app.routers import models as models_router
+
         models_router.model_registry = registry
 
         logger.info(
             f"Discovery complete: {len(registry.models)} models found",
             extra={
-                'models_found': len(registry.models),
-                'scan_path': registry.scan_path
-            }
+                "models_found": len(registry.models),
+                "scan_path": registry.scan_path,
+            },
         )
 
         return {
             "message": "Discovery complete",
             "models_found": len(registry.models),
             "scan_path": registry.scan_path,
-            "timestamp": registry.last_scan
+            "timestamp": registry.last_scan,
         }
 
     except Exception as e:
         logger.error(f"Discovery failed: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500,
-            detail=f"Discovery failed: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Discovery failed: {str(e)}")
 
 
 @router.get("/health/detailed")
@@ -123,7 +125,7 @@ async def get_detailed_health() -> Dict[str, Any]:
     health_info = {
         "timestamp": datetime.now().isoformat(),
         "status": "healthy",
-        "components": {}
+        "components": {},
     }
 
     # Registry health
@@ -133,12 +135,12 @@ async def get_detailed_health() -> Dict[str, Any]:
             "status": "healthy",
             "models_count": len(model_registry.models),
             "enabled_count": enabled_count,
-            "last_scan": model_registry.last_scan
+            "last_scan": model_registry.last_scan,
         }
     else:
         health_info["components"]["registry"] = {
             "status": "unavailable",
-            "message": "No registry found. Run discovery first."
+            "message": "No registry found. Run discovery first.",
         }
         health_info["status"] = "degraded"
 
@@ -150,7 +152,7 @@ async def get_detailed_health() -> Dict[str, Any]:
             "status": "healthy" if all_ready else "degraded",
             "total": status["total_servers"],
             "ready": status["ready_servers"],
-            "servers": status["servers"]
+            "servers": status["servers"],
         }
 
         if not all_ready and health_info["status"] == "healthy":
@@ -158,7 +160,7 @@ async def get_detailed_health() -> Dict[str, Any]:
     else:
         health_info["components"]["servers"] = {
             "status": "unavailable",
-            "message": "Server manager not initialized"
+            "message": "Server manager not initialized",
         }
         health_info["status"] = "degraded"
 
@@ -168,35 +170,39 @@ async def get_detailed_health() -> Dict[str, Any]:
         health_info["components"]["profiles"] = {
             "status": "healthy",
             "available": profiles,
-            "count": len(profiles)
+            "count": len(profiles),
         }
     else:
         health_info["components"]["profiles"] = {
             "status": "unavailable",
-            "message": "Profile manager not initialized"
+            "message": "Profile manager not initialized",
         }
 
     # Discovery service health
     if discovery_service:
         health_info["components"]["discovery"] = {
             "status": "healthy",
-            "scan_path": discovery_service.scan_path
+            "scan_path": discovery_service.scan_path,
         }
     else:
         health_info["components"]["discovery"] = {
             "status": "unavailable",
-            "message": "Discovery service not initialized"
+            "message": "Discovery service not initialized",
         }
 
     logger.info(
         f"Health check completed: {health_info['status']}",
-        extra={'overall_status': health_info['status']}
+        extra={"overall_status": health_info["status"]},
     )
 
     return health_info
 
 
-@router.get("/external-servers/status", response_model=ExternalServerStatusResponse, response_model_by_alias=True)
+@router.get(
+    "/external-servers/status",
+    response_model=ExternalServerStatusResponse,
+    response_model_by_alias=True,
+)
 async def check_external_servers_status() -> ExternalServerStatusResponse:
     """Check if external Metal servers are reachable.
 
@@ -221,7 +227,7 @@ async def check_external_servers_status() -> ExternalServerStatusResponse:
             use_external_servers=False,
             servers=[],
             message="External servers mode is not enabled. System uses Docker-internal servers.",
-            checked_at=datetime.now().isoformat()
+            checked_at=datetime.now().isoformat(),
         )
 
     # Get all enabled models from registry
@@ -232,11 +238,12 @@ async def check_external_servers_status() -> ExternalServerStatusResponse:
             use_external_servers=True,
             servers=[],
             message="Model registry not initialized. Run discovery first.",
-            checked_at=datetime.now().isoformat()
+            checked_at=datetime.now().isoformat(),
         )
 
     enabled_models = [
-        model for model in model_registry.models.values()
+        model
+        for model in model_registry.models.values()
         if model.enabled and model.port
     ]
 
@@ -247,7 +254,7 @@ async def check_external_servers_status() -> ExternalServerStatusResponse:
             use_external_servers=True,
             servers=[],
             message="No enabled models with assigned ports. Enable models in Model Management.",
-            checked_at=datetime.now().isoformat()
+            checked_at=datetime.now().isoformat(),
         )
 
     # Check health of each external server
@@ -266,41 +273,53 @@ async def check_external_servers_status() -> ExternalServerStatusResponse:
                 response_time_ms = int((time.time() - start_time) * 1000)
 
                 if response.status_code == 200:
-                    server_items.append(ExternalServerItem(
-                        port=port,
-                        status="online",
-                        response_time_ms=response_time_ms,
-                        error_message=None
-                    ))
+                    server_items.append(
+                        ExternalServerItem(
+                            port=port,
+                            status="online",
+                            response_time_ms=response_time_ms,
+                            error_message=None,
+                        )
+                    )
                     online_count += 1
-                    logger.debug(f"External server on port {port} is online ({response_time_ms}ms)")
+                    logger.debug(
+                        f"External server on port {port} is online ({response_time_ms}ms)"
+                    )
                 else:
-                    server_items.append(ExternalServerItem(
-                        port=port,
-                        status="error",
-                        response_time_ms=response_time_ms,
-                        error_message=f"HTTP {response.status_code}"
-                    ))
+                    server_items.append(
+                        ExternalServerItem(
+                            port=port,
+                            status="error",
+                            response_time_ms=response_time_ms,
+                            error_message=f"HTTP {response.status_code}",
+                        )
+                    )
                     all_reachable = False
-                    logger.warning(f"External server on port {port} returned {response.status_code}")
+                    logger.warning(
+                        f"External server on port {port} returned {response.status_code}"
+                    )
 
             except httpx.TimeoutException:
-                server_items.append(ExternalServerItem(
-                    port=port,
-                    status="offline",
-                    response_time_ms=None,
-                    error_message="Connection timeout (5s)"
-                ))
+                server_items.append(
+                    ExternalServerItem(
+                        port=port,
+                        status="offline",
+                        response_time_ms=None,
+                        error_message="Connection timeout (5s)",
+                    )
+                )
                 all_reachable = False
                 logger.warning(f"External server on port {port} timed out")
 
             except Exception as e:
-                server_items.append(ExternalServerItem(
-                    port=port,
-                    status="offline",
-                    response_time_ms=None,
-                    error_message=str(e)
-                ))
+                server_items.append(
+                    ExternalServerItem(
+                        port=port,
+                        status="offline",
+                        response_time_ms=None,
+                        error_message=str(e),
+                    )
+                )
                 all_reachable = False
                 logger.warning(f"External server on port {port} unreachable: {e}")
 
@@ -315,7 +334,7 @@ async def check_external_servers_status() -> ExternalServerStatusResponse:
 
     logger.info(
         f"External server check completed: {online_count}/{total_servers} online",
-        extra={'online_count': online_count, 'total_count': total_servers}
+        extra={"online_count": online_count, "total_count": total_servers},
     )
 
     return ExternalServerStatusResponse(
@@ -323,7 +342,7 @@ async def check_external_servers_status() -> ExternalServerStatusResponse:
         use_external_servers=True,
         servers=server_items,
         message=message,
-        checked_at=datetime.now().isoformat()
+        checked_at=datetime.now().isoformat(),
     )
 
 
@@ -343,36 +362,37 @@ async def test_all_endpoints() -> Dict[str, Any]:
     """
     model_registry, server_manager, profile_manager, discovery_service = get_app_state()
 
-    results = {
-        "total": 0,
-        "passed": 0,
-        "failed": 0,
-        "tests": []
-    }
+    results = {"total": 0, "passed": 0, "failed": 0, "tests": []}
 
     # Test 1: Registry endpoint
     try:
         if model_registry:
-            results["tests"].append({
-                "endpoint": "GET /api/models/registry",
-                "status": "passed",
-                "message": f"Returned {len(model_registry.models)} models"
-            })
+            results["tests"].append(
+                {
+                    "endpoint": "GET /api/models/registry",
+                    "status": "passed",
+                    "message": f"Returned {len(model_registry.models)} models",
+                }
+            )
             results["passed"] += 1
         else:
-            results["tests"].append({
-                "endpoint": "GET /api/models/registry",
-                "status": "failed",
-                "message": "Registry not initialized"
-            })
+            results["tests"].append(
+                {
+                    "endpoint": "GET /api/models/registry",
+                    "status": "failed",
+                    "message": "Registry not initialized",
+                }
+            )
             results["failed"] += 1
         results["total"] += 1
     except Exception as e:
-        results["tests"].append({
-            "endpoint": "GET /api/models/registry",
-            "status": "failed",
-            "message": str(e)
-        })
+        results["tests"].append(
+            {
+                "endpoint": "GET /api/models/registry",
+                "status": "failed",
+                "message": str(e),
+            }
+        )
         results["failed"] += 1
         results["total"] += 1
 
@@ -380,26 +400,32 @@ async def test_all_endpoints() -> Dict[str, Any]:
     try:
         if server_manager:
             status = server_manager.get_status_summary()
-            results["tests"].append({
-                "endpoint": "GET /api/models/servers",
-                "status": "passed",
-                "message": f"{status['ready_servers']}/{status['total_servers']} servers ready"
-            })
+            results["tests"].append(
+                {
+                    "endpoint": "GET /api/models/servers",
+                    "status": "passed",
+                    "message": f"{status['ready_servers']}/{status['total_servers']} servers ready",
+                }
+            )
             results["passed"] += 1
         else:
-            results["tests"].append({
-                "endpoint": "GET /api/models/servers",
-                "status": "failed",
-                "message": "Server manager not initialized"
-            })
+            results["tests"].append(
+                {
+                    "endpoint": "GET /api/models/servers",
+                    "status": "failed",
+                    "message": "Server manager not initialized",
+                }
+            )
             results["failed"] += 1
         results["total"] += 1
     except Exception as e:
-        results["tests"].append({
-            "endpoint": "GET /api/models/servers",
-            "status": "failed",
-            "message": str(e)
-        })
+        results["tests"].append(
+            {
+                "endpoint": "GET /api/models/servers",
+                "status": "failed",
+                "message": str(e),
+            }
+        )
         results["failed"] += 1
         results["total"] += 1
 
@@ -407,52 +433,60 @@ async def test_all_endpoints() -> Dict[str, Any]:
     try:
         if profile_manager:
             profiles = profile_manager.list_profiles()
-            results["tests"].append({
-                "endpoint": "GET /api/models/profiles",
-                "status": "passed",
-                "message": f"Found {len(profiles)} profiles"
-            })
+            results["tests"].append(
+                {
+                    "endpoint": "GET /api/models/profiles",
+                    "status": "passed",
+                    "message": f"Found {len(profiles)} profiles",
+                }
+            )
             results["passed"] += 1
         else:
-            results["tests"].append({
-                "endpoint": "GET /api/models/profiles",
-                "status": "failed",
-                "message": "Profile manager not initialized"
-            })
+            results["tests"].append(
+                {
+                    "endpoint": "GET /api/models/profiles",
+                    "status": "failed",
+                    "message": "Profile manager not initialized",
+                }
+            )
             results["failed"] += 1
         results["total"] += 1
     except Exception as e:
-        results["tests"].append({
-            "endpoint": "GET /api/models/profiles",
-            "status": "failed",
-            "message": str(e)
-        })
+        results["tests"].append(
+            {
+                "endpoint": "GET /api/models/profiles",
+                "status": "failed",
+                "message": str(e),
+            }
+        )
         results["failed"] += 1
         results["total"] += 1
 
     # Test 4: Discovery service
     try:
         if discovery_service:
-            results["tests"].append({
-                "endpoint": "Discovery Service",
-                "status": "passed",
-                "message": f"Scan path: {discovery_service.scan_path}"
-            })
+            results["tests"].append(
+                {
+                    "endpoint": "Discovery Service",
+                    "status": "passed",
+                    "message": f"Scan path: {discovery_service.scan_path}",
+                }
+            )
             results["passed"] += 1
         else:
-            results["tests"].append({
-                "endpoint": "Discovery Service",
-                "status": "failed",
-                "message": "Discovery service not initialized"
-            })
+            results["tests"].append(
+                {
+                    "endpoint": "Discovery Service",
+                    "status": "failed",
+                    "message": "Discovery service not initialized",
+                }
+            )
             results["failed"] += 1
         results["total"] += 1
     except Exception as e:
-        results["tests"].append({
-            "endpoint": "Discovery Service",
-            "status": "failed",
-            "message": str(e)
-        })
+        results["tests"].append(
+            {"endpoint": "Discovery Service", "status": "failed", "message": str(e)}
+        )
         results["failed"] += 1
         results["total"] += 1
 
@@ -460,35 +494,38 @@ async def test_all_endpoints() -> Dict[str, Any]:
     try:
         # Import httpx for internal API call
         import httpx
+
         async with httpx.AsyncClient() as client:
             response = await client.get("http://localhost:8000/health")
             if response.status_code == 200:
-                results["tests"].append({
-                    "endpoint": "GET /health",
-                    "status": "passed",
-                    "message": f"Status code: {response.status_code}"
-                })
+                results["tests"].append(
+                    {
+                        "endpoint": "GET /health",
+                        "status": "passed",
+                        "message": f"Status code: {response.status_code}",
+                    }
+                )
                 results["passed"] += 1
             else:
-                results["tests"].append({
-                    "endpoint": "GET /health",
-                    "status": "failed",
-                    "message": f"Unexpected status: {response.status_code}"
-                })
+                results["tests"].append(
+                    {
+                        "endpoint": "GET /health",
+                        "status": "failed",
+                        "message": f"Unexpected status: {response.status_code}",
+                    }
+                )
                 results["failed"] += 1
         results["total"] += 1
     except Exception as e:
-        results["tests"].append({
-            "endpoint": "GET /health",
-            "status": "failed",
-            "message": str(e)
-        })
+        results["tests"].append(
+            {"endpoint": "GET /health", "status": "failed", "message": str(e)}
+        )
         results["failed"] += 1
         results["total"] += 1
 
     logger.info(
         f"Endpoint tests completed: {results['passed']}/{results['total']} passed",
-        extra={'passed': results['passed'], 'failed': results['failed']}
+        extra={"passed": results["passed"], "failed": results["failed"]},
     )
 
     return results
@@ -515,14 +552,16 @@ async def get_system_info() -> Dict[str, Any]:
         "environment": {
             "profile": os.getenv("PRAXIS_PROFILE", "development"),
             "scan_path": os.getenv("MODEL_SCAN_PATH", "/models"),
-            "llama_server_path": os.getenv("LLAMA_SERVER_PATH", "/usr/local/bin/llama-server"),
+            "llama_server_path": os.getenv(
+                "LLAMA_SERVER_PATH", "/usr/local/bin/llama-server"
+            ),
         },
         "services": {
             "registry_initialized": model_registry is not None,
             "server_manager_initialized": server_manager is not None,
             "profile_manager_initialized": profile_manager is not None,
             "discovery_service_initialized": discovery_service is not None,
-        }
+        },
     }
 
 
@@ -574,9 +613,9 @@ async def get_cache_stats() -> Dict[str, Any]:
             f"Cache stats retrieved: {stats['hit_rate']} hit rate, "
             f"{stats['cache_size']} keys",
             extra={
-                'hit_rate': stats['hit_rate_percent'],
-                'cache_size': stats['cache_size']
-            }
+                "hit_rate": stats["hit_rate_percent"],
+                "cache_size": stats["cache_size"],
+            },
         )
 
         return stats
@@ -584,14 +623,12 @@ async def get_cache_stats() -> Dict[str, Any]:
     except RuntimeError as e:
         logger.warning(f"Cache metrics not initialized: {e}")
         raise HTTPException(
-            status_code=503,
-            detail="Cache metrics service not initialized"
+            status_code=503, detail="Cache metrics service not initialized"
         )
     except Exception as e:
         logger.error(f"Failed to get cache stats: {e}", exc_info=True)
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to retrieve cache stats: {str(e)}"
+            status_code=500, detail=f"Failed to retrieve cache stats: {str(e)}"
         )
 
 
@@ -621,20 +658,18 @@ async def reset_cache_stats() -> Dict[str, str]:
 
         return {
             "message": "Cache metrics reset successfully",
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
     except RuntimeError as e:
         logger.warning(f"Cache metrics not initialized: {e}")
         raise HTTPException(
-            status_code=503,
-            detail="Cache metrics service not initialized"
+            status_code=503, detail="Cache metrics service not initialized"
         )
     except Exception as e:
         logger.error(f"Failed to reset cache stats: {e}", exc_info=True)
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to reset cache stats: {str(e)}"
+            status_code=500, detail=f"Failed to reset cache stats: {str(e)}"
         )
 
 
@@ -676,14 +711,13 @@ async def get_health_monitor_status() -> Dict[str, Any]:
     except RuntimeError as e:
         logger.warning(f"Health monitor not initialized: {e}")
         raise HTTPException(
-            status_code=503,
-            detail="Health monitor service not initialized"
+            status_code=503, detail="Health monitor service not initialized"
         )
     except Exception as e:
         logger.error(f"Failed to get health monitor status: {e}", exc_info=True)
         raise HTTPException(
             status_code=500,
-            detail=f"Failed to retrieve health monitor status: {str(e)}"
+            detail=f"Failed to retrieve health monitor status: {str(e)}",
         )
 
 
@@ -706,10 +740,7 @@ async def restart_servers() -> Dict[str, Any]:
     model_registry, server_manager, profile_manager, discovery_service = get_app_state()
 
     if not server_manager:
-        raise HTTPException(
-            status_code=503,
-            detail="Server manager not initialized"
-        )
+        raise HTTPException(status_code=503, detail="Server manager not initialized")
 
     try:
         logger.info("Restarting all servers from admin UI...")
@@ -734,28 +765,24 @@ async def restart_servers() -> Dict[str, Any]:
             logger.info(
                 f"Servers restarted: {status['ready_servers']}/{status['total_servers']} ready",
                 extra={
-                    'total': status['total_servers'],
-                    'ready': status['ready_servers']
-                }
+                    "total": status["total_servers"],
+                    "ready": status["ready_servers"],
+                },
             )
 
             return {
                 "message": "Servers restarted",
                 "total_servers": status["total_servers"],
-                "ready_servers": status["ready_servers"]
+                "ready_servers": status["ready_servers"],
             }
         else:
             raise HTTPException(
-                status_code=503,
-                detail="No registry available. Run discovery first."
+                status_code=503, detail="No registry available. Run discovery first."
             )
 
     except Exception as e:
         logger.error(f"Server restart failed: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500,
-            detail=f"Restart failed: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Restart failed: {str(e)}")
 
 
 @router.post("/servers/stop")
@@ -774,10 +801,7 @@ async def stop_servers() -> Dict[str, Any]:
     _, server_manager, _, _ = get_app_state()
 
     if not server_manager:
-        raise HTTPException(
-            status_code=503,
-            detail="Server manager not initialized"
-        )
+        raise HTTPException(status_code=503, detail="Server manager not initialized")
 
     try:
         logger.info("Stopping all servers from admin UI...")
@@ -786,12 +810,9 @@ async def stop_servers() -> Dict[str, Any]:
         return {
             "message": "All servers stopped",
             "total_servers": 0,
-            "ready_servers": 0
+            "ready_servers": 0,
         }
 
     except Exception as e:
         logger.error(f"Server stop failed: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500,
-            detail=f"Stop failed: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Stop failed: {str(e)}")
