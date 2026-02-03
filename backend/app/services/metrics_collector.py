@@ -14,7 +14,7 @@ from collections import defaultdict, deque
 from datetime import datetime, timezone
 from pathlib import Path
 from threading import Lock
-from typing import Deque, Optional
+from typing import Any, Deque, Optional
 
 from app.core.logging import get_logger
 from app.models.metrics import (
@@ -67,7 +67,7 @@ class MetricsCollector:
         self.query_tiers: Deque[str] = deque(maxlen=max_history)
 
         # Tier performance (last 20 samples per tier)
-        self.tier_performance = {
+        self.tier_performance: dict[str, dict[str, Any]] = {
             "Q2": {
                 "tokens_per_sec": deque(maxlen=20),
                 "latency_ms": deque(maxlen=20),
@@ -89,7 +89,9 @@ class MetricsCollector:
         }
 
         # Routing decision matrix
-        self.routing_matrix = defaultdict(lambda: {"count": 0, "total_score": 0.0})
+        self.routing_matrix: dict[str, dict[str, float | int]] = defaultdict(
+            lambda: {"count": 0, "total_score": 0.0}
+        )
         self.routing_decision_times: Deque[float] = deque(maxlen=100)
         self.fallback_count = 0
         self.total_routing_decisions = 0
@@ -229,8 +231,8 @@ class MetricsCollector:
             ]
 
             # Generate timestamps (10-second intervals)
-            timestamps = []
-            query_rate = []
+            timestamps: list[str] = []
+            query_rate: list[float] = []
 
             for i in range(18):  # 18 x 10s = 180s = 3 minutes (simplified view)
                 bucket_start = now - (i * 10)
@@ -264,7 +266,7 @@ class MetricsCollector:
                 query_rate=query_rate,
                 total_queries=total_queries,
                 avg_latency_ms=round(avg_latency, 2),
-                tier_distribution=tier_distribution,
+                tier_distribution=tier_distribution,  # type: ignore[arg-type]
             )
 
     def get_tier_metrics(self) -> TierMetricsResponse:
@@ -402,8 +404,8 @@ class MetricsCollector:
             # Build decision matrix
             decision_matrix = []
             for (complexity, tier), data in self.routing_matrix.items():
-                count = data["count"]
-                total_score = data["total_score"]
+                count = int(data["count"])
+                total_score = float(data["total_score"])
                 avg_score = total_score / count if count > 0 else 0.0
 
                 decision_matrix.append(

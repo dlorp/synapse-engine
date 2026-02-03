@@ -5,12 +5,13 @@ LLM models for comprehensive analysis, rather than the MCP sequential thinking t
 """
 
 import logging
-from typing import Callable, Dict, List, Optional, Awaitable
+from typing import Any, Callable, Dict, List, Optional, Awaitable
 
 logger = logging.getLogger(__name__)
 
 # Type alias for model caller function
-ModelCallerFunc = Callable[[str, str, int, float], Awaitable[Dict]]
+# Takes model_id, prompt, and optionally max_tokens/temperature
+ModelCallerFunc = Callable[..., Awaitable[Dict]]
 
 
 class ModeratorAnalysis:
@@ -346,7 +347,7 @@ def _parse_moderator_analysis(analysis_text: str) -> Dict:
     Returns:
         Structured breakdown dictionary
     """
-    breakdown = {
+    breakdown: Dict[str, Any] = {
         "argument_strength": {
             "pro_strengths": [],
             "pro_weaknesses": [],
@@ -364,32 +365,39 @@ def _parse_moderator_analysis(analysis_text: str) -> Dict:
     # In production, this could use more sophisticated NLP
     lines = analysis_text.lower().split("\n")
 
+    # Type-safe access to nested structures
+    arg_strength: Dict[str, List[str]] = breakdown["argument_strength"]  # type: ignore[assignment]
+    logical_fallacies: List[str] = breakdown["logical_fallacies"]  # type: ignore[assignment]
+    rhetorical_techniques: List[str] = breakdown["rhetorical_techniques"]  # type: ignore[assignment]
+    key_turning_points: List[str] = breakdown["key_turning_points"]  # type: ignore[assignment]
+    unanswered_questions: List[str] = breakdown["unanswered_questions"]  # type: ignore[assignment]
+
     for line in lines:
         # Extract argument strengths/weaknesses
         if "pro" in line and (
             "strong" in line or "effective" in line or "strength" in line
         ):
-            breakdown["argument_strength"]["pro_strengths"].append(line.strip()[:200])
+            arg_strength["pro_strengths"].append(line.strip()[:200])
         if "pro" in line and ("weak" in line or "fallacy" in line or "flaw" in line):
-            breakdown["argument_strength"]["pro_weaknesses"].append(line.strip()[:200])
+            arg_strength["pro_weaknesses"].append(line.strip()[:200])
         if "con" in line and (
             "strong" in line or "effective" in line or "strength" in line
         ):
-            breakdown["argument_strength"]["con_strengths"].append(line.strip()[:200])
+            arg_strength["con_strengths"].append(line.strip()[:200])
         if "con" in line and ("weak" in line or "fallacy" in line or "flaw" in line):
-            breakdown["argument_strength"]["con_weaknesses"].append(line.strip()[:200])
+            arg_strength["con_weaknesses"].append(line.strip()[:200])
 
         # Extract fallacies
         if "fallacy" in line or "logical error" in line or "invalid reasoning" in line:
-            breakdown["logical_fallacies"].append(line.strip()[:200])
+            logical_fallacies.append(line.strip()[:200])
 
         # Extract rhetorical techniques
         if "rhetoric" in line or "persuasion" in line or "technique" in line:
-            breakdown["rhetorical_techniques"].append(line.strip()[:200])
+            rhetorical_techniques.append(line.strip()[:200])
 
         # Extract turning points
         if "turning point" in line or "shift" in line or "momentum" in line:
-            breakdown["key_turning_points"].append(line.strip()[:200])
+            key_turning_points.append(line.strip()[:200])
 
         # Extract unanswered questions
         if (
@@ -398,7 +406,7 @@ def _parse_moderator_analysis(analysis_text: str) -> Dict:
             or "missing" in line
             or "not addressed" in line
         ):
-            breakdown["unanswered_questions"].append(line.strip()[:200])
+            unanswered_questions.append(line.strip()[:200])
 
     # Determine overall winner based on final assessment
     analysis_lower = analysis_text.lower()

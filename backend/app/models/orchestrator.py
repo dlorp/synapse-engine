@@ -54,13 +54,19 @@ class TierUtilization(BaseModel):
         ge=0,
         le=100,
         description="Utilization percentage",
-        alias="utilizationPercent",
+        serialization_alias="utilizationPercent",
     )
     active_requests: int = Field(
-        ..., ge=0, description="Active requests count", alias="activeRequests"
+        ...,
+        ge=0,
+        description="Active requests count",
+        serialization_alias="activeRequests",
     )
     total_processed: int = Field(
-        ..., ge=0, description="Total processed queries", alias="totalProcessed"
+        ...,
+        ge=0,
+        description="Total processed queries",
+        serialization_alias="totalProcessed",
     )
 
     class Config:
@@ -100,25 +106,32 @@ class OrchestratorStatusResponse(BaseModel):
     """
 
     tier_utilization: list[TierUtilization] = Field(
-        ..., description="Tier utilization metrics", alias="tierUtilization"
+        ...,
+        description="Tier utilization metrics",
+        serialization_alias="tierUtilization",
     )
     recent_decisions: list[RoutingDecision] = Field(
         ...,
         max_length=10,
         description="Recent routing decisions",
-        alias="recentDecisions",
+        serialization_alias="recentDecisions",
     )
     complexity_distribution: ComplexityDistribution = Field(
-        ..., description="Complexity distribution", alias="complexityDistribution"
+        ...,
+        description="Complexity distribution",
+        serialization_alias="complexityDistribution",
     )
     total_decisions: int = Field(
-        ..., ge=0, description="Total decisions made", alias="totalDecisions"
+        ...,
+        ge=0,
+        description="Total decisions made",
+        serialization_alias="totalDecisions",
     )
     avg_decision_time_ms: float = Field(
         ...,
         ge=0.0,
         description="Average decision time in ms",
-        alias="avgDecisionTimeMs",
+        serialization_alias="avgDecisionTimeMs",
     )
     timestamp: str = Field(..., description="ISO timestamp of snapshot")
 

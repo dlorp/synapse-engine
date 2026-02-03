@@ -508,8 +508,9 @@ class LlamaServerManager:
             if not server.is_running():
                 # Read any final error output
                 try:
-                    stderr_output = server.process.stderr.read()
-                    logger.error(f"Server stderr: {stderr_output}")
+                    if server.process is not None and server.process.stderr is not None:
+                        stderr_output = server.process.stderr.read()
+                        logger.error(f"Server stderr: {stderr_output}")
                 except Exception:
                     pass
 
@@ -524,6 +525,10 @@ class LlamaServerManager:
             # Non-blocking read of stderr for readiness indicators
             try:
                 import select
+
+                if server.process is None or server.process.stderr is None:
+                    await asyncio.sleep(0.5)
+                    continue
 
                 # Check if data available on stderr (Unix-like systems)
                 ready_fds, _, _ = select.select(
@@ -717,14 +722,14 @@ class LlamaServerManager:
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
         # Separate successful starts from failures
-        started = {}
-        failed = []
+        started: Dict[str, ServerProcess] = {}
+        failed: List[str] = []
 
         for model, result in zip(models, results):
             if isinstance(result, Exception):
                 logger.error(f"Failed to start server for {model.model_id}: {result}")
                 failed.append(model.model_id)
-            else:
+            elif isinstance(result, ServerProcess):
                 started[model.model_id] = result
 
         # Log summary
@@ -770,6 +775,10 @@ class LlamaServerManager:
         )
 
         try:
+            if server.process is None:
+                logger.warning(f"Server {model_id} has no process to stop")
+                return
+
             # Attempt graceful shutdown with SIGTERM
             server.process.terminate()
 

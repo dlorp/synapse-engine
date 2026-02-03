@@ -41,7 +41,9 @@ class TierUpdateResponse(BaseModel):
     """Response from tier update operation."""
 
     message: str = Field(..., description="Human-readable success message")
-    model_id: str = Field(..., description="Model identifier", alias="modelId")
+    model_id: str = Field(
+        ..., description="Model identifier", serialization_alias="modelId"
+    )
     tier: str = Field(..., description="New tier value")
     override: bool = Field(..., description="Whether this is a user override")
 
@@ -62,11 +64,15 @@ class ThinkingUpdateResponse(BaseModel):
     """Response from thinking capability update operation."""
 
     message: str = Field(..., description="Human-readable success message")
-    model_id: str = Field(..., description="Model identifier", alias="modelId")
+    model_id: str = Field(
+        ..., description="Model identifier", serialization_alias="modelId"
+    )
     thinking: bool = Field(..., description="New thinking status")
     override: bool = Field(..., description="Whether this is a user override")
     tier_changed: bool = Field(
-        ..., description="Whether tier was auto-updated", alias="tierChanged"
+        ...,
+        description="Whether tier was auto-updated",
+        serialization_alias="tierChanged",
     )
 
     model_config = ConfigDict(
@@ -87,15 +93,19 @@ class EnabledUpdateResponse(BaseModel):
     """Response from enabled status update operation."""
 
     message: str = Field(..., description="Human-readable success message")
-    model_id: str = Field(..., description="Model identifier", alias="modelId")
+    model_id: str = Field(
+        ..., description="Model identifier", serialization_alias="modelId"
+    )
     enabled: bool = Field(..., description="New enabled status")
     restart_required: bool = Field(
-        ..., description="Whether server restart is required", alias="restartRequired"
+        ...,
+        description="Whether server restart is required",
+        serialization_alias="restartRequired",
     )
     server_status: Optional[str] = Field(
         default=None,
         description="Dynamic server status (started, stopped, already_running, etc.)",
-        alias="serverStatus",
+        serialization_alias="serverStatus",
     )
 
     model_config = ConfigDict(
@@ -119,7 +129,7 @@ class BulkEnabledUpdateResponse(BaseModel):
     models_updated: int = Field(
         ...,
         description="Number of models whose state was changed",
-        alias="modelsUpdated",
+        serialization_alias="modelsUpdated",
     )
     enabled: bool = Field(..., description="New enabled status applied")
     timestamp: str = Field(..., description="ISO timestamp of operation")
@@ -142,13 +152,17 @@ class RescanResponse(BaseModel):
 
     message: str = Field(..., description="Human-readable success message")
     models_found: int = Field(
-        ..., description="Total models found", alias="modelsFound"
+        ..., description="Total models found", serialization_alias="modelsFound"
     )
     models_added: int = Field(
-        default=0, description="Number of new models added", alias="modelsAdded"
+        default=0,
+        description="Number of new models added",
+        serialization_alias="modelsAdded",
     )
     models_removed: int = Field(
-        default=0, description="Number of models removed", alias="modelsRemoved"
+        default=0,
+        description="Number of models removed",
+        serialization_alias="modelsRemoved",
     )
     timestamp: str = Field(..., description="ISO timestamp of rescan")
 
@@ -169,22 +183,28 @@ class RescanResponse(BaseModel):
 class ServerStatusItem(BaseModel):
     """Status information for a single running server."""
 
-    model_id: str = Field(..., description="Model identifier", alias="modelId")
+    model_id: str = Field(
+        ..., description="Model identifier", serialization_alias="modelId"
+    )
     display_name: str = Field(
-        ..., description="Human-readable name", alias="displayName"
+        ..., description="Human-readable name", serialization_alias="displayName"
     )
     port: int = Field(..., description="HTTP port server is listening on")
     pid: Optional[int] = Field(
         None, description="Process ID (None for external servers)"
     )
-    is_ready: bool = Field(..., description="Server readiness status", alias="isReady")
-    is_running: bool = Field(..., description="Process alive status", alias="isRunning")
+    is_ready: bool = Field(
+        ..., description="Server readiness status", serialization_alias="isReady"
+    )
+    is_running: bool = Field(
+        ..., description="Process alive status", serialization_alias="isRunning"
+    )
     uptime_seconds: int = Field(
-        ..., description="Uptime in seconds", alias="uptimeSeconds"
+        ..., description="Uptime in seconds", serialization_alias="uptimeSeconds"
     )
     tier: str = Field(..., description="Model tier")
     is_thinking: bool = Field(
-        ..., description="Thinking model flag", alias="isThinking"
+        ..., description="Thinking model flag", serialization_alias="isThinking"
     )
 
     model_config = ConfigDict(
@@ -209,10 +229,10 @@ class ServerStatusResponse(BaseModel):
     """Response containing status of all running servers."""
 
     total_servers: int = Field(
-        ..., description="Total number of servers", alias="totalServers"
+        ..., description="Total number of servers", serialization_alias="totalServers"
     )
     ready_servers: int = Field(
-        ..., description="Number of ready servers", alias="readyServers"
+        ..., description="Number of ready servers", serialization_alias="readyServers"
     )
     servers: List[ServerStatusItem] = Field(..., description="List of server statuses")
 
@@ -248,7 +268,7 @@ class ProfileCreateRequest(BaseModel):
     enabled_models: List[str] = Field(
         default_factory=list,
         description="List of model IDs to enable",
-        alias="enabledModels",
+        serialization_alias="enabledModels",
     )
 
     model_config = ConfigDict(
@@ -272,7 +292,7 @@ class ProfileCreateResponse(BaseModel):
 
     message: str = Field(..., description="Human-readable success message")
     profile_name: str = Field(
-        ..., description="Created profile name", alias="profileName"
+        ..., description="Created profile name", serialization_alias="profileName"
     )
     path: str = Field(..., description="Path to profile file")
 
@@ -317,10 +337,14 @@ class PortUpdateResponse(BaseModel):
     """Response from port assignment update."""
 
     message: str = Field(..., description="Human-readable success message")
-    model_id: str = Field(..., description="Model identifier", alias="modelId")
+    model_id: str = Field(
+        ..., description="Model identifier", serialization_alias="modelId"
+    )
     port: int = Field(..., description="Assigned port number")
     restart_required: bool = Field(
-        ..., description="Whether server restart is required", alias="restartRequired"
+        ...,
+        description="Whether server restart is required",
+        serialization_alias="restartRequired",
     )
 
     model_config = ConfigDict(
@@ -344,28 +368,28 @@ class RuntimeSettingsUpdateRequest(BaseModel):
         ge=0,
         le=999,
         description="GPU layers override (None = use global)",
-        alias="nGpuLayers",
+        serialization_alias="nGpuLayers",
     )
     ctx_size: Optional[int] = Field(
         None,
         ge=512,
         le=131072,
         description="Context size override (None = use global)",
-        alias="ctxSize",
+        serialization_alias="ctxSize",
     )
     n_threads: Optional[int] = Field(
         None,
         ge=1,
         le=128,
         description="Thread count override (None = use global)",
-        alias="nThreads",
+        serialization_alias="nThreads",
     )
     batch_size: Optional[int] = Field(
         None,
         ge=1,
         le=4096,
         description="Batch size override (None = use global)",
-        alias="batchSize",
+        serialization_alias="batchSize",
     )
 
     model_config = ConfigDict(
@@ -385,21 +409,25 @@ class RuntimeSettingsUpdateResponse(BaseModel):
     """Response from runtime settings update."""
 
     message: str = Field(..., description="Human-readable success message")
-    model_id: str = Field(..., description="Model identifier", alias="modelId")
+    model_id: str = Field(
+        ..., description="Model identifier", serialization_alias="modelId"
+    )
     n_gpu_layers: Optional[int] = Field(
-        None, description="GPU layers override", alias="nGpuLayers"
+        None, description="GPU layers override", serialization_alias="nGpuLayers"
     )
     ctx_size: Optional[int] = Field(
-        None, description="Context size override", alias="ctxSize"
+        None, description="Context size override", serialization_alias="ctxSize"
     )
     n_threads: Optional[int] = Field(
-        None, description="Thread count override", alias="nThreads"
+        None, description="Thread count override", serialization_alias="nThreads"
     )
     batch_size: Optional[int] = Field(
-        None, description="Batch size override", alias="batchSize"
+        None, description="Batch size override", serialization_alias="batchSize"
     )
     restart_required: bool = Field(
-        ..., description="Whether server restart is required", alias="restartRequired"
+        ...,
+        description="Whether server restart is required",
+        serialization_alias="restartRequired",
     )
 
     model_config = ConfigDict(
@@ -440,7 +468,9 @@ class PortRangeUpdateResponse(BaseModel):
     start: int = Field(..., description="Start port of new range")
     end: int = Field(..., description="End port of new range")
     restart_required: bool = Field(
-        ..., description="Whether server restart is required", alias="restartRequired"
+        ...,
+        description="Whether server restart is required",
+        serialization_alias="restartRequired",
     )
 
     model_config = ConfigDict(
@@ -466,10 +496,12 @@ class ExternalServerItem(BaseModel):
     response_time_ms: Optional[int] = Field(
         None,
         description="Response time in milliseconds (null if unreachable)",
-        alias="responseTimeMs",
+        serialization_alias="responseTimeMs",
     )
     error_message: Optional[str] = Field(
-        None, description="Error message if server is unreachable", alias="errorMessage"
+        None,
+        description="Error message if server is unreachable",
+        serialization_alias="errorMessage",
     )
 
     model_config = ConfigDict(
@@ -491,12 +523,12 @@ class ExternalServerStatusResponse(BaseModel):
     are_reachable: bool = Field(
         ...,
         description="True if all enabled external servers are reachable",
-        alias="areReachable",
+        serialization_alias="areReachable",
     )
     use_external_servers: bool = Field(
         ...,
         description="True if system is configured to use external servers",
-        alias="useExternalServers",
+        serialization_alias="useExternalServers",
     )
     servers: List[ExternalServerItem] = Field(
         ..., description="Status details for each external server"
@@ -505,7 +537,7 @@ class ExternalServerStatusResponse(BaseModel):
     checked_at: str = Field(
         ...,
         description="ISO 8601 timestamp when check was performed",
-        alias="checkedAt",
+        serialization_alias="checkedAt",
     )
 
     model_config = ConfigDict(

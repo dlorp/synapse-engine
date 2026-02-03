@@ -64,9 +64,11 @@ class MetricsSummary(BaseModel):
     min: float = Field(..., description="Minimum value")
     max: float = Field(..., description="Maximum value")
     avg: float = Field(..., description="Average value")
-    p50: float = Field(..., alias="p50", description="50th percentile (median)")
-    p95: float = Field(..., alias="p95", description="95th percentile")
-    p99: float = Field(..., alias="p99", description="99th percentile")
+    p50: float = Field(
+        ..., serialization_alias="p50", description="50th percentile (median)"
+    )
+    p95: float = Field(..., serialization_alias="p95", description="95th percentile")
+    p99: float = Field(..., serialization_alias="p99", description="99th percentile")
 
     class Config:
         """Pydantic model configuration."""
@@ -85,11 +87,15 @@ class TimeSeriesResponse(BaseModel):
         summary: Statistical summary of values
     """
 
-    metric_name: str = Field(..., alias="metricName", description="Metric name")
-    time_range: str = Field(..., alias="timeRange", description="Time range covered")
+    metric_name: str = Field(
+        ..., serialization_alias="metricName", description="Metric name"
+    )
+    time_range: str = Field(
+        ..., serialization_alias="timeRange", description="Time range covered"
+    )
     unit: str = Field(..., description="Unit of measurement")
     data_points: list[TimeSeriesPoint] = Field(
-        ..., alias="dataPoints", description="Time-series data points"
+        ..., serialization_alias="dataPoints", description="Time-series data points"
     )
     summary: MetricsSummary = Field(..., description="Statistical summary")
 
@@ -135,8 +141,12 @@ class MultiMetricResponse(BaseModel):
         chart_data: Chart.js compatible data structure
     """
 
-    time_range: str = Field(..., alias="timeRange", description="Time range covered")
-    chart_data: ChartJSData = Field(..., alias="chartData", description="Chart.js data")
+    time_range: str = Field(
+        ..., serialization_alias="timeRange", description="Time range covered"
+    )
+    chart_data: ChartJSData = Field(
+        ..., serialization_alias="chartData", description="Chart.js data"
+    )
 
     class Config:
         """Pydantic model configuration."""
@@ -155,13 +165,15 @@ class ModelBreakdown(BaseModel):
         summary: Statistical summary
     """
 
-    model_id: str = Field(..., alias="modelId", description="Model identifier")
+    model_id: str = Field(
+        ..., serialization_alias="modelId", description="Model identifier"
+    )
     display_name: str = Field(
-        ..., alias="displayName", description="Human-readable model name"
+        ..., serialization_alias="displayName", description="Human-readable model name"
     )
     tier: Literal["Q2", "Q3", "Q4"] = Field(..., description="Model tier")
     data_points: list[TimeSeriesPoint] = Field(
-        ..., alias="dataPoints", description="Time-series data"
+        ..., serialization_alias="dataPoints", description="Time-series data"
     )
     summary: MetricsSummary = Field(..., description="Statistical summary")
 
@@ -181,8 +193,12 @@ class ModelBreakdownResponse(BaseModel):
         models: List of per-model breakdowns
     """
 
-    metric_name: str = Field(..., alias="metricName", description="Metric name")
-    time_range: str = Field(..., alias="timeRange", description="Time range covered")
+    metric_name: str = Field(
+        ..., serialization_alias="metricName", description="Metric name"
+    )
+    time_range: str = Field(
+        ..., serialization_alias="timeRange", description="Time range covered"
+    )
     unit: str = Field(..., description="Unit of measurement")
     models: list[ModelBreakdown] = Field(..., description="Per-model breakdowns")
 

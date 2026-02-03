@@ -250,9 +250,17 @@ class ModelDiscoveryService:
             ValueError: If required fields are missing or invalid
         """
         # Extract required fields
-        family = groups["family"].lower()
+        family_raw = groups["family"]
+        if family_raw is None:
+            raise ValueError("Missing family field")
+        family = family_raw.lower()
         size_str = groups["size"]
-        quant_str = groups["quant"].lower()
+        if size_str is None:
+            raise ValueError("Missing size field")
+        quant_raw = groups["quant"]
+        if quant_raw is None:
+            raise ValueError("Missing quant field")
+        quant_str = quant_raw.lower()
 
         # Parse size (handle both "7" and "7b" formats)
         try:

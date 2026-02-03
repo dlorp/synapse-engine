@@ -56,16 +56,20 @@ class QueryRequest(BaseModel):
         default="two-stage", description="Query processing mode"
     )
     use_context: bool = Field(
-        default=True, alias="useContext", description="Enable CGRAG context retrieval"
+        default=True,
+        serialization_alias="useContext",
+        description="Enable CGRAG context retrieval",
     )
     use_web_search: bool = Field(
-        default=False, alias="useWebSearch", description="Enable web search via SearXNG"
+        default=False,
+        serialization_alias="useWebSearch",
+        description="Enable web search via SearXNG",
     )
     max_tokens: int = Field(
         default=256,
         ge=1,
         le=4096,
-        alias="maxTokens",
+        serialization_alias="maxTokens",
         description="Maximum tokens to generate",
     )
     temperature: float = Field(
@@ -74,26 +78,26 @@ class QueryRequest(BaseModel):
 
     preset_id: Optional[str] = Field(
         default=None,
-        alias="presetId",
+        serialization_alias="presetId",
         description="Preset ID for system prompt (e.g., 'SYNAPSE_ANALYST')",
     )
 
     # Council mode configuration
     council_adversarial: bool = Field(
         default=False,
-        alias="councilAdversarial",
+        serialization_alias="councilAdversarial",
         description="Use adversarial debate in council mode (vs consensus)",
     )
 
     council_profile: Optional[str] = Field(
         default=None,
-        alias="councilProfile",
+        serialization_alias="councilProfile",
         description="Named profile for council model selection (e.g., 'fast-consensus', 'reasoning-debate')",
     )
 
     council_participants: Optional[List[str]] = Field(
         default=None,
-        alias="councilParticipants",
+        serialization_alias="councilParticipants",
         description="Explicit list of model IDs to use for council mode (overrides profile)",
     )
 
@@ -102,43 +106,43 @@ class QueryRequest(BaseModel):
         default=10,
         ge=2,
         le=20,
-        alias="councilMaxTurns",
+        serialization_alias="councilMaxTurns",
         description="Maximum dialogue turns (2-20). Default 10.",
     )
 
     council_dynamic_termination: bool = Field(
         default=True,
-        alias="councilDynamicTermination",
+        serialization_alias="councilDynamicTermination",
         description="End dialogue early if consensus/stalemate detected",
     )
 
     council_personas: Optional[Dict[str, str]] = Field(
         default=None,
-        alias="councilPersonas",
+        serialization_alias="councilPersonas",
         description="User-defined personas. Debate: {'pro': 'description', 'con': 'description'}. Consensus: {model_id: persona}",
     )
 
     council_persona_profile: Optional[str] = Field(
         default=None,
-        alias="councilPersonaProfile",
+        serialization_alias="councilPersonaProfile",
         description="Named persona profile: 'classic', 'technical', 'business', 'scientific', 'ethical', 'political'",
     )
 
     council_moderator: bool = Field(
         default=False,
-        alias="councilModerator",
+        serialization_alias="councilModerator",
         description="Enable moderator analysis after debate (post-debate analysis and summary)",
     )
 
     council_moderator_active: bool = Field(
         default=False,
-        alias="councilModeratorActive",
+        serialization_alias="councilModeratorActive",
         description="Enable active moderator interjections during debate (moderator can redirect if models go off-topic)",
     )
 
     council_moderator_model: Optional[str] = Field(
         default=None,
-        alias="councilModeratorModel",
+        serialization_alias="councilModeratorModel",
         description="Specific model ID for moderator analysis (optional, auto-selects most powerful model if not specified)",
     )
 
@@ -146,40 +150,40 @@ class QueryRequest(BaseModel):
         default=2,
         ge=1,
         le=10,
-        alias="councilModeratorCheckFrequency",
+        serialization_alias="councilModeratorCheckFrequency",
         description="Number of turns between active moderator checks (default: 2). Only applies if councilModeratorActive=true.",
     )
 
     # Debate mode model selection (adversarial only)
     council_pro_model: Optional[str] = Field(
         default=None,
-        alias="councilProModel",
+        serialization_alias="councilProModel",
         description="Specific model ID for PRO position in debate mode (optional, requires councilConModel)",
     )
 
     council_con_model: Optional[str] = Field(
         default=None,
-        alias="councilConModel",
+        serialization_alias="councilConModel",
         description="Specific model ID for CON position in debate mode (optional, requires councilProModel)",
     )
 
     council_preset_overrides: Optional[Dict[str, str]] = Field(
         default=None,
-        alias="councilPresetOverrides",
+        serialization_alias="councilPresetOverrides",
         description="Per-participant preset overrides for council mode. Key is participant role (pro/con/moderator), value is preset ID.",
     )
 
     # Benchmark mode configuration
     benchmark_serial: bool = Field(
         default=False,
-        alias="benchmarkSerial",
+        serialization_alias="benchmarkSerial",
         description="Execute models sequentially (vs parallel) to conserve VRAM",
     )
 
     # Multi-instance model support
     instance_id: Optional[str] = Field(
         default=None,
-        alias="instanceId",
+        serialization_alias="instanceId",
         description="Specific instance ID to use for this query (e.g., 'model_id:01'). If specified, uses the instance's system prompt and web search settings.",
     )
 
@@ -240,12 +244,22 @@ class ArtifactInfo(BaseModel):
         token_count: Number of tokens in chunk
     """
 
-    file_path: str = Field(..., alias="filePath", description="Source document path")
-    relevance_score: float = Field(
-        ..., ge=0.0, le=1.0, alias="relevanceScore", description="Relevance score"
+    file_path: str = Field(
+        ..., serialization_alias="filePath", description="Source document path"
     )
-    chunk_index: int = Field(..., ge=0, alias="chunkIndex", description="Chunk index")
-    token_count: int = Field(..., ge=0, alias="tokenCount", description="Token count")
+    relevance_score: float = Field(
+        ...,
+        ge=0.0,
+        le=1.0,
+        serialization_alias="relevanceScore",
+        description="Relevance score",
+    )
+    chunk_index: int = Field(
+        ..., ge=0, serialization_alias="chunkIndex", description="Chunk index"
+    )
+    token_count: int = Field(
+        ..., ge=0, serialization_alias="tokenCount", description="Token count"
+    )
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
@@ -275,187 +289,209 @@ class QueryMetadata(BaseModel):
     """
 
     model_tier: str = Field(
-        ..., alias="modelTier", description="Tier used for processing"
+        ..., serialization_alias="modelTier", description="Tier used for processing"
     )
     model_id: str = Field(
-        ..., alias="modelId", description="Specific model instance identifier"
+        ...,
+        serialization_alias="modelId",
+        description="Specific model instance identifier",
     )
     complexity: Optional[QueryComplexity] = Field(
         default=None, description="Complexity assessment result"
     )
     tokens_used: int = Field(
-        default=0, alias="tokensUsed", description="Number of tokens generated"
+        default=0,
+        serialization_alias="tokensUsed",
+        description="Number of tokens generated",
     )
     processing_time_ms: float = Field(
         default=0.0,
-        alias="processingTimeMs",
+        serialization_alias="processingTimeMs",
         description="Total processing time in milliseconds",
     )
     cgrag_artifacts: int = Field(
         default=0,
-        alias="cgragArtifacts",
+        serialization_alias="cgragArtifacts",
         description="Number of CGRAG artifacts retrieved",
     )
     cgrag_artifacts_info: List[ArtifactInfo] = Field(
         default_factory=list,
-        alias="cgragArtifactsInfo",
+        serialization_alias="cgragArtifactsInfo",
         description="Detailed information about retrieved artifacts",
     )
     cache_hit: bool = Field(
         default=False,
-        alias="cacheHit",
+        serialization_alias="cacheHit",
         description="Whether response was served from cache",
     )
 
     # Query mode
     query_mode: str = Field(
-        default="simple", alias="queryMode", description="Query processing mode used"
+        default="simple",
+        serialization_alias="queryMode",
+        description="Query processing mode used",
     )
 
     # Two-stage workflow metadata
     stage1_response: Optional[str] = Field(
-        default=None, alias="stage1Response", description="Stage 1 model response"
+        default=None,
+        serialization_alias="stage1Response",
+        description="Stage 1 model response",
     )
     stage1_model_id: Optional[str] = Field(
-        default=None, alias="stage1ModelId", description="Stage 1 model ID"
+        default=None,
+        serialization_alias="stage1ModelId",
+        description="Stage 1 model ID",
     )
     stage1_tier: Optional[str] = Field(
-        default=None, alias="stage1Tier", description="Stage 1 tier"
+        default=None, serialization_alias="stage1Tier", description="Stage 1 tier"
     )
     stage1_processing_time: Optional[int] = Field(
-        default=None, alias="stage1ProcessingTime", description="Stage 1 time (ms)"
+        default=None,
+        serialization_alias="stage1ProcessingTime",
+        description="Stage 1 time (ms)",
     )
     stage1_tokens: Optional[int] = Field(
-        default=None, alias="stage1Tokens", description="Stage 1 tokens generated"
+        default=None,
+        serialization_alias="stage1Tokens",
+        description="Stage 1 tokens generated",
     )
     stage2_model_id: Optional[str] = Field(
-        default=None, alias="stage2ModelId", description="Stage 2 model ID"
+        default=None,
+        serialization_alias="stage2ModelId",
+        description="Stage 2 model ID",
     )
     stage2_tier: Optional[str] = Field(
-        default=None, alias="stage2Tier", description="Stage 2 tier"
+        default=None, serialization_alias="stage2Tier", description="Stage 2 tier"
     )
     stage2_processing_time: Optional[int] = Field(
-        default=None, alias="stage2ProcessingTime", description="Stage 2 time (ms)"
+        default=None,
+        serialization_alias="stage2ProcessingTime",
+        description="Stage 2 time (ms)",
     )
     stage2_tokens: Optional[int] = Field(
-        default=None, alias="stage2Tokens", description="Stage 2 tokens generated"
+        default=None,
+        serialization_alias="stage2Tokens",
+        description="Stage 2 tokens generated",
     )
 
     # Web search metadata
     web_search_results: Optional[List[dict]] = Field(
         default=None,
-        alias="webSearchResults",
+        serialization_alias="webSearchResults",
         description="Web search results from SearXNG",
     )
     web_search_time_ms: Optional[float] = Field(
         default=None,
-        alias="webSearchTimeMs",
+        serialization_alias="webSearchTimeMs",
         description="Web search operation time (ms)",
     )
     web_search_count: int = Field(
         default=0,
-        alias="webSearchCount",
+        serialization_alias="webSearchCount",
         description="Number of web search results retrieved",
     )
 
     # Council mode metadata
     council_mode: Optional[Literal["consensus", "adversarial"]] = Field(
         default=None,
-        alias="councilMode",
+        serialization_alias="councilMode",
         description="Council mode type (consensus or adversarial)",
     )
     council_participants: Optional[List[str]] = Field(
         default=None,
-        alias="councilParticipants",
+        serialization_alias="councilParticipants",
         description="Model IDs participating in council",
     )
     council_rounds: Optional[int] = Field(
-        default=None, alias="councilRounds", description="Number of deliberation rounds"
+        default=None,
+        serialization_alias="councilRounds",
+        description="Number of deliberation rounds",
     )
     council_responses: Optional[List[dict]] = Field(
         default=None,
-        alias="councilResponses",
+        serialization_alias="councilResponses",
         description="Per-model responses from council",
     )
 
     # Multi-chat dialogue metadata (true multi-chat mode)
     council_dialogue: Optional[bool] = Field(
         default=None,
-        alias="councilDialogue",
+        serialization_alias="councilDialogue",
         description="Flag indicating true multi-chat dialogue mode (vs parallel refinement)",
     )
     council_turns: Optional[List[dict]] = Field(
         default=None,
-        alias="councilTurns",
+        serialization_alias="councilTurns",
         description="Sequential dialogue turns in multi-chat mode",
     )
     council_synthesis: Optional[str] = Field(
         default=None,
-        alias="councilSynthesis",
+        serialization_alias="councilSynthesis",
         description="Final synthesis/summary of dialogue",
     )
     council_termination_reason: Optional[str] = Field(
         default=None,
-        alias="councilTerminationReason",
+        serialization_alias="councilTerminationReason",
         description="Reason dialogue ended (max_turns_reached, concession_detected, stalemate_repetition, etc.)",
     )
     council_total_turns: Optional[int] = Field(
         default=None,
-        alias="councilTotalTurns",
+        serialization_alias="councilTotalTurns",
         description="Total number of dialogue turns completed",
     )
     council_max_turns: Optional[int] = Field(
         default=None,
-        alias="councilMaxTurns",
+        serialization_alias="councilMaxTurns",
         description="Maximum turns configured for dialogue",
     )
     council_personas: Optional[Dict[str, str]] = Field(
         default=None,
-        alias="councilPersonas",
+        serialization_alias="councilPersonas",
         description="Persona assignments for dialogue participants",
     )
 
     # Moderator analysis metadata (council debate mode)
     council_moderator_analysis: Optional[str] = Field(
         default=None,
-        alias="councilModeratorAnalysis",
+        serialization_alias="councilModeratorAnalysis",
         description="Comprehensive moderator analysis of debate (using LLM model)",
     )
     council_moderator_model: Optional[str] = Field(
         default=None,
-        alias="councilModeratorModel",
+        serialization_alias="councilModeratorModel",
         description="Model ID used for moderator analysis",
     )
     council_moderator_tokens: Optional[int] = Field(
         default=None,
-        alias="councilModeratorTokens",
+        serialization_alias="councilModeratorTokens",
         description="Tokens used by moderator analysis",
     )
     council_moderator_thinking_steps: Optional[int] = Field(
         default=None,
-        alias="councilModeratorThinkingSteps",
+        serialization_alias="councilModeratorThinkingSteps",
         description="Number of thinking steps used in moderator analysis (legacy, deprecated)",
     )
     council_moderator_breakdown: Optional[Dict] = Field(
         default=None,
-        alias="councilModeratorBreakdown",
+        serialization_alias="councilModeratorBreakdown",
         description="Structured breakdown of moderator analysis (arguments, fallacies, etc.)",
     )
     council_moderator_interjections: Optional[int] = Field(
         default=None,
-        alias="councilModeratorInterjections",
+        serialization_alias="councilModeratorInterjections",
         description="Number of times moderator interjected during debate to redirect discussion",
     )
 
     # Benchmark mode metadata
     benchmark_results: Optional[List[dict]] = Field(
         default=None,
-        alias="benchmarkResults",
+        serialization_alias="benchmarkResults",
         description="Results from benchmark comparison",
     )
     benchmark_execution_mode: Optional[Literal["parallel", "serial"]] = Field(
         default=None,
-        alias="benchmarkExecutionMode",
+        serialization_alias="benchmarkExecutionMode",
         description="Benchmark execution mode (parallel or serial)",
     )
 
