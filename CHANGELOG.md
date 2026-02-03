@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 _No unreleased changes._
 
+## [5.1.1] - 2025-02-03
+
+### Docs
+- Updated CHANGELOG.md to document v5.1.0 changes
+
 ## [5.1.0] - 2025-02-03
 
 ### Added
@@ -51,6 +56,7 @@ _No unreleased changes._
 - Added security documentation (docs/SECURITY.md)
 - Added CGRAG documentation (docs/CGRAG.md)
 
-[Unreleased]: https://github.com/dlorp/synapse-engine/compare/v5.1.0...HEAD
+[Unreleased]: https://github.com/dlorp/synapse-engine/compare/v5.1.1...HEAD
+[5.1.1]: https://github.com/dlorp/synapse-engine/compare/v5.1.0...v5.1.1
 [5.1.0]: https://github.com/dlorp/synapse-engine/compare/v5.0.0...v5.1.0
 [5.0.0]: https://github.com/dlorp/synapse-engine/releases/tag/v5.0.0
