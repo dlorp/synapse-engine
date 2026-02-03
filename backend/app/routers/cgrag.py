@@ -14,11 +14,50 @@ from fastapi import APIRouter, HTTPException, BackgroundTasks
 from pydantic import BaseModel, Field
 
 from app.core.logging import get_logger
-from app.services.cgrag import CGRAGIndexer, get_cgrag_index_paths
+from app.services.cgrag import (
+    CGRAGIndexer,
+    get_cgrag_index_paths,
+    migrate_pickle_to_json,
+)
 
 logger = get_logger(__name__)
 
 router = APIRouter(prefix="/api/cgrag", tags=["cgrag"])
+
+# Security: Allowed root directories for indexing
+# Prevents path traversal attacks by restricting indexable paths
+ALLOWED_ROOTS = [
+    Path.home() / "repos",
+    Path("/app"),
+    Path.cwd(),
+]
+
+
+def _validate_directory_path(dir_path: Path) -> Path:
+    """Validate directory is within allowed roots.
+
+    Prevents path traversal attacks by ensuring the resolved path
+    is within one of the allowed root directories.
+
+    Args:
+        dir_path: Directory path to validate
+
+    Returns:
+        Resolved (canonicalized) path if valid
+
+    Raises:
+        HTTPException: 403 if path is not within allowed roots
+    """
+    resolved = dir_path.resolve()
+    for root in ALLOWED_ROOTS:
+        try:
+            if resolved.is_relative_to(root.resolve()):
+                return resolved
+        except ValueError:
+            continue
+    logger.warning(f"Path traversal attempt blocked: {dir_path} -> {resolved}")
+    raise HTTPException(status_code=403, detail="Directory not in allowed paths")
+
 
 # Track indexing status
 _indexing_status = {
@@ -84,6 +123,16 @@ async def get_index_status() -> IndexStatus:
     try:
         index_dir, index_path, metadata_path = get_cgrag_index_paths("docs")
 
+        # Check for legacy pickle file and migrate if needed
+        if not metadata_path.exists():
+            pkl_path = index_dir / "docs_metadata.pkl"
+            if pkl_path.exists():
+                logger.info("Migrating legacy pickle metadata to JSON format")
+                try:
+                    migrate_pickle_to_json("docs")
+                except Exception as e:
+                    logger.error(f"Migration failed: {e}")
+
         index_exists = index_path.exists() and metadata_path.exists()
         chunks_indexed = 0
         index_size_mb = 0.0
@@ -94,10 +143,15 @@ async def get_index_status() -> IndexStatus:
 
             # Load metadata to get chunk count
             try:
-                import pickle
+                import json
 
-                with open(metadata_path, "rb") as f:
-                    chunks = pickle.load(f)
+                with open(metadata_path, "r", encoding="utf-8") as f:
+                    metadata = json.load(f)
+                    # Handle both dict format (new) and list format (legacy)
+                    if isinstance(metadata, dict):
+                        chunks = metadata.get("chunks", [])
+                    else:
+                        chunks = metadata
                     chunks_indexed = len(chunks)
             except Exception as e:
                 logger.warning(f"Failed to load metadata: {e}")
@@ -198,8 +252,10 @@ async def start_indexing(
             detail="Indexing already in progress. Check /status for progress.",
         )
 
+    # Security: Validate directory is within allowed roots (prevents path traversal)
+    dir_path = _validate_directory_path(Path(request.directory))
+
     # Validate directory exists
-    dir_path = Path(request.directory)
     if not dir_path.exists():
         raise HTTPException(
             status_code=400, detail=f"Directory does not exist: {request.directory}"
