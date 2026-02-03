@@ -6,8 +6,8 @@ generation, and token budget management for context retrieval.
 """
 
 import asyncio
+import json
 import logging
-import pickle
 import time
 from datetime import datetime
 from pathlib import Path
@@ -34,7 +34,7 @@ def get_cgrag_index_paths(index_name: str = "docs") -> Tuple[Path, Path, Path]:
     Example:
         >>> index_dir, index_path, metadata_path = get_cgrag_index_paths("docs")
         >>> # Returns paths like:
-        >>> # (data/faiss_indexes, data/faiss_indexes/docs.index, data/faiss_indexes/docs_metadata.pkl)
+        >>> # (data/faiss_indexes, data/faiss_indexes/docs.index, data/faiss_indexes/docs_metadata.json)
     """
     from app.services import runtime_settings as settings_service
 
@@ -50,9 +50,94 @@ def get_cgrag_index_paths(index_name: str = "docs") -> Tuple[Path, Path, Path]:
 
     # Construct specific index paths
     faiss_index_path = index_directory / f"{index_name}.index"
-    metadata_path = index_directory / f"{index_name}_metadata.pkl"
+    metadata_path = index_directory / f"{index_name}_metadata.json"
 
     return index_directory, faiss_index_path, metadata_path
+
+
+def migrate_pickle_to_json(index_name: str = "docs") -> bool:
+    """Migrate existing pickle metadata files to JSON format.
+    
+    This function handles migration from the old pickle-based format to the new
+    JSON format for security (pickle deserialization can execute arbitrary code).
+    
+    Args:
+        index_name: Name of the index to migrate
+        
+    Returns:
+        True if migration was performed, False if no migration needed
+        
+    Note:
+        The original .pkl file is preserved as .pkl.bak for safety.
+    """
+    import pickle  # Only import for migration, not used elsewhere
+    
+    index_dir, _, json_metadata_path = get_cgrag_index_paths(index_name)
+    pkl_metadata_path = index_dir / f"{index_name}_metadata.pkl"
+    
+    # Check if migration is needed
+    if not pkl_metadata_path.exists():
+        return False  # No pickle file to migrate
+        
+    if json_metadata_path.exists():
+        logger.info(f"JSON metadata already exists at {json_metadata_path}, skipping migration")
+        return False
+    
+    logger.warning(
+        f"Migrating pickle metadata to JSON format for security. "
+        f"Source: {pkl_metadata_path}"
+    )
+    
+    try:
+        # Load from pickle (one last time)
+        with open(pkl_metadata_path, "rb") as f:
+            loaded_data = pickle.load(f)
+        
+        # Handle both old format (list) and new format (dict)
+        if isinstance(loaded_data, dict):
+            metadata = loaded_data
+            # Ensure chunks are JSON-serializable (convert datetime objects)
+            if "chunks" in metadata:
+                for chunk in metadata["chunks"]:
+                    if "modified_time" in chunk and chunk["modified_time"] is not None:
+                        if isinstance(chunk["modified_time"], datetime):
+                            chunk["modified_time"] = chunk["modified_time"].isoformat()
+        else:
+            # Old format - just a list of chunks
+            chunks = []
+            for chunk in loaded_data:
+                if hasattr(chunk, "model_dump"):
+                    chunk_dict = chunk.model_dump(mode="json")
+                elif isinstance(chunk, dict):
+                    chunk_dict = chunk
+                    if "modified_time" in chunk_dict and isinstance(chunk_dict["modified_time"], datetime):
+                        chunk_dict["modified_time"] = chunk_dict["modified_time"].isoformat()
+                else:
+                    chunk_dict = dict(chunk)
+                chunks.append(chunk_dict)
+            metadata = {
+                "embedding_model_name": "all-MiniLM-L6-v2",  # Default for old format
+                "embedding_dim": 384,
+                "chunks": chunks,
+            }
+        
+        # Save as JSON
+        with open(json_metadata_path, "w", encoding="utf-8") as f:
+            json.dump(metadata, f, indent=2)
+        
+        # Backup the original pickle file
+        backup_path = pkl_metadata_path.with_suffix(".pkl.bak")
+        pkl_metadata_path.rename(backup_path)
+        
+        logger.info(
+            f"Migration complete. JSON saved to {json_metadata_path}, "
+            f"original backed up to {backup_path}"
+        )
+        return True
+        
+    except Exception as e:
+        logger.error(f"Migration failed: {e}", exc_info=True)
+        raise
 
 
 class DocumentChunk(BaseModel):
@@ -390,13 +475,14 @@ class CGRAGIndexer:
         faiss.write_index(self.index, str(index_path))
 
         # Save chunk metadata with embedding model info
+        # Use mode='json' to ensure datetime objects are serialized as ISO strings
         metadata = {
             "embedding_model_name": self.embedding_model_name,
             "embedding_dim": self.embedding_dim,
-            "chunks": [chunk.model_dump() for chunk in self.chunks],
+            "chunks": [chunk.model_dump(mode="json") for chunk in self.chunks],
         }
-        with open(metadata_path, "wb") as f:
-            pickle.dump(metadata, f)
+        with open(metadata_path, "w", encoding="utf-8") as f:
+            json.dump(metadata, f, indent=2)
 
         logger.info(
             f"Saved {len(self.chunks)} chunks with embedding model: {self.embedding_model_name}"
@@ -421,12 +507,21 @@ class CGRAGIndexer:
 
         if not index_path.exists():
             raise FileNotFoundError(f"Index file not found: {index_path}")
+        
+        # Check for legacy pickle file and migrate if needed
         if not metadata_path.exists():
-            raise FileNotFoundError(f"Metadata file not found: {metadata_path}")
+            pkl_path = metadata_path.with_suffix(".pkl")
+            if pkl_path.exists():
+                logger.info(f"JSON metadata not found, attempting migration from {pkl_path}")
+                # Extract index name from path (e.g., "docs" from "docs_metadata.json")
+                index_name = metadata_path.stem.replace("_metadata", "")
+                migrate_pickle_to_json(index_name)
+            else:
+                raise FileNotFoundError(f"Metadata file not found: {metadata_path}")
 
-        # Load chunk metadata
-        with open(metadata_path, "rb") as f:
-            loaded_data = pickle.load(f)
+        # Load chunk metadata (JSON format for security - avoids pickle RCE vulnerability)
+        with open(metadata_path, "r", encoding="utf-8") as f:
+            loaded_data = json.load(f)
 
         # Handle both old format (list of chunks) and new format (dict with metadata)
         if isinstance(loaded_data, dict):
