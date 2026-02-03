@@ -37,21 +37,26 @@ class ModelHealth(BaseModel):
     """
 
     is_healthy: bool = Field(
-        ..., alias="isHealthy", description="Overall health status"
+        ..., serialization_alias="isHealthy", description="Overall health status"
     )
     latency_ms: float = Field(
-        ..., ge=0, alias="latencyMs", description="Health check latency in ms"
+        ...,
+        ge=0,
+        serialization_alias="latencyMs",
+        description="Health check latency in ms",
     )
     last_check: datetime = Field(
-        ..., alias="lastCheck", description="Last health check timestamp"
+        ..., serialization_alias="lastCheck", description="Last health check timestamp"
     )
     error_message: Optional[str] = Field(
-        default=None, alias="errorMessage", description="Error message if unhealthy"
+        default=None,
+        serialization_alias="errorMessage",
+        description="Error message if unhealthy",
     )
     consecutive_failures: int = Field(
         default=0,
         ge=0,
-        alias="consecutiveFailures",
+        serialization_alias="consecutiveFailures",
         description="Consecutive failed checks",
     )
 
@@ -75,7 +80,10 @@ class ModelInfo(BaseModel):
     tier: str = Field(..., description="Model tier (fast, balanced, powerful)")
     port: int = Field(..., ge=1, le=65535, description="Server port")
     max_context_tokens: int = Field(
-        ..., gt=0, alias="maxContextTokens", description="Max context window"
+        ...,
+        gt=0,
+        serialization_alias="maxContextTokens",
+        description="Max context window",
     )
     description: Optional[str] = Field(default=None, description="Model description")
 
@@ -106,28 +114,34 @@ class ModelStatus(BaseModel):
     port: int = Field(..., ge=1, le=65535, description="Server port")
     state: ModelState = Field(..., description="Current operational state")
     memory_used: int = Field(
-        ..., ge=0, alias="memoryUsed", description="Memory used in MB"
+        ..., ge=0, serialization_alias="memoryUsed", description="Memory used in MB"
     )
     memory_total: int = Field(
-        ..., gt=0, alias="memoryTotal", description="Total memory in MB"
+        ..., gt=0, serialization_alias="memoryTotal", description="Total memory in MB"
     )
     request_count: int = Field(
-        default=0, ge=0, alias="requestCount", description="Total requests"
+        default=0,
+        ge=0,
+        serialization_alias="requestCount",
+        description="Total requests",
     )
     avg_response_time: float = Field(
         default=0.0,
         ge=0,
-        alias="avgResponseTime",
+        serialization_alias="avgResponseTime",
         description="Average response time in ms",
     )
     last_active: datetime = Field(
-        ..., alias="lastActive", description="Last activity timestamp"
+        ..., serialization_alias="lastActive", description="Last activity timestamp"
     )
     error_count: int = Field(
-        default=0, ge=0, alias="errorCount", description="Total errors"
+        default=0, ge=0, serialization_alias="errorCount", description="Total errors"
     )
     uptime_seconds: int = Field(
-        default=0, ge=0, alias="uptimeSeconds", description="Uptime in seconds"
+        default=0,
+        ge=0,
+        serialization_alias="uptimeSeconds",
+        description="Uptime in seconds",
     )
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
@@ -148,19 +162,26 @@ class SystemStatus(BaseModel):
 
     models: List[ModelStatus] = Field(..., description="Model statuses")
     total_vram_gb: float = Field(
-        ..., ge=0, alias="totalVramGb", description="Total VRAM in GB"
+        ..., ge=0, serialization_alias="totalVramGb", description="Total VRAM in GB"
     )
     total_vram_used_gb: float = Field(
-        ..., ge=0, alias="totalVramUsedGb", description="VRAM used in GB"
+        ..., ge=0, serialization_alias="totalVramUsedGb", description="VRAM used in GB"
     )
     cache_hit_rate: float = Field(
-        ..., ge=0.0, le=1.0, alias="cacheHitRate", description="Cache hit rate"
+        ...,
+        ge=0.0,
+        le=1.0,
+        serialization_alias="cacheHitRate",
+        description="Cache hit rate",
     )
     active_queries: int = Field(
-        ..., ge=0, alias="activeQueries", description="Active queries"
+        ..., ge=0, serialization_alias="activeQueries", description="Active queries"
     )
     total_requests: int = Field(
-        default=0, ge=0, alias="totalRequests", description="Total requests"
+        default=0,
+        ge=0,
+        serialization_alias="totalRequests",
+        description="Total requests",
     )
     timestamp: datetime = Field(..., description="Status timestamp")
 
@@ -183,7 +204,10 @@ class HealthCheckResponse(BaseModel):
     version: str = Field(..., description="Application version")
     environment: Optional[str] = Field(default=None, description="Environment name")
     uptime_seconds: Optional[int] = Field(
-        default=None, ge=0, alias="uptimeSeconds", description="Application uptime"
+        default=None,
+        ge=0,
+        serialization_alias="uptimeSeconds",
+        description="Application uptime",
     )
 
 
@@ -203,7 +227,9 @@ class HealthResponse(BaseModel):
         default_factory=dict, description="Component health status"
     )
     trace_id: Optional[str] = Field(
-        default=None, alias="traceId", description="Trace ID for request correlation"
+        default=None,
+        serialization_alias="traceId",
+        description="Trace ID for request correlation",
     )
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)

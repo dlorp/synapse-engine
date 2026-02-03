@@ -14,7 +14,7 @@ import time
 from collections import defaultdict, deque
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Any, Deque, Literal, Optional
+from typing import Any, Callable, Deque, Literal, Optional
 
 from app.core.logging import get_logger
 from app.models.timeseries import (
@@ -34,11 +34,11 @@ from app.models.timeseries import (
 logger = get_logger(__name__)
 
 # Model name resolver callback type
-ModelNameResolver = Optional[callable]
+ModelNameResolver = Optional[Callable[[str], str]]
 _model_name_resolver: ModelNameResolver = None
 
 
-def set_model_name_resolver(resolver: callable) -> None:
+def set_model_name_resolver(resolver: Callable[[str], str]) -> None:
     """Set the model name resolver callback.
 
     The resolver should accept a model_id string and return a display name string.
@@ -552,18 +552,18 @@ class MetricsAggregator:
         if time_range == TimeRange.TWENTY_FOUR_HOURS:
             bucket_interval = 600  # 10 minutes
 
-            buckets: dict[int, list[MetricDataPoint]] = defaultdict(list)
+            buckets_10min: dict[int, list[MetricDataPoint]] = defaultdict(list)
             for point in points:
                 bucket_key = int(point.timestamp // bucket_interval)
-                buckets[bucket_key].append(point)
+                buckets_10min[bucket_key].append(point)
 
-            downsampled: list[MetricDataPoint] = []
-            for bucket_key in sorted(buckets.keys()):
-                bucket_points = buckets[bucket_key]
+            downsampled_10min: list[MetricDataPoint] = []
+            for bucket_key in sorted(buckets_10min.keys()):
+                bucket_points = buckets_10min[bucket_key]
                 avg_value = statistics.mean([p.value for p in bucket_points])
 
                 first = bucket_points[0]
-                downsampled.append(
+                downsampled_10min.append(
                     MetricDataPoint(
                         timestamp=bucket_key * bucket_interval,
                         value=avg_value,
@@ -573,7 +573,7 @@ class MetricsAggregator:
                     )
                 )
 
-            return downsampled
+            return downsampled_10min
 
         # Default: return as-is
         return points

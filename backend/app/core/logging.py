@@ -174,6 +174,7 @@ def setup_logging(
     console_handler.addFilter(request_id_filter)
 
     # Configure formatter based on format setting
+    formatter: logging.Formatter
     if config.format == "json":
         # Use StructuredFormatter with service tags for JSON format
         formatter = StructuredFormatter(service_tag=service_tag)

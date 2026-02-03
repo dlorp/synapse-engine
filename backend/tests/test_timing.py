@@ -18,7 +18,7 @@ class TestTimer:
         """Test Timer as a context manager."""
         with Timer("test_operation") as timer:
             time.sleep(0.01)  # 10ms sleep
-        
+
         # Should have measured approximately 10ms (allow for some variance)
         assert timer.elapsed_ms >= 9  # At least 9ms
         assert timer.elapsed_ms < 50  # But not more than 50ms
@@ -32,7 +32,7 @@ class TestTimer:
         """Test that start() returns self for chaining."""
         timer = Timer("test")
         result = timer.start()
-        
+
         assert result is timer
 
     def test_stop_returns_elapsed_ms(self):
@@ -41,7 +41,7 @@ class TestTimer:
         timer.start()
         time.sleep(0.005)  # 5ms
         elapsed = timer.stop()
-        
+
         assert isinstance(elapsed, float)
         assert elapsed >= 4  # At least 4ms
 
@@ -50,7 +50,7 @@ class TestTimer:
         timer = Timer("test")
         timer.start()
         time.sleep(0.005)
-        
+
         # Timer still running, should still get elapsed time
         elapsed = timer.elapsed_ms
         assert elapsed >= 4
@@ -61,49 +61,49 @@ class TestTimer:
         timer.start()
         time.sleep(0.005)
         timer.stop()
-        
+
         # Multiple calls should return same value
         elapsed1 = timer.elapsed_ms
         time.sleep(0.005)
         elapsed2 = timer.elapsed_ms
-        
+
         assert elapsed1 == elapsed2  # Should be same since timer stopped
 
     def test_elapsed_seconds_property(self):
         """Test elapsed_seconds conversion."""
         with Timer("test") as timer:
             time.sleep(0.01)
-        
+
         # elapsed_seconds should be elapsed_ms / 1000
         assert abs(timer.elapsed_seconds - timer.elapsed_ms / 1000) < 0.001
 
     def test_stop_without_start_raises_error(self):
         """Test that stop() without start() raises RuntimeError."""
         timer = Timer("test")
-        
+
         with pytest.raises(RuntimeError) as exc_info:
             timer.stop()
-        
+
         assert "test" in str(exc_info.value)
         assert "not started" in str(exc_info.value)
 
     def test_elapsed_ms_without_start_raises_error(self):
         """Test that elapsed_ms without start raises RuntimeError."""
         timer = Timer("unstarted")
-        
+
         with pytest.raises(RuntimeError) as exc_info:
             _ = timer.elapsed_ms
-        
+
         assert "unstarted" in str(exc_info.value)
 
     def test_manual_start_stop_usage(self):
         """Test manual start/stop usage pattern."""
         timer = Timer("manual")
-        
+
         timer.start()
         time.sleep(0.005)
         elapsed = timer.stop()
-        
+
         assert elapsed >= 4
         assert timer.start_time is not None
         assert timer.end_time is not None
@@ -111,32 +111,32 @@ class TestTimer:
     def test_timer_reset_on_restart(self):
         """Test that start() resets the timer."""
         timer = Timer("reset_test")
-        
+
         timer.start()
         time.sleep(0.005)
         timer.stop()
         first_elapsed = timer.elapsed_ms
-        
+
         # Restart the timer
         timer.start()
         time.sleep(0.005)
         timer.stop()
         second_elapsed = timer.elapsed_ms
-        
+
         # Both should be similar (around 5ms each)
         assert abs(first_elapsed - second_elapsed) < 10
 
     def test_context_manager_exception_still_stops(self):
         """Test timer stops even when exception occurs in context."""
         timer = Timer("exception_test")
-        
+
         try:
             with timer:
                 time.sleep(0.005)
                 raise ValueError("Test exception")
         except ValueError:
             pass
-        
+
         # Timer should still have stopped
         assert timer.end_time is not None
         assert timer.elapsed_ms >= 4
@@ -148,7 +148,7 @@ class TestTimer:
         timer.start()
         time.sleep(0.001)
         timer.stop()
-        
+
         mock_logger.info.assert_called_once()
         call_args = mock_logger.info.call_args
         assert "logged_op" in call_args[0][0]
@@ -159,14 +159,14 @@ class TestTimer:
         timer = Timer("silent_op", log_result=False)
         timer.start()
         timer.stop()
-        
+
         mock_logger.info.assert_not_called()
 
     def test_very_short_duration(self):
         """Test measurement of very short operations."""
         with Timer("fast") as timer:
             pass  # Nearly instant
-        
+
         # Should be measurable but very small
         assert timer.elapsed_ms >= 0
         assert timer.elapsed_ms < 10
@@ -176,7 +176,7 @@ class TestTimer:
         timer = Timer("instant")
         timer.start_time = 1000.0
         timer.end_time = 1000.0
-        
+
         assert timer.elapsed_ms == 0.0
 
 
@@ -188,7 +188,7 @@ class TestTimedOperation:
         """Test basic timed_operation usage with default logging."""
         with timed_operation("database_query") as timer:
             time.sleep(0.005)
-        
+
         assert timer.elapsed_ms >= 4
         mock_logger.info.assert_called_once()
 
@@ -197,7 +197,7 @@ class TestTimedOperation:
         """Test timed_operation with logging disabled."""
         with timed_operation("silent_op", log_result=False) as timer:
             time.sleep(0.001)
-        
+
         assert timer.elapsed_ms >= 0
         mock_logger.info.assert_not_called()
 
@@ -216,7 +216,7 @@ class TestTimedOperation:
                 raise RuntimeError("Intentional error")
         except RuntimeError:
             pass
-        
+
         assert timer.end_time is not None
         assert timer.elapsed_ms >= 4
 
@@ -228,7 +228,7 @@ class TestTimedOperation:
                 raise ValueError("Error")
         except ValueError:
             pass
-        
+
         # Should still log despite exception
         mock_logger.info.assert_called_once()
 
@@ -238,7 +238,7 @@ class TestTimedOperation:
             time.sleep(0.005)
             with timed_operation("inner", log_result=False) as inner:
                 time.sleep(0.005)
-        
+
         # Inner should be ~5ms, outer should be ~10ms
         assert inner.elapsed_ms >= 4
         assert outer.elapsed_ms >= 9
@@ -253,7 +253,7 @@ class TestTimerEdgeCases:
         timer = Timer("")
         timer.start()
         timer.stop()
-        
+
         assert timer.name == ""
         assert timer.elapsed_ms >= 0
 
@@ -262,7 +262,7 @@ class TestTimerEdgeCases:
         timer = Timer("api/v1/query?param=value")
         timer.start()
         timer.stop()
-        
+
         assert timer.name == "api/v1/query?param=value"
 
     def test_timer_with_unicode_name(self):
@@ -270,7 +270,7 @@ class TestTimerEdgeCases:
         timer = Timer("操作タイマー")  # "operation timer" in mixed CJK
         timer.start()
         timer.stop()
-        
+
         assert timer.name == "操作タイマー"
 
     def test_multiple_stops_use_first_end_time(self):
@@ -279,20 +279,20 @@ class TestTimerEdgeCases:
         timer.start()
         time.sleep(0.005)
         first_elapsed = timer.stop()
-        
+
         time.sleep(0.010)  # Wait longer
-        
+
         # elapsed_ms should still return first measurement
         assert timer.elapsed_ms == first_elapsed
 
     def test_enter_exit_methods_directly(self):
         """Test __enter__ and __exit__ methods directly."""
         timer = Timer("direct")
-        
+
         result = timer.__enter__()
         assert result is timer
         assert timer.start_time is not None
-        
+
         time.sleep(0.001)
         timer.__exit__(None, None, None)
         assert timer.end_time is not None
@@ -301,14 +301,15 @@ class TestTimerEdgeCases:
         """Test __exit__ receives exception info correctly."""
         timer = Timer("exc_test")
         timer.__enter__()
-        
+
         # Simulate exception context
         try:
             raise ValueError("Test")
         except ValueError:
             import sys
+
             exc_info = sys.exc_info()
             timer.__exit__(*exc_info)
-        
+
         # Timer should still have stopped
         assert timer.end_time is not None

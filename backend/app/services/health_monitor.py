@@ -15,7 +15,7 @@ Phase: Production Metrics Implementation
 
 import asyncio
 from datetime import datetime
-from typing import Optional, Dict, List
+from typing import Any, Optional, Dict, List
 
 import httpx
 
@@ -340,7 +340,7 @@ class HealthMonitor:
             remaining_minutes = int((seconds % 3600) / 60)
             return f"{hours}h {remaining_minutes}m"
 
-    def get_status(self) -> Dict[str, any]:
+    def get_status(self) -> Dict[str, Any]:
         """Get current health monitor status.
 
         Returns:

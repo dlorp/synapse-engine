@@ -17,7 +17,7 @@ import asyncio
 import logging
 from collections import deque
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from app.models.code_chat import ConversationTurn, ProjectInfo
 
@@ -454,7 +454,7 @@ class MemoryManager:
         async with self._manager_lock:
             return len(self._sessions)
 
-    async def get_session_stats(self) -> Dict[str, any]:
+    async def get_session_stats(self) -> Dict[str, Any]:
         """Get statistics about active sessions.
 
         Returns:

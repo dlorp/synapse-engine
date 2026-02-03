@@ -37,15 +37,22 @@ class TestPipelineStage:
             duration_ms=42,
             metadata={"complexity_score": 6.5},
         )
-        
+
         assert stage.stage_name == "complexity"
         assert stage.status == "completed"
         assert stage.duration_ms == 42
 
     def test_all_valid_stage_names(self):
         """Test all valid stage name literals."""
-        valid_names = ["input", "complexity", "cgrag", "routing", "generation", "response"]
-        
+        valid_names = [
+            "input",
+            "complexity",
+            "cgrag",
+            "routing",
+            "generation",
+            "response",
+        ]
+
         for name in valid_names:
             stage = PipelineStage(stage_name=name, status="pending")
             assert stage.stage_name == name
@@ -58,7 +65,7 @@ class TestPipelineStage:
     def test_all_valid_status_values(self):
         """Test all valid status literals."""
         valid_statuses = ["pending", "active", "completed", "failed"]
-        
+
         for status in valid_statuses:
             stage = PipelineStage(stage_name="input", status=status)
             assert stage.status == status
@@ -71,7 +78,7 @@ class TestPipelineStage:
     def test_optional_fields_default_to_none(self):
         """Test that optional fields default to None or empty dict."""
         stage = PipelineStage(stage_name="input", status="pending")
-        
+
         assert stage.start_time is None
         assert stage.end_time is None
         assert stage.duration_ms is None
@@ -84,13 +91,13 @@ class TestPipelineStage:
             "scores": {"accuracy": 0.95, "speed": 0.8},
             "nested": {"deep": {"value": True}},
         }
-        
+
         stage = PipelineStage(
             stage_name="cgrag",
             status="completed",
             metadata=complex_metadata,
         )
-        
+
         assert stage.metadata["artifacts"][0]["id"] == 1
         assert stage.metadata["scores"]["accuracy"] == 0.95
 
@@ -101,7 +108,7 @@ class TestPipelineStage:
             status="completed",
             duration_ms=0,
         )
-        
+
         assert stage.duration_ms == 0
 
     def test_negative_duration_allowed(self):
@@ -113,7 +120,7 @@ class TestPipelineStage:
             status="completed",
             duration_ms=-1,  # Edge case
         )
-        
+
         assert stage.duration_ms == -1
 
 
@@ -126,14 +133,14 @@ class TestPipelineStatus:
             PipelineStage(stage_name="input", status="completed"),
             PipelineStage(stage_name="complexity", status="active"),
         ]
-        
+
         status = PipelineStatus(
             query_id="test-query-123",
             current_stage="complexity",
             stages=stages,
             overall_status="processing",
         )
-        
+
         assert status.query_id == "test-query-123"
         assert status.current_stage == "complexity"
         assert len(status.stages) == 2
@@ -168,7 +175,7 @@ class TestPipelineStatus:
             stages=[],
             overall_status="processing",
         )
-        
+
         assert status.total_duration_ms is None
         assert status.model_selected is None
         assert status.tier is None
@@ -186,7 +193,7 @@ class TestPipelineStatus:
             tier="Q3",
             cgrag_artifacts_count=8,
         )
-        
+
         assert status.total_duration_ms == 5000
         assert status.model_selected == "deepseek-r1:8b"
         assert status.tier == "Q3"
@@ -200,7 +207,7 @@ class TestPipelineStatus:
             stages=[],
             overall_status="processing",
         )
-        
+
         assert status.stages == []
 
 
@@ -225,7 +232,7 @@ class TestEventType:
             EventType.TOPOLOGY_DATAFLOW_UPDATE,
             EventType.LOG,
         ]
-        
+
         assert len(event_types) == 14
 
     def test_event_type_values_are_strings(self):
@@ -257,7 +264,7 @@ class TestSystemEvent:
             severity=EventSeverity.INFO,
             metadata={"query_id": "abc123"},
         )
-        
+
         assert event.timestamp == 1699468800.123
         assert event.type == EventType.QUERY_ROUTE
         assert event.message == "Query routed to Q4 tier"
@@ -269,7 +276,7 @@ class TestSystemEvent:
             type=EventType.CACHE,
             message="Cache hit",
         )
-        
+
         assert event.severity == EventSeverity.INFO
 
     def test_metadata_defaults_to_empty_dict(self):
@@ -279,7 +286,7 @@ class TestSystemEvent:
             type=EventType.LOG,
             message="Log entry",
         )
-        
+
         assert event.metadata == {}
 
     def test_message_min_length_validation(self):
@@ -307,7 +314,7 @@ class TestSystemEvent:
             type=EventType.LOG,
             message="x" * 1000,  # Exactly at limit
         )
-        
+
         assert len(event.message) == 1000
 
     def test_model_dump_json_serialization(self):
@@ -318,9 +325,9 @@ class TestSystemEvent:
             message="Test error",
             severity=EventSeverity.ERROR,
         )
-        
+
         json_str = event.model_dump_json()
-        
+
         # Check key content (JSON format may vary with/without spaces)
         assert "timestamp" in json_str
         assert "1699468800.0" in json_str
@@ -339,7 +346,7 @@ class TestQueryRouteEvent:
             estimated_latency_ms=5000,
             routing_reason="Multi-part query",
         )
-        
+
         assert event.query_id == "query-123"
         assert event.complexity_score == 7.5
         assert event.selected_tier == "Q3"
@@ -380,7 +387,7 @@ class TestCacheEvent:
             latency_ms=2,
             size_bytes=4096,
         )
-        
+
         assert event.operation == "hit"
         assert event.hit is True
         assert event.size_bytes == 4096
@@ -414,7 +421,7 @@ class TestCacheEvent:
             hit=False,
             latency_ms=1,
         )
-        
+
         assert event.size_bytes is None
 
 
@@ -430,7 +437,7 @@ class TestErrorEvent:
             stack_trace="Traceback...",
             recovery_action="Retry with Q3 tier",
         )
-        
+
         assert event.error_type == "ModelUnavailableError"
         assert event.component == "ModelManager"
 
@@ -441,7 +448,7 @@ class TestErrorEvent:
             error_message="Something went wrong",
             component="Unknown",
         )
-        
+
         assert event.stack_trace is None
         assert event.recovery_action is None
 
@@ -458,7 +465,7 @@ class TestPerformanceEvent:
             component="Q4_POWERFUL_1",
             action_required=False,
         )
-        
+
         assert event.metric_name == "query_latency_ms"
         assert event.current_value == 18000
         assert event.threshold_value == 15000
@@ -471,7 +478,7 @@ class TestPerformanceEvent:
             threshold_value=80.0,
             component="System",
         )
-        
+
         assert event.action_required is False
 
 
@@ -485,14 +492,21 @@ class TestPipelineEvent:
             stage="cgrag",
             metadata={"artifacts_retrieved": 8},
         )
-        
+
         assert event.query_id == "query-uuid"
         assert event.stage == "cgrag"
 
     def test_all_valid_stages(self):
         """Test all valid stage literals."""
-        valid_stages = ["input", "complexity", "cgrag", "routing", "generation", "response"]
-        
+        valid_stages = [
+            "input",
+            "complexity",
+            "cgrag",
+            "routing",
+            "generation",
+            "response",
+        ]
+
         for stage in valid_stages:
             event = PipelineEvent(query_id="id", stage=stage)
             assert event.stage == stage
@@ -505,7 +519,7 @@ class TestPipelineEvent:
     def test_metadata_defaults_empty(self):
         """Test metadata defaults to empty dict."""
         event = PipelineEvent(query_id="id", stage="input")
-        
+
         assert event.metadata == {}
 
 
@@ -521,7 +535,7 @@ class TestModelStateEvent:
             reason="Query dispatched",
             port=8080,
         )
-        
+
         assert event.model_id == "deepseek_r1_8b"
         assert event.previous_state == "idle"
         assert event.current_state == "processing"
@@ -535,7 +549,7 @@ class TestModelStateEvent:
             current_state="error",
             reason="Health check failed",
         )
-        
+
         assert event.port is None
 
 
@@ -552,7 +566,7 @@ class TestCGRAGEvent:
             total_tokens=1500,
             cache_hit=True,
         )
-        
+
         assert event.chunks_retrieved == 5
         assert event.relevance_threshold == 0.7
         assert event.cache_hit is True

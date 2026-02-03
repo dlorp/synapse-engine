@@ -35,31 +35,34 @@ class InstanceConfig(BaseModel):
     # Identity
     instance_id: str = Field(
         description="Unique instance identifier (model_id:NN format)",
-        alias="instanceId",
+        serialization_alias="instanceId",
     )
     model_id: str = Field(
-        description="Reference to base DiscoveredModel", alias="modelId"
+        description="Reference to base DiscoveredModel", serialization_alias="modelId"
     )
     instance_number: int = Field(
-        ge=1, le=99, description="Instance number (01-99)", alias="instanceNumber"
+        ge=1,
+        le=99,
+        description="Instance number (01-99)",
+        serialization_alias="instanceNumber",
     )
 
     # User-configurable settings
     display_name: str = Field(
         max_length=64,
         description="User-friendly name for this instance",
-        alias="displayName",
+        serialization_alias="displayName",
     )
     system_prompt: Optional[str] = Field(
         default=None,
         max_length=4096,
         description="System prompt injected at query time",
-        alias="systemPrompt",
+        serialization_alias="systemPrompt",
     )
     web_search_enabled: bool = Field(
         default=False,
         description="Enable SearXNG web search for this instance",
-        alias="webSearchEnabled",
+        serialization_alias="webSearchEnabled",
     )
 
     # Runtime configuration
@@ -72,10 +75,13 @@ class InstanceConfig(BaseModel):
 
     # Metadata
     created_at: str = Field(
-        description="ISO timestamp of instance creation", alias="createdAt"
+        description="ISO timestamp of instance creation",
+        serialization_alias="createdAt",
     )
     updated_at: Optional[str] = Field(
-        default=None, description="ISO timestamp of last update", alias="updatedAt"
+        default=None,
+        description="ISO timestamp of last update",
+        serialization_alias="updatedAt",
     )
 
     @field_validator("system_prompt")
@@ -131,14 +137,14 @@ class InstanceRegistry(BaseModel):
     port_range: Tuple[int, int] = Field(
         default=(8100, 8199),
         description="Port range reserved for instances",
-        alias="portRange",
+        serialization_alias="portRange",
     )
 
     # Metadata
     last_updated: str = Field(
         default_factory=lambda: datetime.utcnow().isoformat() + "Z",
         description="ISO timestamp of last registry update",
-        alias="lastUpdated",
+        serialization_alias="lastUpdated",
     )
 
     def get_instances_for_model(self, model_id: str) -> List[InstanceConfig]:
@@ -192,12 +198,14 @@ class InstanceRegistry(BaseModel):
 class CreateInstanceRequest(BaseModel):
     """Request to create a new model instance."""
 
-    model_id: str = Field(alias="modelId")
-    display_name: str = Field(max_length=64, alias="displayName")
+    model_id: str = Field(serialization_alias="modelId")
+    display_name: str = Field(max_length=64, serialization_alias="displayName")
     system_prompt: Optional[str] = Field(
-        default=None, max_length=4096, alias="systemPrompt"
+        default=None, max_length=4096, serialization_alias="systemPrompt"
     )
-    web_search_enabled: bool = Field(default=False, alias="webSearchEnabled")
+    web_search_enabled: bool = Field(
+        default=False, serialization_alias="webSearchEnabled"
+    )
 
     model_config = ConfigDict(populate_by_name=True)
 
@@ -206,12 +214,14 @@ class UpdateInstanceRequest(BaseModel):
     """Request to update an existing instance."""
 
     display_name: Optional[str] = Field(
-        default=None, max_length=64, alias="displayName"
+        default=None, max_length=64, serialization_alias="displayName"
     )
     system_prompt: Optional[str] = Field(
-        default=None, max_length=4096, alias="systemPrompt"
+        default=None, max_length=4096, serialization_alias="systemPrompt"
     )
-    web_search_enabled: Optional[bool] = Field(default=None, alias="webSearchEnabled")
+    web_search_enabled: Optional[bool] = Field(
+        default=None, serialization_alias="webSearchEnabled"
+    )
 
     model_config = ConfigDict(populate_by_name=True)
 
@@ -220,8 +230,8 @@ class InstanceResponse(BaseModel):
     """Response containing instance details."""
 
     instance: InstanceConfig
-    model_display_name: str = Field(alias="modelDisplayName")
-    model_tier: str = Field(alias="modelTier")
+    model_display_name: str = Field(serialization_alias="modelDisplayName")
+    model_tier: str = Field(serialization_alias="modelTier")
 
     model_config = ConfigDict(populate_by_name=True)
 
@@ -234,7 +244,7 @@ class InstanceListResponse(BaseModel):
     by_model: Dict[str, int] = Field(
         default_factory=dict,
         description="Count of instances per model_id",
-        alias="byModel",
+        serialization_alias="byModel",
     )
 
     model_config = ConfigDict(populate_by_name=True)

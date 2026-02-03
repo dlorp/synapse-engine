@@ -59,7 +59,9 @@ class DiscoveredModel(BaseModel):
     """
 
     # File information
-    file_path: str = Field(description="Absolute path to GGUF file", alias="filePath")
+    file_path: str = Field(
+        description="Absolute path to GGUF file", serialization_alias="filePath"
+    )
     filename: str = Field(description="Base filename without path")
 
     # Model identity
@@ -68,7 +70,8 @@ class DiscoveredModel(BaseModel):
         default=None, description="Model version (2.5, 3, etc.)"
     )
     size_params: float = Field(
-        description="Model size in billions of parameters", alias="sizeParams"
+        description="Model size in billions of parameters",
+        serialization_alias="sizeParams",
     )
     quantization: QuantizationLevel = Field(description="Quantization level")
 
@@ -76,28 +79,32 @@ class DiscoveredModel(BaseModel):
     is_thinking_model: bool = Field(
         default=False,
         description="Auto-detected reasoning/thinking model (r1, o1, etc.)",
-        alias="isThinkingModel",
+        serialization_alias="isThinkingModel",
     )
     thinking_override: Optional[bool] = Field(
         default=None,
         description="User override for thinking model status",
-        alias="thinkingOverride",
+        serialization_alias="thinkingOverride",
     )
     is_instruct: bool = Field(
-        default=False, description="Instruction-tuned model", alias="isInstruct"
+        default=False,
+        description="Instruction-tuned model",
+        serialization_alias="isInstruct",
     )
     is_coder: bool = Field(
-        default=False, description="Code-specialized model", alias="isCoder"
+        default=False,
+        description="Code-specialized model",
+        serialization_alias="isCoder",
     )
 
     # Tier assignment
     assigned_tier: ModelTier = Field(
-        description="Auto-assigned performance tier", alias="assignedTier"
+        description="Auto-assigned performance tier", serialization_alias="assignedTier"
     )
     tier_override: Optional[ModelTier] = Field(
         default=None,
         description="User override for tier assignment",
-        alias="tierOverride",
+        serialization_alias="tierOverride",
     )
 
     # Runtime configuration
@@ -113,32 +120,34 @@ class DiscoveredModel(BaseModel):
         ge=0,
         le=999,
         description="Per-model GPU layers override (None = use global setting)",
-        alias="nGpuLayers",
+        serialization_alias="nGpuLayers",
     )
     ctx_size: Optional[int] = Field(
         default=None,
         ge=512,
         le=131072,
         description="Per-model context size override (None = use global setting)",
-        alias="ctxSize",
+        serialization_alias="ctxSize",
     )
     n_threads: Optional[int] = Field(
         default=None,
         ge=1,
         le=128,
         description="Per-model thread count override (None = use global setting)",
-        alias="nThreads",
+        serialization_alias="nThreads",
     )
     batch_size: Optional[int] = Field(
         default=None,
         ge=1,
         le=4096,
         description="Per-model batch size override (None = use global setting)",
-        alias="batchSize",
+        serialization_alias="batchSize",
     )
 
     # Generated identifier
-    model_id: str = Field(description="Generated unique identifier", alias="modelId")
+    model_id: str = Field(
+        description="Generated unique identifier", serialization_alias="modelId"
+    )
 
     def get_display_name(self) -> str:
         """Generate human-readable display name.
@@ -208,13 +217,15 @@ class ModelRegistry(BaseModel):
         default_factory=dict, description="Map of model_id to DiscoveredModel"
     )
     scan_path: str = Field(
-        description="Directory path that was scanned", alias="scanPath"
+        description="Directory path that was scanned", serialization_alias="scanPath"
     )
-    last_scan: str = Field(description="ISO timestamp of last scan", alias="lastScan")
+    last_scan: str = Field(
+        description="ISO timestamp of last scan", serialization_alias="lastScan"
+    )
     port_range: Tuple[int, int] = Field(
         default=(8080, 8099),
         description="Available port range for llama.cpp servers",
-        alias="portRange",
+        serialization_alias="portRange",
     )
     tier_thresholds: Dict[str, float] = Field(
         default_factory=lambda: {
@@ -222,7 +233,7 @@ class ModelRegistry(BaseModel):
             "fast_max": 7.0,  # <7B parameters for FAST tier (with low quant)
         },
         description="Parameter count thresholds for tier assignment",
-        alias="tierThresholds",
+        serialization_alias="tierThresholds",
     )
 
     def get_by_tier(self, tier: ModelTier) -> List[DiscoveredModel]:

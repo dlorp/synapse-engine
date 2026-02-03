@@ -71,7 +71,7 @@ async def emit_query_route_event(
         metadata = QueryRouteEvent(
             query_id=query_id,
             complexity_score=complexity_score,
-            selected_tier=selected_tier,
+            selected_tier=selected_tier,  # type: ignore[arg-type]
             estimated_latency_ms=estimated_latency_ms,
             routing_reason=routing_reason,
         )
@@ -234,7 +234,7 @@ async def emit_cache_event(
         event_bus = get_event_bus()
 
         metadata = CacheEvent(
-            operation=operation,
+            operation=operation,  # type: ignore[arg-type]
             key=key,
             hit=hit,
             latency_ms=latency_ms,

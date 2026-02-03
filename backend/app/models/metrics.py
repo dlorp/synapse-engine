@@ -28,16 +28,24 @@ class QueryMetrics(BaseModel):
 
     timestamps: list[str] = Field(..., description="ISO8601 timestamps for data points")
     query_rate: list[float] = Field(
-        ..., alias="queryRate", description="Queries per second at each timestamp"
+        ...,
+        serialization_alias="queryRate",
+        description="Queries per second at each timestamp",
     )
     total_queries: int = Field(
-        ..., ge=0, alias="totalQueries", description="Total queries processed"
+        ...,
+        ge=0,
+        serialization_alias="totalQueries",
+        description="Total queries processed",
     )
     avg_latency_ms: float = Field(
-        ..., ge=0.0, alias="avgLatencyMs", description="Average latency in milliseconds"
+        ...,
+        ge=0.0,
+        serialization_alias="avgLatencyMs",
+        description="Average latency in milliseconds",
     )
     tier_distribution: dict[TierName, int] = Field(
-        ..., alias="tierDistribution", description="Query count by tier"
+        ..., serialization_alias="tierDistribution", description="Query count by tier"
     )
 
     class Config:
@@ -59,16 +67,27 @@ class TierMetrics(BaseModel):
 
     name: TierName = Field(..., description="Tier name")
     tokens_per_sec: list[float] = Field(
-        ..., alias="tokensPerSec", description="Token generation rate samples"
+        ...,
+        serialization_alias="tokensPerSec",
+        description="Token generation rate samples",
     )
     latency_ms: list[float] = Field(
-        ..., alias="latencyMs", description="Latency samples in milliseconds"
+        ...,
+        serialization_alias="latencyMs",
+        description="Latency samples in milliseconds",
     )
     request_count: int = Field(
-        ..., ge=0, alias="requestCount", description="Total requests processed"
+        ...,
+        ge=0,
+        serialization_alias="requestCount",
+        description="Total requests processed",
     )
     error_rate: float = Field(
-        ..., ge=0.0, le=1.0, alias="errorRate", description="Error rate (0.0-1.0)"
+        ...,
+        ge=0.0,
+        le=1.0,
+        serialization_alias="errorRate",
+        description="Error rate (0.0-1.0)",
     )
 
     class Config:
@@ -148,10 +167,16 @@ class DiskIOMetrics(BaseModel):
     """
 
     read_mbps: float = Field(
-        ..., ge=0.0, alias="readMBps", description="Read throughput (MB/s)"
+        ...,
+        ge=0.0,
+        serialization_alias="readMBps",
+        description="Read throughput (MB/s)",
     )
     write_mbps: float = Field(
-        ..., ge=0.0, alias="writeMBps", description="Write throughput (MB/s)"
+        ...,
+        ge=0.0,
+        serialization_alias="writeMBps",
+        description="Write throughput (MB/s)",
     )
 
     class Config:
@@ -169,10 +194,10 @@ class NetworkThroughputMetrics(BaseModel):
     """
 
     rx_mbps: float = Field(
-        ..., ge=0.0, alias="rxMBps", description="RX throughput (MB/s)"
+        ..., ge=0.0, serialization_alias="rxMBps", description="RX throughput (MB/s)"
     )
     tx_mbps: float = Field(
-        ..., ge=0.0, alias="txMBps", description="TX throughput (MB/s)"
+        ..., ge=0.0, serialization_alias="txMBps", description="TX throughput (MB/s)"
     )
 
     class Config:
@@ -200,20 +225,31 @@ class ResourceMetrics(BaseModel):
     cpu: CPUMetrics = Field(..., description="CPU metrics")
     memory: MemoryMetrics = Field(..., description="RAM metrics")
     faiss_index_size: int = Field(
-        ..., ge=0, alias="faissIndexSize", description="FAISS index size (bytes)"
+        ...,
+        ge=0,
+        serialization_alias="faissIndexSize",
+        description="FAISS index size (bytes)",
     )
     redis_cache_size: int = Field(
-        ..., ge=0, alias="redisCacheSize", description="Redis cache size (bytes)"
+        ...,
+        ge=0,
+        serialization_alias="redisCacheSize",
+        description="Redis cache size (bytes)",
     )
     active_connections: int = Field(
-        ..., ge=0, alias="activeConnections", description="Active WebSocket connections"
+        ...,
+        ge=0,
+        serialization_alias="activeConnections",
+        description="Active WebSocket connections",
     )
     thread_pool_status: ThreadPoolStatus = Field(
-        ..., alias="threadPoolStatus", description="Thread pool status"
+        ..., serialization_alias="threadPoolStatus", description="Thread pool status"
     )
-    disk_io: DiskIOMetrics = Field(..., alias="diskIO", description="Disk I/O metrics")
+    disk_io: DiskIOMetrics = Field(
+        ..., serialization_alias="diskIO", description="Disk I/O metrics"
+    )
     network_throughput: NetworkThroughputMetrics = Field(
-        ..., alias="networkThroughput", description="Network throughput"
+        ..., serialization_alias="networkThroughput", description="Network throughput"
     )
 
     class Config:
@@ -236,7 +272,10 @@ class RoutingDecisionMatrix(BaseModel):
     tier: TierName = Field(..., description="Tier selected")
     count: int = Field(..., ge=0, description="Decision count")
     avg_score: float = Field(
-        ..., ge=0.0, alias="avgScore", description="Average complexity score"
+        ...,
+        ge=0.0,
+        serialization_alias="avgScore",
+        description="Average complexity score",
     )
 
     class Config:
@@ -255,13 +294,20 @@ class AccuracyMetrics(BaseModel):
     """
 
     total_decisions: int = Field(
-        ..., ge=0, alias="totalDecisions", description="Total decisions"
+        ..., ge=0, serialization_alias="totalDecisions", description="Total decisions"
     )
     avg_decision_time_ms: float = Field(
-        ..., ge=0.0, alias="avgDecisionTimeMs", description="Average decision time (ms)"
+        ...,
+        ge=0.0,
+        serialization_alias="avgDecisionTimeMs",
+        description="Average decision time (ms)",
     )
     fallback_rate: float = Field(
-        ..., ge=0.0, le=1.0, alias="fallbackRate", description="Fallback rate"
+        ...,
+        ge=0.0,
+        le=1.0,
+        serialization_alias="fallbackRate",
+        description="Fallback rate",
     )
 
     class Config:
@@ -294,13 +340,15 @@ class RoutingMetrics(BaseModel):
     """
 
     decision_matrix: list[RoutingDecisionMatrix] = Field(
-        ..., alias="decisionMatrix", description="Routing decision matrix"
+        ..., serialization_alias="decisionMatrix", description="Routing decision matrix"
     )
     accuracy_metrics: AccuracyMetrics = Field(
-        ..., alias="accuracyMetrics", description="Accuracy metrics"
+        ..., serialization_alias="accuracyMetrics", description="Accuracy metrics"
     )
     model_availability: list[ModelAvailability] = Field(
-        ..., alias="modelAvailability", description="Model availability by tier"
+        ...,
+        serialization_alias="modelAvailability",
+        description="Model availability by tier",
     )
 
     class Config:
@@ -354,44 +402,70 @@ class HistoricalMetrics(BaseModel):
     total_requests: int = Field(
         ...,
         ge=0,
-        alias="totalRequests",
+        serialization_alias="totalRequests",
         description="Total requests processed since startup",
     )
     total_errors: int = Field(
-        ..., ge=0, alias="totalErrors", description="Total errors encountered"
+        ...,
+        ge=0,
+        serialization_alias="totalErrors",
+        description="Total errors encountered",
     )
     error_rate: float = Field(
-        ..., ge=0.0, le=100.0, alias="errorRate", description="Error rate percentage"
+        ...,
+        ge=0.0,
+        le=100.0,
+        serialization_alias="errorRate",
+        description="Error rate percentage",
     )
     avg_latency_ms: float = Field(
-        ..., ge=0.0, alias="avgLatencyMs", description="Average latency in milliseconds"
+        ...,
+        ge=0.0,
+        serialization_alias="avgLatencyMs",
+        description="Average latency in milliseconds",
     )
     p95_latency_ms: float = Field(
-        ..., ge=0.0, alias="p95LatencyMs", description="95th percentile latency"
+        ...,
+        ge=0.0,
+        serialization_alias="p95LatencyMs",
+        description="95th percentile latency",
     )
     p99_latency_ms: float = Field(
-        ..., ge=0.0, alias="p99LatencyMs", description="99th percentile latency"
+        ...,
+        ge=0.0,
+        serialization_alias="p99LatencyMs",
+        description="99th percentile latency",
     )
     uptime_days: int = Field(
-        ..., ge=0, alias="uptimeDays", description="System uptime in days"
+        ..., ge=0, serialization_alias="uptimeDays", description="System uptime in days"
     )
     uptime_hours: int = Field(
-        ..., ge=0, le=23, alias="uptimeHours", description="Remaining hours after days"
+        ...,
+        ge=0,
+        le=23,
+        serialization_alias="uptimeHours",
+        description="Remaining hours after days",
     )
     uptime_seconds: int = Field(
-        ..., ge=0, alias="uptimeSeconds", description="Total uptime in seconds"
+        ...,
+        ge=0,
+        serialization_alias="uptimeSeconds",
+        description="Total uptime in seconds",
     )
     total_cache_hits: int = Field(
-        ..., ge=0, alias="totalCacheHits", description="Total cache hits"
+        ..., ge=0, serialization_alias="totalCacheHits", description="Total cache hits"
     )
     total_cache_misses: int = Field(
-        ..., ge=0, alias="totalCacheMisses", description="Total cache misses"
+        ...,
+        ge=0,
+        serialization_alias="totalCacheMisses",
+        description="Total cache misses",
     )
     cache_hit_rate: float = Field(
         ...,
         ge=0.0,
         le=100.0,
-        alias="cacheHitRate",
+        serialization_alias="cacheHitRate",
         description="Cache hit rate percentage",
     )
 
@@ -418,15 +492,21 @@ class ContextUtilization(BaseModel):
         ..., ge=0.0, le=100.0, description="Average context utilization percentage"
     )
     tokens_used: int = Field(
-        ..., ge=0, alias="tokensUsed", description="Total tokens currently in use"
+        ...,
+        ge=0,
+        serialization_alias="tokensUsed",
+        description="Total tokens currently in use",
     )
     tokens_total: int = Field(
-        ..., ge=0, alias="tokensTotal", description="Total context window capacity"
+        ...,
+        ge=0,
+        serialization_alias="tokensTotal",
+        description="Total context window capacity",
     )
     active_queries: int = Field(
         ...,
         ge=0,
-        alias="activeQueries",
+        serialization_alias="activeQueries",
         description="Number of active queries with context allocation",
     )
 

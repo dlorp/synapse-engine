@@ -25,36 +25,44 @@ class ModelMetrics(BaseModel):
         current_latency_ms: Most recent latency in ms
     """
 
-    model_id: str = Field(..., description="Unique model identifier", alias="modelId")
+    model_id: str = Field(
+        ..., description="Unique model identifier", serialization_alias="modelId"
+    )
 
     # Token generation metrics
     tokens_per_second: List[float] = Field(
         default_factory=list,
         description="Token generation rate history (tokens/sec)",
-        alias="tokensPerSecond",
+        serialization_alias="tokensPerSecond",
     )
     current_tokens_per_second: float = Field(
-        0.0, description="Most recent tokens/sec value", alias="currentTokensPerSecond"
+        0.0,
+        description="Most recent tokens/sec value",
+        serialization_alias="currentTokensPerSecond",
     )
 
     # Memory usage metrics
     memory_gb: List[float] = Field(
         default_factory=list,
         description="VRAM usage history (gigabytes)",
-        alias="memoryGb",
+        serialization_alias="memoryGb",
     )
     current_memory_gb: float = Field(
-        0.0, description="Most recent memory usage in GB", alias="currentMemoryGb"
+        0.0,
+        description="Most recent memory usage in GB",
+        serialization_alias="currentMemoryGb",
     )
 
     # Latency metrics
     latency_ms: List[float] = Field(
         default_factory=list,
         description="Health check latency history (milliseconds)",
-        alias="latencyMs",
+        serialization_alias="latencyMs",
     )
     current_latency_ms: float = Field(
-        0.0, description="Most recent latency in ms", alias="currentLatencyMs"
+        0.0,
+        description="Most recent latency in ms",
+        serialization_alias="currentLatencyMs",
     )
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
