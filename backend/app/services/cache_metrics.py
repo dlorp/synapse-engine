@@ -17,7 +17,7 @@ Phase: Production Metrics Implementation
 import asyncio
 import time
 from typing import Dict, Any, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 from app.core.logging import get_logger
 
@@ -188,7 +188,7 @@ class CacheMetrics:
             "hit_rate_percent": round(hit_rate, 2),
             "cache_size": cache_size,
             "uptime_seconds": round(uptime, 2),
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
     async def reset(self) -> None:
