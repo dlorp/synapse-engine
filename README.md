@@ -59,9 +59,9 @@ flowchart TB
     HostAPI --> Models
     Models --> ModelFiles
 
-    classDef tier_fast fill:#90EE90,stroke:#228B22
-    classDef tier_balanced fill:#87CEEB,stroke:#4682B4
-    classDef tier_powerful fill:#DDA0DD,stroke:#8B008B
+    classDef tier_fast fill:#90EE90,stroke:#228B22,color:#000
+    classDef tier_balanced fill:#87CEEB,stroke:#4682B4,color:#000
+    classDef tier_powerful fill:#DDA0DD,stroke:#8B008B,color:#000
     
     class Fast tier_fast
     class Balanced tier_balanced
