@@ -1,4 +1,4 @@
-# Contributing to synapse-engine
+# Contributing to Synapse Engine
 
 Thanks for your interest in contributing! 🎉
 
@@ -6,16 +6,38 @@ Thanks for your interest in contributing! 🎉
 
 1. Fork the repository
 2. Clone your fork: `git clone https://github.com/YOUR_USERNAME/synapse-engine.git`
-3. Install dependencies (see below)
-4. Create a branch: `git checkout -b feature/your-feature`
+3. Create a branch: `git checkout -b feature/your-feature`
 
 ## Development Setup
 
-### Backend (Python)
+### Prerequisites
+
+- Docker Desktop
+- Python 3.11+
+- Node.js 18+
+- llama-server (for local model testing)
+
+### Quick Start
+
+```bash
+# Clone and enter repo
+git clone https://github.com/dlorp/synapse-engine.git
+cd synapse-engine
+
+# Copy environment file
+cp .env.example .env
+
+# Start services
+docker-compose up -d
+```
+
+### Backend Development
 
 ```bash
 cd backend
-pip install -e ".[dev]"
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 
 # Run tests
 pytest tests/ -v
@@ -23,18 +45,24 @@ pytest tests/ -v
 # Run tests with coverage
 pytest tests/ --cov=app --cov-report=term-missing
 
-# Format
-black .
+# Format code
+black app/
 
 # Type check
 mypy app/
+
+# Lint
+ruff check app/
 ```
 
-### Frontend (TypeScript/React)
+### Frontend Development
 
 ```bash
 cd frontend
 npm install
+
+# Development server
+npm run dev
 
 # Run tests
 npm test
@@ -46,31 +74,118 @@ npm run lint
 npm run type-check
 ```
 
-## Pull Requests
-
-- Keep PRs focused - one feature or fix per PR
-- Add tests for new functionality
-- Update docs if needed
-- Follow existing code style
-
 ## Code Style
 
-### Backend
-- Python 3.11+ type hints
-- Use `black` for formatting
-- Use `mypy` for type checking
+### Python (Backend)
 
-### Frontend
+- Python 3.11+ with type hints
+- Format with `black`
+- Type check with `mypy`
+- Lint with `ruff`
+- Follow existing patterns in codebase
+
+### TypeScript (Frontend)
+
 - TypeScript strict mode
-- Use `eslint` for linting
+- Format with Prettier (via ESLint)
+- Lint with ESLint
 - Follow React best practices
+
+### Commit Messages
+
+Use conventional commit format:
+
+```
+feat: add new query mode
+fix: resolve model timeout issue
+docs: update API reference
+test: add orchestrator unit tests
+refactor: simplify model selector
+```
+
+## Pull Requests
+
+### Before Submitting
+
+- [ ] Run tests (`pytest` for backend, `npm test` for frontend)
+- [ ] Run type checks (`mypy` for backend, `npm run type-check` for frontend)
+- [ ] Run linters (`ruff` for backend, `npm run lint` for frontend)
+- [ ] Update documentation if adding features
+- [ ] Add tests for new functionality
+
+### PR Guidelines
+
+- Keep PRs focused - one feature or fix per PR
+- Write descriptive PR titles and descriptions
+- Reference related issues with `Fixes #123` or `Closes #123`
+- Respond to review feedback promptly
+
+## Project Structure
+
+```
+synapse-engine/
+├── backend/           # FastAPI backend
+│   ├── app/           # Application code
+│   └── tests/         # Backend tests
+├── frontend/          # React frontend
+│   └── src/           # Source code
+├── docs/              # Documentation
+├── scripts/           # Utility scripts
+├── tools/             # Development tools
+├── host-api/          # Host API for Metal mode
+└── sandbox/           # Sandbox utilities
+```
+
+## Documentation
+
+- Update relevant docs when changing features
+- Add docstrings to Python functions
+- Add JSDoc comments to TypeScript functions
+- Keep README files current
+
+## Testing
+
+### Backend Tests
+
+```bash
+cd backend
+pytest tests/ -v                          # All tests
+pytest tests/test_orchestrator.py -v      # Specific file
+pytest tests/ -k "test_query" -v          # Pattern match
+pytest tests/ --cov=app                   # With coverage
+```
+
+### Frontend Tests
+
+```bash
+cd frontend
+npm test                    # Run tests
+npm test -- --watch         # Watch mode
+npm test -- --coverage      # With coverage
+```
 
 ## Reporting Issues
 
-- Check existing issues first
-- Include steps to reproduce
-- Include Python/Node version and OS
+Before opening an issue:
 
-## Questions?
+1. Search existing issues to avoid duplicates
+2. Check the [troubleshooting docs](docs/troubleshooting/)
 
-Open a discussion or issue - we're happy to help!
+When opening an issue, include:
+
+- Clear description of the problem
+- Steps to reproduce
+- Expected vs actual behavior
+- Python/Node version
+- Operating system
+- Relevant logs or error messages
+
+## Getting Help
+
+- Open a GitHub issue for bugs
+- Start a GitHub Discussion for questions
+- Check existing issues and discussions first
+
+## License
+
+By contributing, you agree that your contributions will be licensed under the [PolyForm NonCommercial 1.0.0](LICENSE) license.

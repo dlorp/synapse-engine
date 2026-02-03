@@ -1,217 +1,179 @@
 # Synapse Engine Backend
 
-FastAPI backend for the Multi-Model Orchestration WebUI.
+FastAPI backend for Multi-Model Orchestration.
 
 ## Quick Start
 
-### 1. Create Virtual Environment
+### With Docker (Recommended)
 
 ```bash
-cd ${PROJECT_DIR}/backend
-python -m venv venv
-source venv/bin/activate  # On macOS/Linux
+# From project root
+docker-compose up -d
 ```
 
-### 2. Install Dependencies
+Backend runs at http://localhost:8000
+
+### Local Development
 
 ```bash
+cd backend
+python -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
-```
 
-### 3. Configure Environment
-
-The `.env` file has been created with default values. Update if needed:
-
-```bash
-# Model server URLs are already configured for localhost:8080-8083
-MODEL_Q2_FAST_1_URL=http://localhost:8080
-MODEL_Q2_FAST_2_URL=http://localhost:8081
-MODEL_Q3_SYNTH_URL=http://localhost:8082
-MODEL_Q4_DEEP_URL=http://localhost:8083
-```
-
-### 4. Run the Server
-
-```bash
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-The server will start on `http://localhost:8000`
+## API Documentation
 
-## API Endpoints
+Interactive docs available when running:
+- **Swagger UI**: http://localhost:8000/docs
+- **ReDoc**: http://localhost:8000/redoc
 
-### Health Checks
-
-- `GET /health` - Basic health check
-- `GET /health/models` - Model health status
-
-### Model Management
-
-- `GET /api/models/status` - Get all model statuses with system metrics
-
-### Documentation
-
-- `GET /api/docs` - Interactive API documentation (Swagger UI)
-- `GET /api/redoc` - ReDoc API documentation
-
-## Testing Endpoints
-
-### Using curl
-
-```bash
-# Health check
-curl http://localhost:8000/health
-
-# Models status
-curl http://localhost:8000/api/models/status
-
-# Pretty print with jq
-curl -s http://localhost:8000/api/models/status | jq
-```
-
-### Using httpie
-
-```bash
-# Health check
-http :8000/health
-
-# Models status
-http :8000/api/models/status
-```
+See [API Reference](../docs/API.md) for complete endpoint documentation.
 
 ## Project Structure
 
 ```
 backend/
 ├── app/
+│   ├── cli/               # CLI tools
 │   ├── core/              # Core functionality
 │   │   ├── config.py      # Configuration loading
 │   │   ├── dependencies.py # FastAPI dependencies
 │   │   ├── exceptions.py  # Custom exceptions
 │   │   └── logging.py     # Structured logging
 │   ├── models/            # Pydantic data models
-│   │   ├── config.py      # Configuration models
-│   │   └── model.py       # Model status models
 │   ├── routers/           # API endpoints
-│   │   ├── health.py      # Health check endpoints
-│   │   └── models.py      # Model management endpoints
-│   ├── services/          # Business logic (to be implemented)
+│   ├── services/          # Business logic
+│   │   ├── orchestrator/  # Query orchestration
+│   │   ├── cgrag/         # CGRAG retrieval
+│   │   ├── model_manager/ # Model lifecycle
+│   │   └── ...
 │   ├── utils/             # Utilities
-│   │   └── timing.py      # Performance timing
 │   └── main.py            # FastAPI application
-├── config/
-│   └── default.yaml       # Default configuration
-├── tests/                 # Test suite (to be implemented)
-├── .env                   # Environment variables
-├── .env.example           # Example environment variables
+├── data/                  # Runtime data (indexes, registry)
+├── tests/                 # Test suite
 ├── requirements.txt       # Python dependencies
-└── pyproject.toml         # Python project metadata
+└── pyproject.toml         # Project metadata
 ```
 
 ## Configuration
 
-Configuration is loaded from two sources:
+Environment variables (`.env`):
 
-1. `config/default.yaml` - Default configuration
-2. `.env` - Environment variables (overrides YAML)
+```bash
+# Model paths
+PRAXIS_MODEL_PATH=/path/to/huggingface/cache
 
-Environment variables use `${VAR_NAME}` syntax in YAML files.
+# Server config
+NEURAL_LLAMA_SERVER_PATH=/usr/local/bin/llama-server
+NEURAL_PORT_START=8080
+NEURAL_PORT_END=8099
 
-## Current Implementation Status
+# CGRAG
+RECALL_TOKEN_BUDGET=8000
+RECALL_CHUNK_SIZE=512
 
-**Session 1 (Complete):**
-- ✅ FastAPI application structure
-- ✅ Configuration management with YAML + environment variables
-- ✅ Structured JSON logging
-- ✅ Exception handling hierarchy
-- ✅ Health check endpoints
-- ✅ Model status endpoints (mock data)
-- ✅ CORS configuration
-- ✅ Request ID tracking
-- ✅ Performance monitoring middleware
+# Query defaults
+PRAXIS_DEFAULT_MODE=two-stage
 
-**Session 2 (Next):**
-- ⏳ Real model integration with llama.cpp servers
-- ⏳ Model health checking service
-- ⏳ Query routing implementation
-- ⏳ WebSocket real-time updates
-- ⏳ Redis caching
-- ⏳ CGRAG integration
+# Metal acceleration (Apple Silicon)
+USE_EXTERNAL_SERVERS=true
+```
+
+See [.env.example](./.env.example) for all options.
 
 ## Development
 
-### Code Quality Tools
+### Code Quality
 
 ```bash
-# Format code
+# Format
 black app/
 
-# Type checking
+# Type check
 mypy app/
 
-# Run tests (when implemented)
-pytest
+# Lint
+ruff check app/
+```
+
+### Testing
+
+```bash
+# Run tests
+pytest tests/ -v
+
+# With coverage
+pytest tests/ --cov=app --cov-report=term-missing
+
+# Specific test file
+pytest tests/test_orchestrator.py -v
 ```
 
 ### Logging
 
-The application uses structured JSON logging by default. Log format can be changed to text in `.env`:
+Structured JSON logging by default:
 
 ```bash
-LOG_FORMAT=text  # or json
-LOG_LEVEL=INFO   # DEBUG, INFO, WARNING, ERROR, CRITICAL
+# Environment variables
+LOG_FORMAT=json  # or text
+LOG_LEVEL=INFO   # DEBUG, INFO, WARNING, ERROR
 ```
 
-### CORS
+## Key Components
 
-CORS is configured for the frontend running on `localhost:5173`. Update `cors_origins` in `config/default.yaml` to allow additional origins.
+### Query Orchestrator
+Routes queries through processing modes (simple, two-stage, council).
 
-## Mock Data
+### Model Selector
+Chooses models based on tier (FAST/BALANCED/POWERFUL) and availability.
 
-For Session 1, all endpoints return realistic mock data:
+### CGRAG Engine
+Sub-100ms contextual retrieval using FAISS vector similarity.
 
-- **Model Status**: 4 models (Q2_FAST_1, Q2_FAST_2, Q3_SYNTH, Q4_DEEP)
-- **States**: Various states (active, idle, processing)
-- **Metrics**: Request counts, response times, memory usage
-- **System Metrics**: VRAM usage, cache hit rate, active queries
+### Event Emitter
+WebSocket events for real-time UI updates.
 
-Mock data will be replaced with real model integration in Session 2.
+## Additional Documentation
+
+Backend-specific guides in this directory:
+
+| Document | Description |
+|----------|-------------|
+| [API_ARCHITECTURE.md](./API_ARCHITECTURE.md) | API design and patterns |
+| [API_QUICK_REFERENCE.md](./API_QUICK_REFERENCE.md) | Common API operations |
+| [WEBSOCKET_EVENTS_INTEGRATION_GUIDE.md](./WEBSOCKET_EVENTS_INTEGRATION_GUIDE.md) | WebSocket integration |
+| [METRICS_API_INTEGRATION_GUIDE.md](./METRICS_API_INTEGRATION_GUIDE.md) | Metrics API usage |
 
 ## Troubleshooting
 
 ### Port Already in Use
 
-If port 8000 is already in use:
-
 ```bash
-# Find process using port 8000
+# Find process
 lsof -i :8000
 
-# Kill the process
-kill -9 <PID>
-
-# Or use a different port
+# Use different port
 uvicorn app.main:app --reload --port 8001
 ```
 
-### Module Import Errors
+### Import Errors
 
-Ensure you're running from the backend directory and the virtual environment is activated:
+Ensure virtual environment is activated:
 
 ```bash
-cd ${PROJECT_DIR}/backend
-source venv/bin/activate
-python -c "import app; print(app.__version__)"
+source .venv/bin/activate
+python -c "import app; print('OK')"
 ```
 
-### Configuration Errors
-
-Check that environment variables are properly set:
+### Configuration Issues
 
 ```bash
-# View current environment
+# Check environment
 cat .env
 
-# Test configuration loading
-python -c "from app.core.config import load_config; config = load_config(); print(config.app_name)"
+# Test config loading
+python -c "from app.core.config import load_config; print(load_config())"
 ```
