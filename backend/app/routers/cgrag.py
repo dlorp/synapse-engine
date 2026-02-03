@@ -14,7 +14,7 @@ from fastapi import APIRouter, HTTPException, BackgroundTasks
 from pydantic import BaseModel, Field
 
 from app.core.logging import get_logger
-from app.services.cgrag import CGRAGIndexer, get_cgrag_index_paths
+from app.services.cgrag import CGRAGIndexer, get_cgrag_index_paths, migrate_pickle_to_json
 
 logger = get_logger(__name__)
 
@@ -83,6 +83,16 @@ async def get_index_status() -> IndexStatus:
     """
     try:
         index_dir, index_path, metadata_path = get_cgrag_index_paths("docs")
+        
+        # Check for legacy pickle file and migrate if needed
+        if not metadata_path.exists():
+            pkl_path = index_dir / "docs_metadata.pkl"
+            if pkl_path.exists():
+                logger.info("Migrating legacy pickle metadata to JSON format")
+                try:
+                    migrate_pickle_to_json("docs")
+                except Exception as e:
+                    logger.error(f"Migration failed: {e}")
 
         index_exists = index_path.exists() and metadata_path.exists()
         chunks_indexed = 0
@@ -94,10 +104,15 @@ async def get_index_status() -> IndexStatus:
 
             # Load metadata to get chunk count
             try:
-                import pickle
+                import json
 
-                with open(metadata_path, "rb") as f:
-                    chunks = pickle.load(f)
+                with open(metadata_path, "r", encoding="utf-8") as f:
+                    metadata = json.load(f)
+                    # Handle both dict format (new) and list format (legacy)
+                    if isinstance(metadata, dict):
+                        chunks = metadata.get("chunks", [])
+                    else:
+                        chunks = metadata
                     chunks_indexed = len(chunks)
             except Exception as e:
                 logger.warning(f"Failed to load metadata: {e}")
