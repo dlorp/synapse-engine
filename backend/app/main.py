@@ -44,7 +44,6 @@ from app.routers import (
     timeseries,
     topology,
     logs,
-    code_chat,
     instances,
     cgrag,
 )
@@ -284,9 +283,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
             registry=model_registry, server_manager=server_manager
         )
         query_router.model_selector = model_selector
-        app.state.model_selector = (
-            model_selector  # Also expose via app.state for code_chat
-        )
+        app.state.model_selector = model_selector
         logger.info("ModelSelector initialized for query routing")
 
         # Expose server_manager to proxy router for reverse proxy
@@ -596,7 +593,6 @@ app.include_router(context.router, tags=["context"])
 app.include_router(timeseries.router, tags=["timeseries"])
 app.include_router(topology.router, tags=["topology"])
 app.include_router(logs.router, tags=["logs"])
-app.include_router(code_chat.router, tags=["code-chat"])
 app.include_router(instances.router, tags=["instances"])
 app.include_router(cgrag.router, tags=["cgrag"])
 
