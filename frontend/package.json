@@ -1,6 +1,6 @@
 {
   "name": "synapse-webui",
-  "version": "5.0.0",
+  "version": "5.1.0",
   "description": "S.Y.N.A.P.S.E. ENGINE - CORE:INTERFACE (Terminal UI)",
   "type": "module",
   "scripts": {
