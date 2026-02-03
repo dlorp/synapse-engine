@@ -430,11 +430,13 @@ class MemoryManager:
             ]
 
             for session_id in stale_sessions:
+                # Get last_activity before deleting
+                last_activity = self._sessions[session_id].last_activity
                 del self._sessions[session_id]
                 removed_count += 1
                 logger.info(
                     f"Cleaned up stale session: {session_id} "
-                    f"(last activity: {self._sessions[session_id].last_activity})"
+                    f"(last activity: {last_activity})"
                 )
 
         if removed_count > 0:
