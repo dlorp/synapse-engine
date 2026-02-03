@@ -10,7 +10,7 @@ async def main():
     # Load index
     project_root = Path(__file__).parent.parent
     index_path = project_root / "data" / "faiss_indexes" / "docs.index"
-    metadata_path = project_root / "data" / "faiss_indexes" / "docs_metadata.pkl"
+    metadata_path = project_root / "data" / "faiss_indexes" / "docs_metadata.json"
 
     print(f"Loading index from: {index_path}")
     print(f"Loading metadata from: {metadata_path}")

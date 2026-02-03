@@ -22,7 +22,7 @@ async def test_cgrag_integration():
     print("\n1. Checking FAISS index files...")
     project_root = Path(__file__).parent.parent
     index_path = project_root / "data" / "faiss_indexes" / "docs.index"
-    metadata_path = project_root / "data" / "faiss_indexes" / "docs_metadata.pkl"
+    metadata_path = project_root / "data" / "faiss_indexes" / "docs_metadata.json"
 
     if not index_path.exists() or not metadata_path.exists():
         print("   ❌ Index files not found!")
