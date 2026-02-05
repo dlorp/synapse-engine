@@ -20,7 +20,7 @@ Phase: 5 - Security Hardening
 """
 
 import logging
-from typing import Optional
+from typing import Optional, Tuple
 
 import httpx
 from fastapi import APIRouter, HTTPException, Request, Response, status
@@ -33,6 +33,128 @@ router = APIRouter(prefix="/api/proxy", tags=["proxy"])
 
 # Global server manager (set by main.py)
 server_manager: Optional[LlamaServerManager] = None
+
+
+def _validate_server_manager() -> None:
+    """Validate that server manager is initialized.
+
+    Raises:
+        HTTPException: 503 if server manager not initialized
+    """
+    if not server_manager:
+        logger.error("Proxy request failed - server manager not initialized")
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Server manager not initialized",
+        )
+
+
+def _get_server_port(model_id: str) -> Tuple[int, str]:
+    """Get server port for a model, validating it's running.
+
+    Args:
+        model_id: Model ID from registry
+
+    Returns:
+        Tuple of (port, target_base_url)
+
+    Raises:
+        HTTPException: 503 if server not running, 404 if not found
+    """
+    _validate_server_manager()
+
+    if not server_manager.is_server_running(model_id):
+        logger.warning(
+            f"Proxy request failed - server not running for {model_id}",
+            extra={"model_id": model_id},
+        )
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Model server {model_id} is not running. Start it first via /api/models/servers/{model_id}/start",
+        )
+
+    server = server_manager.servers.get(model_id)
+    if not server:
+        logger.error(
+            f"Proxy request failed - server not found: {model_id}",
+            extra={"model_id": model_id},
+        )
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Server {model_id} not found in registry",
+        )
+
+    return server.port, f"http://127.0.0.1:{server.port}"
+
+
+async def _proxy_post_request(
+    model_id: str,
+    endpoint: str,
+    body: bytes,
+    timeout: float = 300.0,
+) -> Response:
+    """Proxy a POST request to the model server.
+
+    Common implementation for proxying POST requests to llama-server endpoints.
+    Handles connection errors and logging consistently.
+
+    Args:
+        model_id: Model ID from registry
+        endpoint: Target endpoint path (e.g., "/v1/chat/completions")
+        body: Request body bytes
+        timeout: Request timeout in seconds (default 300s for LLM inference)
+
+    Returns:
+        Proxied response from llama-server
+
+    Raises:
+        HTTPException: 502 if connection to model server fails
+    """
+    port, base_url = _get_server_port(model_id)
+    target_url = f"{base_url}{endpoint}"
+
+    logger.info(
+        f"Proxying request to {model_id}",
+        extra={"model_id": model_id, "port": port, "target_url": target_url},
+    )
+
+    async with httpx.AsyncClient(timeout=timeout) as client:
+        try:
+            response = await client.post(
+                target_url,
+                content=body,
+                headers={
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
+            )
+
+            logger.info(
+                f"Proxy response from {model_id}: {response.status_code}",
+                extra={
+                    "model_id": model_id,
+                    "status_code": response.status_code,
+                    "response_size": len(response.content),
+                },
+            )
+
+            return Response(
+                content=response.content,
+                status_code=response.status_code,
+                headers=dict(response.headers),
+                media_type="application/json",
+            )
+
+        except httpx.RequestError as e:
+            logger.error(
+                f"Proxy request failed for {model_id}: {e}",
+                extra={"model_id": model_id, "error": str(e), "target_url": target_url},
+                exc_info=True,
+            )
+            raise HTTPException(
+                status_code=status.HTTP_502_BAD_GATEWAY,
+                detail=f"Failed to connect to model server: {str(e)}",
+            )
 
 
 @router.post("/{model_id}/v1/chat/completions")
@@ -66,86 +188,8 @@ async def proxy_chat_completions(model_id: str, request: Request) -> Response:
             "max_tokens": 100
         }
     """
-    if not server_manager:
-        logger.error("Proxy request failed - server manager not initialized")
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Server manager not initialized",
-        )
-
-    # Check if server is running
-    if not server_manager.is_server_running(model_id):
-        logger.warning(
-            f"Proxy request failed - server not running for {model_id}",
-            extra={"model_id": model_id},
-        )
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=f"Model server {model_id} is not running. Start it first via /api/models/servers/{model_id}/start",
-        )
-
-    # Get server info
-    server = server_manager.servers.get(model_id)
-    if not server:
-        logger.error(
-            f"Proxy request failed - server not found: {model_id}",
-            extra={"model_id": model_id},
-        )
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Server {model_id} not found in registry",
-        )
-
-    port = server.port
-    target_url = f"http://127.0.0.1:{port}/v1/chat/completions"
-
-    logger.info(
-        f"Proxying chat completions request to {model_id}",
-        extra={"model_id": model_id, "port": port, "target_url": target_url},
-    )
-
-    # Get request body
     body = await request.body()
-
-    # Proxy the request with extended timeout for LLM inference
-    async with httpx.AsyncClient(timeout=300.0) as client:
-        try:
-            response = await client.post(
-                target_url,
-                content=body,
-                headers={
-                    "Content-Type": "application/json",
-                    "Accept": "application/json",
-                },
-            )
-
-            logger.info(
-                f"Proxy response from {model_id}: {response.status_code}",
-                extra={
-                    "model_id": model_id,
-                    "status_code": response.status_code,
-                    "response_size": len(response.content),
-                },
-            )
-
-            # Return proxied response with original status code and headers
-            return Response(
-                content=response.content,
-                status_code=response.status_code,
-                headers=dict(response.headers),
-                media_type="application/json",
-            )
-
-        except httpx.RequestError as e:
-            logger.error(
-                f"Proxy request failed for {model_id}: {e}",
-                extra={"model_id": model_id, "error": str(e), "target_url": target_url},
-                exc_info=True,
-            )
-            raise HTTPException(
-                status_code=status.HTTP_502_BAD_GATEWAY,
-                detail=f"Failed to connect to model server: {str(e)}",
-            )
+    return await _proxy_post_request(model_id, "/v1/chat/completions", body)
 
 
 @router.post("/{model_id}/v1/completions")
@@ -177,81 +221,8 @@ async def proxy_completions(model_id: str, request: Request) -> Response:
             "max_tokens": 100
         }
     """
-    if not server_manager:
-        logger.error("Proxy request failed - server manager not initialized")
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Server manager not initialized",
-        )
-
-    if not server_manager.is_server_running(model_id):
-        logger.warning(
-            f"Proxy request failed - server not running for {model_id}",
-            extra={"model_id": model_id},
-        )
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=f"Model server {model_id} is not running. Start it first via /api/models/servers/{model_id}/start",
-        )
-
-    server = server_manager.servers.get(model_id)
-    if not server:
-        logger.error(
-            f"Proxy request failed - server not found: {model_id}",
-            extra={"model_id": model_id},
-        )
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Server {model_id} not found in registry",
-        )
-
-    port = server.port
-    target_url = f"http://127.0.0.1:{port}/v1/completions"
-
-    logger.info(
-        f"Proxying completions request to {model_id}",
-        extra={"model_id": model_id, "port": port, "target_url": target_url},
-    )
-
     body = await request.body()
-
-    async with httpx.AsyncClient(timeout=300.0) as client:
-        try:
-            response = await client.post(
-                target_url,
-                content=body,
-                headers={
-                    "Content-Type": "application/json",
-                    "Accept": "application/json",
-                },
-            )
-
-            logger.info(
-                f"Proxy response from {model_id}: {response.status_code}",
-                extra={
-                    "model_id": model_id,
-                    "status_code": response.status_code,
-                    "response_size": len(response.content),
-                },
-            )
-
-            return Response(
-                content=response.content,
-                status_code=response.status_code,
-                headers=dict(response.headers),
-                media_type="application/json",
-            )
-
-        except httpx.RequestError as e:
-            logger.error(
-                f"Proxy request failed for {model_id}: {e}",
-                extra={"model_id": model_id, "error": str(e), "target_url": target_url},
-                exc_info=True,
-            )
-            raise HTTPException(
-                status_code=status.HTTP_502_BAD_GATEWAY,
-                detail=f"Failed to connect to model server: {str(e)}",
-            )
+    return await _proxy_post_request(model_id, "/v1/completions", body)
 
 
 @router.get("/{model_id}/health")
@@ -286,12 +257,7 @@ async def proxy_health_check(model_id: str) -> Response:
             "status": "not_running"
         }
     """
-    if not server_manager:
-        logger.error("Proxy health check failed - server manager not initialized")
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Server manager not initialized",
-        )
+    _validate_server_manager()
 
     # Check if server is tracked
     if not server_manager.is_server_running(model_id):
