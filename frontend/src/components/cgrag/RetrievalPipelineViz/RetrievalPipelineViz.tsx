@@ -29,13 +29,13 @@ interface StageConfig {
 }
 
 const STAGE_CONFIGS: Record<RetrievalStage, StageConfig> = {
-  embedding: { label: 'EMBED', icon: '⚡', color: 'cyan' },
-  vector_search: { label: 'VECTOR', icon: '🔍', color: 'orange' },
-  bm25_search: { label: 'BM25', icon: '📊', color: 'orange' },
+  embedding: { label: 'EMBED', icon: '', color: 'cyan' },
+  vector_search: { label: 'VECTOR', icon: '', color: 'orange' },
+  bm25_search: { label: 'BM25', icon: '', color: 'orange' },
   fusion: { label: 'FUSION', icon: '🔗', color: 'cyan' },
   coarse_rerank: { label: 'RERANK-1', icon: '⬆', color: 'orange' },
   fine_rerank: { label: 'RERANK-2', icon: '⬆⬆', color: 'cyan' },
-  kg_expansion: { label: 'KG-EXP', icon: '🕸', color: 'orange' },
+  kg_expansion: { label: 'KG-EXP', icon: '', color: 'orange' },
   filtering: { label: 'FILTER', icon: '✓', color: 'cyan' },
   complete: { label: 'DONE', icon: '✓', color: 'green' },
 };

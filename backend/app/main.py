@@ -154,21 +154,21 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         registry_path = Path("data/model_registry.json")
         if registry_path.exists():
             model_registry = discovery_service.load_registry(registry_path)
-            logger.info(f"✅ Loaded {len(model_registry.models)} models from registry")
+            logger.info(f"✓ Loaded {len(model_registry.models)} models from registry")
         else:
             logger.info("No registry found, discovering models...")
             model_registry = discovery_service.discover_models()
             discovery_service.save_registry(model_registry, registry_path)
-            logger.info(f"✅ Discovered {len(model_registry.models)} models")
+            logger.info(f"✓ Discovered {len(model_registry.models)} models")
 
         # Initialize server manager (but don't start any servers yet)
         # Check for external server mode (Metal acceleration on macOS)
         use_external_servers_env = os.getenv("USE_EXTERNAL_SERVERS", "false")
         use_external_servers = use_external_servers_env.lower() == "true"
         logger.info(
-            f"🔍 DEBUG: USE_EXTERNAL_SERVERS env var = '{use_external_servers_env}'"
+            f" DEBUG: USE_EXTERNAL_SERVERS env var = '{use_external_servers_env}'"
         )
-        logger.info(f"🔍 DEBUG: use_external_servers flag = {use_external_servers}")
+        logger.info(f" DEBUG: use_external_servers flag = {use_external_servers}")
 
         # Initialize WebSocket manager for log streaming
         websocket_manager = WebSocketManager(buffer_size=500)
@@ -289,7 +289,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         # Expose server_manager to proxy router for reverse proxy
         proxy_router.server_manager = server_manager
 
-        logger.info("✅ PRAXIS ready - NO models loaded (awaiting WebUI commands)")
+        logger.info("✓ PRAXIS ready - NO models loaded (awaiting WebUI commands)")
 
         # Initialize ModelManager (for existing /status endpoint compatibility)
         from app.services.models import ModelManager

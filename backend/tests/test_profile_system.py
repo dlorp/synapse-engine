@@ -51,7 +51,7 @@ def test_profile_manager():
     assert "development" in profiles
     assert "production" in profiles
     assert "fast-only" in profiles
-    print("✅ Profile listing works")
+    print("✓ Profile listing works")
 
     # Load each profile
     print("\n" + "-" * 60)
@@ -72,7 +72,7 @@ def test_profile_manager():
                 f"expected_time={tier.expected_time_seconds}s"
             )
 
-    print("\n✅ Profile loading works")
+    print("\n✓ Profile loading works")
 
 
 def test_profile_validation():
@@ -89,7 +89,7 @@ def test_profile_validation():
     registry_path = docker_registry if docker_registry.exists() else local_registry
 
     if not registry_path.exists():
-        print("⚠️  Model registry not found. Run Phase 1 first.")
+        print("  Model registry not found. Run Phase 1 first.")
         return
 
     registry = discovery.load_registry(registry_path)
@@ -105,11 +105,11 @@ def test_profile_validation():
         missing = manager.validate_profile(profile, list(registry.models.keys()))
 
         if missing:
-            print(f"\n⚠️  Profile '{name}' has missing models: {missing}")
+            print(f"\n  Profile '{name}' has missing models: {missing}")
             all_valid = False
         else:
             print(
-                f"\n✅ Profile '{name}' is valid ({len(profile.enabled_models)} models)"
+                f"\n✓ Profile '{name}' is valid ({len(profile.enabled_models)} models)"
             )
             for model_id in profile.enabled_models:
                 model = registry.models[model_id]
@@ -117,7 +117,7 @@ def test_profile_validation():
 
     if all_valid:
         print("\n" + "=" * 60)
-        print("✅ All profiles are valid!")
+        print("✓ All profiles are valid!")
         print("=" * 60)
 
 
@@ -138,7 +138,7 @@ def test_profile_structure():
     assert dev.two_stage.stage2_tier == "powerful"
     assert not dev.load_balancing.enabled
     print(
-        f"✅ Two-stage config: stage1={dev.two_stage.stage1_tier}, "
+        f"✓ Two-stage config: stage1={dev.two_stage.stage1_tier}, "
         f"stage2={dev.two_stage.stage2_tier}, "
         f"max_tokens={dev.two_stage.stage1_max_tokens}"
     )
@@ -150,7 +150,7 @@ def test_profile_structure():
     assert prod.load_balancing.enabled
     assert prod.load_balancing.strategy == "round_robin"
     print(
-        f"✅ Load balancing: strategy={prod.load_balancing.strategy}, "
+        f"✓ Load balancing: strategy={prod.load_balancing.strategy}, "
         f"interval={prod.load_balancing.health_check_interval}s"
     )
 
@@ -161,12 +161,12 @@ def test_profile_structure():
     assert len(fast.tier_config) == 1
     assert fast.tier_config[0].name == "fast"
     print(
-        f"✅ Single tier config: {fast.tier_config[0].name} "
+        f"✓ Single tier config: {fast.tier_config[0].name} "
         f"(max_score={fast.tier_config[0].max_score})"
     )
 
     print("\n" + "=" * 60)
-    print("✅ All profile structures are correct!")
+    print("✓ All profile structures are correct!")
     print("=" * 60)
 
 
@@ -190,7 +190,7 @@ def main():
         print("  - Phase 4: Query Routing Logic")
 
     except Exception as e:
-        print(f"\n❌ Test failed: {e}")
+        print(f"\n✗ Test failed: {e}")
         import traceback
 
         traceback.print_exc()

@@ -34,12 +34,12 @@ async def test_server_manager():
 
     registry_path = Path("data/model_registry.json")
     if not registry_path.exists():
-        print(f"❌ Registry not found at {registry_path}")
+        print(f"✗ Registry not found at {registry_path}")
         print("   Run Phase 1 (model discovery) first to create registry")
         return
 
     registry = discovery.load_registry(registry_path)
-    print(f"✅ Loaded registry with {len(registry.models)} models")
+    print(f"✓ Loaded registry with {len(registry.models)} models")
     print()
 
     # Select a fast model for testing (Q4_K_M is good balance)
@@ -47,14 +47,14 @@ async def test_server_manager():
     test_model = registry.models.get("qwen3_4p0b_q4km_fast")
 
     if not test_model:
-        print("❌ Test model 'qwen3_4p0b_q4km_fast' not found in registry")
+        print("✗ Test model 'qwen3_4p0b_q4km_fast' not found in registry")
         print(f"   Available models: {list(registry.models.keys())}")
         return
 
     # Ensure model is enabled
     test_model.enabled = True
 
-    print(f"✅ Selected: {test_model.get_display_name()}")
+    print(f"✓ Selected: {test_model.get_display_name()}")
     print(f"   Model ID: {test_model.model_id}")
     print(f"   File: {Path(test_model.file_path).name}")
     print(f"   Port: {test_model.port}")
@@ -72,7 +72,7 @@ async def test_server_manager():
         max_startup_time=60,  # 1 minute timeout for testing
         readiness_check_interval=2,
     )
-    print("✅ Manager initialized")
+    print("✓ Manager initialized")
     print(f"   Binary: {manager.llama_server_path}")
     print(f"   Host: {manager.host}")
     print(f"   Max startup time: {manager.max_startup_time}s")
@@ -86,7 +86,7 @@ async def test_server_manager():
 
         server = await manager.start_server(test_model)
 
-        print("✅ Server started successfully!")
+        print("✓ Server started successfully!")
         print(f"   PID: {server.pid}")
         print(f"   Port: {server.port}")
         print(f"   Ready: {server.is_ready}")
@@ -126,10 +126,10 @@ async def test_server_manager():
         print("Testing server lookup...")
         found_server = manager.get_server(test_model.model_id)
         if found_server:
-            print("✅ Server lookup successful")
+            print("✓ Server lookup successful")
             print(f"   Found: {found_server.model.get_display_name()}")
         else:
-            print("❌ Server lookup failed")
+            print("✗ Server lookup failed")
         print()
 
         # Check if running
@@ -140,7 +140,7 @@ async def test_server_manager():
         # Stop server
         print("[6/6] Stopping server gracefully...")
         await manager.stop_server(test_model.model_id, timeout=10)
-        print("✅ Server stopped")
+        print("✓ Server stopped")
         print()
 
         # Verify stopped
@@ -150,14 +150,14 @@ async def test_server_manager():
         print()
 
         print("=" * 80)
-        print("✅ ALL TESTS PASSED")
+        print("✓ ALL TESTS PASSED")
         print("=" * 80)
         print()
         print("Phase 4 server manager is working correctly!")
         print("Ready for Phase 5: Profile-Based Orchestration")
 
     except Exception as e:
-        print(f"❌ Error during test: {e}")
+        print(f"✗ Error during test: {e}")
         print()
         import traceback
 
@@ -168,9 +168,9 @@ async def test_server_manager():
         print("Attempting to stop any running servers...")
         try:
             await manager.stop_all(timeout=5)
-            print("✅ Cleanup successful")
+            print("✓ Cleanup successful")
         except Exception as cleanup_error:
-            print(f"❌ Cleanup failed: {cleanup_error}")
+            print(f"✗ Cleanup failed: {cleanup_error}")
 
 
 async def test_concurrent_startup():
@@ -193,7 +193,7 @@ async def test_concurrent_startup():
     ]
 
     if len(available_fast_models) < 2:
-        print("❌ Not enough fast models in registry")
+        print("✗ Not enough fast models in registry")
         print(f"   Found: {available_fast_models}")
         print("   Skipping concurrent test")
         return
@@ -206,7 +206,7 @@ async def test_concurrent_startup():
     for model in test_models:
         model.enabled = True
 
-    print(f"✅ Selected {len(test_models)} models:")
+    print(f"✓ Selected {len(test_models)} models:")
     for model in test_models:
         print(f"   - {model.get_display_name()} (port {model.port})")
     print()
@@ -218,7 +218,7 @@ async def test_concurrent_startup():
 
     try:
         started = await manager.start_all(test_models)
-        print(f"✅ Started {len(started)}/{len(test_models)} servers")
+        print(f"✓ Started {len(started)}/{len(test_models)} servers")
         print()
 
         status = manager.get_status_summary()
@@ -227,13 +227,13 @@ async def test_concurrent_startup():
 
         print("[3/3] Stopping all servers...")
         await manager.stop_all(timeout=10)
-        print("✅ All servers stopped")
+        print("✓ All servers stopped")
         print()
 
-        print("✅ Concurrent startup test passed!")
+        print("✓ Concurrent startup test passed!")
 
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"✗ Error: {e}")
         import traceback
 
         traceback.print_exc()

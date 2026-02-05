@@ -32,7 +32,7 @@ class ErrorBoundary extends Component<
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('⚠️ React Error Boundary caught error:', error, errorInfo);
+    console.error(' React Error Boundary caught error:', error, errorInfo);
   }
 
   render() {
@@ -48,7 +48,7 @@ class ErrorBoundary extends Component<
           }}
         >
           <h1 style={{ color: '#ff0000', marginBottom: '20px' }}>
-            ⚠️ SYSTEM ERROR - REACT CRASH
+             SYSTEM ERROR - REACT CRASH
           </h1>
           <div style={{ marginBottom: '20px' }}>
             <strong>Error:</strong> {this.state.error?.message}

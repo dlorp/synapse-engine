@@ -141,7 +141,7 @@ export const ModelTable: React.FC<ModelTableProps> = ({
                       {model.isInstruct && <span className={styles.badge}>INSTRUCT</span>}
                       {thinkingStatus && (
                         <span className={styles.thinkingBadge} title="Thinking model">
-                          ⚡
+                          
                         </span>
                       )}
                     </div>

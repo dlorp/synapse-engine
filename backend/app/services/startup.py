@@ -79,27 +79,27 @@ class StartupService:
             # Step 1: Discover/load models
             logger.info("[1/5] Model Discovery")
             self.registry = await self._discover_models()
-            logger.info(f"✅ Discovered {len(self.registry.models)} models")
+            logger.info(f"✓ Discovered {len(self.registry.models)} models")
 
             # Step 2: Load profile
             logger.info(f"[2/5] Loading profile '{self.profile_name}'")
             self.profile = self._load_profile()
-            logger.info(f"✅ Profile loaded: {self.profile.description}")
+            logger.info(f"✓ Profile loaded: {self.profile.description}")
 
             # Step 3: Filter enabled models
             logger.info("[3/5] Filtering enabled models")
             self.enabled_models = self._filter_enabled_models()
-            logger.info(f"✅ {len(self.enabled_models)} models enabled")
+            logger.info(f"✓ {len(self.enabled_models)} models enabled")
 
             # Step 4: Launch servers
             logger.info("[4/5] Launching servers")
             await self._launch_servers()
-            logger.info("✅ Servers launched")
+            logger.info("✓ Servers launched")
 
             # Step 5: Health check
             logger.info("[5/5] Health check")
             health_status = await self._health_check()
-            logger.info("✅ Health check complete")
+            logger.info("✓ Health check complete")
 
             # Summary
             logger.info("=" * 70)
@@ -114,7 +114,7 @@ class StartupService:
             return self.registry
 
         except Exception as e:
-            logger.error(f"❌ STARTUP FAILED: {e}", exc_info=True)
+            logger.error(f"✗ STARTUP FAILED: {e}", exc_info=True)
             raise SynapseException(
                 f"PRAXIS startup failed: {e}",
                 details={"phase": "startup", "profile": self.profile_name},
@@ -210,9 +210,9 @@ class StartupService:
                 model = self.registry.models[model_id]
                 model.enabled = True  # Mark as enabled
                 enabled.append(model)
-                logger.info(f"  ✅ {model.get_display_name()}")
+                logger.info(f"  ✓ {model.get_display_name()}")
             else:
-                logger.warning(f"  ⚠️  Model not found: {model_id}")
+                logger.warning(f"    Model not found: {model_id}")
 
         return enabled
 
@@ -231,9 +231,9 @@ class StartupService:
         use_external_servers_env = os.getenv("USE_EXTERNAL_SERVERS", "false")
         use_external_servers = use_external_servers_env.lower() == "true"
         logger.info(
-            f"🔍 DEBUG: USE_EXTERNAL_SERVERS env var = '{use_external_servers_env}'"
+            f" DEBUG: USE_EXTERNAL_SERVERS env var = '{use_external_servers_env}'"
         )
-        logger.info(f"🔍 DEBUG: use_external_servers flag = {use_external_servers}")
+        logger.info(f" DEBUG: use_external_servers flag = {use_external_servers}")
 
         # Initialize server manager
         self.server_manager = LlamaServerManager(
@@ -273,11 +273,11 @@ class StartupService:
         total = status["total_servers"]
 
         if ready == total and total > 0:
-            logger.info(f"✅ All {total} servers ready!")
+            logger.info(f"✓ All {total} servers ready!")
         elif ready < total:
-            logger.warning(f"⚠️  Only {ready}/{total} servers ready")
+            logger.warning(f"  Only {ready}/{total} servers ready")
         else:
-            logger.warning("⚠️  No servers launched")
+            logger.warning("  No servers launched")
 
         return status
 
@@ -288,4 +288,4 @@ class StartupService:
         if self.server_manager:
             await self.server_manager.stop_all(timeout=10)
 
-        logger.info("✅ Shutdown complete")
+        logger.info("✓ Shutdown complete")

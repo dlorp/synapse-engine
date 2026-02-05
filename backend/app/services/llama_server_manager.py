@@ -162,7 +162,7 @@ class LlamaServerManager:
         self.host_api_url = os.getenv("HOST_API_URL", "http://host-api:9090")
 
         logger.info(
-            f"🔍 DEBUG: LlamaServerManager.__init__ received use_external_servers = {use_external_servers}"
+            f" DEBUG: LlamaServerManager.__init__ received use_external_servers = {use_external_servers}"
         )
 
         # Validate llama-server binary exists (skip if using external servers)
@@ -178,7 +178,7 @@ class LlamaServerManager:
 
         logger.info("Initialized llama.cpp server manager")
         if use_external_servers:
-            logger.info("  🚀 EXTERNAL SERVER MODE (Metal Acceleration)")
+            logger.info("   EXTERNAL SERVER MODE (Metal Acceleration)")
             logger.info("  Connecting to native Metal-accelerated servers on host")
             logger.info("  Start servers with: ./scripts/start-host-llama-servers.sh")
         else:
@@ -232,13 +232,13 @@ class LlamaServerManager:
 
         # External server mode (Metal acceleration on macOS host)
         logger.info(
-            f"🔍 DEBUG: In start_server(), self.use_external_servers = {self.use_external_servers}"
+            f" DEBUG: In start_server(), self.use_external_servers = {self.use_external_servers}"
         )
         if self.use_external_servers:
-            logger.info("🔍 DEBUG: Taking EXTERNAL SERVER path (Metal acceleration)")
+            logger.info(" DEBUG: Taking EXTERNAL SERVER path (Metal acceleration)")
             return await self._connect_to_external_server(model)
         else:
-            logger.info("🔍 DEBUG: Taking SUBPROCESS path (Docker Linux binary)")
+            logger.info(" DEBUG: Taking SUBPROCESS path (Docker Linux binary)")
 
         # Validate binary exists before launching
         if not self.llama_server_path.exists():
@@ -406,7 +406,7 @@ class LlamaServerManager:
                 response = await client.get(health_url, timeout=5.0)
 
                 if response.status_code == 200:
-                    logger.info(f"✅ External server ready at {health_url}")
+                    logger.info(f"✓ External server ready at {health_url}")
 
                     # Create virtual ServerProcess for external server
                     server = ServerProcess(model=model, process=None, is_external=True)
@@ -421,7 +421,7 @@ class LlamaServerManager:
                     )
 
         except httpx.RequestError as e:
-            logger.error(f"❌ Cannot connect to external server at {health_url}: {e}")
+            logger.error(f"✗ Cannot connect to external server at {health_url}: {e}")
             raise SynapseException(
                 f"External Metal-accelerated server not running on port {model.port}. "
                 f"Start servers with: ./scripts/start-host-llama-servers.sh",
@@ -442,7 +442,7 @@ class LlamaServerManager:
             # Not in external server mode, nothing to do
             return
 
-        logger.info("🔍 Checking if Metal servers are already running...")
+        logger.info(" Checking if Metal servers are already running...")
 
         try:
             async with httpx.AsyncClient(timeout=10.0) as client:
@@ -453,11 +453,11 @@ class LlamaServerManager:
                 status_data = status_response.json()
 
                 if status_data.get("running"):
-                    logger.info("✅ Metal servers already running on host")
+                    logger.info("✓ Metal servers already running on host")
                     return
 
                 # Servers not running - start them via host API
-                logger.info("🚀 Starting Metal servers via host API...")
+                logger.info(" Starting Metal servers via host API...")
                 logger.info("   This will take ~10-15 seconds for initialization")
 
                 start_response = await client.post(
@@ -466,10 +466,10 @@ class LlamaServerManager:
                 )
 
                 if start_response.status_code == 200:
-                    logger.info("✅ Metal servers start command successful")
-                    logger.info("⏳ Waiting 10 seconds for servers to initialize...")
+                    logger.info("✓ Metal servers start command successful")
+                    logger.info(" Waiting 10 seconds for servers to initialize...")
                     await asyncio.sleep(10)  # Wait for servers to fully start
-                    logger.info("✅ Metal servers should now be ready")
+                    logger.info("✓ Metal servers should now be ready")
                 else:
                     error_detail = start_response.json().get("detail", "Unknown error")
                     raise SynapseException(
@@ -478,7 +478,7 @@ class LlamaServerManager:
                     )
 
         except httpx.RequestError as e:
-            logger.error(f"❌ Cannot reach host API at {self.host_api_url}: {e}")
+            logger.error(f"✗ Cannot reach host API at {self.host_api_url}: {e}")
             raise SynapseException(
                 f"Host API not available at {self.host_api_url}. "
                 "Ensure docker-compose started all services correctly.",
@@ -560,7 +560,7 @@ class LlamaServerManager:
                             server.is_ready = True
                             elapsed = server.get_uptime_seconds()
                             logger.info(
-                                f"✅ {server.model.model_id} is READY "
+                                f"✓ {server.model.model_id} is READY "
                                 f"(startup took {elapsed}s)"
                             )
 
@@ -609,7 +609,7 @@ class LlamaServerManager:
         # Timeout reached - mark as ready with warning
         # This is a fallback for servers that don't emit clear readiness signals
         logger.warning(
-            f"⚠️  {server.model.model_id} reached {self.max_startup_time}s timeout "
+            f"  {server.model.model_id} reached {self.max_startup_time}s timeout "
             f"without clear readiness signal. Marking as ready (fallback behavior)."
         )
         server.is_ready = True
@@ -733,10 +733,10 @@ class LlamaServerManager:
                 started[model.model_id] = result
 
         # Log summary
-        logger.info(f"✅ Successfully started {len(started)}/{len(models)} servers")
+        logger.info(f"✓ Successfully started {len(started)}/{len(models)} servers")
 
         if failed:
-            logger.warning(f"❌ Failed to start: {', '.join(failed)}")
+            logger.warning(f"✗ Failed to start: {', '.join(failed)}")
 
         return started
 
@@ -762,7 +762,7 @@ class LlamaServerManager:
         # External server mode - can't stop, only untrack
         if server.is_external:
             logger.warning(
-                f"⚠️  Cannot stop external Metal-accelerated server for {model_id}. "
+                f"  Cannot stop external Metal-accelerated server for {model_id}. "
                 f"Use ./scripts/stop-host-llama-servers.sh to stop all external servers."
             )
             # Remove from tracking dictionary
@@ -785,7 +785,7 @@ class LlamaServerManager:
             try:
                 # Wait for graceful exit
                 server.process.wait(timeout=timeout)
-                logger.info(f"✅ {model_id} stopped gracefully")
+                logger.info(f"✓ {model_id} stopped gracefully")
 
             except subprocess.TimeoutExpired:
                 # Force-kill with SIGKILL
@@ -795,7 +795,7 @@ class LlamaServerManager:
                 )
                 server.process.kill()
                 server.process.wait(timeout=5)
-                logger.info(f"✅ {model_id} force-stopped")
+                logger.info(f"✓ {model_id} force-stopped")
 
         except Exception as e:
             logger.error(f"Error stopping server {model_id}: {e}", exc_info=True)
@@ -840,7 +840,7 @@ class LlamaServerManager:
 
                     if stop_response.status_code == 200:
                         logger.info(
-                            "✅ Metal servers stopped successfully via host API"
+                            "✓ Metal servers stopped successfully via host API"
                         )
                         # Clear internal server tracking
                         self.servers.clear()
@@ -850,7 +850,7 @@ class LlamaServerManager:
                             "detail", "Unknown error"
                         )
                         logger.error(
-                            f"❌ Host API failed to stop servers: {error_detail}"
+                            f"✗ Host API failed to stop servers: {error_detail}"
                         )
                         raise SynapseException(
                             f"Host API failed to stop servers: {error_detail}",
@@ -858,7 +858,7 @@ class LlamaServerManager:
                         )
 
             except httpx.RequestError as e:
-                logger.error(f"❌ Cannot reach host API at {self.host_api_url}: {e}")
+                logger.error(f"✗ Cannot reach host API at {self.host_api_url}: {e}")
                 raise SynapseException(
                     f"Host API not available at {self.host_api_url}. "
                     "Servers may still be running on host.",
@@ -883,7 +883,7 @@ class LlamaServerManager:
         # Execute concurrently, ignoring individual failures
         await asyncio.gather(*tasks, return_exceptions=True)
 
-        logger.info(f"✅ All {server_count} servers stopped")
+        logger.info(f"✓ All {server_count} servers stopped")
 
     def get_status_summary(self) -> dict:
         """Get comprehensive status summary of all servers.

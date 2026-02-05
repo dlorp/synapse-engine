@@ -128,7 +128,7 @@ export const ModelManagementPage: React.FC = () => {
     ensureConnected();
     try {
       // Show initial progress message
-      setOperationSuccess('🚀 Starting Metal-accelerated servers... (10-15 seconds)');
+      setOperationSuccess(' Starting Metal-accelerated servers... (10-15 seconds)');
 
       const response = await fetch('/api/models/servers/start-all', {
         method: 'POST',
@@ -160,7 +160,7 @@ export const ModelManagementPage: React.FC = () => {
       } else {
         // FULL success
         setOperationSuccess(
-          `✅ Successfully started ${result.started}/${result.total} Metal-accelerated server${result.total !== 1 ? 's' : ''}`
+          `✓ Successfully started ${result.started}/${result.total} Metal-accelerated server${result.total !== 1 ? 's' : ''}`
         );
       }
 
@@ -836,7 +836,7 @@ export const ModelManagementPage: React.FC = () => {
               </span>
             </div>
             <div className={styles.infoLine}>
-              <span className={styles.infoIcon}>⚡</span>
+              <span className={styles.infoIcon}></span>
               <span className={styles.infoText}>
                 Ports {registry.portRange?.[0] ?? 'N/A'} - {registry.portRange?.[1] ?? 'N/A'}
               </span>

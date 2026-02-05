@@ -1033,7 +1033,7 @@ async def start_model_server(model_id: str):
 
         elapsed = time.time() - start_time
         logger.info(
-            f"✅ Started server for {model_id} on port {model.port} ({elapsed:.1f}s)"
+            f"✓ Started server for {model_id} on port {model.port} ({elapsed:.1f}s)"
         )
 
         return {
@@ -1046,7 +1046,7 @@ async def start_model_server(model_id: str):
         }
 
     except Exception as e:
-        logger.error(f"❌ Failed to start server for {model_id}: {e}", exc_info=True)
+        logger.error(f"✗ Failed to start server for {model_id}: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Failed to start server: {str(e)}")
 
 
@@ -1085,7 +1085,7 @@ async def stop_model_server(model_id: str):
         await server_manager.stop_server(model_id)
 
         elapsed = time.time() - stop_time
-        logger.info(f"✅ Stopped server for {model_id} ({elapsed:.1f}s)")
+        logger.info(f"✓ Stopped server for {model_id} ({elapsed:.1f}s)")
 
         return {
             "message": f"Server stopped for {model_id}",
@@ -1095,7 +1095,7 @@ async def stop_model_server(model_id: str):
         }
 
     except Exception as e:
-        logger.error(f"❌ Failed to stop server for {model_id}: {e}", exc_info=True)
+        logger.error(f"✗ Failed to stop server for {model_id}: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Failed to stop server: {str(e)}")
 
 
@@ -1141,7 +1141,7 @@ async def start_all_enabled_servers():
 
         elapsed = time.time() - start_time
         logger.info(
-            f"✅ Started {len(results)}/{len(enabled_models)} servers ({elapsed:.1f}s total)"
+            f"✓ Started {len(results)}/{len(enabled_models)} servers ({elapsed:.1f}s total)"
         )
 
         return {
@@ -1160,7 +1160,7 @@ async def start_all_enabled_servers():
         }
 
     except Exception as e:
-        logger.error(f"❌ Failed to start servers: {e}", exc_info=True)
+        logger.error(f"✗ Failed to start servers: {e}", exc_info=True)
         raise HTTPException(
             status_code=500, detail=f"Failed to start servers: {str(e)}"
         )
@@ -1193,7 +1193,7 @@ async def stop_all_servers():
             await server_manager.stop_all()
 
             elapsed = time.time() - stop_time
-            logger.info(f"✅ External Metal servers stopped ({elapsed:.1f}s)")
+            logger.info(f"✓ External Metal servers stopped ({elapsed:.1f}s)")
 
             return {
                 "message": "Stopped Metal-accelerated servers on host",
@@ -1214,7 +1214,7 @@ async def stop_all_servers():
         await server_manager.stop_all()
 
         elapsed = time.time() - stop_time
-        logger.info(f"✅ Stopped {running_count} servers ({elapsed:.1f}s)")
+        logger.info(f"✓ Stopped {running_count} servers ({elapsed:.1f}s)")
 
         return {
             "message": f"Stopped {running_count} servers",
@@ -1223,7 +1223,7 @@ async def stop_all_servers():
         }
 
     except Exception as e:
-        logger.error(f"❌ Failed to stop servers: {e}", exc_info=True)
+        logger.error(f"✗ Failed to stop servers: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Failed to stop servers: {str(e)}")
 
 

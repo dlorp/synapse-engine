@@ -109,7 +109,7 @@ export const BottomNavBar: React.FC = () => {
           </span>
           <span className={styles.separator} aria-hidden="true">│</span>
           <span className={styles.statusItem} title="Active Queries">
-            <span className={styles.statusIcon}>⚡</span>
+            <span className={styles.statusIcon}></span>
             <span className={styles.statusValue}>{activeQueries}Q</span>
           </span>
         </div>

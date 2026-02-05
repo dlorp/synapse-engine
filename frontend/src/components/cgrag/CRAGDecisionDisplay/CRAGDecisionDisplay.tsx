@@ -42,7 +42,7 @@ const ACTION_CONFIGS: Record<CRAGAction, ActionConfig> = {
     description: 'Reformulated query for better retrieval',
   },
   web_fallback: {
-    icon: '🌐',
+    icon: '',
     label: 'WEB FALLBACK',
     color: 'orange',
     description: 'Insufficient local context, used web search',
@@ -54,7 +54,7 @@ const ACTION_CONFIGS: Record<CRAGAction, ActionConfig> = {
     description: 'Filtered low-relevance chunks',
   },
   kg_expansion: {
-    icon: '🕸',
+    icon: '',
     label: 'KG EXPANSION',
     color: 'cyan',
     description: 'Expanded context via knowledge graph',

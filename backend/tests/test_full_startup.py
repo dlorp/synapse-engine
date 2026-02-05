@@ -31,18 +31,18 @@ async def test_startup():
     # Load config
     try:
         config = load_config()
-        print("✅ Configuration loaded")
+        print("✓ Configuration loaded")
         print(f"   Environment: {config.environment}")
     except Exception as e:
-        print(f"❌ Failed to load configuration: {e}")
+        print(f"✗ Failed to load configuration: {e}")
         return False
 
     # Create startup service
     try:
         service = StartupService(config, profile_name="development")
-        print("✅ StartupService created")
+        print("✓ StartupService created")
     except Exception as e:
-        print(f"❌ Failed to create StartupService: {e}")
+        print(f"✗ Failed to create StartupService: {e}")
         return False
 
     try:
@@ -56,9 +56,9 @@ async def test_startup():
         print("\n" + "=" * 70)
         print("STARTUP TEST RESULTS")
         print("=" * 70)
-        print(f"✅ Registry loaded: {len(registry.models)} models")
-        print(f"✅ Profile loaded: {service.profile.name}")
-        print(f"✅ Enabled models: {len(service.enabled_models)}")
+        print(f"✓ Registry loaded: {len(registry.models)} models")
+        print(f"✓ Profile loaded: {service.profile.name}")
+        print(f"✓ Enabled models: {len(service.enabled_models)}")
 
         if service.enabled_models:
             print("\nEnabled Models:")
@@ -70,8 +70,8 @@ async def test_startup():
 
         if service.server_manager:
             status = service.server_manager.get_status_summary()
-            print(f"\n✅ Servers running: {status['total_servers']}")
-            print(f"✅ Servers ready: {status['ready_servers']}")
+            print(f"\n✓ Servers running: {status['total_servers']}")
+            print(f"✓ Servers ready: {status['ready_servers']}")
 
             if status["servers"]:
                 print("\nServer Details:")
@@ -82,7 +82,7 @@ async def test_startup():
                     print(f"    Ready: {server_status['is_ready']}")
                     print(f"    Tier: {server_status['tier']}")
         else:
-            print("⚠️  No server manager (no enabled models)")
+            print("  No server manager (no enabled models)")
 
         # Wait a bit to let servers fully initialize
         if service.enabled_models:
@@ -102,14 +102,14 @@ async def test_startup():
         print("TESTING GRACEFUL SHUTDOWN")
         print("=" * 70)
         await service.shutdown()
-        print("✅ Shutdown complete")
+        print("✓ Shutdown complete")
 
         print("\n" + "=" * 70)
         print("ALL TESTS PASSED!")
         print("=" * 70)
 
     except Exception as e:
-        print(f"\n❌ Test failed: {e}")
+        print(f"\n✗ Test failed: {e}")
         import traceback
 
         traceback.print_exc()
@@ -135,22 +135,22 @@ async def test_profile_loading():
         from app.services.profile_manager import ProfileManager
 
         manager = ProfileManager()
-        print("✅ ProfileManager created")
+        print("✓ ProfileManager created")
 
         # Test loading each profile
         for profile_name in ["development", "production", "fast-only"]:
             try:
                 profile = manager.load_profile(profile_name)
-                print(f"✅ Profile '{profile_name}' loaded")
+                print(f"✓ Profile '{profile_name}' loaded")
                 print(f"   Description: {profile.description}")
                 print(f"   Enabled models: {len(profile.enabled_models)}")
             except Exception as e:
-                print(f"❌ Failed to load profile '{profile_name}': {e}")
+                print(f"✗ Failed to load profile '{profile_name}': {e}")
 
         return True
 
     except Exception as e:
-        print(f"❌ Profile loading test failed: {e}")
+        print(f"✗ Profile loading test failed: {e}")
         return False
 
 
@@ -170,8 +170,8 @@ async def main():
     print("\n" + "=" * 70)
     print("TEST SUMMARY")
     print("=" * 70)
-    print(f"Profile Loading: {'✅ PASSED' if profile_success else '❌ FAILED'}")
-    print(f"Full Startup:    {'✅ PASSED' if startup_success else '❌ FAILED'}")
+    print(f"Profile Loading: {'✓ PASSED' if profile_success else '✗ FAILED'}")
+    print(f"Full Startup:    {'✓ PASSED' if startup_success else '✗ FAILED'}")
     print("=" * 70)
 
     return profile_success and startup_success

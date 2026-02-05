@@ -161,7 +161,7 @@ export const ModelSettings: React.FC<ModelSettingsProps> = ({
               <div className={styles.fieldHeader}>
                 <span className={styles.fieldLabel}>GPU LAYERS</span>
                 {isOverride(gpuLayers) && (
-                  <span className={styles.overrideBadge}>⚡</span>
+                  <span className={styles.overrideBadge}></span>
                 )}
               </div>
               <div className={styles.fieldGroup}>
@@ -205,7 +205,7 @@ export const ModelSettings: React.FC<ModelSettingsProps> = ({
               <div className={styles.fieldHeader}>
                 <span className={styles.fieldLabel}>CTX SIZE</span>
                 {isOverride(ctxSize) && (
-                  <span className={styles.overrideBadge}>⚡</span>
+                  <span className={styles.overrideBadge}></span>
                 )}
               </div>
               <input
@@ -236,7 +236,7 @@ export const ModelSettings: React.FC<ModelSettingsProps> = ({
               <div className={styles.fieldHeader}>
                 <span className={styles.fieldLabel}>THREADS</span>
                 {isOverride(threads) && (
-                  <span className={styles.overrideBadge}>⚡</span>
+                  <span className={styles.overrideBadge}></span>
                 )}
               </div>
               <input
@@ -269,7 +269,7 @@ export const ModelSettings: React.FC<ModelSettingsProps> = ({
               <div className={styles.fieldHeader}>
                 <span className={styles.fieldLabel}>BATCH SIZE</span>
                 {isOverride(batchSize) && (
-                  <span className={styles.overrideBadge}>⚡</span>
+                  <span className={styles.overrideBadge}></span>
                 )}
               </div>
               <input

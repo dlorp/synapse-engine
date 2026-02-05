@@ -21,7 +21,7 @@ def test_discovery_integration():
 
     # Check if scan path exists, if not, skip test
     if not scan_path.exists():
-        print(f"\n⚠️  Scan path does not exist: {scan_path}")
+        print(f"\n  Scan path does not exist: {scan_path}")
         print("   This test requires a local model directory")
         print("   Skipping test (not a failure)")
         import pytest
@@ -54,7 +54,7 @@ def test_discovery_integration():
     ]
     print(f"\n✓ Thinking models: {len(thinking_models)}")
     for model in thinking_models:
-        print(f"  - {model.get_display_name()} ⚡")
+        print(f"  - {model.get_display_name()} ")
 
     # Test model capabilities
     print("\n--- Model Capabilities ---")
@@ -70,7 +70,7 @@ def test_discovery_integration():
         if model:
             tier = model.get_effective_tier()
             tier_str = tier if isinstance(tier, str) else tier.value
-            thinking = " ⚡" if model.is_effectively_thinking() else ""
+            thinking = " " if model.is_effectively_thinking() else ""
             print(
                 f"  Port {port}: {model.get_display_name()}{thinking} [{tier_str.upper()}]"
             )
@@ -140,9 +140,9 @@ def test_discovery_integration():
 
     print("=" * 70)
     if all_passed:
-        print("✅ ALL VALIDATIONS PASSED")
+        print("✓ ALL VALIDATIONS PASSED")
     else:
-        print("❌ SOME VALIDATIONS FAILED")
+        print("✗ SOME VALIDATIONS FAILED")
     print("=" * 70)
 
     # Use assertion for pytest, but also return for standalone script

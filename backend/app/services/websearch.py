@@ -137,7 +137,7 @@ class SearXNGClient:
         if categories:
             params["categories"] = ",".join(categories)
 
-        logger.info(f"🔍 Searching SearXNG: query='{query}', categories={categories}")
+        logger.info(f" Searching SearXNG: query='{query}', categories={categories}")
 
         try:
             # Execute search request
@@ -153,7 +153,7 @@ class SearXNGClient:
             total_results = len(raw_results)
 
             logger.debug(
-                f"  ✅ SearXNG returned {total_results} results in {search_time_ms}ms"
+                f"  ✓ SearXNG returned {total_results} results in {search_time_ms}ms"
             )
 
             # Parse and limit results
@@ -173,7 +173,7 @@ class SearXNGClient:
                     )
                     parsed_results.append(parsed_result)
                 except Exception as e:
-                    logger.warning(f"  ⚠️ Failed to parse result {idx}: {e}")
+                    logger.warning(f"   Failed to parse result {idx}: {e}")
                     continue
 
             # Extract engines used
@@ -186,7 +186,7 @@ class SearXNGClient:
             )
 
             logger.info(
-                f"  📊 Parsed {len(parsed_results)}/{total_results} results, "
+                f"   Parsed {len(parsed_results)}/{total_results} results, "
                 f"engines: {engines_used}"
             )
 
@@ -200,15 +200,15 @@ class SearXNGClient:
             )
 
         except httpx.TimeoutException:
-            logger.error(f"  ❌ SearXNG search timeout after {self.timeout}s")
+            logger.error(f"  ✗ SearXNG search timeout after {self.timeout}s")
             raise TimeoutError(f"SearXNG search timed out after {self.timeout}s")
 
         except httpx.HTTPStatusError as e:
-            logger.error(f"  ❌ SearXNG HTTP error: {e.response.status_code}")
+            logger.error(f"  ✗ SearXNG HTTP error: {e.response.status_code}")
             raise ValueError(f"SearXNG returned error: {e.response.status_code}")
 
         except Exception as e:
-            logger.error(f"  ❌ SearXNG search failed: {type(e).__name__}: {e}")
+            logger.error(f"  ✗ SearXNG search failed: {type(e).__name__}: {e}")
             raise
 
     async def health_check(self) -> bool:
@@ -223,16 +223,16 @@ class SearXNGClient:
             is_healthy = response.status_code == 200
 
             if is_healthy:
-                logger.debug("✅ SearXNG health check passed")
+                logger.debug("✓ SearXNG health check passed")
             else:
                 logger.warning(
-                    f"⚠️ SearXNG health check returned {response.status_code}"
+                    f" SearXNG health check returned {response.status_code}"
                 )
 
             return is_healthy
 
         except Exception as e:
-            logger.error(f"❌ SearXNG health check failed: {e}")
+            logger.error(f"✗ SearXNG health check failed: {e}")
             return False
 
     async def close(self):

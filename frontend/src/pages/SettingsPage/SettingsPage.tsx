@@ -484,7 +484,7 @@ export const SettingsPage: React.FC = () => {
                       error={validationErrors.n_gpu_layers}
                     />
                   </div>
-                  <div className={styles.fieldInfo}>⚡ Metal acceleration</div>
+                  <div className={styles.fieldInfo}> Metal acceleration</div>
                 </div>
               </div>
             </AsciiPanel>
@@ -514,7 +514,7 @@ export const SettingsPage: React.FC = () => {
                       </option>
                     ))}
                   </select>
-                  <div className={styles.fieldInfo}>🧠 Tokens in memory</div>
+                  <div className={styles.fieldInfo}> Tokens in memory</div>
                 </div>
               </div>
             </AsciiPanel>

@@ -55,7 +55,7 @@ def print_model_summary(model: DiscoveredModel) -> None:
     port = f"@ port {model.port}" if model.port else "(no port)"
 
     # Add thinking indicator
-    thinking_marker = " ⚡" if model.is_effectively_thinking() else ""
+    thinking_marker = " " if model.is_effectively_thinking() else ""
 
     print(f"  Discovered: {display_name}{thinking_marker} [{tier}] {port}")
 
@@ -88,7 +88,7 @@ def print_tier_summary(registry: ModelRegistry) -> None:
             )
 
             for model in models:
-                thinking_marker = " ⚡" if model.is_effectively_thinking() else ""
+                thinking_marker = " " if model.is_effectively_thinking() else ""
                 port_info = f"@ port {model.port}" if model.port else "(no port)"
                 print(f"  - {model.get_display_name()}{thinking_marker} {port_info}")
 
@@ -128,7 +128,7 @@ def print_statistics(registry: ModelRegistry, gguf_count: int) -> None:
         1 for m in registry.models.values() if m.is_effectively_thinking()
     )
     if thinking_count > 0:
-        print(f"\n  Reasoning models: {thinking_count} ⚡")
+        print(f"\n  Reasoning models: {thinking_count} ")
 
     # Port allocation
     models_with_ports = sum(1 for m in registry.models.values() if m.port is not None)
@@ -153,12 +153,12 @@ def discover_models_cli(scan_path: str, output_path: str) -> int:
 
         if not scan_path_obj.exists():
             logger.error(f"Scan path does not exist: {scan_path_obj}")
-            print(f"\n❌ ERROR: Directory not found: {scan_path_obj}")
+            print(f"\n✗ ERROR: Directory not found: {scan_path_obj}")
             return 1
 
         if not scan_path_obj.is_dir():
             logger.error(f"Scan path is not a directory: {scan_path_obj}")
-            print(f"\n❌ ERROR: Not a directory: {scan_path_obj}")
+            print(f"\n✗ ERROR: Not a directory: {scan_path_obj}")
             return 1
 
         # Print header
@@ -170,7 +170,7 @@ def discover_models_cli(scan_path: str, output_path: str) -> int:
         gguf_count = len(gguf_files)
 
         if gguf_count == 0:
-            print(f"❌ No GGUF files found in {scan_path_obj}")
+            print(f"✗ No GGUF files found in {scan_path_obj}")
             logger.warning(f"No GGUF files found in {scan_path_obj}")
             return 0
 
@@ -202,7 +202,7 @@ def discover_models_cli(scan_path: str, output_path: str) -> int:
         output_path_obj = Path(output_path).expanduser().resolve()
         service.save_registry(registry, output_path_obj)
 
-        print(f"\n✅ Registry saved to: {output_path_obj}")
+        print(f"\n✓ Registry saved to: {output_path_obj}")
 
         # Print usage hint
         print("\n" + "─" * 64)
@@ -218,17 +218,17 @@ def discover_models_cli(scan_path: str, output_path: str) -> int:
 
     except FileNotFoundError as e:
         logger.error(f"File not found: {e}", exc_info=True)
-        print(f"\n❌ ERROR: {e}")
+        print(f"\n✗ ERROR: {e}")
         return 1
 
     except PermissionError as e:
         logger.error(f"Permission denied: {e}", exc_info=True)
-        print(f"\n❌ ERROR: Permission denied: {e}")
+        print(f"\n✗ ERROR: Permission denied: {e}")
         return 1
 
     except Exception as e:
         logger.error(f"Unexpected error during discovery: {e}", exc_info=True)
-        print(f"\n❌ ERROR: Unexpected error: {e}")
+        print(f"\n✗ ERROR: Unexpected error: {e}")
         print("Check logs for details")
         return 1
 

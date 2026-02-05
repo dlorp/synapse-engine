@@ -30,8 +30,8 @@ const LiveEventFeedTestPage: React.FC = () => {
 # LiveEventFeed Component Test Page
 
 ## Status
-- Frontend: ✅ Implemented
-- Backend: ❌ Not implemented yet
+- Frontend: ✓ Implemented
+- Backend: ✗ Not implemented yet
 
 ## Expected Behavior
 

@@ -36,20 +36,20 @@ async def test_event_bus_basic():
 
     try:
         event_bus = get_event_bus()
-        print("✅ Event bus instance retrieved")
+        print("✓ Event bus instance retrieved")
     except RuntimeError as e:
-        print(f"❌ Event bus not initialized: {e}")
+        print(f"✗ Event bus not initialized: {e}")
         return False
 
     # Check stats
     stats = event_bus.get_stats()
-    print(f"📊 Event bus stats: {stats}")
+    print(f" Event bus stats: {stats}")
 
     if not stats["running"]:
-        print("❌ Event bus not running")
+        print("✗ Event bus not running")
         return False
 
-    print("✅ Event bus is running")
+    print("✓ Event bus is running")
     return True
 
 
@@ -126,12 +126,12 @@ async def test_event_emission():
     for test_name, test_coro in tests:
         try:
             await test_coro
-            print(f"✅ {test_name} emitted successfully")
+            print(f"✓ {test_name} emitted successfully")
             success_count += 1
         except Exception as e:
-            print(f"❌ {test_name} failed: {e}")
+            print(f"✗ {test_name} failed: {e}")
 
-    print(f"\n📊 Results: {success_count}/{len(tests)} events emitted successfully")
+    print(f"\n Results: {success_count}/{len(tests)} events emitted successfully")
     return success_count == len(tests)
 
 
@@ -191,10 +191,10 @@ async def test_event_filtering():
 
     # Verify filtering worked
     if len(received_events) == 1 and received_events[0].type == EventType.ERROR:
-        print("✅ Event filtering works correctly")
+        print("✓ Event filtering works correctly")
         return True
     else:
-        print(f"❌ Event filtering failed: received {len(received_events)} events")
+        print(f"✗ Event filtering failed: received {len(received_events)} events")
         return False
 
 
@@ -250,12 +250,12 @@ async def test_event_history():
     # Verify we received historical events
     if len(received_events) >= 5:
         print(
-            f"✅ Historical event buffer works ({len(received_events)} events received)"
+            f"✓ Historical event buffer works ({len(received_events)} events received)"
         )
         return True
     else:
         print(
-            f"❌ Historical event buffer failed: only {len(received_events)} events received"
+            f"✗ Historical event buffer failed: only {len(received_events)} events received"
         )
         return False
 
@@ -294,7 +294,7 @@ async def test_concurrent_subscribers():
 
     # Check stats
     stats = event_bus.get_stats()
-    print(f"📊 Active subscribers: {stats['active_subscribers']}")
+    print(f" Active subscribers: {stats['active_subscribers']}")
 
     # Emit 3 test events
     print("Emitting 3 test events...")
@@ -319,10 +319,10 @@ async def test_concurrent_subscribers():
     print(f"Subscriber event counts: {subscriber_counts}")
 
     if all(count >= 3 for count in subscriber_counts):
-        print("✅ Concurrent subscribers work correctly")
+        print("✓ Concurrent subscribers work correctly")
         return True
     else:
-        print("❌ Concurrent subscribers failed: not all received events")
+        print("✗ Concurrent subscribers failed: not all received events")
         return False
 
 
@@ -351,16 +351,16 @@ async def test_performance():
     events_per_sec = event_count / (elapsed_ms / 1000)
     avg_latency_ms = elapsed_ms / event_count
 
-    print(f"📊 Published {event_count} events in {elapsed_ms:.2f}ms")
-    print(f"📊 Throughput: {events_per_sec:.0f} events/sec")
-    print(f"📊 Average latency: {avg_latency_ms:.2f}ms per event")
+    print(f" Published {event_count} events in {elapsed_ms:.2f}ms")
+    print(f" Throughput: {events_per_sec:.0f} events/sec")
+    print(f" Average latency: {avg_latency_ms:.2f}ms per event")
 
     # Check if performance meets targets
     if avg_latency_ms < 10:  # Target: <10ms per event
-        print("✅ Performance test passed")
+        print("✓ Performance test passed")
         return True
     else:
-        print("⚠️  Performance below target (target: <10ms per event)")
+        print("  Performance below target (target: <10ms per event)")
         return False
 
 
@@ -386,7 +386,7 @@ async def run_all_tests():
             result = await test_func()
             results.append((test_name, result))
         except Exception as e:
-            print(f"\n❌ {test_name} crashed: {e}")
+            print(f"\n✗ {test_name} crashed: {e}")
             import traceback
 
             traceback.print_exc()
@@ -401,15 +401,15 @@ async def run_all_tests():
     total = len(results)
 
     for test_name, result in results:
-        status = "✅ PASS" if result else "❌ FAIL"
+        status = "✓ PASS" if result else "✗ FAIL"
         print(f"{status} - {test_name}")
 
-    print(f"\n📊 Overall: {passed}/{total} tests passed")
+    print(f"\n Overall: {passed}/{total} tests passed")
 
     if passed == total:
         print("\n🎉 All tests passed! Event system is working correctly.")
     else:
-        print(f"\n⚠️  {total - passed} test(s) failed. Check logs above for details.")
+        print(f"\n  {total - passed} test(s) failed. Check logs above for details.")
 
     return passed == total
 

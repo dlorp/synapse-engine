@@ -437,7 +437,7 @@ async def _process_consensus_mode(
     # Web search (if enabled)
     if request.use_web_search:
         try:
-            logger.info(f"🔍 Web search enabled for council query {query_id}")
+            logger.info(f" Web search enabled for council query {query_id}")
             time.time()
 
             # Get SearXNG client
@@ -457,12 +457,12 @@ async def _process_consensus_mode(
             web_search_time_ms = search_response.search_time_ms
 
             logger.info(
-                f"✅ Web search completed: {len(web_search_results)} results in {web_search_time_ms:.0f}ms",
+                f"✓ Web search completed: {len(web_search_results)} results in {web_search_time_ms:.0f}ms",
                 extra={"query_id": query_id, "results_count": len(web_search_results)},
             )
 
         except Exception as e:
-            logger.warning(f"⚠️ Web search failed for query {query_id}: {e}")
+            logger.warning(f" Web search failed for query {query_id}: {e}")
 
     # CGRAG retrieval
     cgrag_context_text = None
@@ -594,7 +594,7 @@ async def _process_consensus_mode(
     # =================================================================
     # ROUND 1: Independent responses from all models
     # =================================================================
-    logger.info("🗣️ Council Round 1: Initial independent responses")
+    logger.info(" Council Round 1: Initial independent responses")
     round1_start = time.time()
 
     round1_responses = {}
@@ -614,9 +614,9 @@ async def _process_consensus_mode(
         try:
             response = await task
             round1_responses[model_id] = response.get("content", "")
-            logger.info(f"  ✅ {model_id}: {len(round1_responses[model_id])} chars")
+            logger.info(f"  ✓ {model_id}: {len(round1_responses[model_id])} chars")
         except Exception as e:
-            logger.error(f"  ❌ {model_id} failed: {e}")
+            logger.error(f"  ✗ {model_id} failed: {e}")
             # Continue with remaining models
 
     round1_time = int((time.time() - round1_start) * 1000)
@@ -632,7 +632,7 @@ async def _process_consensus_mode(
     # =================================================================
     # ROUND 2: Cross-review and refinement
     # =================================================================
-    logger.info("🔄 Council Round 2: Cross-review and refinement")
+    logger.info(" Council Round 2: Cross-review and refinement")
     round2_start = time.time()
 
     round2_responses = {}
@@ -680,10 +680,10 @@ Provide your refined response:"""
             response = await task
             round2_responses[model_id] = response.get("content", "")
             logger.info(
-                f"  ✅ {model_id} refined: {len(round2_responses[model_id])} chars"
+                f"  ✓ {model_id} refined: {len(round2_responses[model_id])} chars"
             )
         except Exception as e:
-            logger.error(f"  ❌ {model_id} refinement failed: {e}")
+            logger.error(f"  ✗ {model_id} refinement failed: {e}")
             # Fallback to Round 1 response
             round2_responses[model_id] = round1_responses[model_id]
 
@@ -738,7 +738,7 @@ Consensus Answer:"""
         consensus_answer = consensus_result.get("content", "")
         synthesis_time = int((time.time() - synthesis_start) * 1000)
         logger.info(
-            f"✅ Consensus synthesized: {len(consensus_answer)} chars ({synthesis_time}ms)"
+            f"✓ Consensus synthesized: {len(consensus_answer)} chars ({synthesis_time}ms)"
         )
     except Exception as e:
         logger.error(f"Synthesis failed: {e}, falling back to best Round 2 response")
@@ -916,7 +916,7 @@ async def _process_debate_mode(
     # Web search (if enabled)
     if request.use_web_search:
         try:
-            logger.info(f"🔍 Web search enabled for debate query {query_id}")
+            logger.info(f" Web search enabled for debate query {query_id}")
             time.time()
 
             # Get SearXNG client
@@ -936,12 +936,12 @@ async def _process_debate_mode(
             web_search_time_ms = search_response.search_time_ms
 
             logger.info(
-                f"✅ Web search completed: {len(web_search_results)} results in {web_search_time_ms:.0f}ms",
+                f"✓ Web search completed: {len(web_search_results)} results in {web_search_time_ms:.0f}ms",
                 extra={"query_id": query_id, "results_count": len(web_search_results)},
             )
 
         except Exception as e:
-            logger.warning(f"⚠️ Web search failed for debate query {query_id}: {e}")
+            logger.warning(f" Web search failed for debate query {query_id}: {e}")
 
     # CGRAG retrieval
     cgrag_context_text = None
@@ -1060,7 +1060,7 @@ async def _process_debate_mode(
         logger.info(f"Auto-selected debate participants: {participants}")
 
     logger.info(
-        f"⚔️ Debate participants: {participants[0]} (PRO) vs {participants[1]} (CON)"
+        f" Debate participants: {participants[0]} (PRO) vs {participants[1]} (CON)"
     )
 
     # =================================================================
@@ -1199,7 +1199,7 @@ async def _process_debate_mode(
         ]
 
     logger.info(
-        f"✅ Debate dialogue completed: {len(dialogue_result.turns)} turns, {dialogue_result.termination_reason}, {total_time}ms"
+        f"✓ Debate dialogue completed: {len(dialogue_result.turns)} turns, {dialogue_result.termination_reason}, {total_time}ms"
     )
 
     # =================================================================
@@ -1255,7 +1255,7 @@ async def _process_debate_mode(
                 total_time += moderator_time_ms
 
                 logger.info(
-                    f"✅ Moderator analysis complete: {moderator_model_id} used {moderator_tokens_used} tokens in {moderator_time_ms}ms",
+                    f"✓ Moderator analysis complete: {moderator_model_id} used {moderator_tokens_used} tokens in {moderator_time_ms}ms",
                     extra={
                         "query_id": query_id,
                         "moderator_model": moderator_model_id,
@@ -1432,7 +1432,7 @@ async def process_query(
             # ================================================================
             # TWO-STAGE WORKFLOW
             # ================================================================
-            logger.info("🔄 Two-stage workflow selected")
+            logger.info(" Two-stage workflow selected")
 
             # STAGE 1: FAST tier (b2-7) with CGRAG context
             stage1_start = time.time()
@@ -1466,7 +1466,7 @@ async def process_query(
 
             if effective_web_search:
                 try:
-                    logger.info(f"🔍 Web search enabled for query {query_id}")
+                    logger.info(f" Web search enabled for query {query_id}")
                     time.time()
 
                     # Get SearXNG client
@@ -1486,7 +1486,7 @@ async def process_query(
                     web_search_time_ms = search_response.search_time_ms
 
                     logger.info(
-                        f"✅ Web search completed: {len(web_search_results)} results in {web_search_time_ms:.0f}ms",
+                        f"✓ Web search completed: {len(web_search_results)} results in {web_search_time_ms:.0f}ms",
                         extra={
                             "query_id": query_id,
                             "results_count": len(web_search_results),
@@ -1497,7 +1497,7 @@ async def process_query(
 
                 except Exception as e:
                     logger.warning(
-                        f"⚠️ Web search failed for query {query_id}: {e}, continuing without web results",
+                        f" Web search failed for query {query_id}: {e}, continuing without web results",
                         extra={
                             "query_id": query_id,
                             "error": str(e),
@@ -1702,7 +1702,7 @@ async def process_query(
                 stage1_tokens = stage1_result.get("tokens_predicted", 0)
 
                 logger.info(
-                    f"✅ Stage 1 complete: {len(stage1_response)} chars in {stage1_time_ms}ms"
+                    f"✓ Stage 1 complete: {len(stage1_response)} chars in {stage1_time_ms}ms"
                 )
             except Exception as e:
                 logger.error(f"Stage 1 model call failed: {e}")
@@ -1818,7 +1818,7 @@ Refined Response:"""
 
                 total_time_ms = stage1_time_ms + stage2_time_ms
                 logger.info(
-                    f"✅ Stage 2 complete: {len(stage2_response)} chars in {stage2_time_ms}ms "
+                    f"✓ Stage 2 complete: {len(stage2_response)} chars in {stage2_time_ms}ms "
                     f"(total: {total_time_ms}ms)"
                 )
             except Exception as e:
@@ -1990,7 +1990,7 @@ Refined Response:"""
             if effective_web_search:
                 try:
                     logger.info(
-                        f"🔍 Web search enabled for query {query_id} (simple mode)"
+                        f" Web search enabled for query {query_id} (simple mode)"
                     )
                     time.time()
 
@@ -2011,7 +2011,7 @@ Refined Response:"""
                     web_search_time_ms = search_response.search_time_ms
 
                     logger.info(
-                        f"✅ Web search completed: {len(web_search_results)} results in {web_search_time_ms:.0f}ms",
+                        f"✓ Web search completed: {len(web_search_results)} results in {web_search_time_ms:.0f}ms",
                         extra={
                             "query_id": query_id,
                             "results_count": len(web_search_results),
@@ -2021,7 +2021,7 @@ Refined Response:"""
 
                 except Exception as e:
                     logger.warning(
-                        f"⚠️ Web search failed for query {query_id}: {e}",
+                        f" Web search failed for query {query_id}: {e}",
                         extra={"query_id": query_id, "error": str(e)},
                     )
 
@@ -2358,7 +2358,7 @@ Refined Response:"""
             # ================================================================
             is_adversarial = request.council_adversarial
             logger.info(
-                f"🏛️ Council mode: {'Adversarial' if is_adversarial else 'Consensus'}"
+                f" Council mode: {'Adversarial' if is_adversarial else 'Consensus'}"
             )
 
             if is_adversarial:
@@ -2419,7 +2419,7 @@ Refined Response:"""
                 )
 
             logger.info(
-                f"📊 Benchmark: {len(enabled_models)} enabled models to test",
+                f" Benchmark: {len(enabled_models)} enabled models to test",
                 extra={"query_id": query_id, "models": enabled_models},
             )
 
@@ -2442,7 +2442,7 @@ Refined Response:"""
             )
             if effective_web_search:
                 try:
-                    logger.info(f"🔍 Web search enabled for benchmark query {query_id}")
+                    logger.info(f" Web search enabled for benchmark query {query_id}")
                     time.time()
 
                     # Get SearXNG client
@@ -2461,7 +2461,7 @@ Refined Response:"""
                     web_search_results = search_response.results
 
                     logger.info(
-                        f"✅ Web search completed: {len(web_search_results)} results",
+                        f"✓ Web search completed: {len(web_search_results)} results",
                         extra={
                             "query_id": query_id,
                             "results_count": len(web_search_results),
@@ -2470,7 +2470,7 @@ Refined Response:"""
 
                 except Exception as e:
                     logger.warning(
-                        f"⚠️ Web search failed for benchmark query {query_id}: {e}"
+                        f" Web search failed for benchmark query {query_id}: {e}"
                     )
 
             # CGRAG retrieval (if enabled)
@@ -2540,7 +2540,7 @@ Refined Response:"""
 
                 except Exception as e:
                     logger.warning(
-                        f"⚠️ CGRAG retrieval failed for benchmark query {query_id}: {e}"
+                        f" CGRAG retrieval failed for benchmark query {query_id}: {e}"
                     )
 
             # Build final prompt with web search and CGRAG context
@@ -2578,7 +2578,7 @@ Refined Response:"""
 
             if request.benchmark_serial:
                 # SERIAL MODE: Execute models one at a time (VRAM-safe)
-                logger.info("⚙️ Benchmark: Serial execution mode (VRAM-safe)")
+                logger.info(" Benchmark: Serial execution mode (VRAM-safe)")
 
                 for model_id in enabled_models:
                     model = model_registry.models[model_id]
@@ -2633,7 +2633,7 @@ Refined Response:"""
                         )
 
                         logger.info(
-                            f"✅ Benchmark: {model_id} completed in {response_time_ms}ms",
+                            f"✓ Benchmark: {model_id} completed in {response_time_ms}ms",
                             extra={
                                 "query_id": query_id,
                                 "model_id": model_id,
@@ -2644,7 +2644,7 @@ Refined Response:"""
                     except Exception as e:
                         response_time_ms = int((time.time() - model_start) * 1000)
                         logger.error(
-                            f"❌ Benchmark: {model_id} failed: {e}",
+                            f"✗ Benchmark: {model_id} failed: {e}",
                             extra={"query_id": query_id, "model_id": model_id},
                         )
 
@@ -2667,7 +2667,7 @@ Refined Response:"""
 
             else:
                 # PARALLEL MODE: Execute in batches (faster but VRAM-intensive)
-                logger.info("⚡ Benchmark: Parallel execution mode (fast)")
+                logger.info(" Benchmark: Parallel execution mode (fast)")
                 batch_size = runtime_settings.benchmark_parallel_max_models
 
                 # Process models in batches
@@ -2676,7 +2676,7 @@ Refined Response:"""
                     batch_start = time.time()
 
                     logger.info(
-                        f"⚙️ Benchmark batch {i // batch_size + 1}: {len(batch)} models",
+                        f" Benchmark batch {i // batch_size + 1}: {len(batch)} models",
                         extra={"query_id": query_id, "batch": batch},
                     )
 
@@ -2701,7 +2701,7 @@ Refined Response:"""
                         if isinstance(result, Exception):
                             # Model failed
                             logger.error(
-                                f"❌ Benchmark: {model_id} failed: {result}",
+                                f"✗ Benchmark: {model_id} failed: {result}",
                                 extra={"query_id": query_id, "model_id": model_id},
                             )
 
@@ -2766,7 +2766,7 @@ Refined Response:"""
                             )
 
                             logger.info(
-                                f"✅ Benchmark: {model_id} completed",
+                                f"✓ Benchmark: {model_id} completed",
                                 extra={"query_id": query_id, "model_id": model_id},
                             )
 
@@ -2806,7 +2806,7 @@ Refined Response:"""
             comparison_sections = []
 
             for result in benchmark_results:
-                status_emoji = "✅" if result["success"] else "❌"
+                status_emoji = "✓" if result["success"] else "✗"
                 if result["success"]:
                     section = f"""
 {status_emoji} {result["model_id"]} (Tier: {result["model_tier"]})
@@ -2847,9 +2847,9 @@ EXECUTION SUMMARY:
 
 PERFORMANCE METRICS:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚡ Fastest: {fastest_result["model_id"]} ({fastest_time}ms)
+ Fastest: {fastest_result["model_id"]} ({fastest_time}ms)
 🐌 Slowest: {slowest_result["model_id"]} ({slowest_time}ms)
-📊 Average: {avg_time}ms
+ Average: {avg_time}ms
 📝 Total Tokens: {total_tokens}
 
 DETAILED COMPARISON:
@@ -2891,7 +2891,7 @@ DETAILED COMPARISON:
             )
 
             logger.info(
-                f"✅ Benchmark completed: {len(successful_results)}/{len(enabled_models)} models succeeded in {total_time_ms}ms",
+                f"✓ Benchmark completed: {len(successful_results)}/{len(enabled_models)} models succeeded in {total_time_ms}ms",
                 extra={
                     "query_id": query_id,
                     "total_models": len(enabled_models),

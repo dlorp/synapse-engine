@@ -25,7 +25,7 @@ async def test_cgrag_integration():
     metadata_path = project_root / "data" / "faiss_indexes" / "docs_metadata.pkl"
 
     if not index_path.exists() or not metadata_path.exists():
-        print("   ❌ Index files not found!")
+        print("   ✗ Index files not found!")
         print("   Run: python -m app.cli.index_docs ../docs")
         return False
 
@@ -49,7 +49,7 @@ async def test_cgrag_integration():
     print(f"   ✓ Retrieval time: {result.retrieval_time_ms:.2f}ms")
 
     if len(result.artifacts) == 0:
-        print("   ❌ No artifacts retrieved!")
+        print("   ✗ No artifacts retrieved!")
         return False
 
     # Test 3: Test query endpoint integration
@@ -68,7 +68,7 @@ async def test_cgrag_integration():
             )
 
             if response.status_code != 200:
-                print(f"   ❌ HTTP {response.status_code}: {response.text}")
+                print(f"   ✗ HTTP {response.status_code}: {response.text}")
                 return False
 
             data = response.json()
@@ -94,7 +94,7 @@ async def test_cgrag_integration():
                     )
 
         except httpx.ConnectError:
-            print("   ❌ Cannot connect to backend (http://localhost:8000)")
+            print("   ✗ Cannot connect to backend (http://localhost:8000)")
             print("   Make sure the backend is running: uvicorn app.main:app")
             return False
 

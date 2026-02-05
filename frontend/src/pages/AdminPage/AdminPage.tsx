@@ -495,7 +495,7 @@ ${'─'.repeat(150)}`;
         <pre className={styles.asciiFrame}>
 {(() => {
   const FRAME_WIDTH = 70;
-  const scanStatus = runDiscovery.isPending ? '⚡ SCANNING...' : '◉ READY      ';
+  const scanStatus = runDiscovery.isPending ? ' SCANNING...' : '◉ READY      ';
   const indexStatus = discoveryResult ? '✓' : '○';
   const modelsCount = String(health?.components.registry?.models_count || 0).padStart(2, '0');
   const progressBar = runDiscovery.isPending ? '[████████████░░░░░░░░] 60%' : '[████████████████████] 100%';
@@ -541,7 +541,7 @@ ${'─'.repeat(150)}`;
 
             {discoveryResult && (
               <div className={styles.resultBox}>
-                <div className={styles.resultSuccess}>✅ {discoveryResult.message}</div>
+                <div className={styles.resultSuccess}>✓ {discoveryResult.message}</div>
                 <div className={styles.resultDetails}>
                   <div className={styles.resultRow}>
                     <span className={styles.resultLabel}>Models Found:</span>
@@ -562,7 +562,7 @@ ${'─'.repeat(150)}`;
             {runDiscovery.isError && (
               <div className={styles.resultBox}>
                 <div className={styles.resultError}>
-                  ❌ Discovery Failed: {(runDiscovery.error as any)?.response?.data?.detail?.message || (runDiscovery.error as Error).message}
+                  ✗ Discovery Failed: {(runDiscovery.error as any)?.response?.data?.detail?.message || (runDiscovery.error as Error).message}
                 </div>
               </div>
             )}
@@ -591,7 +591,7 @@ ${'─'.repeat(150)}`;
   const discoveryStatus = getTestStatus('Discovery');
 
   const overallStatus = runTests.isPending
-    ? '⚡ TESTING...'
+    ? ' TESTING...'
     : testResults
       ? `✓ ${testResults.passed}/${testResults.total} PASSED`
       : '○ READY     ';
@@ -643,7 +643,7 @@ ${'─'.repeat(150)}`;
                   {testResults.tests.map((test, idx) => (
                     <div key={idx} className={styles.testItem}>
                       <span className={`${styles.testIcon} ${getStatusColor(test.status)}`}>
-                        {test.status === 'passed' ? '✅' : '❌'}
+                        {test.status === 'passed' ? '✓' : '✗'}
                       </span>
                       <div className={styles.testContent}>
                         <div className={styles.testEndpoint}>{test.endpoint}</div>
@@ -671,7 +671,7 @@ ${'─'.repeat(150)}`;
   const q3Active = servers?.filter((s: any) => s.tier === 'Q3' && s.state === 'running').length ?? 0;
   const q4Active = servers?.filter((s: any) => s.tier === 'Q4' && s.state === 'running').length ?? 0;
 
-  const controlStatus = restartServers.isPending ? '⚡ RESTARTING' : stopServers.isPending ? '⚠ STOPPING ' : '◉ READY     ';
+  const controlStatus = restartServers.isPending ? ' RESTARTING' : stopServers.isPending ? ' STOPPING ' : '◉ READY     ';
 
   const header = '─ SERVER RACK STATUS ';
 
@@ -724,20 +724,20 @@ ${'─'.repeat(150)}`;
 
             {restartServers.isSuccess && (
               <div className={styles.resultBox}>
-                <div className={styles.resultSuccess}>✅ Servers restarted successfully</div>
+                <div className={styles.resultSuccess}>✓ Servers restarted successfully</div>
               </div>
             )}
 
             {stopServers.isSuccess && (
               <div className={styles.resultBox}>
-                <div className={styles.resultSuccess}>✅ All servers stopped</div>
+                <div className={styles.resultSuccess}>✓ All servers stopped</div>
               </div>
             )}
 
             {(restartServers.isError || stopServers.isError) && (
               <div className={styles.resultBox}>
                 <div className={styles.resultError}>
-                  ❌ Operation failed: {((restartServers.error || stopServers.error) as any)?.response?.data?.detail?.message || ((restartServers.error || stopServers.error) as Error).message}
+                  ✗ Operation failed: {((restartServers.error || stopServers.error) as any)?.response?.data?.detail?.message || ((restartServers.error || stopServers.error) as Error).message}
                 </div>
               </div>
             )}

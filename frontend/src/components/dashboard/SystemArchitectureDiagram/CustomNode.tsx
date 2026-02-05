@@ -8,10 +8,10 @@
  * - Pulsing animation for active nodes
  *
  * Node Types:
- * - orchestrator: ⚙️ Neural Substrate Orchestrator
- * - model: 🧠 LLM Model Instance (Q2/Q3/Q4)
- * - service: ⚡ Service (CGRAG, WebSearch, Cache)
- * - storage: 💾 Storage (FAISS, Redis)
+ * - orchestrator:  Neural Substrate Orchestrator
+ * - model:  LLM Model Instance (Q2/Q3/Q4)
+ * - service:  Service (CGRAG, WebSearch, Cache)
+ * - storage:  Storage (FAISS, Redis)
  *
  * Status Colors:
  * - healthy: phosphor green (#00ff00)
@@ -43,10 +43,10 @@ interface CustomNodeData {
  */
 const getNodeIcon = (type: CustomNodeData['nodeType']): string => {
   const icons = {
-    orchestrator: '⚙️',
-    model: '🧠',
-    service: '⚡',
-    storage: '💾',
+    orchestrator: '',
+    model: '',
+    service: '',
+    storage: '',
   };
   return icons[type] || '◆';
 };

@@ -502,7 +502,7 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
             )}
           </div>
           <div className={styles.vramHint}>
-            💡 Use serial mode if you have &lt;8GB VRAM or experience OOM errors
+             Use serial mode if you have &lt;8GB VRAM or experience OOM errors
           </div>
         </div>
       )}

@@ -494,7 +494,7 @@ export const ResponseDisplay: React.FC<ResponseDisplayProps> = ({
 
             {/* Info Note */}
             <div className={styles.webSearchNote}>
-              🔍 Web search results included in context for enhanced accuracy
+               Web search results included in context for enhanced accuracy
             </div>
           </div>
         </Panel>
@@ -766,7 +766,7 @@ export const ResponseDisplay: React.FC<ResponseDisplayProps> = ({
                 </div>
 
                 <div className={styles.debateSummary}>
-                  ⚖️ Neutral summary of debate shown above
+                   Neutral summary of debate shown above
                 </div>
               </div>
             )}
@@ -931,7 +931,7 @@ export const ResponseDisplay: React.FC<ResponseDisplayProps> = ({
 
             {/* Comparison Note */}
             <div className={styles.benchmarkNote}>
-              ℹ️ Best answer shown above (selected from all successful responses)
+               Best answer shown above (selected from all successful responses)
             </div>
           </div>
         </Panel>

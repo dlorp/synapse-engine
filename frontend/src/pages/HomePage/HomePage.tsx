@@ -4,19 +4,19 @@
  * CORE:INTERFACE - Mission Control query interface with terminal aesthetic.
  * Integrates query input, response display, and essential system metrics.
  *
- * UI CONSOLIDATION (PHASE 1 COMPLETE ✅ 2025-11-09):
- * - Simplified System Status Panel (5 essential metrics, zero sparklines) ✅
- * - Removed metricsHistory dependency (trends moved to MetricsPage) ✅
- * - Faster page load time (<2s target) ✅
- * - Integrated Quick Actions into System Status Panel ✅
+ * UI CONSOLIDATION (PHASE 1 COMPLETE ✓ 2025-11-09):
+ * - Simplified System Status Panel (5 essential metrics, zero sparklines) ✓
+ * - Removed metricsHistory dependency (trends moved to MetricsPage) ✓
+ * - Faster page load time (<2s target) ✓
+ * - Integrated Quick Actions into System Status Panel ✓
  *
- * PHASE 1 ENHANCEMENTS (COMPLETE ✅):
- * - Dot Matrix LED Display banner ✅
- * - OrchestratorStatusPanel (real-time routing visualization) ✅
- * - LiveEventFeed (8-event rolling window with WebSocket) ✅
- * - Enhanced CRT effects (bloom, curvature, scanlines) ✅
- * - Terminal spinners for loading states ✅
- * - System Status moved to bottom with Quick Actions footer ✅
+ * PHASE 1 ENHANCEMENTS (COMPLETE ✓):
+ * - Dot Matrix LED Display banner ✓
+ * - OrchestratorStatusPanel (real-time routing visualization) ✓
+ * - LiveEventFeed (8-event rolling window with WebSocket) ✓
+ * - Enhanced CRT effects (bloom, curvature, scanlines) ✓
+ * - Terminal spinners for loading states ✓
+ * - System Status moved to bottom with Quick Actions footer ✓
  *
  * Backend Integration Complete:
  * - /api/orchestrator/status endpoint providing real metrics
@@ -151,7 +151,7 @@ export const HomePage: React.FC = () => {
       return;
     }
     
-    toast.info(`⚡ Enabling ${disabledModels.length} models...`, { position: 'bottom-right', autoClose: 2000 });
+    toast.info(` Enabling ${disabledModels.length} models...`, { position: 'bottom-right', autoClose: 2000 });
     try {
       await Promise.all(
         disabledModels.map(modelId => toggleEnabledMutation.mutateAsync({ modelId, enabled: true }))

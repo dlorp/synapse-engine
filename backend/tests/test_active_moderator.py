@@ -59,7 +59,7 @@ def run_active_moderator_test(
         elapsed_time = time.time() - start_time
 
         if response.status_code != 200:
-            print(f"❌ Request failed with status {response.status_code}")
+            print(f"✗ Request failed with status {response.status_code}")
             print(f"Response: {response.text}")
             return False
 
@@ -70,8 +70,8 @@ def run_active_moderator_test(
         council_turns = metadata.get("councilTurns", [])
         moderator_interjections = metadata.get("councilModeratorInterjections", 0)
 
-        print(f"✅ Request completed in {elapsed_time:.2f}s")
-        print("\n📊 Results:")
+        print(f"✓ Request completed in {elapsed_time:.2f}s")
+        print("\n Results:")
         print(f"  Total turns: {len(council_turns)}")
         print(f"  Moderator interjections: {moderator_interjections}")
         print(
@@ -95,10 +95,10 @@ def run_active_moderator_test(
         print("\n✓ Validation:")
         if expected_interjections > 0:
             if moderator_interjections >= expected_interjections:
-                print(f"  ✅ Got expected interjections (>= {expected_interjections})")
+                print(f"  ✓ Got expected interjections (>= {expected_interjections})")
             else:
                 print(
-                    f"  ❌ Expected >= {expected_interjections} interjections, got {moderator_interjections}"
+                    f"  ✗ Expected >= {expected_interjections} interjections, got {moderator_interjections}"
                 )
 
         # Check if moderator turns exist in conversation
@@ -106,19 +106,19 @@ def run_active_moderator_test(
             t for t in council_turns if t.get("speakerId") == "MODERATOR"
         ]
         if moderator_turns:
-            print(f"  ✅ Found {len(moderator_turns)} moderator turns in conversation")
+            print(f"  ✓ Found {len(moderator_turns)} moderator turns in conversation")
         else:
             print(
-                "  ⚠️  No moderator turns found (may be expected if debate stayed on track)"
+                "    No moderator turns found (may be expected if debate stayed on track)"
             )
 
         return True
 
     except requests.exceptions.Timeout:
-        print(f"❌ Request timed out after {elapsed_time:.2f}s")
+        print(f"✗ Request timed out after {elapsed_time:.2f}s")
         return False
     except Exception as e:
-        print(f"❌ Request failed: {e}")
+        print(f"✗ Request failed: {e}")
         return False
 
 

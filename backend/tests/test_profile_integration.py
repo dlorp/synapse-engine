@@ -125,9 +125,9 @@ def test_profile_with_registry():
         missing = manager.validate_profile(profile, list(registry.models.keys()))
 
         if missing:
-            print(f"❌ Missing models: {missing}")
+            print(f"✗ Missing models: {missing}")
         else:
-            print(f"✅ All {len(profile.enabled_models)} models are valid")
+            print(f"✓ All {len(profile.enabled_models)} models are valid")
 
             # Show which models are enabled
             print("\nEnabled models:")
@@ -138,7 +138,7 @@ def test_profile_with_registry():
                 print(f"    - Size: {model.size_params}B params")
                 print(f"    - Quantization: {model.quantization}")
                 if model.is_effectively_thinking():
-                    print("    - ⚡ Reasoning model")
+                    print("    -  Reasoning model")
 
             # Show tier routing
             print("\nTier routing configuration:")
@@ -152,7 +152,7 @@ def test_profile_with_registry():
 
             # Show special configs
             if profile.two_stage.enabled:
-                print("\n⚡ Two-stage processing enabled:")
+                print("\n Two-stage processing enabled:")
                 print(
                     f"  Stage 1: {profile.two_stage.stage1_tier} "
                     f"(max {profile.two_stage.stage1_max_tokens} tokens)"
@@ -160,14 +160,14 @@ def test_profile_with_registry():
                 print(f"  Stage 2: {profile.two_stage.stage2_tier} (full response)")
 
             if profile.load_balancing.enabled:
-                print("\n⚖️  Load balancing enabled:")
+                print("\n  Load balancing enabled:")
                 print(f"  Strategy: {profile.load_balancing.strategy}")
                 print(
                     f"  Health check: every {profile.load_balancing.health_check_interval}s"
                 )
 
     print("\n" + "=" * 60)
-    print("✅ Profile Integration Test Complete!")
+    print("✓ Profile Integration Test Complete!")
     print("=" * 60)
 
 
@@ -196,14 +196,14 @@ def test_profile_tier_matching():
 
             # Check if model tier exists in profile
             if model.get_effective_tier() in tier_names:
-                print("    ✅ Tier match found")
+                print("    ✓ Tier match found")
             else:
                 print(
-                    f"    ⚠️  Model tier '{model.get_effective_tier()}' not in profile tier config"
+                    f"      Model tier '{model.get_effective_tier()}' not in profile tier config"
                 )
 
     print("\n" + "=" * 60)
-    print("✅ Tier Matching Test Complete!")
+    print("✓ Tier Matching Test Complete!")
     print("=" * 60)
 
 
@@ -219,7 +219,7 @@ def main():
         print("\nPhase 2 is complete and ready for Phase 3 (Health Monitoring)")
 
     except Exception as e:
-        print(f"\n❌ Test failed: {e}")
+        print(f"\n✗ Test failed: {e}")
         import traceback
 
         traceback.print_exc()
