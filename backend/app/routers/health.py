@@ -10,7 +10,10 @@ import time
 
 from fastapi import APIRouter, Request, Response
 
+from app.core.logging import get_logger
 from app.models.model import HealthResponse
+
+logger = get_logger(__name__)
 
 router = APIRouter(prefix="/health", tags=["health"])
 
@@ -87,7 +90,8 @@ async def readiness_probe(request: Request, response: Response) -> HealthRespons
         )
         redis_client.ping()
         components["memex"] = "ready"
-    except Exception:
+    except Exception as e:
+        logger.debug(f"MEMEX health check failed: {e}")
         components["memex"] = "unavailable"
         overall_status = "degraded"
 
@@ -102,7 +106,8 @@ async def readiness_probe(request: Request, response: Response) -> HealthRespons
             components["recall"] = "ready"
         else:
             components["recall"] = "not_indexed"
-    except Exception:
+    except Exception as e:
+        logger.debug(f"RECALL health check failed: {e}")
         components["recall"] = "unavailable"
 
     # Check NEURAL (Model Servers) availability
@@ -120,7 +125,8 @@ async def readiness_probe(request: Request, response: Response) -> HealthRespons
                 components["neural"] = "no_models_running"
         else:
             components["neural"] = "not_initialized"
-    except Exception:
+    except Exception as e:
+        logger.debug(f"NEURAL health check failed: {e}")
         components["neural"] = "unknown"
 
     # If any component is unhealthy, mark overall status as degraded
