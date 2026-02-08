@@ -175,3 +175,6 @@ id_ecdsa*
 *.token
 *_token*
 !**/test_token*.py
+AGENTS.md
+.editorconfig
+.gitattributes
