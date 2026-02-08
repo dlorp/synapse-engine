@@ -4,18 +4,17 @@ Tests background health monitoring, state transition detection,
 and alert emission functionality.
 """
 
-import pytest
 from datetime import datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import httpx
+import pytest
 
 from app.services.health_monitor import (
     HealthMonitor,
     get_health_monitor,
     init_health_monitor,
 )
-
 
 # ============================================================================
 # Fixtures
@@ -25,9 +24,7 @@ from app.services.health_monitor import (
 @pytest.fixture
 def health_monitor():
     """Create a health monitor with short check interval for testing."""
-    return HealthMonitor(
-        check_interval=1, health_endpoint="http://localhost:8000/api/health/ready"
-    )
+    return HealthMonitor(check_interval=1, health_endpoint="http://localhost:8000/api/health/ready")
 
 
 @pytest.fixture
@@ -256,14 +253,10 @@ class TestAlertEmission:
     """Tests for alert emission methods."""
 
     @pytest.mark.asyncio
-    async def test_emit_degraded_alert_single_component(
-        self, health_monitor, mock_event_bus
-    ):
+    async def test_emit_degraded_alert_single_component(self, health_monitor, mock_event_bus):
         """Degraded alert should list single failed component."""
         with patch("app.services.event_bus.get_event_bus", return_value=mock_event_bus):
-            await health_monitor._emit_degraded_alert(
-                {"database": "ready", "redis": "unavailable"}
-            )
+            await health_monitor._emit_degraded_alert({"database": "ready", "redis": "unavailable"})
 
             mock_event_bus.publish.assert_called_once()
             call_args = mock_event_bus.publish.call_args
@@ -271,9 +264,7 @@ class TestAlertEmission:
             assert "unavailable" in call_args.kwargs["message"]
 
     @pytest.mark.asyncio
-    async def test_emit_degraded_alert_multiple_components(
-        self, health_monitor, mock_event_bus
-    ):
+    async def test_emit_degraded_alert_multiple_components(self, health_monitor, mock_event_bus):
         """Degraded alert should list multiple failed components."""
         with patch("app.services.event_bus.get_event_bus", return_value=mock_event_bus):
             await health_monitor._emit_degraded_alert(
@@ -283,8 +274,7 @@ class TestAlertEmission:
             mock_event_bus.publish.assert_called_once()
             call_args = mock_event_bus.publish.call_args
             assert (
-                "database" in call_args.kwargs["message"]
-                or "redis" in call_args.kwargs["message"]
+                "database" in call_args.kwargs["message"] or "redis" in call_args.kwargs["message"]
             )
 
     @pytest.mark.asyncio
@@ -464,9 +454,7 @@ class TestIntegration:
     """Integration tests for health monitoring workflow."""
 
     @pytest.mark.asyncio
-    async def test_degradation_and_recovery_workflow(
-        self, health_monitor, mock_event_bus
-    ):
+    async def test_degradation_and_recovery_workflow(self, health_monitor, mock_event_bus):
         """Test complete workflow: ok -> degraded -> ok."""
         with (
             patch("httpx.AsyncClient") as mock_client_class,

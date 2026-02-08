@@ -84,9 +84,7 @@ def _detect_gpu_type() -> str:
 
         # Alternative detection via uname
         try:
-            result = subprocess.run(
-                ["uname", "-m"], capture_output=True, text=True, timeout=5
-            )
+            result = subprocess.run(["uname", "-m"], capture_output=True, text=True, timeout=5)
             if result.returncode == 0 and result.stdout.strip() == "arm64":
                 _cached_gpu_type = "apple_silicon"
                 logger.info("Detected Apple Silicon via arm64 architecture")
@@ -133,9 +131,7 @@ def _get_nvidia_metrics() -> Optional[GPUInfo]:
 
             memory_used_gb = memory_used_mb / 1024
             memory_total_gb = memory_total_mb / 1024
-            memory_percent = (
-                (memory_used_mb / memory_total_mb * 100) if memory_total_mb > 0 else 0
-            )
+            memory_percent = (memory_used_mb / memory_total_mb * 100) if memory_total_mb > 0 else 0
 
             return GPUInfo(
                 name=name,

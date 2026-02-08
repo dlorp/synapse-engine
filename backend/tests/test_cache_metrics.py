@@ -8,8 +8,9 @@ This module tests the Redis cache metrics tracking functionality including:
 - Singleton initialization
 """
 
+from unittest.mock import AsyncMock, patch
+
 import pytest
-from unittest.mock import patch, AsyncMock
 
 from app.services.cache_metrics import (
     CacheMetrics,
@@ -121,9 +122,7 @@ class TestCacheMetrics:
         await cache_metrics.record_set()
 
         # Mock Redis connection to avoid actual Redis dependency
-        with patch.object(
-            cache_metrics, "get_cache_size", new_callable=AsyncMock
-        ) as mock_size:
+        with patch.object(cache_metrics, "get_cache_size", new_callable=AsyncMock) as mock_size:
             mock_size.return_value = 100
 
             stats = await cache_metrics.get_stats()
@@ -137,9 +136,7 @@ class TestCacheMetrics:
         assert "uptime_seconds" in stats
         assert "timestamp" in stats
 
-    async def test_get_cache_size_redis_failure(
-        self, cache_metrics: CacheMetrics
-    ) -> None:
+    async def test_get_cache_size_redis_failure(self, cache_metrics: CacheMetrics) -> None:
         """Test get_cache_size returns 0 on Redis failure."""
         with patch("app.core.config.get_config") as mock_config:
             # Make config raise an exception

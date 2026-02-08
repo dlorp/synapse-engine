@@ -8,8 +8,9 @@ This script tests the complete CGRAG pipeline:
 """
 
 import asyncio
-import httpx
 from pathlib import Path
+
+import httpx
 
 
 async def test_cgrag_integration():
@@ -101,20 +102,14 @@ async def test_cgrag_integration():
     # Test 4: Performance check
     print("\n4. Performance checks...")
     if result.retrieval_time_ms < 100:
-        print(
-            f"   ✓ Retrieval latency: {result.retrieval_time_ms:.2f}ms (target: <100ms)"
-        )
+        print(f"   ✓ Retrieval latency: {result.retrieval_time_ms:.2f}ms (target: <100ms)")
     else:
-        print(
-            f"   ⚠ Retrieval latency: {result.retrieval_time_ms:.2f}ms (above 100ms target)"
-        )
+        print(f"   ⚠ Retrieval latency: {result.retrieval_time_ms:.2f}ms (above 100ms target)")
 
     if metadata.get("processing_time_ms", 0) < 5000:
         print(f"   ✓ Total processing: {metadata.get('processing_time_ms'):.2f}ms")
     else:
-        print(
-            f"   ⚠ Total processing: {metadata.get('processing_time_ms'):.2f}ms (slow)"
-        )
+        print(f"   ⚠ Total processing: {metadata.get('processing_time_ms'):.2f}ms (slow)")
 
     print("\n" + "=" * 60)
     print("✓ All tests passed!")

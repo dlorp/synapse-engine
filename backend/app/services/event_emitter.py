@@ -24,14 +24,14 @@ from typing import Optional
 
 from app.core.logging import get_logger
 from app.models.events import (
-    EventType,
-    EventSeverity,
-    QueryRouteEvent,
-    ModelStateEvent,
-    CGRAGEvent,
     CacheEvent,
+    CGRAGEvent,
     ErrorEvent,
+    EventSeverity,
+    EventType,
+    ModelStateEvent,
     PerformanceEvent,
+    QueryRouteEvent,
 )
 from app.services.event_bus import get_event_bus
 

@@ -5,9 +5,10 @@ Uses multi-criteria heuristics for fast, LLM-free quality assessment of retrieve
 """
 
 import logging
-import numpy as np
 from dataclasses import dataclass
 from typing import List
+
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -215,9 +216,7 @@ class CRAGEvaluator:
         tokens = query.lower().split()
 
         # Filter stopwords and short tokens
-        keywords = [
-            token for token in tokens if token not in self.STOPWORDS and len(token) > 2
-        ]
+        keywords = [token for token in tokens if token not in self.STOPWORDS and len(token) > 2]
 
         return keywords
 
@@ -244,9 +243,7 @@ class CRAGEvaluator:
         combined_text = " ".join(chunk.content.lower() for chunk in artifacts)
 
         # Count how many query keywords appear
-        found_keywords = sum(
-            1 for keyword in query_keywords if keyword in combined_text
-        )
+        found_keywords = sum(1 for keyword in query_keywords if keyword in combined_text)
 
         overlap_ratio = found_keywords / len(query_keywords)
 
@@ -316,8 +313,7 @@ class CRAGEvaluator:
             adequacy = total_tokens / expected_tokens
 
         logger.debug(
-            f"[CRAG_EVAL] Length adequacy: {total_tokens}/{expected_tokens} tokens "
-            f"= {adequacy:.2f}"
+            f"[CRAG_EVAL] Length adequacy: {total_tokens}/{expected_tokens} tokens = {adequacy:.2f}"
         )
 
         return adequacy
@@ -343,8 +339,7 @@ class CRAGEvaluator:
         diversity = unique_files / len(artifacts)
 
         logger.debug(
-            f"[CRAG_EVAL] Source diversity: {unique_files}/{len(artifacts)} files "
-            f"= {diversity:.2f}"
+            f"[CRAG_EVAL] Source diversity: {unique_files}/{len(artifacts)} files = {diversity:.2f}"
         )
 
         return min(diversity, 1.0)

@@ -4,17 +4,17 @@ Tests registry-based model selection, tier filtering, availability checking,
 and round-robin load balancing functionality.
 """
 
-import pytest
 from unittest.mock import MagicMock
 
-from app.services.model_selector import ModelSelector
+import pytest
+
+from app.core.exceptions import NoModelsAvailableError
 from app.models.discovered_model import (
+    DiscoveredModel,
     ModelRegistry,
     ModelTier,
-    DiscoveredModel,
 )
-from app.core.exceptions import NoModelsAvailableError
-
+from app.services.model_selector import ModelSelector
 
 # ============================================================================
 # Fixtures
@@ -116,24 +116,16 @@ def model_selector(model_registry, mock_server_manager):
 class TestInitialization:
     """Tests for ModelSelector initialization."""
 
-    def test_creates_with_registry_and_manager(
-        self, model_registry, mock_server_manager
-    ):
+    def test_creates_with_registry_and_manager(self, model_registry, mock_server_manager):
         """Selector should be created with registry and server manager."""
-        selector = ModelSelector(
-            registry=model_registry, server_manager=mock_server_manager
-        )
+        selector = ModelSelector(registry=model_registry, server_manager=mock_server_manager)
 
         assert selector.registry is model_registry
         assert selector.server_manager is mock_server_manager
 
-    def test_request_counts_initialized_empty(
-        self, model_registry, mock_server_manager
-    ):
+    def test_request_counts_initialized_empty(self, model_registry, mock_server_manager):
         """Request counts should be initialized as empty."""
-        selector = ModelSelector(
-            registry=model_registry, server_manager=mock_server_manager
-        )
+        selector = ModelSelector(registry=model_registry, server_manager=mock_server_manager)
 
         # Should be a defaultdict that returns 0 for new keys
         assert selector._request_counts["nonexistent"] == 0
@@ -156,9 +148,7 @@ class TestIsModelAvailable:
 
         assert model_selector.is_model_available(model) is True
 
-    def test_unavailable_when_disabled(
-        self, model_selector, sample_models, mock_server_manager
-    ):
+    def test_unavailable_when_disabled(self, model_selector, sample_models, mock_server_manager):
         """Model should be unavailable when disabled."""
         disabled_model = sample_models[4]  # disabled_model
         mock_server_manager.is_server_running.return_value = True
@@ -202,9 +192,7 @@ class TestSelectModel:
         assert model.model_id in ["fast_model_1", "fast_model_2"]
 
     @pytest.mark.asyncio
-    async def test_selects_only_available_models(
-        self, model_selector, mock_server_manager
-    ):
+    async def test_selects_only_available_models(self, model_selector, mock_server_manager):
         """Should only select from available models."""
 
         # Make fast_model_1 unavailable
@@ -227,9 +215,7 @@ class TestSelectModel:
         assert "valid_tiers" in exc_info.value.details
 
     @pytest.mark.asyncio
-    async def test_raises_when_no_models_available(
-        self, model_selector, mock_server_manager
-    ):
+    async def test_raises_when_no_models_available(self, model_selector, mock_server_manager):
         """Should raise NoModelsAvailableError when no models available."""
         mock_server_manager.is_server_running.return_value = False
 
@@ -248,9 +234,7 @@ class TestSelectModel:
             scan_path="/models",
             last_scan=datetime.utcnow().isoformat(),
         )
-        selector = ModelSelector(
-            registry=empty_registry, server_manager=mock_server_manager
-        )
+        selector = ModelSelector(registry=empty_registry, server_manager=mock_server_manager)
 
         with pytest.raises(NoModelsAvailableError):
             await selector.select_model("fast")
@@ -306,11 +290,10 @@ class TestRoundRobinLoadBalancing:
         assert model.model_id == "fast_model_2"
 
     @pytest.mark.asyncio
-    async def test_single_model_always_selected(
-        self, model_registry, mock_server_manager
-    ):
+    async def test_single_model_always_selected(self, model_registry, mock_server_manager):
         """Single available model should always be selected."""
         from datetime import datetime
+
         from app.models.discovered_model import QuantizationLevel
 
         # Create registry with only one model in tier
@@ -357,9 +340,7 @@ class TestGetAvailableModels:
         assert "disabled_model" not in model_ids
         assert len(available) == 4  # All enabled models
 
-    def test_returns_empty_when_none_available(
-        self, model_selector, mock_server_manager
-    ):
+    def test_returns_empty_when_none_available(self, model_selector, mock_server_manager):
         """Should return empty list when no models available."""
         mock_server_manager.is_server_running.return_value = False
 
@@ -442,9 +423,7 @@ class TestErrorDetails:
     """Tests for error details in exceptions."""
 
     @pytest.mark.asyncio
-    async def test_error_includes_available_tiers(
-        self, model_selector, mock_server_manager
-    ):
+    async def test_error_includes_available_tiers(self, model_selector, mock_server_manager):
         """NoModelsAvailableError should include which tiers have models."""
 
         # Make only fast tier unavailable
@@ -463,9 +442,7 @@ class TestErrorDetails:
         assert "powerful" in available_tiers
 
     @pytest.mark.asyncio
-    async def test_error_includes_model_counts(
-        self, model_selector, mock_server_manager
-    ):
+    async def test_error_includes_model_counts(self, model_selector, mock_server_manager):
         """NoModelsAvailableError should include model counts."""
         mock_server_manager.is_server_running.return_value = False
 
@@ -485,13 +462,9 @@ class TestIntegration:
     """Integration tests for model selection workflow."""
 
     @pytest.mark.asyncio
-    async def test_complete_selection_workflow(
-        self, model_registry, mock_server_manager
-    ):
+    async def test_complete_selection_workflow(self, model_registry, mock_server_manager):
         """Test complete workflow of selecting models across tiers."""
-        selector = ModelSelector(
-            registry=model_registry, server_manager=mock_server_manager
-        )
+        selector = ModelSelector(registry=model_registry, server_manager=mock_server_manager)
 
         # Select from each tier
         fast = await selector.select_model("fast")
@@ -508,9 +481,7 @@ class TestIntegration:
         assert selector._request_counts[powerful.model_id] == 1
 
     @pytest.mark.asyncio
-    async def test_handles_dynamic_availability_changes(
-        self, model_selector, mock_server_manager
-    ):
+    async def test_handles_dynamic_availability_changes(self, model_selector, mock_server_manager):
         """Selector should handle models becoming unavailable."""
         # Initially all available
         model1 = await model_selector.select_model("fast")

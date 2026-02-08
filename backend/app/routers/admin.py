@@ -7,19 +7,20 @@ This module provides admin/testing endpoints for browser-based system operations
 - Server management
 """
 
-from fastapi import APIRouter, HTTPException
-from pathlib import Path
 import asyncio
-from datetime import datetime
-from typing import Dict, Any
+import os
 import platform
 import sys
-import os
-import httpx
 import time
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict
+
+import httpx
+from fastapi import APIRouter, HTTPException
 
 from app.core.logging import get_logger
-from app.models.api import ExternalServerStatusResponse, ExternalServerItem
+from app.models.api import ExternalServerItem, ExternalServerStatusResponse
 
 logger = get_logger(__name__)
 router = APIRouter(prefix="/api/admin", tags=["admin"])
@@ -33,10 +34,10 @@ def get_app_state():
         Tuple of (model_registry, server_manager, profile_manager, discovery_service)
     """
     from app.main import (
-        model_registry,
-        server_manager,
-        profile_manager,
         discovery_service,
+        model_registry,
+        profile_manager,
+        server_manager,
     )
 
     return model_registry, server_manager, profile_manager, discovery_service
@@ -242,9 +243,7 @@ async def check_external_servers_status() -> ExternalServerStatusResponse:
         )
 
     enabled_models = [
-        model
-        for model in model_registry.models.values()
-        if model.enabled and model.port
+        model for model in model_registry.models.values() if model.enabled and model.port
     ]
 
     if not enabled_models:
@@ -282,9 +281,7 @@ async def check_external_servers_status() -> ExternalServerStatusResponse:
                         )
                     )
                     online_count += 1
-                    logger.debug(
-                        f"External server on port {port} is online ({response_time_ms}ms)"
-                    )
+                    logger.debug(f"External server on port {port} is online ({response_time_ms}ms)")
                 else:
                     server_items.append(
                         ExternalServerItem(
@@ -517,9 +514,7 @@ async def test_all_endpoints() -> Dict[str, Any]:
                 results["failed"] += 1
         results["total"] += 1
     except Exception as e:
-        results["tests"].append(
-            {"endpoint": "GET /health", "status": "failed", "message": str(e)}
-        )
+        results["tests"].append({"endpoint": "GET /health", "status": "failed", "message": str(e)})
         results["failed"] += 1
         results["total"] += 1
 
@@ -552,9 +547,7 @@ async def get_system_info() -> Dict[str, Any]:
         "environment": {
             "profile": os.getenv("PRAXIS_PROFILE", "development"),
             "scan_path": os.getenv("MODEL_SCAN_PATH", "/models"),
-            "llama_server_path": os.getenv(
-                "LLAMA_SERVER_PATH", "/usr/local/bin/llama-server"
-            ),
+            "llama_server_path": os.getenv("LLAMA_SERVER_PATH", "/usr/local/bin/llama-server"),
         },
         "services": {
             "registry_initialized": model_registry is not None,
@@ -610,8 +603,7 @@ async def get_cache_stats() -> Dict[str, Any]:
         stats["hit_rate"] = f"{stats['hit_rate_percent']:.1f}%"
 
         logger.info(
-            f"Cache stats retrieved: {stats['hit_rate']} hit rate, "
-            f"{stats['cache_size']} keys",
+            f"Cache stats retrieved: {stats['hit_rate']} hit rate, {stats['cache_size']} keys",
             extra={
                 "hit_rate": stats["hit_rate_percent"],
                 "cache_size": stats["cache_size"],
@@ -622,14 +614,10 @@ async def get_cache_stats() -> Dict[str, Any]:
 
     except RuntimeError as e:
         logger.warning(f"Cache metrics not initialized: {e}")
-        raise HTTPException(
-            status_code=503, detail="Cache metrics service not initialized"
-        )
+        raise HTTPException(status_code=503, detail="Cache metrics service not initialized")
     except Exception as e:
         logger.error(f"Failed to get cache stats: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500, detail=f"Failed to retrieve cache stats: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve cache stats: {str(e)}")
 
 
 @router.post("/cache/reset")
@@ -663,14 +651,10 @@ async def reset_cache_stats() -> Dict[str, str]:
 
     except RuntimeError as e:
         logger.warning(f"Cache metrics not initialized: {e}")
-        raise HTTPException(
-            status_code=503, detail="Cache metrics service not initialized"
-        )
+        raise HTTPException(status_code=503, detail="Cache metrics service not initialized")
     except Exception as e:
         logger.error(f"Failed to reset cache stats: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500, detail=f"Failed to reset cache stats: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to reset cache stats: {str(e)}")
 
 
 @router.get("/health/monitor-status")
@@ -710,9 +694,7 @@ async def get_health_monitor_status() -> Dict[str, Any]:
 
     except RuntimeError as e:
         logger.warning(f"Health monitor not initialized: {e}")
-        raise HTTPException(
-            status_code=503, detail="Health monitor service not initialized"
-        )
+        raise HTTPException(status_code=503, detail="Health monitor service not initialized")
     except Exception as e:
         logger.error(f"Failed to get health monitor status: {e}", exc_info=True)
         raise HTTPException(

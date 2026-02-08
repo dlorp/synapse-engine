@@ -19,6 +19,7 @@ import psutil
 import redis
 
 from app.core.logging import get_logger
+from app.models.events import EventSeverity, EventType, SystemEvent
 from app.models.topology import (
     ComponentConnection,
     ComponentNode,
@@ -27,7 +28,6 @@ from app.models.topology import (
     SystemTopology,
 )
 from app.services.event_bus import get_event_bus
-from app.models.events import SystemEvent, EventType, EventSeverity
 
 logger = get_logger(__name__)
 
@@ -328,9 +328,7 @@ class TopologyManager:
         """
         return self.data_flow_paths.get(query_id)
 
-    async def update_component_health(
-        self, component_id: str, metrics: HealthMetrics
-    ) -> None:
+    async def update_component_health(self, component_id: str, metrics: HealthMetrics) -> None:
         """Update health metrics for a component.
 
         Args:
@@ -370,9 +368,7 @@ class TopologyManager:
                         ),
                         metadata={
                             "component_id": component_id,
-                            "previous_status": old_status.status
-                            if old_status
-                            else "unknown",
+                            "previous_status": old_status.status if old_status else "unknown",
                             "current_status": metrics.status,
                             "memory_usage_mb": metrics.memory_usage_mb,
                             "cpu_percent": metrics.cpu_percent,
@@ -678,8 +674,6 @@ def get_topology_manager() -> TopologyManager:
         RuntimeError: If topology manager not initialized
     """
     if _topology_manager is None:
-        raise RuntimeError(
-            "TopologyManager not initialized. Call init_topology_manager() first."
-        )
+        raise RuntimeError("TopologyManager not initialized. Call init_topology_manager() first.")
 
     return _topology_manager

@@ -7,10 +7,11 @@ and managing model configuration profiles from YAML files.
 import logging
 from pathlib import Path
 from typing import List
+
 import yaml
 
-from app.models.profile import ModelProfile
 from app.core.exceptions import SynapseException
+from app.models.profile import ModelProfile
 
 logger = logging.getLogger(__name__)
 
@@ -154,9 +155,7 @@ class ProfileManager:
         profile_path.unlink()
         logger.info(f"Deleted profile '{name}'")
 
-    def validate_profile(
-        self, profile: ModelProfile, available_model_ids: List[str]
-    ) -> List[str]:
+    def validate_profile(self, profile: ModelProfile, available_model_ids: List[str]) -> List[str]:
         """Validate that all enabled models exist in registry.
 
         Args:

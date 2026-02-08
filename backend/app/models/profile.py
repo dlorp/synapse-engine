@@ -4,8 +4,9 @@ This module defines the data models for configuration profiles that control
 model selection, tier routing, two-stage processing, and load balancing.
 """
 
-from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional
+
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class TierConfig(BaseModel):
@@ -47,9 +48,7 @@ class LoadBalancingConfig(BaseModel):
     strategy: str = Field(
         default="round_robin", description="Strategy: round_robin, least_loaded, random"
     )
-    health_check_interval: int = Field(
-        default=30, description="Seconds between health checks"
-    )
+    health_check_interval: int = Field(default=30, description="Seconds between health checks")
 
     model_config = ConfigDict(populate_by_name=True)
 
@@ -111,9 +110,7 @@ class ModelProfile(BaseModel):
                 "name": "Development",
                 "description": "Fast iteration with small models",
                 "enabled_models": ["qwen3_4p0b_q4km_fast"],
-                "tier_config": [
-                    {"name": "fast", "max_score": 5.0, "expected_time_seconds": 2}
-                ],
+                "tier_config": [{"name": "fast", "max_score": 5.0, "expected_time_seconds": 2}],
                 "two_stage": {"enabled": False},
                 "load_balancing": {"enabled": False, "strategy": "round_robin"},
             }

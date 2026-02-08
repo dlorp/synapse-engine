@@ -11,9 +11,10 @@ Tests cover:
 """
 
 import asyncio
-import pytest
 import time
 from typing import Set
+
+import pytest
 
 from app.models.events import EventSeverity, EventType, SystemEvent
 from app.services.event_bus import (
@@ -139,9 +140,7 @@ class TestEventPublishing:
 
         try:
             for i in range(10):
-                await bus.publish(
-                    event_type=EventType.MODEL_STATE, message=f"Event {i}"
-                )
+                await bus.publish(event_type=EventType.MODEL_STATE, message=f"Event {i}")
 
             await asyncio.sleep(0.05)
 
@@ -153,9 +152,7 @@ class TestEventPublishing:
             await bus.stop()
 
     @pytest.mark.asyncio
-    async def test_publish_event_with_preconstructed_event(
-        self, clean_event_bus: EventBus
-    ):
+    async def test_publish_event_with_preconstructed_event(self, clean_event_bus: EventBus):
         """publish_event() accepts pre-constructed SystemEvent."""
         event = SystemEvent(
             timestamp=time.time(),
@@ -191,9 +188,7 @@ class TestEventPublishing:
         assert event.severity == EventSeverity.INFO
 
     @pytest.mark.asyncio
-    async def test_emit_pipeline_event_failed_has_error_severity(
-        self, clean_event_bus: EventBus
-    ):
+    async def test_emit_pipeline_event_failed_has_error_severity(self, clean_event_bus: EventBus):
         """Failed pipeline events have ERROR severity."""
         await clean_event_bus.emit_pipeline_event(
             query_id="pipeline-fail",
@@ -229,9 +224,7 @@ class TestEventSubscription:
 
         # Publish events
         for i in range(3):
-            await clean_event_bus.publish(
-                event_type=EventType.MODEL_STATE, message=f"Event {i}"
-            )
+            await clean_event_bus.publish(event_type=EventType.MODEL_STATE, message=f"Event {i}")
 
         await asyncio.wait_for(task, timeout=2.0)
 
@@ -246,9 +239,7 @@ class TestEventSubscription:
         try:
             # Publish events BEFORE subscribing
             for i in range(3):
-                await bus.publish(
-                    event_type=EventType.CGRAG, message=f"Historical event {i}"
-                )
+                await bus.publish(event_type=EventType.CGRAG, message=f"Historical event {i}")
 
             await asyncio.sleep(0.05)
 
@@ -299,9 +290,7 @@ class TestEventSubscription:
         received = []
 
         async def subscriber():
-            async for event in clean_event_bus.subscribe(
-                min_severity=EventSeverity.WARNING
-            ):
+            async for event in clean_event_bus.subscribe(min_severity=EventSeverity.WARNING):
                 received.append(event)
                 if len(received) >= 2:
                     break
@@ -311,12 +300,8 @@ class TestEventSubscription:
 
         # Publish events with different severities
         await clean_event_bus.publish(EventType.MODEL_STATE, "Info", EventSeverity.INFO)
-        await clean_event_bus.publish(
-            EventType.MODEL_STATE, "Warning", EventSeverity.WARNING
-        )
-        await clean_event_bus.publish(
-            EventType.MODEL_STATE, "Info 2", EventSeverity.INFO
-        )
+        await clean_event_bus.publish(EventType.MODEL_STATE, "Warning", EventSeverity.WARNING)
+        await clean_event_bus.publish(EventType.MODEL_STATE, "Info 2", EventSeverity.INFO)
         await clean_event_bus.publish(EventType.ERROR, "Error", EventSeverity.ERROR)
 
         await asyncio.wait_for(task, timeout=2.0)

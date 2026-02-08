@@ -49,9 +49,7 @@ class QueryRequest(BaseModel):
         ... )
     """
 
-    query: str = Field(
-        ..., min_length=1, max_length=10000, description="User query text"
-    )
+    query: str = Field(..., min_length=1, max_length=10000, description="User query text")
     mode: Literal["simple", "two-stage", "council", "benchmark"] = Field(
         default="two-stage", description="Query processing mode"
     )
@@ -224,12 +222,8 @@ class QueryComplexity(BaseModel):
 
     tier: str = Field(..., description="Selected tier: fast, balanced, or powerful")
     score: float = Field(..., description="Numerical complexity score")
-    reasoning: str = Field(
-        ..., description="Human-readable explanation of tier selection"
-    )
-    indicators: dict = Field(
-        default_factory=dict, description="Detected complexity indicators"
-    )
+    reasoning: str = Field(..., description="Human-readable explanation of tier selection")
+    indicators: dict = Field(default_factory=dict, description="Detected complexity indicators")
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
@@ -244,9 +238,7 @@ class ArtifactInfo(BaseModel):
         token_count: Number of tokens in chunk
     """
 
-    file_path: str = Field(
-        ..., serialization_alias="filePath", description="Source document path"
-    )
+    file_path: str = Field(..., serialization_alias="filePath", description="Source document path")
     relevance_score: float = Field(
         ...,
         ge=0.0,
@@ -254,12 +246,8 @@ class ArtifactInfo(BaseModel):
         serialization_alias="relevanceScore",
         description="Relevance score",
     )
-    chunk_index: int = Field(
-        ..., ge=0, serialization_alias="chunkIndex", description="Chunk index"
-    )
-    token_count: int = Field(
-        ..., ge=0, serialization_alias="tokenCount", description="Token count"
-    )
+    chunk_index: int = Field(..., ge=0, serialization_alias="chunkIndex", description="Chunk index")
+    token_count: int = Field(..., ge=0, serialization_alias="tokenCount", description="Token count")
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 

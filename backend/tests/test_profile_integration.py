@@ -9,14 +9,15 @@ from pathlib import Path
 # Add backend to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from app.services.profile_manager import ProfileManager
+from datetime import datetime, timezone
+
 from app.models.discovered_model import (
     DiscoveredModel,
     ModelRegistry,
     ModelTier,
     QuantizationLevel,
 )
-from datetime import datetime, timezone
+from app.services.profile_manager import ProfileManager
 
 
 def create_mock_registry() -> ModelRegistry:
@@ -162,9 +163,7 @@ def test_profile_with_registry():
             if profile.load_balancing.enabled:
                 print("\n  Load balancing enabled:")
                 print(f"  Strategy: {profile.load_balancing.strategy}")
-                print(
-                    f"  Health check: every {profile.load_balancing.health_check_interval}s"
-                )
+                print(f"  Health check: every {profile.load_balancing.health_check_interval}s")
 
     print("\n" + "=" * 60)
     print("✓ Profile Integration Test Complete!")
@@ -198,9 +197,7 @@ def test_profile_tier_matching():
             if model.get_effective_tier() in tier_names:
                 print("    ✓ Tier match found")
             else:
-                print(
-                    f"      Model tier '{model.get_effective_tier()}' not in profile tier config"
-                )
+                print(f"      Model tier '{model.get_effective_tier()}' not in profile tier config")
 
     print("\n" + "=" * 60)
     print("✓ Tier Matching Test Complete!")

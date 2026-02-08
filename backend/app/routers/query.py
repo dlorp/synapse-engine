@@ -6,12 +6,12 @@ selection, and response generation.
 """
 
 import asyncio
+import json
 import time
 from collections import defaultdict
 from enum import Enum
 from pathlib import Path
-from typing import Dict, Optional
-import json
+from typing import Dict, List, Optional
 from uuid import uuid4
 
 from fastapi import APIRouter, HTTPException
@@ -27,6 +27,13 @@ from app.core.exceptions import (
     NoModelsAvailableError,
     QueryTimeoutError,
 )
+from app.models.context import (
+    CGRAGArtifact as ContextCGRAGArtifact,
+)
+from app.models.context import (
+    ContextAllocationRequest,
+)
+from app.models.discovered_model import ModelRegistry
 from app.models.query import (
     ArtifactInfo,
     QueryComplexity,
@@ -34,27 +41,20 @@ from app.models.query import (
     QueryRequest,
     QueryResponse,
 )
-from app.services.cgrag import CGRAGIndexer, CGRAGRetriever, get_cgrag_index_paths
-from app.services.routing import assess_complexity
-from app.services.websearch import get_searxng_client
-from app.services.llama_client import LlamaCppClient
-from app.models.discovered_model import ModelRegistry
+from app.models.timeseries import MetricType
 from app.services import runtime_settings as settings_service
+from app.services.cgrag import CGRAGIndexer, CGRAGRetriever, get_cgrag_index_paths
+from app.services.context_state import get_context_state_manager
+from app.services.event_emitter import emit_cgrag_event, emit_query_route_event
+from app.services.instance_manager import get_instance_manager
+from app.services.llama_client import LlamaCppClient
+from app.services.metrics_aggregator import get_metrics_aggregator
 from app.services.model_selector import ModelSelector
 from app.services.orchestrator_status import get_orchestrator_status_service
-from app.services.event_emitter import emit_query_route_event, emit_cgrag_event
 from app.services.pipeline_tracker import PipelineTracker
-from app.services.context_state import get_context_state_manager
-from app.models.context import (
-    ContextAllocationRequest,
-    CGRAGArtifact as ContextCGRAGArtifact,
-)
-from app.services.metrics_aggregator import get_metrics_aggregator
-from app.models.timeseries import MetricType
+from app.services.routing import assess_complexity
 from app.services.topology_manager import get_topology_manager
-from app.services.instance_manager import get_instance_manager
-from typing import List
-
+from app.services.websearch import get_searxng_client
 
 router = APIRouter()
 
@@ -99,9 +99,7 @@ async def store_context_allocation(
                     source_file=artifact.file_path,
                     relevance_score=artifact.relevance_score,
                     token_count=artifact.token_count,
-                    content_preview=artifact.content[:200]
-                    if hasattr(artifact, "content")
-                    else "",
+                    content_preview=artifact.content[:200] if hasattr(artifact, "content") else "",
                 )
                 for artifact in cgrag_artifacts
             ]
@@ -243,9 +241,7 @@ async def record_query_metrics(
         )
 
 
-async def validate_models_available(
-    model_ids: list[str], model_selector: ModelSelector
-) -> None:
+async def validate_models_available(model_ids: list[str], model_selector: ModelSelector) -> None:
     """Validate that specified models are available for debate.
 
     Args:
@@ -301,9 +297,7 @@ async def auto_select_debate_participants(model_selector: ModelSelector) -> list
         raise HTTPException(status_code=503, detail="Model registry not available")
 
     # Get all enabled models
-    enabled_models = [
-        model for model in model_registry.models.values() if model.enabled
-    ]
+    enabled_models = [model for model in model_registry.models.values() if model.enabled]
 
     if len(enabled_models) < 2:
         raise HTTPException(
@@ -556,9 +550,7 @@ async def _process_consensus_mode(
     for tier in ["fast", "balanced", "powerful"]:
         try:
             if not model_selector:
-                raise HTTPException(
-                    status_code=503, detail="Model selector not initialized"
-                )
+                raise HTTPException(status_code=503, detail="Model selector not initialized")
             model = await model_selector.select_model(tier)
             participants.append(model.model_id)
             tried_tiers.append(tier)
@@ -581,9 +573,7 @@ async def _process_consensus_mode(
             logger.warning(f"Failed to get additional models from registry: {e}")
 
     if len(participants) < 3:
-        logger.error(
-            f"Consensus mode requires 3 models, only found {len(participants)}"
-        )
+        logger.error(f"Consensus mode requires 3 models, only found {len(participants)}")
         raise HTTPException(
             status_code=503,
             detail=f"Council consensus mode requires at least 3 enabled models (found {len(participants)})",
@@ -679,18 +669,14 @@ Provide your refined response:"""
         try:
             response = await task
             round2_responses[model_id] = response.get("content", "")
-            logger.info(
-                f"  ✓ {model_id} refined: {len(round2_responses[model_id])} chars"
-            )
+            logger.info(f"  ✓ {model_id} refined: {len(round2_responses[model_id])} chars")
         except Exception as e:
             logger.error(f"  ✗ {model_id} refinement failed: {e}")
             # Fallback to Round 1 response
             round2_responses[model_id] = round1_responses[model_id]
 
     round2_time = int((time.time() - round2_start) * 1000)
-    logger.info(
-        f"Round 2 complete: {len(round2_responses)} refinements ({round2_time}ms)"
-    )
+    logger.info(f"Round 2 complete: {len(round2_responses)} refinements ({round2_time}ms)")
 
     # =================================================================
     # SYNTHESIS: Combine refined responses into consensus
@@ -700,9 +686,7 @@ Provide your refined response:"""
 
     # Use most powerful model for synthesis
     # Pick the last participant (likely most powerful) or first if all failed in Round 2
-    synthesizer_model = (
-        participants[-1] if participants else list(round2_responses.keys())[0]
-    )
+    synthesizer_model = participants[-1] if participants else list(round2_responses.keys())[0]
 
     all_refined = "\n\n".join(
         [
@@ -737,9 +721,7 @@ Consensus Answer:"""
         )
         consensus_answer = consensus_result.get("content", "")
         synthesis_time = int((time.time() - synthesis_start) * 1000)
-        logger.info(
-            f"✓ Consensus synthesized: {len(consensus_answer)} chars ({synthesis_time}ms)"
-        )
+        logger.info(f"✓ Consensus synthesized: {len(consensus_answer)} chars ({synthesis_time}ms)")
     except Exception as e:
         logger.error(f"Synthesis failed: {e}, falling back to best Round 2 response")
         # Fallback: Use longest/most detailed Round 2 response
@@ -1033,9 +1015,7 @@ async def _process_debate_mode(
 
         # Validate both models are available
         if not model_selector:
-            raise HTTPException(
-                status_code=503, detail="Model selector not initialized"
-            )
+            raise HTTPException(status_code=503, detail="Model selector not initialized")
         await validate_models_available(participants, model_selector)
 
     elif request.council_pro_model or request.council_con_model:
@@ -1053,15 +1033,11 @@ async def _process_debate_mode(
     else:
         # Auto-select 2 diverse models
         if not model_selector:
-            raise HTTPException(
-                status_code=503, detail="Model selector not initialized"
-            )
+            raise HTTPException(status_code=503, detail="Model selector not initialized")
         participants = await auto_select_debate_participants(model_selector)
         logger.info(f"Auto-selected debate participants: {participants}")
 
-    logger.info(
-        f" Debate participants: {participants[0]} (PRO) vs {participants[1]} (CON)"
-    )
+    logger.info(f" Debate participants: {participants[0]} (PRO) vs {participants[1]} (CON)")
 
     # =================================================================
     # GET PERSONAS
@@ -1089,22 +1065,14 @@ async def _process_debate_mode(
     if pro_preset_id:
         pro_system_prompt = load_preset_system_prompt(pro_preset_id)
         if pro_system_prompt and participants[0] in personas:
-            personas[participants[0]] = (
-                f"{pro_system_prompt}\n\n{personas[participants[0]]}"
-            )
-            logger.info(
-                f"Applied preset {pro_preset_id} to PRO participant {participants[0]}"
-            )
+            personas[participants[0]] = f"{pro_system_prompt}\n\n{personas[participants[0]]}"
+            logger.info(f"Applied preset {pro_preset_id} to PRO participant {participants[0]}")
 
     if con_preset_id:
         con_system_prompt = load_preset_system_prompt(con_preset_id)
         if con_system_prompt and participants[1] in personas:
-            personas[participants[1]] = (
-                f"{con_system_prompt}\n\n{personas[participants[1]]}"
-            )
-            logger.info(
-                f"Applied preset {con_preset_id} to CON participant {participants[1]}"
-            )
+            personas[participants[1]] = f"{con_system_prompt}\n\n{personas[participants[1]]}"
+            logger.info(f"Applied preset {con_preset_id} to CON participant {participants[1]}")
 
     # =================================================================
     # DETERMINE MODERATOR MODEL (if active moderation enabled)
@@ -1124,9 +1092,7 @@ async def _process_debate_mode(
 
             if model_selector:
                 try:
-                    moderator_model_for_interjections = _auto_select_moderator_model(
-                        model_selector
-                    )
+                    moderator_model_for_interjections = _auto_select_moderator_model(model_selector)
                     logger.info(
                         f"Active moderator enabled with auto-selected model: {moderator_model_for_interjections}"
                     )
@@ -1150,9 +1116,7 @@ async def _process_debate_mode(
             participants=participants,
             query=request.query,
             personas=personas,
-            context=context_string
-            if context_string != "No additional context"
-            else None,
+            context=context_string if context_string != "No additional context" else None,
             max_turns=request.council_max_turns or 10,
             dynamic_termination=request.council_dynamic_termination,
             temperature=request.temperature,
@@ -1223,15 +1187,9 @@ async def _process_debate_mode(
             if moderator_model_id_to_use:
                 # Validate the specified moderator model
                 if not model_selector:
-                    raise HTTPException(
-                        status_code=503, detail="Model selector not initialized"
-                    )
-                await validate_models_available(
-                    [moderator_model_id_to_use], model_selector
-                )
-                logger.info(
-                    f"Using user-specified moderator model: {moderator_model_id_to_use}"
-                )
+                    raise HTTPException(status_code=503, detail="Model selector not initialized")
+                await validate_models_available([moderator_model_id_to_use], model_selector)
+                logger.info(f"Using user-specified moderator model: {moderator_model_id_to_use}")
             else:
                 logger.info("Auto-selecting moderator model (prefers powerful tier)")
 
@@ -1440,9 +1398,7 @@ async def process_query(
 
             try:
                 if not model_selector:
-                    raise HTTPException(
-                        status_code=503, detail="Model selector not initialized"
-                    )
+                    raise HTTPException(status_code=503, detail="Model selector not initialized")
                 stage1_model = await model_selector.select_model(stage1_tier)
                 stage1_model_id = stage1_model.model_id
                 logger.info(f"Stage 1 model selected: {stage1_model_id}")
@@ -1522,9 +1478,7 @@ async def process_query(
                     # Determine path to FAISS index
                     project_root = Path(__file__).parent.parent.parent.parent
                     index_path = project_root / "data" / "faiss_indexes" / "docs.index"
-                    metadata_path = (
-                        project_root / "data" / "faiss_indexes" / "docs.metadata"
-                    )
+                    metadata_path = project_root / "data" / "faiss_indexes" / "docs.metadata"
 
                     # Check if index exists
                     if index_path.exists() and metadata_path.exists():
@@ -1643,9 +1597,7 @@ async def process_query(
                 web_search_sections = []
                 for idx, result in enumerate(web_search_results, 1):
                     web_search_sections.append(
-                        f"[Web Result {idx}: {result.title}]\n"
-                        f"URL: {result.url}\n"
-                        f"{result.content}"
+                        f"[Web Result {idx}: {result.title}]\nURL: {result.url}\n{result.content}"
                     )
                 web_search_text = "\n\n---\n\n".join(web_search_sections)
                 context_parts.append(f"Web Search Results:\n\n{web_search_text}")
@@ -1684,9 +1636,7 @@ async def process_query(
                 )
             else:
                 # No context available, use query as-is
-                logger.info(
-                    f"No context available for query {query_id}, using raw query"
-                )
+                logger.info(f"No context available for query {query_id}, using raw query")
 
             # Stage 1 model call
             try:
@@ -1706,9 +1656,7 @@ async def process_query(
                 )
             except Exception as e:
                 logger.error(f"Stage 1 model call failed: {e}")
-                raise HTTPException(
-                    status_code=500, detail=f"Stage 1 processing failed: {str(e)}"
-                )
+                raise HTTPException(status_code=500, detail=f"Stage 1 processing failed: {str(e)}")
 
             # STAGE 2: BALANCED or POWERFUL tier based on complexity
             stage2_start = time.time()
@@ -1716,21 +1664,15 @@ async def process_query(
             # Assess query complexity to determine Stage 2 tier
             complexity_assessment_start = time.perf_counter()
             try:
-                complexity = await assess_complexity(
-                    query=request.query, config=config.routing
-                )
+                complexity = await assess_complexity(query=request.query, config=config.routing)
                 # Select tier based on complexity (balanced for moderate, powerful for complex)
-                if complexity.score >= config.routing.complexity_thresholds.get(
-                    "powerful", 7.0
-                ):
+                if complexity.score >= config.routing.complexity_thresholds.get("powerful", 7.0):
                     stage2_tier = "powerful"
                 else:
                     stage2_tier = "balanced"
 
                 # Record routing decision for orchestrator telemetry
-                decision_time_ms = (
-                    time.perf_counter() - complexity_assessment_start
-                ) * 1000
+                decision_time_ms = (time.perf_counter() - complexity_assessment_start) * 1000
                 orchestrator_service = get_orchestrator_status_service()
                 orchestrator_service.record_routing_decision(
                     query=request.query,
@@ -1763,16 +1705,12 @@ async def process_query(
                     },
                 )
             except Exception as e:
-                logger.warning(
-                    f"Complexity assessment failed: {e}, defaulting to balanced tier"
-                )
+                logger.warning(f"Complexity assessment failed: {e}, defaulting to balanced tier")
                 stage2_tier = "balanced"
 
             try:
                 if not model_selector:
-                    raise HTTPException(
-                        status_code=503, detail="Model selector not initialized"
-                    )
+                    raise HTTPException(status_code=503, detail="Model selector not initialized")
                 stage2_model = await model_selector.select_model(stage2_tier)
                 stage2_model_id = stage2_model.model_id
                 logger.info(f"Stage 2 model selected: {stage2_model_id}")
@@ -1823,9 +1761,7 @@ Refined Response:"""
                 )
             except Exception as e:
                 logger.error(f"Stage 2 model call failed: {e}")
-                raise HTTPException(
-                    status_code=500, detail=f"Stage 2 processing failed: {str(e)}"
-                )
+                raise HTTPException(status_code=500, detail=f"Stage 2 processing failed: {str(e)}")
 
             # Build artifact info for metadata
             artifacts_info = []
@@ -1875,9 +1811,7 @@ Refined Response:"""
                 ]
                 if web_search_results
                 else None,
-                web_search_time_ms=web_search_time_ms
-                if web_search_time_ms > 0
-                else None,
+                web_search_time_ms=web_search_time_ms if web_search_time_ms > 0 else None,
                 web_search_count=len(web_search_results),
             )
 
@@ -1960,9 +1894,7 @@ Refined Response:"""
                 # Select model from tier
                 logger.debug(f"Selecting model for tier {tier}")
                 if not model_selector:
-                    raise HTTPException(
-                        status_code=503, detail="Model selector not initialized"
-                    )
+                    raise HTTPException(status_code=503, detail="Model selector not initialized")
                 model = await model_selector.select_model(tier)
                 model_id = model.model_id
 
@@ -1989,9 +1921,7 @@ Refined Response:"""
 
             if effective_web_search:
                 try:
-                    logger.info(
-                        f" Web search enabled for query {query_id} (simple mode)"
-                    )
+                    logger.info(f" Web search enabled for query {query_id} (simple mode)")
                     time.time()
 
                     # Get SearXNG client
@@ -2045,12 +1975,8 @@ Refined Response:"""
                     try:
                         # Determine path to FAISS index
                         project_root = Path(__file__).parent.parent.parent.parent
-                        index_path = (
-                            project_root / "data" / "faiss_indexes" / "docs.index"
-                        )
-                        metadata_path = (
-                            project_root / "data" / "faiss_indexes" / "docs.metadata"
-                        )
+                        index_path = project_root / "data" / "faiss_indexes" / "docs.index"
+                        metadata_path = project_root / "data" / "faiss_indexes" / "docs.metadata"
 
                         # Check if index exists
                         if index_path.exists() and metadata_path.exists():
@@ -2099,9 +2025,7 @@ Refined Response:"""
                             # Populate pipeline metadata
                             cgrag_metadata["artifacts_retrieved"] = len(cgrag_artifacts)
                             cgrag_metadata["tokens_used"] = cgrag_result.tokens_used
-                            cgrag_metadata["retrieval_time_ms"] = round(
-                                retrieval_time_ms, 2
-                            )
+                            cgrag_metadata["retrieval_time_ms"] = round(retrieval_time_ms, 2)
                             cgrag_metadata["cache_hit"] = cgrag_result.cache_hit
 
                             logger.info(
@@ -2135,9 +2059,7 @@ Refined Response:"""
                                     context_sections.append(
                                         f"[Source: {chunk.file_path} (chunk {chunk.chunk_index})]\n{chunk.content}"
                                     )
-                                cgrag_context_text = "\n\n---\n\n".join(
-                                    context_sections
-                                )
+                                cgrag_context_text = "\n\n---\n\n".join(context_sections)
                             else:
                                 cgrag_context_text = None
 
@@ -2182,9 +2104,7 @@ Refined Response:"""
                 web_search_sections = []
                 for idx, result in enumerate(web_search_results, 1):
                     web_search_sections.append(
-                        f"[Web Result {idx}: {result.title}]\n"
-                        f"URL: {result.url}\n"
-                        f"{result.content}"
+                        f"[Web Result {idx}: {result.title}]\nURL: {result.url}\n{result.content}"
                     )
                 web_search_text = "\n\n---\n\n".join(web_search_sections)
                 context_parts.append(f"Web Search Results:\n\n{web_search_text}")
@@ -2221,9 +2141,7 @@ Refined Response:"""
                 )
             else:
                 # No context available, use query as-is
-                logger.info(
-                    f"No context available for query {query_id}, using raw query"
-                )
+                logger.info(f"No context available for query {query_id}, using raw query")
 
             # STAGE 5: GENERATION (Model Inference)
             async with tracker.stage("generation") as gen_metadata:
@@ -2236,9 +2154,7 @@ Refined Response:"""
                         "max_tokens": request.max_tokens,
                         "temperature": request.temperature,
                         "has_context": len(cgrag_artifacts) > 0,
-                        "time_before_model_call_ms": round(
-                            (time.time() - start_time) * 1000, 2
-                        ),
+                        "time_before_model_call_ms": round((time.time() - start_time) * 1000, 2),
                     },
                 )
 
@@ -2264,9 +2180,7 @@ Refined Response:"""
                         "query_id": query_id,
                         "total_time_ms": round(processing_time_ms, 2),
                         "model_call_time_ms": round(model_call_time_ms, 2),
-                        "overhead_ms": round(
-                            processing_time_ms - model_call_time_ms, 2
-                        ),
+                        "overhead_ms": round(processing_time_ms - model_call_time_ms, 2),
                         "cgrag_enabled": request.use_context,
                         "tokens_generated": result.get("tokens_predicted", 0),
                     },
@@ -2314,9 +2228,7 @@ Refined Response:"""
                     ]
                     if web_search_results
                     else None,
-                    web_search_time_ms=web_search_time_ms
-                    if web_search_time_ms > 0
-                    else None,
+                    web_search_time_ms=web_search_time_ms if web_search_time_ms > 0 else None,
                     web_search_count=len(web_search_results),
                 )
 
@@ -2357,9 +2269,7 @@ Refined Response:"""
             # COUNCIL MODE: CONSENSUS OR ADVERSARIAL
             # ================================================================
             is_adversarial = request.council_adversarial
-            logger.info(
-                f" Council mode: {'Adversarial' if is_adversarial else 'Consensus'}"
-            )
+            logger.info(f" Council mode: {'Adversarial' if is_adversarial else 'Consensus'}")
 
             if is_adversarial:
                 # Debate mode: 2 models, opposing arguments
@@ -2403,14 +2313,10 @@ Refined Response:"""
 
             # Collect all enabled models from registry
             if not model_registry:
-                raise HTTPException(
-                    status_code=503, detail="Model registry not available"
-                )
+                raise HTTPException(status_code=503, detail="Model registry not available")
 
             enabled_models = [
-                model_id
-                for model_id, model in model_registry.models.items()
-                if model.enabled
+                model_id for model_id, model in model_registry.models.items() if model.enabled
             ]
 
             if not enabled_models:
@@ -2469,9 +2375,7 @@ Refined Response:"""
                     )
 
                 except Exception as e:
-                    logger.warning(
-                        f" Web search failed for benchmark query {query_id}: {e}"
-                    )
+                    logger.warning(f" Web search failed for benchmark query {query_id}: {e}")
 
             # CGRAG retrieval (if enabled)
             cgrag_context_text = None
@@ -2480,15 +2384,11 @@ Refined Response:"""
                     # Determine path to FAISS index
                     project_root = Path(__file__).parent.parent.parent.parent
                     index_path = project_root / "data" / "faiss_indexes" / "docs.index"
-                    metadata_path = (
-                        project_root / "data" / "faiss_indexes" / "docs.metadata"
-                    )
+                    metadata_path = project_root / "data" / "faiss_indexes" / "docs.metadata"
 
                     # Check if index exists
                     if index_path.exists() and metadata_path.exists():
-                        logger.debug(
-                            f"Loading CGRAG index for benchmark query {query_id}"
-                        )
+                        logger.debug(f"Loading CGRAG index for benchmark query {query_id}")
 
                         # Load CGRAG indexer
                         cgrag_indexer = CGRAGIndexer.load_index(
@@ -2539,9 +2439,7 @@ Refined Response:"""
                         logger.warning(f"CGRAG index not found at {index_path}")
 
                 except Exception as e:
-                    logger.warning(
-                        f" CGRAG retrieval failed for benchmark query {query_id}: {e}"
-                    )
+                    logger.warning(f" CGRAG retrieval failed for benchmark query {query_id}: {e}")
 
             # Build final prompt with web search and CGRAG context
             # Build final prompt with context (include system prompt at beginning)
@@ -2566,9 +2464,7 @@ Refined Response:"""
                 if instance_system_prompt and not web_search_results:
                     initial_prompt = f"{system_prompt_section}Context:\n{cgrag_context_text}\n\nQuestion: {request.query}"
                 else:
-                    initial_prompt = (
-                        f"Context:\n{cgrag_context_text}\n\n{initial_prompt}"
-                    )
+                    initial_prompt = f"Context:\n{cgrag_context_text}\n\n{initial_prompt}"
 
             # =================================================================
             # Phase C: Model Execution
@@ -2611,9 +2507,7 @@ Refined Response:"""
                         )
 
                         # Extract metadata from result
-                        token_count = result.get(
-                            "tokens_generated", len(response_text.split())
-                        )
+                        token_count = result.get("tokens_generated", len(response_text.split()))
                         char_count = len(response_text)
 
                         benchmark_results.append(
@@ -2710,9 +2604,7 @@ Refined Response:"""
                                     "model_id": model_id,
                                     "model_tier": model.tier or "unknown",
                                     "response": "",
-                                    "response_time_ms": int(
-                                        (time.time() - batch_start) * 1000
-                                    ),
+                                    "response_time_ms": int((time.time() - batch_start) * 1000),
                                     "token_count": 0,
                                     "char_count": 0,
                                     "success": False,
@@ -2726,9 +2618,7 @@ Refined Response:"""
                         else:
                             # Model succeeded
                             response_text = result.get("content", "")
-                            token_count = result.get(
-                                "tokens_generated", len(response_text.split())
-                            )
+                            token_count = result.get("tokens_generated", len(response_text.split()))
                             char_count = len(response_text)
 
                             # Estimate VRAM (handle both string and enum quantization values)
@@ -2792,12 +2682,8 @@ Refined Response:"""
             avg_time = sum(response_times) // len(response_times)
 
             # Find fastest/slowest models
-            fastest_result = min(
-                successful_results, key=lambda r: r["response_time_ms"]
-            )
-            slowest_result = max(
-                successful_results, key=lambda r: r["response_time_ms"]
-            )
+            fastest_result = min(successful_results, key=lambda r: r["response_time_ms"])
+            slowest_result = max(successful_results, key=lambda r: r["response_time_ms"])
 
             # Token metrics
             total_tokens = sum(r["token_count"] for r in successful_results)

@@ -14,18 +14,19 @@ Phase: 4 - Selective Server Launcher
 
 import asyncio
 import logging
+import os
 import subprocess
 import threading
-import httpx
-import os
-from pathlib import Path
-from typing import Dict, Optional, List, TYPE_CHECKING
 from datetime import datetime
+from pathlib import Path
+from typing import TYPE_CHECKING, Dict, List, Optional
 
-from app.models.discovered_model import DiscoveredModel
+import httpx
+
 from app.core.exceptions import SynapseException
+from app.models.discovered_model import DiscoveredModel
 from app.services import runtime_settings as settings_service
-from app.services.event_emitter import emit_model_state_event, emit_error_event
+from app.services.event_emitter import emit_error_event, emit_model_state_event
 
 # Avoid circular import at runtime
 if TYPE_CHECKING:
@@ -254,16 +255,10 @@ class LlamaServerManager:
         settings = settings_service.get_runtime_settings()
 
         # Phase 2: Use per-model overrides if set, otherwise use global settings
-        gpu_layers = (
-            model.n_gpu_layers
-            if model.n_gpu_layers is not None
-            else settings.n_gpu_layers
-        )
+        gpu_layers = model.n_gpu_layers if model.n_gpu_layers is not None else settings.n_gpu_layers
         ctx_size = model.ctx_size if model.ctx_size is not None else settings.ctx_size
         threads = model.n_threads if model.n_threads is not None else settings.threads
-        batch_size = (
-            model.batch_size if model.batch_size is not None else settings.batch_size
-        )
+        batch_size = model.batch_size if model.batch_size is not None else settings.batch_size
 
         logger.info(
             f"Runtime settings for {model.model_id}: "
@@ -318,9 +313,7 @@ class LlamaServerManager:
             server = ServerProcess(model=model, process=process)
             self.servers[model.model_id] = server
 
-            logger.info(
-                f"Launched llama-server process: PID {process.pid} on port {model.port}"
-            )
+            logger.info(f"Launched llama-server process: PID {process.pid} on port {model.port}")
 
             # Emit model state event: loading -> active
             try:
@@ -338,9 +331,7 @@ class LlamaServerManager:
 
             # Start log streaming thread (if WebSocket manager available)
             if self.websocket_manager:
-                log_thread = threading.Thread(
-                    target=self._stream_logs, args=(server,), daemon=True
-                )
+                log_thread = threading.Thread(target=self._stream_logs, args=(server,), daemon=True)
                 log_thread.start()
                 logger.debug(f"Started log streaming thread for {model.model_id}")
 
@@ -350,9 +341,7 @@ class LlamaServerManager:
             return server
 
         except Exception as e:
-            logger.error(
-                f"Failed to start server for {model.model_id}: {e}", exc_info=True
-            )
+            logger.error(f"Failed to start server for {model.model_id}: {e}", exc_info=True)
 
             # Emit error event
             try:
@@ -376,9 +365,7 @@ class LlamaServerManager:
                 },
             )
 
-    async def _connect_to_external_server(
-        self, model: DiscoveredModel
-    ) -> ServerProcess:
+    async def _connect_to_external_server(self, model: DiscoveredModel) -> ServerProcess:
         """Connect to externally-managed llama-server (Metal acceleration mode).
 
         Instead of launching a subprocess, this checks if a server is already
@@ -394,9 +381,7 @@ class LlamaServerManager:
         Raises:
             SynapseException: If external server is not reachable
         """
-        logger.info(
-            f"🔌 Connecting to external Metal-accelerated server on port {model.port}..."
-        )
+        logger.info(f"🔌 Connecting to external Metal-accelerated server on port {model.port}...")
 
         # Check health endpoint on host (via host.docker.internal)
         health_url = f"http://host.docker.internal:{model.port}/health"
@@ -447,9 +432,7 @@ class LlamaServerManager:
         try:
             async with httpx.AsyncClient(timeout=10.0) as client:
                 # Check host API status
-                status_response = await client.get(
-                    f"{self.host_api_url}/api/servers/status"
-                )
+                status_response = await client.get(f"{self.host_api_url}/api/servers/status")
                 status_data = status_response.json()
 
                 if status_data.get("running"):
@@ -553,15 +536,11 @@ class LlamaServerManager:
                             "ready to receive requests",
                         ]
 
-                        if any(
-                            indicator in line_lower
-                            for indicator in readiness_indicators
-                        ):
+                        if any(indicator in line_lower for indicator in readiness_indicators):
                             server.is_ready = True
                             elapsed = server.get_uptime_seconds()
                             logger.info(
-                                f"✓ {server.model.model_id} is READY "
-                                f"(startup took {elapsed}s)"
+                                f"✓ {server.model.model_id} is READY (startup took {elapsed}s)"
                             )
 
                             # Emit model state event: loading -> active
@@ -588,9 +567,7 @@ class LlamaServerManager:
                         ]
 
                         if any(error in line_lower for error in error_indicators):
-                            logger.error(
-                                f"Critical error during startup: {line.strip()}"
-                            )
+                            logger.error(f"Critical error during startup: {line.strip()}")
                             raise SynapseException(
                                 f"Server startup failed with error: {line.strip()}",
                                 details={"model_id": server.model.model_id},
@@ -656,11 +633,7 @@ class LlamaServerManager:
                 level = "INFO"
                 line_lower = line.lower()
 
-                if (
-                    "error" in line_lower
-                    or "failed" in line_lower
-                    or "exception" in line_lower
-                ):
+                if "error" in line_lower or "failed" in line_lower or "exception" in line_lower:
                     level = "ERROR"
                 elif "warn" in line_lower or "warning" in line_lower:
                     level = "WARN"
@@ -682,16 +655,12 @@ class LlamaServerManager:
                     logger.debug(f"Failed to broadcast log: {e}")
 
         except Exception as e:
-            logger.error(
-                f"Log streaming error for {server.model.model_id}: {e}", exc_info=True
-            )
+            logger.error(f"Log streaming error for {server.model.model_id}: {e}", exc_info=True)
 
         finally:
             logger.info(f"Log stream ended for {server.model.model_id}")
 
-    async def start_all(
-        self, models: List[DiscoveredModel]
-    ) -> Dict[str, ServerProcess]:
+    async def start_all(self, models: List[DiscoveredModel]) -> Dict[str, ServerProcess]:
         """Start servers for multiple models concurrently.
 
         Launches all model servers in parallel using asyncio.gather for
@@ -711,9 +680,7 @@ class LlamaServerManager:
         # Ensure Metal servers are started via host API (if external mode)
         await self._ensure_metal_servers_started()
 
-        logger.info(
-            f"Starting llama.cpp servers for {len(models)} models concurrently..."
-        )
+        logger.info(f"Starting llama.cpp servers for {len(models)} models concurrently...")
 
         # Create startup tasks for all models
         tasks = [self.start_server(model) for model in models]
@@ -839,19 +806,13 @@ class LlamaServerManager:
                     )
 
                     if stop_response.status_code == 200:
-                        logger.info(
-                            "✓ Metal servers stopped successfully via host API"
-                        )
+                        logger.info("✓ Metal servers stopped successfully via host API")
                         # Clear internal server tracking
                         self.servers.clear()
                         return
                     else:
-                        error_detail = stop_response.json().get(
-                            "detail", "Unknown error"
-                        )
-                        logger.error(
-                            f"✗ Host API failed to stop servers: {error_detail}"
-                        )
+                        error_detail = stop_response.json().get("detail", "Unknown error")
+                        logger.error(f"✗ Host API failed to stop servers: {error_detail}")
                         raise SynapseException(
                             f"Host API failed to stop servers: {error_detail}",
                             details={"status_code": stop_response.status_code},
@@ -876,8 +837,7 @@ class LlamaServerManager:
         # Create stop tasks for all servers
         # Use list() to snapshot keys since dict will be modified
         tasks = [
-            self.stop_server(model_id, timeout=timeout)
-            for model_id in list(self.servers.keys())
+            self.stop_server(model_id, timeout=timeout) for model_id in list(self.servers.keys())
         ]
 
         # Execute concurrently, ignoring individual failures

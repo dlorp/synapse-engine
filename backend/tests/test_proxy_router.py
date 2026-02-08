@@ -9,6 +9,7 @@ Tests cover:
 """
 
 from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
@@ -125,9 +126,7 @@ class TestProxyChatCompletions:
         assert "choices" in response.json()
 
     @patch("app.routers.proxy.httpx.AsyncClient")
-    def test_connection_error_returns_502(
-        self, mock_client_class, client, mock_server_manager
-    ):
+    def test_connection_error_returns_502(self, mock_client_class, client, mock_server_manager):
         """Should return 502 when connection to model server fails."""
         mock_client = MagicMock()
         mock_client.__aenter__ = AsyncMock(return_value=mock_client)
@@ -194,9 +193,7 @@ class TestProxyHealthCheck:
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
     @patch("app.routers.proxy.httpx.AsyncClient")
-    def test_successful_health_check(
-        self, mock_client_class, client, mock_server_manager
-    ):
+    def test_successful_health_check(self, mock_client_class, client, mock_server_manager):
         """Should return proxied health check response."""
         mock_response = MagicMock()
         mock_response.status_code = 200
@@ -230,9 +227,7 @@ class TestProxyHealthCheck:
         assert response.status_code == status.HTTP_503_SERVICE_UNAVAILABLE
         assert response.json()["status"] == "unreachable"
 
-    def test_returns_503_when_manager_not_initialized(
-        self, client, no_server_manager
-    ):
+    def test_returns_503_when_manager_not_initialized(self, client, no_server_manager):
         """Should raise 503 when server manager is None."""
         response = client.get("/api/proxy/test_model/health")
 
@@ -244,9 +239,7 @@ class TestProxyPostRequestHelper:
     """Tests for _proxy_post_request helper function."""
 
     @patch("app.routers.proxy.httpx.AsyncClient")
-    def test_uses_correct_timeout(
-        self, mock_client_class, client, mock_server_manager
-    ):
+    def test_uses_correct_timeout(self, mock_client_class, client, mock_server_manager):
         """Should use 300s timeout for LLM inference requests."""
         mock_response = MagicMock()
         mock_response.status_code = 200
@@ -268,9 +261,7 @@ class TestProxyPostRequestHelper:
         mock_client_class.assert_called_with(timeout=300.0)
 
     @patch("app.routers.proxy.httpx.AsyncClient")
-    def test_forwards_request_body(
-        self, mock_client_class, client, mock_server_manager
-    ):
+    def test_forwards_request_body(self, mock_client_class, client, mock_server_manager):
         """Should forward the request body to target server."""
         mock_response = MagicMock()
         mock_response.status_code = 200

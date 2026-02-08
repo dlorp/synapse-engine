@@ -5,7 +5,7 @@ through FastAPI's dependency injection system.
 """
 
 import logging
-from typing import Annotated, TYPE_CHECKING
+from typing import TYPE_CHECKING, Annotated
 
 from fastapi import Depends, Request
 

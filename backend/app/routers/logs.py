@@ -16,7 +16,7 @@ Task: Comprehensive Log Aggregation and Streaming System
 
 from typing import List, Optional
 
-from fastapi import APIRouter, Query, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from app.core.logging import get_logger
@@ -172,9 +172,7 @@ async def get_logs(
 
     except RuntimeError as e:
         logger.error(f"Log aggregator not initialized: {e}")
-        raise HTTPException(
-            status_code=503, detail="Log aggregation service not available"
-        )
+        raise HTTPException(status_code=503, detail="Log aggregation service not available")
     except Exception as e:
         logger.error(f"Error querying logs: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Failed to query logs: {str(e)}")
@@ -212,14 +210,10 @@ async def get_log_sources() -> LogSourcesResponse:
 
     except RuntimeError as e:
         logger.error(f"Log aggregator not initialized: {e}")
-        raise HTTPException(
-            status_code=503, detail="Log aggregation service not available"
-        )
+        raise HTTPException(status_code=503, detail="Log aggregation service not available")
     except Exception as e:
         logger.error(f"Error retrieving log sources: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500, detail=f"Failed to retrieve log sources: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve log sources: {str(e)}")
 
 
 @router.get("/stats", response_model=LogStatsResponse)
@@ -262,14 +256,10 @@ async def get_log_stats() -> LogStatsResponse:
 
     except RuntimeError as e:
         logger.error(f"Log aggregator not initialized: {e}")
-        raise HTTPException(
-            status_code=503, detail="Log aggregation service not available"
-        )
+        raise HTTPException(status_code=503, detail="Log aggregation service not available")
     except Exception as e:
         logger.error(f"Error retrieving log stats: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500, detail=f"Failed to retrieve log statistics: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve log statistics: {str(e)}")
 
 
 @router.delete("/", response_model=ClearLogsResponse)
@@ -320,9 +310,7 @@ async def clear_logs() -> ClearLogsResponse:
 
     except RuntimeError as e:
         logger.error(f"Log aggregator not initialized: {e}")
-        raise HTTPException(
-            status_code=503, detail="Log aggregation service not available"
-        )
+        raise HTTPException(status_code=503, detail="Log aggregation service not available")
     except Exception as e:
         logger.error(f"Error clearing logs: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Failed to clear logs: {str(e)}")

@@ -10,10 +10,11 @@ Author: Backend Architect Agent
 Date: 2025-11-30
 """
 
-import pytest
 from pathlib import Path
 
-from app.models.discovered_model import DiscoveredModel, QuantizationLevel, ModelTier
+import pytest
+
+from app.models.discovered_model import DiscoveredModel, ModelTier, QuantizationLevel
 
 
 class TestCGRAGContextEdgeCases:
@@ -193,8 +194,7 @@ class TestQueryRouterIntegration:
         required_inits = ["cgrag_context_text = None", "cgrag_artifacts = []"]
         for init_pattern in required_inits:
             assert init_pattern in source, (
-                f"Defensive initialization pattern '{init_pattern}' "
-                "should exist in query.py"
+                f"Defensive initialization pattern '{init_pattern}' should exist in query.py"
             )
 
 
@@ -275,11 +275,7 @@ class TestPerformanceRegression:
 
         # With isinstance (safe)
         def safe_access():
-            return (
-                enum_val.upper()
-                if isinstance(enum_val, str)
-                else enum_val.value.upper()
-            )
+            return enum_val.upper() if isinstance(enum_val, str) else enum_val.value.upper()
 
         unsafe_time = timeit.timeit(unsafe_access, number=100000)
         safe_time = timeit.timeit(safe_access, number=100000)

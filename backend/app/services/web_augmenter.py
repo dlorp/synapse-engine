@@ -5,8 +5,8 @@ Converts SearXNG search results to DocumentChunk format for unified pipeline pro
 """
 
 import logging
-from typing import List
 from datetime import datetime
+from typing import List
 
 logger = logging.getLogger(__name__)
 

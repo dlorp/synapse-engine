@@ -8,7 +8,6 @@ The service maintains thread-safe circular buffers of time-series data and
 provides real-time statistics for visualization in the frontend.
 """
 
-import psutil
 import time
 from collections import defaultdict, deque
 from datetime import datetime, timezone
@@ -16,24 +15,25 @@ from pathlib import Path
 from threading import Lock
 from typing import Any, Deque, Optional
 
+import psutil
+
 from app.core.logging import get_logger
 from app.models.metrics import (
+    AccuracyMetrics,
+    CPUMetrics,
+    DiskIOMetrics,
+    MemoryMetrics,
+    ModelAvailability,
+    NetworkThroughputMetrics,
     QueryMetrics,
+    ResourceMetrics,
+    RoutingDecisionMatrix,
+    RoutingMetrics,
+    ThreadPoolStatus,
     TierMetrics,
     TierMetricsResponse,
-    ResourceMetrics,
-    RoutingMetrics,
     VRAMMetrics,
-    CPUMetrics,
-    MemoryMetrics,
-    ThreadPoolStatus,
-    DiskIOMetrics,
-    NetworkThroughputMetrics,
-    RoutingDecisionMatrix,
-    AccuracyMetrics,
-    ModelAvailability,
 )
-
 
 logger = get_logger(__name__)
 
@@ -241,9 +241,7 @@ class MetricsCollector:
                 timestamps.insert(0, timestamp.isoformat())
 
                 # Count queries in this 10s bucket
-                count = sum(
-                    1 for ts, _, _ in recent_queries if bucket_end >= ts >= bucket_start
-                )
+                count = sum(1 for ts, _, _ in recent_queries if bucket_end >= ts >= bucket_start)
                 query_rate.insert(0, count / 10.0)  # Convert to queries/sec
 
             # Calculate totals
@@ -503,9 +501,7 @@ class MetricsCollector:
             self.last_disk_io = disk_io
             self.last_io_check = now
 
-            return DiskIOMetrics(
-                read_mbps=round(read_mbps, 2), write_mbps=round(write_mbps, 2)
-            )
+            return DiskIOMetrics(read_mbps=round(read_mbps, 2), write_mbps=round(write_mbps, 2))
 
         except Exception as e:
             logger.warning(f"Failed to get disk I/O metrics: {e}")
@@ -539,9 +535,7 @@ class MetricsCollector:
             # Update last reading
             self.last_network_io = net_io
 
-            return NetworkThroughputMetrics(
-                rx_mbps=round(rx_mbps, 2), tx_mbps=round(tx_mbps, 2)
-            )
+            return NetworkThroughputMetrics(rx_mbps=round(rx_mbps, 2), tx_mbps=round(tx_mbps, 2))
 
         except Exception as e:
             logger.warning(f"Failed to get network metrics: {e}")

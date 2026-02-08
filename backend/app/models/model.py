@@ -223,9 +223,7 @@ class HealthResponse(BaseModel):
 
     status: str = Field(..., description="Health status: ok, degraded, error")
     uptime: float = Field(..., ge=0, description="Uptime in seconds")
-    components: Dict[str, str] = Field(
-        default_factory=dict, description="Component health status"
-    )
+    components: Dict[str, str] = Field(default_factory=dict, description="Component health status")
     trace_id: Optional[str] = Field(
         default=None,
         serialization_alias="traceId",

@@ -13,17 +13,17 @@ profile-based model management.
 
 import logging
 import os
+from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
-from datetime import datetime
 
-from app.services.model_discovery import ModelDiscoveryService
-from app.services.llama_server_manager import LlamaServerManager
-from app.services.profile_manager import ProfileManager
-from app.models.discovered_model import ModelRegistry, DiscoveredModel
-from app.models.profile import ModelProfile
-from app.models.config import AppConfig
 from app.core.exceptions import SynapseException
+from app.models.config import AppConfig
+from app.models.discovered_model import DiscoveredModel, ModelRegistry
+from app.models.profile import ModelProfile
+from app.services.llama_server_manager import LlamaServerManager
+from app.services.model_discovery import ModelDiscoveryService
+from app.services.profile_manager import ProfileManager
 
 logger = logging.getLogger(__name__)
 
@@ -131,9 +131,7 @@ class StartupService:
         registry_path = Path(os.getenv("REGISTRY_PATH", "data/model_registry.json"))
 
         # Initialize discovery service
-        self.discovery_service = ModelDiscoveryService(
-            scan_path=scan_path, port_range=(8080, 8099)
-        )
+        self.discovery_service = ModelDiscoveryService(scan_path=scan_path, port_range=(8080, 8099))
 
         # Load cached registry or discover
         if registry_path.exists():
@@ -183,9 +181,7 @@ class StartupService:
                     profile, list(self.registry.models.keys())
                 )
                 if missing:
-                    logger.warning(
-                        f"Profile references {len(missing)} missing models: {missing}"
-                    )
+                    logger.warning(f"Profile references {len(missing)} missing models: {missing}")
 
             return profile
 
@@ -223,16 +219,12 @@ class StartupService:
             return
 
         # Get llama-server path
-        llama_server_path = Path(
-            os.getenv("LLAMA_SERVER_PATH", "/usr/local/bin/llama-server")
-        )
+        llama_server_path = Path(os.getenv("LLAMA_SERVER_PATH", "/usr/local/bin/llama-server"))
 
         # Check for external server mode (Metal acceleration on macOS)
         use_external_servers_env = os.getenv("USE_EXTERNAL_SERVERS", "false")
         use_external_servers = use_external_servers_env.lower() == "true"
-        logger.info(
-            f" DEBUG: USE_EXTERNAL_SERVERS env var = '{use_external_servers_env}'"
-        )
+        logger.info(f" DEBUG: USE_EXTERNAL_SERVERS env var = '{use_external_servers_env}'")
         logger.info(f" DEBUG: use_external_servers flag = {use_external_servers}")
 
         # Initialize server manager

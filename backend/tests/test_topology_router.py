@@ -13,21 +13,20 @@ Author: Backend Architect Agent
 """
 
 from datetime import datetime, timezone
-from unittest.mock import patch, MagicMock, AsyncMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from app.routers import topology
 from app.models.topology import (
-    ComponentNode,
     ComponentConnection,
+    ComponentNode,
     DataFlowPath,
     HealthMetrics,
     SystemTopology,
 )
-
+from app.routers import topology
 
 # =============================================================================
 # Test Fixtures
@@ -156,9 +155,7 @@ class TestGetSystemTopology:
         mock_manager = MagicMock()
         mock_manager.get_topology = AsyncMock(return_value=sample_topology)
 
-        with patch(
-            "app.routers.topology.get_topology_manager", return_value=mock_manager
-        ):
+        with patch("app.routers.topology.get_topology_manager", return_value=mock_manager):
             response = client.get("/api/topology/")
 
         assert response.status_code == 200
@@ -178,9 +175,7 @@ class TestGetSystemTopology:
         mock_manager = MagicMock()
         mock_manager.get_topology = AsyncMock(return_value=sample_topology)
 
-        with patch(
-            "app.routers.topology.get_topology_manager", return_value=mock_manager
-        ):
+        with patch("app.routers.topology.get_topology_manager", return_value=mock_manager):
             response = client.get("/api/topology/")
 
         data = response.json()
@@ -198,9 +193,7 @@ class TestGetSystemTopology:
         mock_manager = MagicMock()
         mock_manager.get_topology = AsyncMock(return_value=sample_topology)
 
-        with patch(
-            "app.routers.topology.get_topology_manager", return_value=mock_manager
-        ):
+        with patch("app.routers.topology.get_topology_manager", return_value=mock_manager):
             response = client.get("/api/topology/")
 
         data = response.json()
@@ -227,13 +220,9 @@ class TestGetSystemTopology:
     def test_get_topology_internal_error(self, client):
         """Return 500 on internal error."""
         mock_manager = MagicMock()
-        mock_manager.get_topology = AsyncMock(
-            side_effect=Exception("Database connection failed")
-        )
+        mock_manager.get_topology = AsyncMock(side_effect=Exception("Database connection failed"))
 
-        with patch(
-            "app.routers.topology.get_topology_manager", return_value=mock_manager
-        ):
+        with patch("app.routers.topology.get_topology_manager", return_value=mock_manager):
             response = client.get("/api/topology/")
 
         assert response.status_code == 500
@@ -251,9 +240,7 @@ class TestGetSystemTopology:
         mock_manager = MagicMock()
         mock_manager.get_topology = AsyncMock(return_value=degraded_topology)
 
-        with patch(
-            "app.routers.topology.get_topology_manager", return_value=mock_manager
-        ):
+        with patch("app.routers.topology.get_topology_manager", return_value=mock_manager):
             response = client.get("/api/topology/")
 
         assert response.status_code == 200
@@ -271,13 +258,9 @@ class TestGetComponentHealth:
     def test_get_component_health_success(self, client, sample_health_metrics):
         """Successfully retrieve component health metrics."""
         mock_manager = MagicMock()
-        mock_manager.get_component_health = AsyncMock(
-            return_value=sample_health_metrics
-        )
+        mock_manager.get_component_health = AsyncMock(return_value=sample_health_metrics)
 
-        with patch(
-            "app.routers.topology.get_topology_manager", return_value=mock_manager
-        ):
+        with patch("app.routers.topology.get_topology_manager", return_value=mock_manager):
             response = client.get("/api/topology/health/orchestrator")
 
         assert response.status_code == 200
@@ -296,9 +279,7 @@ class TestGetComponentHealth:
         mock_manager = MagicMock()
         mock_manager.get_component_health = AsyncMock(return_value=None)
 
-        with patch(
-            "app.routers.topology.get_topology_manager", return_value=mock_manager
-        ):
+        with patch("app.routers.topology.get_topology_manager", return_value=mock_manager):
             response = client.get("/api/topology/health/unknown-component")
 
         assert response.status_code == 404
@@ -318,13 +299,9 @@ class TestGetComponentHealth:
     def test_get_component_health_internal_error(self, client):
         """Return 500 on internal error."""
         mock_manager = MagicMock()
-        mock_manager.get_component_health = AsyncMock(
-            side_effect=Exception("Health check failed")
-        )
+        mock_manager.get_component_health = AsyncMock(side_effect=Exception("Health check failed"))
 
-        with patch(
-            "app.routers.topology.get_topology_manager", return_value=mock_manager
-        ):
+        with patch("app.routers.topology.get_topology_manager", return_value=mock_manager):
             response = client.get("/api/topology/health/orchestrator")
 
         assert response.status_code == 500
@@ -346,9 +323,7 @@ class TestGetComponentHealth:
         mock_manager = MagicMock()
         mock_manager.get_component_health = AsyncMock(return_value=unhealthy_metrics)
 
-        with patch(
-            "app.routers.topology.get_topology_manager", return_value=mock_manager
-        ):
+        with patch("app.routers.topology.get_topology_manager", return_value=mock_manager):
             response = client.get("/api/topology/health/q3_balanced_1")
 
         assert response.status_code == 200
@@ -360,9 +335,7 @@ class TestGetComponentHealth:
         mock_manager = MagicMock()
         mock_manager.get_component_health = AsyncMock(return_value=None)
 
-        with patch(
-            "app.routers.topology.get_topology_manager", return_value=mock_manager
-        ):
+        with patch("app.routers.topology.get_topology_manager", return_value=mock_manager):
             # URL-encoded special characters
             response = client.get("/api/topology/health/component_with-dash.and_underscore")
 
@@ -382,12 +355,8 @@ class TestGetDataFlowPath:
         mock_manager = MagicMock()
         mock_manager.get_data_flow_path = AsyncMock(return_value=sample_data_flow)
 
-        with patch(
-            "app.routers.topology.get_topology_manager", return_value=mock_manager
-        ):
-            response = client.get(
-                "/api/topology/dataflow/550e8400-e29b-41d4-a716-446655440000"
-            )
+        with patch("app.routers.topology.get_topology_manager", return_value=mock_manager):
+            response = client.get("/api/topology/dataflow/550e8400-e29b-41d4-a716-446655440000")
 
         assert response.status_code == 200
         data = response.json()
@@ -404,9 +373,7 @@ class TestGetDataFlowPath:
         mock_manager = MagicMock()
         mock_manager.get_data_flow_path = AsyncMock(return_value=None)
 
-        with patch(
-            "app.routers.topology.get_topology_manager", return_value=mock_manager
-        ):
+        with patch("app.routers.topology.get_topology_manager", return_value=mock_manager):
             response = client.get("/api/topology/dataflow/unknown-query-id")
 
         assert response.status_code == 404
@@ -430,9 +397,7 @@ class TestGetDataFlowPath:
             side_effect=Exception("Data flow lookup failed")
         )
 
-        with patch(
-            "app.routers.topology.get_topology_manager", return_value=mock_manager
-        ):
+        with patch("app.routers.topology.get_topology_manager", return_value=mock_manager):
             response = client.get("/api/topology/dataflow/some-query-id")
 
         assert response.status_code == 500
@@ -453,9 +418,7 @@ class TestGetDataFlowPath:
         mock_manager = MagicMock()
         mock_manager.get_data_flow_path = AsyncMock(return_value=active_flow)
 
-        with patch(
-            "app.routers.topology.get_topology_manager", return_value=mock_manager
-        ):
+        with patch("app.routers.topology.get_topology_manager", return_value=mock_manager):
             response = client.get("/api/topology/dataflow/active-query")
 
         assert response.status_code == 200
@@ -473,9 +436,7 @@ class TestGetDataFlowPath:
         mock_manager = MagicMock()
         mock_manager.get_data_flow_path = AsyncMock(return_value=failed_flow)
 
-        with patch(
-            "app.routers.topology.get_topology_manager", return_value=mock_manager
-        ):
+        with patch("app.routers.topology.get_topology_manager", return_value=mock_manager):
             response = client.get("/api/topology/dataflow/failed-query")
 
         assert response.status_code == 200
@@ -495,9 +456,7 @@ class TestGetTopologyNodes:
         mock_manager = MagicMock()
         mock_manager.get_topology = AsyncMock(return_value=sample_topology)
 
-        with patch(
-            "app.routers.topology.get_topology_manager", return_value=mock_manager
-        ):
+        with patch("app.routers.topology.get_topology_manager", return_value=mock_manager):
             response = client.get("/api/topology/nodes")
 
         assert response.status_code == 200
@@ -517,9 +476,7 @@ class TestGetTopologyNodes:
         mock_manager = MagicMock()
         mock_manager.get_topology = AsyncMock(return_value=sample_topology)
 
-        with patch(
-            "app.routers.topology.get_topology_manager", return_value=mock_manager
-        ):
+        with patch("app.routers.topology.get_topology_manager", return_value=mock_manager):
             response = client.get("/api/topology/nodes")
 
         data = response.json()
@@ -546,13 +503,9 @@ class TestGetTopologyNodes:
     def test_get_nodes_internal_error(self, client):
         """Return 500 on internal error."""
         mock_manager = MagicMock()
-        mock_manager.get_topology = AsyncMock(
-            side_effect=Exception("Failed to load nodes")
-        )
+        mock_manager.get_topology = AsyncMock(side_effect=Exception("Failed to load nodes"))
 
-        with patch(
-            "app.routers.topology.get_topology_manager", return_value=mock_manager
-        ):
+        with patch("app.routers.topology.get_topology_manager", return_value=mock_manager):
             response = client.get("/api/topology/nodes")
 
         assert response.status_code == 500
@@ -570,9 +523,7 @@ class TestGetTopologyNodes:
         mock_manager = MagicMock()
         mock_manager.get_topology = AsyncMock(return_value=empty_nodes_topology)
 
-        with patch(
-            "app.routers.topology.get_topology_manager", return_value=mock_manager
-        ):
+        with patch("app.routers.topology.get_topology_manager", return_value=mock_manager):
             response = client.get("/api/topology/nodes")
 
         assert response.status_code == 200
@@ -592,9 +543,7 @@ class TestGetTopologyConnections:
         mock_manager = MagicMock()
         mock_manager.get_topology = AsyncMock(return_value=sample_topology)
 
-        with patch(
-            "app.routers.topology.get_topology_manager", return_value=mock_manager
-        ):
+        with patch("app.routers.topology.get_topology_manager", return_value=mock_manager):
             response = client.get("/api/topology/connections")
 
         assert response.status_code == 200
@@ -614,9 +563,7 @@ class TestGetTopologyConnections:
         mock_manager = MagicMock()
         mock_manager.get_topology = AsyncMock(return_value=sample_topology)
 
-        with patch(
-            "app.routers.topology.get_topology_manager", return_value=mock_manager
-        ):
+        with patch("app.routers.topology.get_topology_manager", return_value=mock_manager):
             response = client.get("/api/topology/connections")
 
         data = response.json()
@@ -643,13 +590,9 @@ class TestGetTopologyConnections:
     def test_get_connections_internal_error(self, client):
         """Return 500 on internal error."""
         mock_manager = MagicMock()
-        mock_manager.get_topology = AsyncMock(
-            side_effect=Exception("Failed to load connections")
-        )
+        mock_manager.get_topology = AsyncMock(side_effect=Exception("Failed to load connections"))
 
-        with patch(
-            "app.routers.topology.get_topology_manager", return_value=mock_manager
-        ):
+        with patch("app.routers.topology.get_topology_manager", return_value=mock_manager):
             response = client.get("/api/topology/connections")
 
         assert response.status_code == 500
@@ -667,9 +610,7 @@ class TestGetTopologyConnections:
         mock_manager = MagicMock()
         mock_manager.get_topology = AsyncMock(return_value=empty_connections_topology)
 
-        with patch(
-            "app.routers.topology.get_topology_manager", return_value=mock_manager
-        ):
+        with patch("app.routers.topology.get_topology_manager", return_value=mock_manager):
             response = client.get("/api/topology/connections")
 
         assert response.status_code == 200
@@ -689,9 +630,7 @@ class TestTopologyRouterIntegration:
         mock_manager = MagicMock()
         mock_manager.get_topology = AsyncMock(return_value=sample_topology)
 
-        with patch(
-            "app.routers.topology.get_topology_manager", return_value=mock_manager
-        ):
+        with patch("app.routers.topology.get_topology_manager", return_value=mock_manager):
             nodes_response = client.get("/api/topology/nodes")
             connections_response = client.get("/api/topology/connections")
             full_response = client.get("/api/topology/")
@@ -742,9 +681,7 @@ class TestTopologyRouterIntegration:
         mock_manager = MagicMock()
         mock_manager.get_topology = AsyncMock(return_value=topology)
 
-        with patch(
-            "app.routers.topology.get_topology_manager", return_value=mock_manager
-        ):
+        with patch("app.routers.topology.get_topology_manager", return_value=mock_manager):
             response = client.get("/api/topology/connections")
 
         assert response.status_code == 200
@@ -798,9 +735,7 @@ class TestTopologyRouterIntegration:
         mock_manager = MagicMock()
         mock_manager.get_topology = AsyncMock(return_value=topology)
 
-        with patch(
-            "app.routers.topology.get_topology_manager", return_value=mock_manager
-        ):
+        with patch("app.routers.topology.get_topology_manager", return_value=mock_manager):
             response = client.get("/api/topology/nodes")
 
         assert response.status_code == 200
@@ -855,9 +790,7 @@ class TestTopologyRouterIntegration:
         mock_manager = MagicMock()
         mock_manager.get_topology = AsyncMock(return_value=topology)
 
-        with patch(
-            "app.routers.topology.get_topology_manager", return_value=mock_manager
-        ):
+        with patch("app.routers.topology.get_topology_manager", return_value=mock_manager):
             response = client.get("/api/topology/nodes")
 
         assert response.status_code == 200
@@ -912,9 +845,7 @@ class TestTopologyRouterEdgeCases:
         mock_manager = MagicMock()
         mock_manager.get_topology = AsyncMock(return_value=large_topology)
 
-        with patch(
-            "app.routers.topology.get_topology_manager", return_value=mock_manager
-        ):
+        with patch("app.routers.topology.get_topology_manager", return_value=mock_manager):
             response = client.get("/api/topology/")
 
         assert response.status_code == 200
@@ -953,9 +884,7 @@ class TestTopologyRouterEdgeCases:
         mock_manager = MagicMock()
         mock_manager.get_topology = AsyncMock(return_value=topology)
 
-        with patch(
-            "app.routers.topology.get_topology_manager", return_value=mock_manager
-        ):
+        with patch("app.routers.topology.get_topology_manager", return_value=mock_manager):
             response = client.get("/api/topology/nodes")
 
         assert response.status_code == 200
@@ -988,9 +917,7 @@ class TestTopologyRouterEdgeCases:
         mock_manager = MagicMock()
         mock_manager.get_topology = AsyncMock(return_value=topology)
 
-        with patch(
-            "app.routers.topology.get_topology_manager", return_value=mock_manager
-        ):
+        with patch("app.routers.topology.get_topology_manager", return_value=mock_manager):
             response = client.get("/api/topology/nodes")
 
         assert response.status_code == 200
@@ -1013,9 +940,7 @@ class TestTopologyRouterEdgeCases:
         mock_manager = MagicMock()
         mock_manager.get_data_flow_path = AsyncMock(return_value=long_flow)
 
-        with patch(
-            "app.routers.topology.get_topology_manager", return_value=mock_manager
-        ):
+        with patch("app.routers.topology.get_topology_manager", return_value=mock_manager):
             response = client.get("/api/topology/dataflow/long-query")
 
         assert response.status_code == 200
@@ -1031,9 +956,7 @@ class TestTopologyRouterEdgeCases:
         mock_manager.get_topology = AsyncMock(return_value=sample_topology)
 
         def make_request():
-            with patch(
-                "app.routers.topology.get_topology_manager", return_value=mock_manager
-            ):
+            with patch("app.routers.topology.get_topology_manager", return_value=mock_manager):
                 return client.get("/api/topology/")
 
         # Make 10 concurrent requests

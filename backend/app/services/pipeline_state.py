@@ -49,9 +49,7 @@ class PipelineStateManager:
             ttl_seconds: How long to keep completed pipelines (seconds)
         """
         self._pipelines: Dict[str, PipelineStatus] = {}
-        self._stage_start_times: Dict[
-            str, Dict[str, float]
-        ] = {}  # query_id -> stage -> start_time
+        self._stage_start_times: Dict[str, Dict[str, float]] = {}  # query_id -> stage -> start_time
         self._lock = asyncio.Lock()
         self._cleanup_interval = cleanup_interval
         self._ttl_seconds = ttl_seconds
@@ -211,9 +209,7 @@ class PipelineStateManager:
                     )
                     break
 
-    async def fail_stage(
-        self, query_id: str, stage_name: str, error_message: str
-    ) -> None:
+    async def fail_stage(self, query_id: str, stage_name: str, error_message: str) -> None:
         """Mark a pipeline stage as failed.
 
         Updates stage status to "failed" and records error information.
@@ -363,16 +359,11 @@ class PipelineStateManager:
                             for stage in pipeline.stages:
                                 if stage.end_time:
                                     stage_timestamp = stage.end_time.timestamp()
-                                    if (
-                                        latest_time is None
-                                        or stage_timestamp > latest_time
-                                    ):
+                                    if latest_time is None or stage_timestamp > latest_time:
                                         latest_time = stage_timestamp
 
                             # Remove if older than TTL
-                            if latest_time and (
-                                current_time - latest_time > self._ttl_seconds
-                            ):
+                            if latest_time and (current_time - latest_time > self._ttl_seconds):
                                 to_remove.append(query_id)
 
                     # Remove old pipelines
@@ -402,15 +393,9 @@ class PipelineStateManager:
         Returns:
             Dictionary with statistics (active pipelines, completed, failed)
         """
-        processing = sum(
-            1 for p in self._pipelines.values() if p.overall_status == "processing"
-        )
-        completed = sum(
-            1 for p in self._pipelines.values() if p.overall_status == "completed"
-        )
-        failed = sum(
-            1 for p in self._pipelines.values() if p.overall_status == "failed"
-        )
+        processing = sum(1 for p in self._pipelines.values() if p.overall_status == "processing")
+        completed = sum(1 for p in self._pipelines.values() if p.overall_status == "completed")
+        failed = sum(1 for p in self._pipelines.values() if p.overall_status == "failed")
 
         return {
             "total_pipelines": len(self._pipelines),

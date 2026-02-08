@@ -30,7 +30,6 @@ from app.models.timeseries import (
     TimeSeriesResponse,
 )
 
-
 logger = get_logger(__name__)
 
 # Model name resolver callback type
@@ -239,9 +238,7 @@ class MetricsAggregator:
             summary = (
                 self._calculate_summary(values)
                 if values
-                else MetricsSummary(
-                    min=0.0, max=0.0, avg=0.0, p50=0.0, p95=0.0, p99=0.0
-                )
+                else MetricsSummary(min=0.0, max=0.0, avg=0.0, p50=0.0, p95=0.0, p99=0.0)
             )
 
             # Convert to response format
@@ -252,9 +249,7 @@ class MetricsAggregator:
                 unit=unit,
                 data_points=[
                     TimeSeriesPoint(
-                        timestamp=datetime.fromtimestamp(
-                            p.timestamp, tz=timezone.utc
-                        ).isoformat(),
+                        timestamp=datetime.fromtimestamp(p.timestamp, tz=timezone.utc).isoformat(),
                         value=round(p.value, 2),
                         metadata={
                             "model_id": p.model_id,
@@ -267,9 +262,7 @@ class MetricsAggregator:
                 summary=summary,
             )
 
-    async def get_summary(
-        self, metric_name: MetricType, time_range: TimeRange
-    ) -> MetricsSummary:
+    async def get_summary(self, metric_name: MetricType, time_range: TimeRange) -> MetricsSummary:
         """Get statistical summary for a metric.
 
         Args:
@@ -289,16 +282,12 @@ class MetricsAggregator:
             buffer = self.metrics[metric_name]
 
             # Filter data points
-            values = [
-                point.value for point in buffer if point.timestamp >= window_start
-            ]
+            values = [point.value for point in buffer if point.timestamp >= window_start]
 
             return (
                 self._calculate_summary(values)
                 if values
-                else MetricsSummary(
-                    min=0.0, max=0.0, avg=0.0, p50=0.0, p95=0.0, p99=0.0
-                )
+                else MetricsSummary(min=0.0, max=0.0, avg=0.0, p50=0.0, p95=0.0, p99=0.0)
             )
 
     async def get_comparison(
@@ -324,14 +313,11 @@ class MetricsAggregator:
 
             # Create aligned time buckets
             bucket_count = int(window_seconds / bucket_interval)
-            bucket_timestamps = [
-                now - (i * bucket_interval) for i in range(bucket_count, -1, -1)
-            ]
+            bucket_timestamps = [now - (i * bucket_interval) for i in range(bucket_count, -1, -1)]
 
             # Generate labels
             labels = [
-                datetime.fromtimestamp(ts, tz=timezone.utc).isoformat()
-                for ts in bucket_timestamps
+                datetime.fromtimestamp(ts, tz=timezone.utc).isoformat() for ts in bucket_timestamps
             ]
 
             # Build datasets
@@ -341,9 +327,7 @@ class MetricsAggregator:
                 buffer = self.metrics[metric_name]
 
                 # Filter data points
-                filtered_points = [
-                    point for point in buffer if point.timestamp >= window_start
-                ]
+                filtered_points = [point for point in buffer if point.timestamp >= window_start]
 
                 # Bucket data points and average
                 bucket_values: list[float] = []
@@ -353,9 +337,7 @@ class MetricsAggregator:
 
                     # Find points in this bucket
                     bucket_points = [
-                        p.value
-                        for p in filtered_points
-                        if bucket_start <= p.timestamp < bucket_end
+                        p.value for p in filtered_points if bucket_start <= p.timestamp < bucket_end
                     ]
 
                     # Average or 0 if no data

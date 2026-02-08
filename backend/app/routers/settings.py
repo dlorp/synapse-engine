@@ -5,7 +5,8 @@ that can be adjusted without system reconfiguration.
 """
 
 import logging
-from typing import Dict, Any
+from typing import Any, Dict
+
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, ValidationError
 
@@ -61,9 +62,7 @@ async def get_settings():
 
     except Exception as e:
         logger.error(f"Failed to get settings: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to retrieve settings: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve settings: {str(e)}")
 
 
 @router.put("", response_model=SettingsResponse)
@@ -114,9 +113,7 @@ async def update_settings(request: SettingsUpdateRequest):
 
     except Exception as e:
         logger.error(f"Failed to update settings: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to update settings: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to update settings: {str(e)}")
 
 
 @router.post("/validate", response_model=SettingsResponse)
@@ -147,9 +144,7 @@ async def validate_settings(request: SettingsUpdateRequest):
 
     except Exception as e:
         logger.error(f"Failed to validate settings: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to validate settings: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to validate settings: {str(e)}")
 
 
 @router.post("/reset", response_model=SettingsResponse)
@@ -174,9 +169,7 @@ async def reset_settings():
 
     except Exception as e:
         logger.error(f"Failed to reset settings: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to reset settings: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to reset settings: {str(e)}")
 
 
 @router.get("/export")
@@ -197,9 +190,7 @@ async def export_settings():
 
     except Exception as e:
         logger.error(f"Failed to export settings: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to export settings: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to export settings: {str(e)}")
 
 
 @router.post("/import", response_model=SettingsResponse)
@@ -242,9 +233,7 @@ async def import_settings(request: SettingsImportRequest):
 
     except Exception as e:
         logger.error(f"Failed to import settings: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to import settings: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to import settings: {str(e)}")
 
 
 @router.get("/schema")
@@ -267,9 +256,7 @@ async def get_settings_schema():
 
     except Exception as e:
         logger.error(f"Failed to get settings schema: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to retrieve settings schema: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve settings schema: {str(e)}")
 
 
 @router.get("/vram-estimate")
@@ -309,6 +296,4 @@ async def estimate_vram(model_size_b: float = 8.0, quantization: str = "Q4_K_M")
 
     except Exception as e:
         logger.error(f"Failed to estimate VRAM: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to estimate VRAM: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to estimate VRAM: {str(e)}")

@@ -174,9 +174,7 @@ class PipelineTracker:
         self._get_managers()
 
         if self._pipeline_manager and self._event_bus:
-            await self._pipeline_manager.fail_pipeline(
-                self.query_id, error_message=error_message
-            )
+            await self._pipeline_manager.fail_pipeline(self.query_id, error_message=error_message)
             await self._event_bus.emit_pipeline_event(
                 query_id=self.query_id,
                 stage="error",

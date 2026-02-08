@@ -138,9 +138,7 @@ async def get_context_allocation(query_id: str) -> ContextAllocation:
     except RuntimeError as e:
         # Context state manager not initialized
         logger.error(f"Context state manager not initialized: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=503, detail="Context allocation service not available"
-        )
+        raise HTTPException(status_code=503, detail="Context allocation service not available")
 
     except Exception as e:
         # Unexpected error
@@ -197,13 +195,9 @@ async def get_context_stats() -> dict:
     except RuntimeError as e:
         # Context state manager not initialized
         logger.error(f"Context state manager not initialized: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=503, detail="Context allocation service not available"
-        )
+        raise HTTPException(status_code=503, detail="Context allocation service not available")
 
     except Exception as e:
         # Unexpected error
         logger.error(f"Error retrieving context stats: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500, detail=f"Failed to retrieve context stats: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve context stats: {str(e)}")

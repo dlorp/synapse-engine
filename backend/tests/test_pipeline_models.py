@@ -9,19 +9,19 @@ from datetime import datetime
 import pytest
 from pydantic import ValidationError as PydanticValidationError
 
-from app.models.pipeline import PipelineStage, PipelineStatus
 from app.models.events import (
-    EventType,
-    EventSeverity,
-    SystemEvent,
-    QueryRouteEvent,
-    ModelStateEvent,
-    CGRAGEvent,
     CacheEvent,
+    CGRAGEvent,
     ErrorEvent,
+    EventSeverity,
+    EventType,
+    ModelStateEvent,
     PerformanceEvent,
     PipelineEvent,
+    QueryRouteEvent,
+    SystemEvent,
 )
+from app.models.pipeline import PipelineStage, PipelineStatus
 
 
 class TestPipelineStage:

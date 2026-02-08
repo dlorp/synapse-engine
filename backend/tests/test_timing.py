@@ -5,8 +5,9 @@ measuring execution time with proper edge case handling.
 """
 
 import time
-import pytest
 from unittest.mock import patch
+
+import pytest
 
 from app.utils.timing import Timer, timed_operation
 

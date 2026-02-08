@@ -4,13 +4,13 @@ Tests the PipelineTracker helper class for instrumenting query processing
 with automatic state management and event emission.
 """
 
-import pytest
 import asyncio
 from unittest.mock import AsyncMock, patch
 
-from app.services.pipeline_tracker import PipelineTracker
-from app.models.events import EventType
+import pytest
 
+from app.models.events import EventType
+from app.services.pipeline_tracker import PipelineTracker
 
 # ============================================================================
 # Fixtures
@@ -75,9 +75,7 @@ class TestInitialization:
 class TestManagerLazyLoading:
     """Tests for lazy loading of managers."""
 
-    def test_get_managers_loads_dependencies(
-        self, tracker, mock_pipeline_manager, mock_event_bus
-    ):
+    def test_get_managers_loads_dependencies(self, tracker, mock_pipeline_manager, mock_event_bus):
         """_get_managers should load pipeline manager and event bus."""
         with (
             patch(
@@ -139,9 +137,7 @@ class TestCreatePipeline:
         ):
             await tracker.create_pipeline()
 
-            mock_pipeline_manager.create_pipeline.assert_called_once_with(
-                "test-query-123"
-            )
+            mock_pipeline_manager.create_pipeline.assert_called_once_with("test-query-123")
 
     @pytest.mark.asyncio
     async def test_handles_missing_manager(self, tracker):
@@ -169,9 +165,7 @@ class TestStageContextManager:
     """Tests for the stage() async context manager."""
 
     @pytest.mark.asyncio
-    async def test_starts_stage_on_entry(
-        self, tracker, mock_pipeline_manager, mock_event_bus
-    ):
+    async def test_starts_stage_on_entry(self, tracker, mock_pipeline_manager, mock_event_bus):
         """Stage context manager should start stage on entry."""
         with (
             patch(
@@ -191,9 +185,7 @@ class TestStageContextManager:
             )
 
     @pytest.mark.asyncio
-    async def test_emits_start_event(
-        self, tracker, mock_pipeline_manager, mock_event_bus
-    ):
+    async def test_emits_start_event(self, tracker, mock_pipeline_manager, mock_event_bus):
         """Stage context manager should emit start event."""
         with (
             patch(
@@ -215,9 +207,7 @@ class TestStageContextManager:
             assert start_call.kwargs["event_type"] == EventType.PIPELINE_STAGE_START
 
     @pytest.mark.asyncio
-    async def test_completes_stage_on_success(
-        self, tracker, mock_pipeline_manager, mock_event_bus
-    ):
+    async def test_completes_stage_on_success(self, tracker, mock_pipeline_manager, mock_event_bus):
         """Stage context manager should complete stage on success."""
         with (
             patch(
@@ -257,14 +247,10 @@ class TestStageContextManager:
 
             # Second call should be the complete event
             complete_call = mock_event_bus.emit_pipeline_event.call_args_list[1]
-            assert (
-                complete_call.kwargs["event_type"] == EventType.PIPELINE_STAGE_COMPLETE
-            )
+            assert complete_call.kwargs["event_type"] == EventType.PIPELINE_STAGE_COMPLETE
 
     @pytest.mark.asyncio
-    async def test_collects_metadata(
-        self, tracker, mock_pipeline_manager, mock_event_bus
-    ):
+    async def test_collects_metadata(self, tracker, mock_pipeline_manager, mock_event_bus):
         """Stage context manager should collect metadata from yielded dict."""
         with (
             patch(
@@ -308,9 +294,7 @@ class TestStageContextManager:
             assert call_args.kwargs["metadata"]["duration_ms"] >= 100
 
     @pytest.mark.asyncio
-    async def test_fails_stage_on_exception(
-        self, tracker, mock_pipeline_manager, mock_event_bus
-    ):
+    async def test_fails_stage_on_exception(self, tracker, mock_pipeline_manager, mock_event_bus):
         """Stage context manager should fail stage on exception."""
         with (
             patch(
@@ -355,9 +339,7 @@ class TestStageContextManager:
             assert "error" in fail_call.kwargs["metadata"]
 
     @pytest.mark.asyncio
-    async def test_reraises_exception(
-        self, tracker, mock_pipeline_manager, mock_event_bus
-    ):
+    async def test_reraises_exception(self, tracker, mock_pipeline_manager, mock_event_bus):
         """Stage context manager should re-raise exceptions."""
         with (
             patch(
@@ -430,9 +412,7 @@ class TestCompletePipeline:
             )
 
     @pytest.mark.asyncio
-    async def test_emits_complete_event(
-        self, tracker, mock_pipeline_manager, mock_event_bus
-    ):
+    async def test_emits_complete_event(self, tracker, mock_pipeline_manager, mock_event_bus):
         """complete_pipeline should emit PIPELINE_COMPLETE event."""
         with (
             patch(
@@ -509,9 +489,7 @@ class TestFailPipeline:
             )
 
     @pytest.mark.asyncio
-    async def test_emits_fail_event(
-        self, tracker, mock_pipeline_manager, mock_event_bus
-    ):
+    async def test_emits_fail_event(self, tracker, mock_pipeline_manager, mock_event_bus):
         """fail_pipeline should emit PIPELINE_FAILED event."""
         with (
             patch(
@@ -556,9 +534,7 @@ class TestIntegration:
     """Integration tests for complete pipeline tracking workflow."""
 
     @pytest.mark.asyncio
-    async def test_complete_pipeline_workflow(
-        self, mock_pipeline_manager, mock_event_bus
-    ):
+    async def test_complete_pipeline_workflow(self, mock_pipeline_manager, mock_event_bus):
         """Test complete workflow from creation to completion."""
         tracker = PipelineTracker(query_id="integration-test-123")
 
@@ -642,9 +618,7 @@ class TestIntegration:
             assert mock_pipeline_manager.fail_pipeline.call_count == 1
 
     @pytest.mark.asyncio
-    async def test_multiple_trackers_independent(
-        self, mock_pipeline_manager, mock_event_bus
-    ):
+    async def test_multiple_trackers_independent(self, mock_pipeline_manager, mock_event_bus):
         """Multiple trackers should track independently."""
         tracker1 = PipelineTracker(query_id="query-1")
         tracker2 = PipelineTracker(query_id="query-2")

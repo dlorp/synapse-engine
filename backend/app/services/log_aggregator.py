@@ -21,7 +21,7 @@ import asyncio
 import time
 from collections import deque
 from datetime import datetime
-from typing import Deque, Dict, List, Optional, Any
+from typing import Any, Deque, Dict, List, Optional
 
 from app.core.logging import get_logger
 
@@ -222,8 +222,8 @@ class LogAggregator:
             entry: LogEntry to broadcast
         """
         try:
+            from app.models.events import EventSeverity, EventType
             from app.services.event_bus import get_event_bus
-            from app.models.events import EventType, EventSeverity
 
             event_bus = get_event_bus()
 
@@ -291,29 +291,21 @@ class LogAggregator:
         # Filter by level (exact match, case-insensitive)
         if level:
             level_upper = level.upper()
-            filtered_logs = [
-                log for log in filtered_logs if log.level.upper() == level_upper
-            ]
+            filtered_logs = [log for log in filtered_logs if log.level.upper() == level_upper]
 
         # Filter by source (substring match, case-insensitive)
         if source:
             source_lower = source.lower()
-            filtered_logs = [
-                log for log in filtered_logs if source_lower in log.source.lower()
-            ]
+            filtered_logs = [log for log in filtered_logs if source_lower in log.source.lower()]
 
         # Filter by search text in message (substring match, case-insensitive)
         if search:
             search_lower = search.lower()
-            filtered_logs = [
-                log for log in filtered_logs if search_lower in log.message.lower()
-            ]
+            filtered_logs = [log for log in filtered_logs if search_lower in log.message.lower()]
 
         # Filter by time range
         if start_time:
-            filtered_logs = [
-                log for log in filtered_logs if log.timestamp >= start_time
-            ]
+            filtered_logs = [log for log in filtered_logs if log.timestamp >= start_time]
 
         if end_time:
             filtered_logs = [log for log in filtered_logs if log.timestamp <= end_time]
@@ -411,9 +403,7 @@ def get_log_aggregator() -> LogAggregator:
         RuntimeError: If log aggregator not initialized
     """
     if _log_aggregator is None:
-        raise RuntimeError(
-            "LogAggregator not initialized - call init_log_aggregator() first"
-        )
+        raise RuntimeError("LogAggregator not initialized - call init_log_aggregator() first")
     return _log_aggregator
 
 

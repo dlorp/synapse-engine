@@ -158,9 +158,7 @@ class TokenCounter:
 
         return estimated_tokens
 
-    def truncate_to_token_limit(
-        self, text: str, max_tokens: int, suffix: str = "..."
-    ) -> str:
+    def truncate_to_token_limit(self, text: str, max_tokens: int, suffix: str = "...") -> str:
         """Truncate text to fit within token limit.
 
         Useful for ensuring text fits within context windows. Adds an

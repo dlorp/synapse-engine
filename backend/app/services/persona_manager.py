@@ -1,7 +1,7 @@
 """Persona and role management for multi-model dialogue."""
 
 import logging
-from typing import Dict, Optional, List
+from typing import Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -89,9 +89,7 @@ class PersonaManager:
         # Priority 1: User-defined personas
         if user_personas:
             if "pro" not in user_personas or "con" not in user_personas:
-                self.logger.warning(
-                    "User personas missing 'pro' or 'con', falling back to profile"
-                )
+                self.logger.warning("User personas missing 'pro' or 'con', falling back to profile")
             else:
                 self.logger.info("Using user-defined personas")
                 return {
@@ -141,9 +139,7 @@ class PersonaManager:
             if len(user_personas) >= len(participants):
                 self.logger.info("Using user-defined personas")
                 return {
-                    participant: user_personas.get(
-                        participant, "a collaborative participant"
-                    )
+                    participant: user_personas.get(participant, "a collaborative participant")
                     for participant in participants
                 }
 
@@ -170,8 +166,7 @@ class PersonaManager:
         ]
 
         return {
-            participants[i]: generic_roles[i % len(generic_roles)]
-            for i in range(len(participants))
+            participants[i]: generic_roles[i % len(generic_roles)] for i in range(len(participants))
         }
 
     def list_debate_profiles(self) -> List[str]:
@@ -182,9 +177,7 @@ class PersonaManager:
         """List available consensus persona profile names."""
         return list(CONSENSUS_PERSONA_PROFILES.keys())
 
-    def get_profile_description(
-        self, mode: str, profile_name: str
-    ) -> Optional[Dict[str, str]]:
+    def get_profile_description(self, mode: str, profile_name: str) -> Optional[Dict[str, str]]:
         """Get full persona profile by name."""
         if mode == "debate":
             return DEBATE_PERSONA_PROFILES.get(profile_name)

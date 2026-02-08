@@ -6,19 +6,18 @@ for determining query complexity and appropriate model tier selection.
 
 import pytest
 
-from app.services.routing import (
-    assess_complexity,
-    _detect_pattern_type,
-    _calculate_score,
-    _map_score_to_tier,
-    _build_reasoning,
-    SIMPLE_PATTERNS,
-    MODERATE_PATTERNS,
-    COMPLEX_PATTERNS,
-)
 from app.models.config import RoutingConfig
 from app.models.query import QueryComplexity
-
+from app.services.routing import (
+    COMPLEX_PATTERNS,
+    MODERATE_PATTERNS,
+    SIMPLE_PATTERNS,
+    _build_reasoning,
+    _calculate_score,
+    _detect_pattern_type,
+    _map_score_to_tier,
+    assess_complexity,
+)
 
 # ============================================================================
 # Fixtures
@@ -62,9 +61,7 @@ class TestPatternDetection:
             "define machine learning",
         ]
         for query in simple_queries:
-            assert _detect_pattern_type(query) == "simple", (
-                f"Expected 'simple' for: {query}"
-            )
+            assert _detect_pattern_type(query) == "simple", f"Expected 'simple' for: {query}"
 
     def test_detect_moderate_patterns(self):
         """Should detect moderate complexity patterns correctly."""
@@ -76,9 +73,7 @@ class TestPatternDetection:
             "difference between lists and tuples",
         ]
         for query in moderate_queries:
-            assert _detect_pattern_type(query) == "moderate", (
-                f"Expected 'moderate' for: {query}"
-            )
+            assert _detect_pattern_type(query) == "moderate", f"Expected 'moderate' for: {query}"
 
     def test_detect_complex_patterns(self):
         """Should detect complex query patterns correctly."""
@@ -92,9 +87,7 @@ class TestPatternDetection:
             "propose a solution for the latency problem",
         ]
         for query in complex_queries:
-            assert _detect_pattern_type(query) == "complex", (
-                f"Expected 'complex' for: {query}"
-            )
+            assert _detect_pattern_type(query) == "complex", f"Expected 'complex' for: {query}"
 
     def test_no_pattern_detected(self):
         """Should return 'none' when no clear pattern is detected."""
@@ -105,9 +98,7 @@ class TestPatternDetection:
             "quick question about syntax",
         ]
         for query in ambiguous_queries:
-            assert _detect_pattern_type(query) == "none", (
-                f"Expected 'none' for: {query}"
-            )
+            assert _detect_pattern_type(query) == "none", f"Expected 'none' for: {query}"
 
     def test_pattern_priority_complex_over_moderate(self):
         """Complex patterns should take priority over moderate patterns."""
@@ -305,9 +296,7 @@ class TestReasoningBuilder:
 
     def test_fast_tier_reasoning(self):
         """Fast tier should have appropriate reasoning text."""
-        reasoning = _build_reasoning(
-            tier="fast", score=1.5, pattern_type="simple", token_count=10
-        )
+        reasoning = _build_reasoning(tier="fast", score=1.5, pattern_type="simple", token_count=10)
         assert "Score: 1.50" in reasoning
         assert "FAST tier" in reasoning
         assert "2B-7B models" in reasoning
@@ -340,9 +329,7 @@ class TestReasoningBuilder:
 
     def test_no_pattern_omitted(self):
         """When pattern type is 'none', pattern info should be omitted."""
-        reasoning = _build_reasoning(
-            tier="fast", score=1.5, pattern_type="none", token_count=10
-        )
+        reasoning = _build_reasoning(tier="fast", score=1.5, pattern_type="none", token_count=10)
         assert "query pattern" not in reasoning
 
 
@@ -450,9 +437,7 @@ class TestAssessComplexity:
     @pytest.mark.asyncio
     async def test_score_rounded_to_two_decimals(self, default_routing_config):
         """Complexity score should be rounded to 2 decimal places."""
-        result = await assess_complexity(
-            "What is the meaning of life?", default_routing_config
-        )
+        result = await assess_complexity("What is the meaning of life?", default_routing_config)
 
         # Score should be a float with at most 2 decimal places
         score_str = str(result.score)
@@ -510,15 +495,9 @@ class TestEdgeCases:
     @pytest.mark.asyncio
     async def test_mixed_case_patterns(self, default_routing_config):
         """Patterns should be detected regardless of case."""
-        result_lower = await assess_complexity(
-            "analyze this code", default_routing_config
-        )
-        result_upper = await assess_complexity(
-            "ANALYZE this code", default_routing_config
-        )
-        result_mixed = await assess_complexity(
-            "AnAlYzE this code", default_routing_config
-        )
+        result_lower = await assess_complexity("analyze this code", default_routing_config)
+        result_upper = await assess_complexity("ANALYZE this code", default_routing_config)
+        result_mixed = await assess_complexity("AnAlYzE this code", default_routing_config)
 
         assert result_lower.indicators["pattern_type"] == "complex"
         assert result_upper.indicators["pattern_type"] == "complex"
@@ -551,13 +530,9 @@ class TestPatternLists:
         moderate_set = set(MODERATE_PATTERNS)
         complex_set = set(COMPLEX_PATTERNS)
 
-        assert simple_set.isdisjoint(moderate_set), (
-            "Simple and moderate patterns overlap"
-        )
+        assert simple_set.isdisjoint(moderate_set), "Simple and moderate patterns overlap"
         assert simple_set.isdisjoint(complex_set), "Simple and complex patterns overlap"
-        assert moderate_set.isdisjoint(complex_set), (
-            "Moderate and complex patterns overlap"
-        )
+        assert moderate_set.isdisjoint(complex_set), "Moderate and complex patterns overlap"
 
     def test_patterns_are_lowercase(self):
         """All patterns should be lowercase for consistent matching."""

@@ -19,11 +19,10 @@ import pytest
 
 from app.services.cgrag import (
     CGRAGIndexer,
-    CGRAGRetriever,
     CGRAGResult,
+    CGRAGRetriever,
     DocumentChunk,
 )
-
 
 # ============================================================================
 # Fixtures
@@ -101,9 +100,7 @@ def mock_indexer(small_chunks):
 
     # Mock encoder
     mock_encoder = MagicMock()
-    mock_encoder.encode = MagicMock(
-        return_value=np.random.rand(1, 384).astype(np.float32)
-    )
+    mock_encoder.encode = MagicMock(return_value=np.random.rand(1, 384).astype(np.float32))
     indexer.encoder = mock_encoder
 
     return indexer
@@ -128,9 +125,7 @@ def mock_indexer_large(sample_chunks):
 
     # Mock encoder
     mock_encoder = MagicMock()
-    mock_encoder.encode = MagicMock(
-        return_value=np.random.rand(1, 384).astype(np.float32)
-    )
+    mock_encoder.encode = MagicMock(return_value=np.random.rand(1, 384).astype(np.float32))
     indexer.encoder = mock_encoder
 
     return indexer
@@ -210,10 +205,7 @@ class TestContextRetrievalLoads:
 
         # Run queries concurrently
         start_time = time.time()
-        tasks = [
-            retriever.retrieve(query=q, token_budget=2000, max_artifacts=10)
-            for q in queries
-        ]
+        tasks = [retriever.retrieve(query=q, token_budget=2000, max_artifacts=10) for q in queries]
         results = await asyncio.gather(*tasks)
         elapsed = time.time() - start_time
 
@@ -294,9 +286,7 @@ class TestEmptyContextEdgeCases:
         """Test retrieval with whitespace-only query."""
         retriever = CGRAGRetriever(indexer=mock_indexer, min_relevance=0.0)
 
-        result = await retriever.retrieve(
-            query="   \t\n   ", token_budget=1000, max_artifacts=10
-        )
+        result = await retriever.retrieve(query="   \t\n   ", token_budget=1000, max_artifacts=10)
 
         assert isinstance(result, CGRAGResult)
 
@@ -319,9 +309,7 @@ class TestEmptyContextEdgeCases:
         """Test retrieval with very small token budget."""
         retriever = CGRAGRetriever(indexer=mock_indexer, min_relevance=0.0)
 
-        result = await retriever.retrieve(
-            query="Python", token_budget=1, max_artifacts=10
-        )
+        result = await retriever.retrieve(query="Python", token_budget=1, max_artifacts=10)
 
         assert isinstance(result, CGRAGResult)
         # At least one artifact should be returned (greedy packing guarantee)
@@ -396,9 +384,7 @@ class TestTimeoutHandling:
             return np.random.rand(1, 384).astype(np.float32)
 
         mock_encoder = MagicMock()
-        mock_encoder.encode = MagicMock(
-            return_value=np.random.rand(1, 384).astype(np.float32)
-        )
+        mock_encoder.encode = MagicMock(return_value=np.random.rand(1, 384).astype(np.float32))
         indexer.encoder = mock_encoder
 
         retriever = CGRAGRetriever(indexer=indexer, min_relevance=0.0)
@@ -457,9 +443,7 @@ class TestErrorRecovery:
     async def test_retrieval_handles_encoder_error(self, mock_indexer):
         """Test retrieval handles encoder errors gracefully."""
         # Make encoder raise an exception
-        mock_indexer.encoder.encode = MagicMock(
-            side_effect=RuntimeError("Encoder failed")
-        )
+        mock_indexer.encoder.encode = MagicMock(side_effect=RuntimeError("Encoder failed"))
 
         retriever = CGRAGRetriever(indexer=mock_indexer, min_relevance=0.0)
 
@@ -475,14 +459,10 @@ class TestErrorRecovery:
 
         # Create index that will return invalid results
         indexer.index = MagicMock()
-        indexer.index.search = MagicMock(
-            return_value=(np.array([[-1, -1]]), np.array([[-1, -1]]))
-        )
+        indexer.index.search = MagicMock(return_value=(np.array([[-1, -1]]), np.array([[-1, -1]])))
 
         mock_encoder = MagicMock()
-        mock_encoder.encode = MagicMock(
-            return_value=np.random.rand(1, 384).astype(np.float32)
-        )
+        mock_encoder.encode = MagicMock(return_value=np.random.rand(1, 384).astype(np.float32))
         indexer.encoder = mock_encoder
 
         retriever = CGRAGRetriever(indexer=indexer, min_relevance=0.0)
@@ -545,9 +525,7 @@ class TestErrorRecovery:
 
         # First call fails
         original_encode = mock_indexer.encoder.encode
-        mock_indexer.encoder.encode = MagicMock(
-            side_effect=RuntimeError("Transient error")
-        )
+        mock_indexer.encoder.encode = MagicMock(side_effect=RuntimeError("Transient error"))
 
         with pytest.raises(RuntimeError):
             await retriever.retrieve(query="test", token_budget=1000)
@@ -594,9 +572,7 @@ class TestTokenBudgetEdgeCases:
         retriever = CGRAGRetriever(indexer=mock_indexer, min_relevance=0.0)
 
         # Even with small budget, at least one chunk should be returned
-        result = await retriever.retrieve(
-            query="test", token_budget=100, max_artifacts=5
-        )
+        result = await retriever.retrieve(query="test", token_budget=100, max_artifacts=5)
 
         # Algorithm guarantees at least 1 chunk
         assert len(result.artifacts) >= 1
@@ -607,9 +583,7 @@ class TestTokenBudgetEdgeCases:
         retriever = CGRAGRetriever(indexer=mock_indexer, min_relevance=0.0)
 
         # Get result with a specific budget
-        result = await retriever.retrieve(
-            query="test", token_budget=500, max_artifacts=10
-        )
+        result = await retriever.retrieve(query="test", token_budget=500, max_artifacts=10)
 
         # Tokens used should not exceed budget (or be at most 1 chunk over)
         # The algorithm allows one chunk that pushes over if nothing else fits
@@ -637,9 +611,7 @@ class TestRelevanceFiltering:
         result_high = await retriever_high.retrieve(
             query="test", token_budget=5000, max_artifacts=20
         )
-        result_low = await retriever_low.retrieve(
-            query="test", token_budget=5000, max_artifacts=20
-        )
+        result_low = await retriever_low.retrieve(query="test", token_budget=5000, max_artifacts=20)
 
         # High threshold should return same or fewer artifacts
         assert len(result_high.artifacts) <= len(result_low.artifacts)
@@ -649,9 +621,7 @@ class TestRelevanceFiltering:
         """Test that relevance scores are in [0, 1] range."""
         retriever = CGRAGRetriever(indexer=mock_indexer, min_relevance=0.0)
 
-        result = await retriever.retrieve(
-            query="Python", token_budget=5000, max_artifacts=20
-        )
+        result = await retriever.retrieve(query="Python", token_budget=5000, max_artifacts=20)
 
         for artifact in result.artifacts:
             assert 0.0 <= artifact.relevance_score <= 1.0, (
@@ -666,12 +636,8 @@ class TestRelevanceFiltering:
         """Test that returned artifacts are sorted by relevance (descending)."""
         retriever = CGRAGRetriever(indexer=mock_indexer, min_relevance=0.0)
 
-        result = await retriever.retrieve(
-            query="test", token_budget=5000, max_artifacts=20
-        )
+        result = await retriever.retrieve(query="test", token_budget=5000, max_artifacts=20)
 
         if len(result.artifacts) > 1:
             scores = [a.relevance_score for a in result.artifacts]
-            assert scores == sorted(scores, reverse=True), (
-                "Artifacts not sorted by relevance"
-            )
+            assert scores == sorted(scores, reverse=True), "Artifacts not sorted by relevance"

@@ -15,18 +15,18 @@ import json
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, List, Optional
 
+from app.core.exceptions import SynapseException
+from app.models.discovered_model import DiscoveredModel, ModelRegistry
 from app.models.instance import (
+    CreateInstanceRequest,
     InstanceConfig,
     InstanceRegistry,
     InstanceStatus,
-    CreateInstanceRequest,
-    UpdateInstanceRequest,
     SystemPromptPreset,
+    UpdateInstanceRequest,
 )
-from app.models.discovered_model import DiscoveredModel, ModelRegistry
-from app.core.exceptions import SynapseException
 
 if TYPE_CHECKING:
     from app.services.llama_server_manager import LlamaServerManager
@@ -99,9 +99,7 @@ class InstanceManager:
         self.server_manager = server_manager
         self.registry: InstanceRegistry = self._load_registry()
 
-        logger.info(
-            f"Initialized InstanceManager with {len(self.registry.instances)} instances"
-        )
+        logger.info(f"Initialized InstanceManager with {len(self.registry.instances)} instances")
         logger.info(f"  Registry path: {registry_path}")
         logger.info(f"  Port range: {self.registry.port_range}")
 
@@ -120,9 +118,7 @@ class InstanceManager:
                 with open(self.registry_path, "r") as f:
                     data = json.load(f)
                 registry = InstanceRegistry.model_validate(data)
-                logger.info(
-                    f"Loaded instance registry with {len(registry.instances)} instances"
-                )
+                logger.info(f"Loaded instance registry with {len(registry.instances)} instances")
                 return registry
             except Exception as e:
                 logger.error(f"Failed to load instance registry: {e}")
@@ -146,14 +142,10 @@ class InstanceManager:
             with open(self.registry_path, "w") as f:
                 json.dump(data, f, indent=2)
 
-            logger.debug(
-                f"Saved instance registry with {len(self.registry.instances)} instances"
-            )
+            logger.debug(f"Saved instance registry with {len(self.registry.instances)} instances")
         except Exception as e:
             logger.error(f"Failed to save instance registry: {e}")
-            raise SynapseException(
-                "Failed to save instance registry", details={"error": str(e)}
-            )
+            raise SynapseException("Failed to save instance registry", details={"error": str(e)})
 
     def _get_base_model(self, model_id: str) -> DiscoveredModel:
         """Get base model from model registry.
@@ -262,9 +254,7 @@ class InstanceManager:
         """
         return self.registry.get_instances_for_model(model_id)
 
-    def update_instance(
-        self, instance_id: str, request: UpdateInstanceRequest
-    ) -> InstanceConfig:
+    def update_instance(self, instance_id: str, request: UpdateInstanceRequest) -> InstanceConfig:
         """Update an existing instance configuration.
 
         Args:
@@ -288,9 +278,7 @@ class InstanceManager:
         if request.display_name is not None:
             config.display_name = request.display_name
         if request.system_prompt is not None:
-            config.system_prompt = (
-                request.system_prompt if request.system_prompt else None
-            )
+            config.system_prompt = request.system_prompt if request.system_prompt else None
         if request.web_search_enabled is not None:
             config.web_search_enabled = request.web_search_enabled
 
@@ -541,9 +529,7 @@ class InstanceManager:
         Returns:
             List of InstanceConfig with web_search_enabled=True
         """
-        return [
-            inst for inst in self.registry.instances.values() if inst.web_search_enabled
-        ]
+        return [inst for inst in self.registry.instances.values() if inst.web_search_enabled]
 
 
 # Global instance manager (initialized in main.py)

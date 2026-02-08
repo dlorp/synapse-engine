@@ -5,7 +5,7 @@ LLM models for comprehensive analysis, rather than the MCP sequential thinking t
 """
 
 import logging
-from typing import Any, Callable, Dict, List, Optional, Awaitable
+from typing import Any, Awaitable, Callable, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -17,9 +17,7 @@ ModelCallerFunc = Callable[..., Awaitable[Dict]]
 class ModeratorAnalysis:
     """Result of moderator analysis."""
 
-    def __init__(
-        self, analysis: str, moderator_model: str, tokens_used: int, breakdown: Dict
-    ):
+    def __init__(self, analysis: str, moderator_model: str, tokens_used: int, breakdown: Dict):
         self.analysis = analysis
         self.moderator_model = moderator_model
         self.tokens_used = tokens_used
@@ -86,9 +84,7 @@ Be brief and direct. Only interject if genuinely needed to refocus the debate on
 
 Your decision:"""
 
-        logger.debug(
-            f"Checking for moderator interjection using model {moderator_model}"
-        )
+        logger.debug(f"Checking for moderator interjection using model {moderator_model}")
 
         # Call moderator model
         response = await model_caller(
@@ -153,9 +149,7 @@ async def run_moderator_analysis(
         # Auto-select moderator model if not specified
         if model_id is None:
             if model_selector is None:
-                raise ValueError(
-                    "model_selector must be provided when model_id is None"
-                )
+                raise ValueError("model_selector must be provided when model_id is None")
 
             moderator_model = _auto_select_moderator_model(model_selector)
             logger.info(f"Auto-selected moderator model: {moderator_model}")
@@ -189,9 +183,7 @@ async def run_moderator_analysis(
             )
 
         except Exception as e:
-            logger.error(
-                f"Error calling moderator model {moderator_model}: {e}", exc_info=True
-            )
+            logger.error(f"Error calling moderator model {moderator_model}: {e}", exc_info=True)
             raise
 
         # Parse the analysis into structured breakdown
@@ -374,15 +366,11 @@ def _parse_moderator_analysis(analysis_text: str) -> Dict:
 
     for line in lines:
         # Extract argument strengths/weaknesses
-        if "pro" in line and (
-            "strong" in line or "effective" in line or "strength" in line
-        ):
+        if "pro" in line and ("strong" in line or "effective" in line or "strength" in line):
             arg_strength["pro_strengths"].append(line.strip()[:200])
         if "pro" in line and ("weak" in line or "fallacy" in line or "flaw" in line):
             arg_strength["pro_weaknesses"].append(line.strip()[:200])
-        if "con" in line and (
-            "strong" in line or "effective" in line or "strength" in line
-        ):
+        if "con" in line and ("strong" in line or "effective" in line or "strength" in line):
             arg_strength["con_strengths"].append(line.strip()[:200])
         if "con" in line and ("weak" in line or "fallacy" in line or "flaw" in line):
             arg_strength["con_weaknesses"].append(line.strip()[:200])
@@ -400,35 +388,22 @@ def _parse_moderator_analysis(analysis_text: str) -> Dict:
             key_turning_points.append(line.strip()[:200])
 
         # Extract unanswered questions
-        if (
-            "unanswered" in line
-            or "gap" in line
-            or "missing" in line
-            or "not addressed" in line
-        ):
+        if "unanswered" in line or "gap" in line or "missing" in line or "not addressed" in line:
             unanswered_questions.append(line.strip()[:200])
 
     # Determine overall winner based on final assessment
     analysis_lower = analysis_text.lower()
     if "pro" in analysis_lower and (
-        "stronger" in analysis_lower
-        or "winner" in analysis_lower
-        or "wins" in analysis_lower
+        "stronger" in analysis_lower or "winner" in analysis_lower or "wins" in analysis_lower
     ):
         # Check context to avoid false positives
         if "con" not in analysis_lower.split("pro")[0]:  # PRO mentioned first as winner
             breakdown["overall_winner"] = "pro"
     elif "con" in analysis_lower and (
-        "stronger" in analysis_lower
-        or "winner" in analysis_lower
-        or "wins" in analysis_lower
+        "stronger" in analysis_lower or "winner" in analysis_lower or "wins" in analysis_lower
     ):
         breakdown["overall_winner"] = "con"
-    elif (
-        "tie" in analysis_lower
-        or "balanced" in analysis_lower
-        or "even" in analysis_lower
-    ):
+    elif "tie" in analysis_lower or "balanced" in analysis_lower or "even" in analysis_lower:
         breakdown["overall_winner"] = "tie"
 
     return breakdown

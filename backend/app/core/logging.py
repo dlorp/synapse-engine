@@ -146,9 +146,7 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):
             log_record["exc_info"] = self.formatException(record.exc_info)
 
 
-def setup_logging(
-    config: LoggingConfig, service_tag: ServiceTag = ServiceTag.PRAXIS
-) -> None:
+def setup_logging(config: LoggingConfig, service_tag: ServiceTag = ServiceTag.PRAXIS) -> None:
     """Configure application logging based on configuration.
 
     Sets up handlers, formatters, and filters for structured logging with

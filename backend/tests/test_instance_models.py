@@ -8,15 +8,15 @@ import pytest
 from pydantic import ValidationError
 
 from app.models.instance import (
-    InstanceStatus,
-    InstanceConfig,
-    InstanceRegistry,
     CreateInstanceRequest,
-    UpdateInstanceRequest,
-    InstanceResponse,
+    InstanceConfig,
     InstanceListResponse,
+    InstanceRegistry,
+    InstanceResponse,
+    InstanceStatus,
     SystemPromptPreset,
     SystemPromptPresetsResponse,
+    UpdateInstanceRequest,
 )
 
 

@@ -4,12 +4,12 @@ Tests WebSocket connection management, log broadcasting, and buffering
 functionality for real-time log streaming.
 """
 
-import pytest
 import asyncio
 from unittest.mock import AsyncMock
 
-from app.services.websocket_manager import WebSocketManager
+import pytest
 
+from app.services.websocket_manager import WebSocketManager
 
 # ============================================================================
 # Fixtures
@@ -65,9 +65,7 @@ class TestConnectionManagement:
         mock_websocket.accept.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_connect_adds_to_active_connections(
-        self, websocket_manager, mock_websocket
-    ):
+    async def test_connect_adds_to_active_connections(self, websocket_manager, mock_websocket):
         """Connect should add WebSocket to active connections list."""
         assert len(websocket_manager.active_connections) == 0
 
@@ -93,9 +91,7 @@ class TestConnectionManagement:
         assert ws3 in websocket_manager.active_connections
 
     @pytest.mark.asyncio
-    async def test_disconnect_removes_connection(
-        self, websocket_manager, mock_websocket
-    ):
+    async def test_disconnect_removes_connection(self, websocket_manager, mock_websocket):
         """Disconnect should remove WebSocket from active connections."""
         await websocket_manager.connect(mock_websocket)
         assert len(websocket_manager.active_connections) == 1
@@ -136,9 +132,7 @@ class TestConnectionManagement:
         assert websocket_manager.get_connection_count() == 0
 
     @pytest.mark.asyncio
-    async def test_get_connection_count_with_connections(
-        self, websocket_manager, mock_websocket
-    ):
+    async def test_get_connection_count_with_connections(self, websocket_manager, mock_websocket):
         """get_connection_count should update as connections are added/removed."""
         assert websocket_manager.get_connection_count() == 0
 
@@ -162,9 +156,7 @@ class TestLogBroadcasting:
     """Tests for broadcasting logs to connected clients."""
 
     @pytest.mark.asyncio
-    async def test_broadcast_sends_to_all_connections(
-        self, websocket_manager, sample_log_entry
-    ):
+    async def test_broadcast_sends_to_all_connections(self, websocket_manager, sample_log_entry):
         """Broadcast should send log entry to all connected clients."""
         ws1 = AsyncMock()
         ws2 = AsyncMock()
@@ -181,9 +173,7 @@ class TestLogBroadcasting:
         ws3.send_json.assert_called_once_with(sample_log_entry)
 
     @pytest.mark.asyncio
-    async def test_broadcast_stores_in_buffer(
-        self, websocket_manager, sample_log_entry
-    ):
+    async def test_broadcast_stores_in_buffer(self, websocket_manager, sample_log_entry):
         """Broadcast should store log entry in buffer."""
         await websocket_manager.broadcast_log(sample_log_entry)
 
@@ -192,9 +182,7 @@ class TestLogBroadcasting:
         assert websocket_manager.log_buffer[model_id][0] == sample_log_entry
 
     @pytest.mark.asyncio
-    async def test_broadcast_handles_failed_send(
-        self, websocket_manager, sample_log_entry
-    ):
+    async def test_broadcast_handles_failed_send(self, websocket_manager, sample_log_entry):
         """Broadcast should handle clients that fail to receive."""
         ws_good = AsyncMock()
         ws_bad = AsyncMock()
@@ -235,9 +223,7 @@ class TestLogBroadcasting:
         assert ws_good in websocket_manager.active_connections
 
     @pytest.mark.asyncio
-    async def test_broadcast_with_no_connections(
-        self, websocket_manager, sample_log_entry
-    ):
+    async def test_broadcast_with_no_connections(self, websocket_manager, sample_log_entry):
         """Broadcast should work even with no connected clients."""
         # Should not raise an error
         await websocket_manager.broadcast_log(sample_log_entry)

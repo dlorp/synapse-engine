@@ -8,7 +8,6 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-
 # Type aliases for better type safety
 ComplexityLevel = Literal["SIMPLE", "MODERATE", "COMPLEX"]
 ModelTierLabel = Literal["Q2", "Q3", "Q4"]

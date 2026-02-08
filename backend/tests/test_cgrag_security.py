@@ -9,7 +9,7 @@ from unittest.mock import patch
 import pytest
 from fastapi import HTTPException
 
-from app.routers.cgrag import _validate_directory_path, ALLOWED_ROOTS
+from app.routers.cgrag import ALLOWED_ROOTS, _validate_directory_path
 
 
 class TestPathTraversalProtection:
@@ -114,7 +114,4 @@ class TestPathTraversalProtection:
                 _validate_directory_path(Path("/etc/shadow"))
 
         # Check that a warning was logged
-        assert any(
-            "Path traversal attempt blocked" in record.message
-            for record in caplog.records
-        )
+        assert any("Path traversal attempt blocked" in record.message for record in caplog.records)

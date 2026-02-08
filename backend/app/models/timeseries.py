@@ -64,9 +64,7 @@ class MetricsSummary(BaseModel):
     min: float = Field(..., description="Minimum value")
     max: float = Field(..., description="Maximum value")
     avg: float = Field(..., description="Average value")
-    p50: float = Field(
-        ..., serialization_alias="p50", description="50th percentile (median)"
-    )
+    p50: float = Field(..., serialization_alias="p50", description="50th percentile (median)")
     p95: float = Field(..., serialization_alias="p95", description="95th percentile")
     p99: float = Field(..., serialization_alias="p99", description="99th percentile")
 
@@ -87,12 +85,8 @@ class TimeSeriesResponse(BaseModel):
         summary: Statistical summary of values
     """
 
-    metric_name: str = Field(
-        ..., serialization_alias="metricName", description="Metric name"
-    )
-    time_range: str = Field(
-        ..., serialization_alias="timeRange", description="Time range covered"
-    )
+    metric_name: str = Field(..., serialization_alias="metricName", description="Metric name")
+    time_range: str = Field(..., serialization_alias="timeRange", description="Time range covered")
     unit: str = Field(..., description="Unit of measurement")
     data_points: list[TimeSeriesPoint] = Field(
         ..., serialization_alias="dataPoints", description="Time-series data points"
@@ -116,9 +110,7 @@ class ChartJSDataset(BaseModel):
 
     label: str = Field(..., description="Dataset label")
     data: list[float] = Field(..., description="Data values")
-    metadata: dict[str, Any] = Field(
-        default_factory=dict, description="Dataset metadata"
-    )
+    metadata: dict[str, Any] = Field(default_factory=dict, description="Dataset metadata")
 
 
 class ChartJSData(BaseModel):
@@ -141,9 +133,7 @@ class MultiMetricResponse(BaseModel):
         chart_data: Chart.js compatible data structure
     """
 
-    time_range: str = Field(
-        ..., serialization_alias="timeRange", description="Time range covered"
-    )
+    time_range: str = Field(..., serialization_alias="timeRange", description="Time range covered")
     chart_data: ChartJSData = Field(
         ..., serialization_alias="chartData", description="Chart.js data"
     )
@@ -165,9 +155,7 @@ class ModelBreakdown(BaseModel):
         summary: Statistical summary
     """
 
-    model_id: str = Field(
-        ..., serialization_alias="modelId", description="Model identifier"
-    )
+    model_id: str = Field(..., serialization_alias="modelId", description="Model identifier")
     display_name: str = Field(
         ..., serialization_alias="displayName", description="Human-readable model name"
     )
@@ -193,12 +181,8 @@ class ModelBreakdownResponse(BaseModel):
         models: List of per-model breakdowns
     """
 
-    metric_name: str = Field(
-        ..., serialization_alias="metricName", description="Metric name"
-    )
-    time_range: str = Field(
-        ..., serialization_alias="timeRange", description="Time range covered"
-    )
+    metric_name: str = Field(..., serialization_alias="metricName", description="Metric name")
+    time_range: str = Field(..., serialization_alias="timeRange", description="Time range covered")
     unit: str = Field(..., description="Unit of measurement")
     models: list[ModelBreakdown] = Field(..., description="Per-model breakdowns")
 

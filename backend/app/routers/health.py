@@ -76,8 +76,9 @@ async def readiness_probe(request: Request, response: Response) -> HealthRespons
 
     # Check MEMEX (Redis) connectivity
     try:
-        from app.core.config import get_config
         import redis
+
+        from app.core.config import get_config
 
         config = get_config()
         redis_client = redis.Redis(

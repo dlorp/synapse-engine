@@ -8,11 +8,12 @@ Enables running multiple instances of the same base model with different
 configurations (e.g., different personas, capabilities).
 """
 
+import re
 from datetime import datetime
 from enum import Enum
 from typing import Dict, List, Optional, Tuple
+
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-import re
 
 
 class InstanceStatus(str, Enum):
@@ -182,11 +183,7 @@ class InstanceRegistry(BaseModel):
 
     def get_active_instances(self) -> List[InstanceConfig]:
         """Get all instances with ACTIVE status."""
-        return [
-            inst
-            for inst in self.instances.values()
-            if inst.status == InstanceStatus.ACTIVE
-        ]
+        return [inst for inst in self.instances.values() if inst.status == InstanceStatus.ACTIVE]
 
     def get_instances_by_status(self, status: InstanceStatus) -> List[InstanceConfig]:
         """Get instances filtered by status."""
@@ -203,9 +200,7 @@ class CreateInstanceRequest(BaseModel):
     system_prompt: Optional[str] = Field(
         default=None, max_length=4096, serialization_alias="systemPrompt"
     )
-    web_search_enabled: bool = Field(
-        default=False, serialization_alias="webSearchEnabled"
-    )
+    web_search_enabled: bool = Field(default=False, serialization_alias="webSearchEnabled")
 
     model_config = ConfigDict(populate_by_name=True)
 
@@ -219,9 +214,7 @@ class UpdateInstanceRequest(BaseModel):
     system_prompt: Optional[str] = Field(
         default=None, max_length=4096, serialization_alias="systemPrompt"
     )
-    web_search_enabled: Optional[bool] = Field(
-        default=None, serialization_alias="webSearchEnabled"
-    )
+    web_search_enabled: Optional[bool] = Field(default=None, serialization_alias="webSearchEnabled")
 
     model_config = ConfigDict(populate_by_name=True)
 
