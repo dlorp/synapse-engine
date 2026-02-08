@@ -48,9 +48,7 @@ class CRAGResult(BaseModel):
     crag_decision: str = Field(..., description="RELEVANT | PARTIAL | IRRELEVANT")
     crag_score: float = Field(..., ge=0.0, le=1.0)
     correction_applied: bool
-    correction_strategy: str = Field(
-        ..., description="query_expansion | web_search | none"
-    )
+    correction_strategy: str = Field(..., description="query_expansion | web_search | none")
     original_artifacts_count: int
     web_search_used: bool = False
     cache_hit: bool = False
@@ -162,8 +160,7 @@ class CRAGOrchestrator:
         )
 
         logger.info(
-            f"[CRAG] Evaluation: {relevance_eval.category} "
-            f"(score={relevance_eval.score:.2f})"
+            f"[CRAG] Evaluation: {relevance_eval.category} (score={relevance_eval.score:.2f})"
         )
         logger.debug(
             f"[CRAG] Breakdown: keyword={relevance_eval.keyword_overlap:.2f}, "
@@ -212,9 +209,7 @@ class CRAGOrchestrator:
                 )
 
             except Exception as e:
-                logger.error(
-                    f"[CRAG] Query expansion failed: {e}. Using original artifacts."
-                )
+                logger.error(f"[CRAG] Query expansion failed: {e}. Using original artifacts.")
                 correction_strategy = "none"
 
         elif relevance_eval.category == "IRRELEVANT" and self.augmenter:
@@ -236,18 +231,14 @@ class CRAGOrchestrator:
                     )
 
             except Exception as e:
-                logger.error(
-                    f"[CRAG] Web search failed: {e}. Using original artifacts."
-                )
+                logger.error(f"[CRAG] Web search failed: {e}. Using original artifacts.")
 
         else:
             # Correction disabled or failed - use original artifacts
             logger.info("[CRAG] No correction applied (disabled or unavailable)")
 
         # Calculate final token usage
-        tokens_used = sum(
-            self._estimate_tokens(chunk.content) for chunk in final_artifacts
-        )
+        tokens_used = sum(self._estimate_tokens(chunk.content) for chunk in final_artifacts)
 
         elapsed_ms = (time.time() - start_time) * 1000
 

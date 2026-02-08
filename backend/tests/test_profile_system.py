@@ -9,8 +9,8 @@ from pathlib import Path
 # Add backend to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from app.services.profile_manager import ProfileManager
 from app.services.model_discovery import ModelDiscoveryService
+from app.services.profile_manager import ProfileManager
 
 
 def _get_profiles_dir() -> Path:
@@ -108,9 +108,7 @@ def test_profile_validation():
             print(f"\n  Profile '{name}' has missing models: {missing}")
             all_valid = False
         else:
-            print(
-                f"\n✓ Profile '{name}' is valid ({len(profile.enabled_models)} models)"
-            )
+            print(f"\n✓ Profile '{name}' is valid ({len(profile.enabled_models)} models)")
             for model_id in profile.enabled_models:
                 model = registry.models[model_id]
                 print(f"    - {model.get_display_name()}")

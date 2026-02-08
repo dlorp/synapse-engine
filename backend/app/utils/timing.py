@@ -1,8 +1,9 @@
 """Performance timing utilities for tracking execution time."""
 
 import time
-from typing import Optional
 from contextlib import contextmanager
+from typing import Optional
+
 from app.core.logging import get_logger
 
 logger = get_logger(__name__)

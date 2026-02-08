@@ -14,7 +14,6 @@ from pathlib import Path
 from app.models.discovered_model import DiscoveredModel, ModelRegistry, ModelTier
 from app.services.model_discovery import ModelDiscoveryService
 
-
 # Configure logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -46,9 +45,7 @@ def print_model_summary(model: DiscoveredModel) -> None:
 
     # Handle both enum and string values (Pydantic may convert)
     tier_value = (
-        model.assigned_tier
-        if isinstance(model.assigned_tier, str)
-        else model.assigned_tier.value
+        model.assigned_tier if isinstance(model.assigned_tier, str) else model.assigned_tier.value
     )
     tier = tier_value.upper()
 
@@ -81,9 +78,7 @@ def print_tier_summary(registry: ModelRegistry) -> None:
             models.sort(
                 key=lambda m: (
                     -m.size_params,
-                    m.quantization
-                    if isinstance(m.quantization, str)
-                    else m.quantization.value,
+                    m.quantization if isinstance(m.quantization, str) else m.quantization.value,
                 )
             )
 
@@ -124,9 +119,7 @@ def print_statistics(registry: ModelRegistry, gguf_count: int) -> None:
     print(f"    POWERFUL:  {powerful_count:2d} models")
 
     # Thinking models
-    thinking_count = sum(
-        1 for m in registry.models.values() if m.is_effectively_thinking()
-    )
+    thinking_count = sum(1 for m in registry.models.values() if m.is_effectively_thinking())
     if thinking_count > 0:
         print(f"\n  Reasoning models: {thinking_count} ")
 
@@ -283,9 +276,7 @@ For more information, see: docs/development/TROUBLESHOOTING.md
         help="Maximum parameter count for FAST tier (default: %(default)s)",
     )
 
-    parser.add_argument(
-        "--verbose", action="store_true", help="Enable verbose debug logging"
-    )
+    parser.add_argument("--verbose", action="store_true", help="Enable verbose debug logging")
 
     args = parser.parse_args()
 

@@ -6,6 +6,7 @@ reconfiguration or container rebuilds.
 """
 
 from typing import Optional
+
 from pydantic import BaseModel, Field
 
 
@@ -39,9 +40,7 @@ class RuntimeSettings(BaseModel):
         description="Context window size in tokens (2K, 4K, 8K, 16K, 32K, 64K, 128K)",
     )
 
-    threads: int = Field(
-        default=8, ge=1, le=64, description="Number of CPU threads for processing"
-    )
+    threads: int = Field(default=8, ge=1, le=64, description="Number of CPU threads for processing")
 
     batch_size: int = Field(
         default=512, ge=32, le=2048, description="Batch size for prompt processing"
@@ -56,9 +55,7 @@ class RuntimeSettings(BaseModel):
         description="Enable Flash Attention for faster inference (GPU only)",
     )
 
-    no_mmap: bool = Field(
-        default=True, description="Disable memory mapping (use for Metal/GPU)"
-    )
+    no_mmap: bool = Field(default=True, description="Disable memory mapping (use for Metal/GPU)")
 
     # ========================================================================
     # HuggingFace/Embeddings Configuration

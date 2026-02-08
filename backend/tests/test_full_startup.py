@@ -18,8 +18,8 @@ from pathlib import Path
 # Add backend to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from app.services.startup import StartupService
 from app.core.config import load_config
+from app.services.startup import StartupService
 
 
 async def test_startup():
@@ -93,9 +93,7 @@ async def test_startup():
             if service.server_manager:
                 status = service.server_manager.get_status_summary()
                 print("\nFinal Status:")
-                print(
-                    f"  Ready servers: {status['ready_servers']}/{status['total_servers']}"
-                )
+                print(f"  Ready servers: {status['ready_servers']}/{status['total_servers']}")
 
         # Shutdown
         print("\n" + "=" * 70)

@@ -6,8 +6,9 @@ and validates the complete discovery workflow.
 """
 
 from pathlib import Path
-from app.services.model_discovery import ModelDiscoveryService
+
 from app.models.discovered_model import ModelTier
+from app.services.model_discovery import ModelDiscoveryService
 
 
 def test_discovery_integration():
@@ -49,9 +50,7 @@ def test_discovery_integration():
         print(f"  {tier.value.upper():10s}: {len(models)} models")
 
     # Test thinking model detection
-    thinking_models = [
-        m for m in registry.models.values() if m.is_effectively_thinking()
-    ]
+    thinking_models = [m for m in registry.models.values() if m.is_effectively_thinking()]
     print(f"\n✓ Thinking models: {len(thinking_models)}")
     for model in thinking_models:
         print(f"  - {model.get_display_name()} ")
@@ -71,9 +70,7 @@ def test_discovery_integration():
             tier = model.get_effective_tier()
             tier_str = tier if isinstance(tier, str) else tier.value
             thinking = " " if model.is_effectively_thinking() else ""
-            print(
-                f"  Port {port}: {model.get_display_name()}{thinking} [{tier_str.upper()}]"
-            )
+            print(f"  Port {port}: {model.get_display_name()}{thinking} [{tier_str.upper()}]")
 
     # Test quantization detection
     print("\n--- Quantization Levels ---")

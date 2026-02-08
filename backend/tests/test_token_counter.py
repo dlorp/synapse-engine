@@ -9,8 +9,9 @@ This module tests the token counting functionality including:
 - Global singleton access
 """
 
-import pytest
 from unittest.mock import patch
+
+import pytest
 
 from app.services.token_counter import TokenCounter, get_token_counter
 
@@ -178,9 +179,7 @@ class TestTokenCounterErrorHandling:
         counter = TokenCounter()
 
         # Mock the encoding to raise an error
-        with patch.object(
-            counter.encoding, "encode", side_effect=Exception("Encoding error")
-        ):
+        with patch.object(counter.encoding, "encode", side_effect=Exception("Encoding error")):
             # Should fall back to estimation
             result = counter.count_tokens("Hello world")
             assert result > 0  # Should still return a value
@@ -190,9 +189,7 @@ class TestTokenCounterErrorHandling:
         counter = TokenCounter()
 
         # Mock the encoding to raise an error
-        with patch.object(
-            counter.encoding, "encode", side_effect=Exception("Encoding error")
-        ):
+        with patch.object(counter.encoding, "encode", side_effect=Exception("Encoding error")):
             text = "Hello world " * 100
             result = counter.truncate_to_token_limit(text, max_tokens=10)
             # Should still return truncated text

@@ -10,7 +10,7 @@ Feature: CGRAG Index Management
 from pathlib import Path
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException, BackgroundTasks
+from fastapi import APIRouter, BackgroundTasks, HTTPException
 from pydantic import BaseModel, Field
 
 from app.core.logging import get_logger
@@ -77,9 +77,7 @@ class IndexRequest(BaseModel):
         default="/app/docs",
         description="Directory path to index (relative to container or absolute)",
     )
-    chunk_size: int = Field(
-        default=512, ge=100, le=2000, description="Target chunk size in words"
-    )
+    chunk_size: int = Field(default=512, ge=100, le=2000, description="Target chunk size in words")
     chunk_overlap: int = Field(
         default=50, ge=0, le=200, description="Overlap between chunks in words"
     )
@@ -191,15 +189,11 @@ async def _run_indexing(directory: str, chunk_size: int, chunk_overlap: int):
         # Count files first
         files = list(dir_path.rglob("*"))
         supported_files = [
-            f
-            for f in files
-            if f.is_file() and f.suffix in CGRAGIndexer.SUPPORTED_EXTENSIONS
+            f for f in files if f.is_file() and f.suffix in CGRAGIndexer.SUPPORTED_EXTENSIONS
         ]
         _indexing_status["total_files"] = len(supported_files)
 
-        logger.info(
-            f"Starting CGRAG indexing of {directory} ({len(supported_files)} files)"
-        )
+        logger.info(f"Starting CGRAG indexing of {directory} ({len(supported_files)} files)")
 
         # Create indexer and run indexing
         indexer = CGRAGIndexer()
@@ -232,9 +226,7 @@ async def _run_indexing(directory: str, chunk_size: int, chunk_overlap: int):
     summary="Start CGRAG indexing",
     description="Triggers indexing of a directory into the CGRAG vector index. Runs in background.",
 )
-async def start_indexing(
-    request: IndexRequest, background_tasks: BackgroundTasks
-) -> IndexResponse:
+async def start_indexing(request: IndexRequest, background_tasks: BackgroundTasks) -> IndexResponse:
     """Start indexing a directory into CGRAG.
 
     This operation runs in the background. Check /status endpoint for progress.
@@ -297,9 +289,7 @@ async def list_indexable_directories() -> dict:
             # Count indexable files
             files = list(dir_path.rglob("*"))
             indexable = [
-                f
-                for f in files
-                if f.is_file() and f.suffix in CGRAGIndexer.SUPPORTED_EXTENSIONS
+                f for f in files if f.is_file() and f.suffix in CGRAGIndexer.SUPPORTED_EXTENSIONS
             ]
             directories.append(
                 {

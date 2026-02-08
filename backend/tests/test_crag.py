@@ -7,14 +7,15 @@ Tests cover:
 - CRAGOrchestrator: End-to-end CRAG workflow
 """
 
-import pytest
-from unittest.mock import Mock, AsyncMock, patch
+from unittest.mock import AsyncMock, Mock, patch
 
+import pytest
+
+from app.services.cgrag import CGRAGResult, DocumentChunk
+from app.services.crag import CRAGOrchestrator, CRAGResult
 from app.services.crag_evaluator import CRAGEvaluator, RelevanceScore
 from app.services.query_expander import QueryExpander
 from app.services.web_augmenter import WebSearchAugmenter
-from app.services.crag import CRAGOrchestrator, CRAGResult
-from app.services.cgrag import DocumentChunk, CGRAGResult
 
 
 # Test fixtures
@@ -449,9 +450,7 @@ class TestCRAGOrchestrator:
         )
 
         # Configure mock to return different results
-        mock_retriever.retrieve = AsyncMock(
-            side_effect=[initial_result, expanded_result]
-        )
+        mock_retriever.retrieve = AsyncMock(side_effect=[initial_result, expanded_result])
 
         orchestrator = CRAGOrchestrator(
             cgrag_retriever=mock_retriever,

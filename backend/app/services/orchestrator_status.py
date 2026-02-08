@@ -23,7 +23,6 @@ from app.models.orchestrator import (
     TierUtilization,
 )
 
-
 logger = get_logger(__name__)
 
 
@@ -56,9 +55,7 @@ class OrchestratorStatusService:
             "Q4": {"total": 0, "active": 0},
         }
         self.lock = Lock()
-        logger.info(
-            f"OrchestratorStatusService initialized with buffer size {max_decisions}"
-        )
+        logger.info(f"OrchestratorStatusService initialized with buffer size {max_decisions}")
 
     def record_routing_decision(
         self,
@@ -154,9 +151,7 @@ class OrchestratorStatusService:
 
             # Calculate average decision time
             avg_decision_time = (
-                sum(self.decision_times) / len(self.decision_times)
-                if self.decision_times
-                else 0.0
+                sum(self.decision_times) / len(self.decision_times) if self.decision_times else 0.0
             )
 
             # Total decisions
@@ -186,12 +181,8 @@ class OrchestratorStatusService:
 
             # Calculate utilization percentage based on recent activity
             # Use a sliding window of last 20 decisions
-            recent_for_tier = sum(
-                1 for d in list(self.decisions)[-20:] if d.tier == tier_label
-            )
-            utilization_percent = (
-                min(100, int((recent_for_tier / 20) * 100)) if total > 0 else 0
-            )
+            recent_for_tier = sum(1 for d in list(self.decisions)[-20:] if d.tier == tier_label)
+            utilization_percent = min(100, int((recent_for_tier / 20) * 100)) if total > 0 else 0
 
             utilization.append(
                 TierUtilization(

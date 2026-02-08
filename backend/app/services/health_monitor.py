@@ -15,12 +15,12 @@ Phase: Production Metrics Implementation
 
 import asyncio
 from datetime import datetime
-from typing import Any, Optional, Dict, List
+from typing import Any, Dict, List, Optional
 
 import httpx
 
 from app.core.logging import get_logger
-from app.models.events import EventType, EventSeverity
+from app.models.events import EventSeverity, EventType
 
 logger = get_logger(__name__)
 
@@ -191,9 +191,7 @@ class HealthMonitor:
                     # Transition: ok → degraded
                     await self._emit_degraded_alert(components)
                     self.degraded_since = datetime.utcnow()
-                    logger.warning(
-                        "System health DEGRADED", extra={"components": components}
-                    )
+                    logger.warning("System health DEGRADED", extra={"components": components})
 
                 elif current_status == "ok" and self.last_status == "degraded":
                     # Transition: degraded → ok
@@ -353,9 +351,7 @@ class HealthMonitor:
         return {
             "running": self.running,
             "last_status": self.last_status,
-            "degraded_since": self.degraded_since.isoformat()
-            if self.degraded_since
-            else None,
+            "degraded_since": self.degraded_since.isoformat() if self.degraded_since else None,
             "check_interval": self.check_interval,
         }
 
@@ -374,9 +370,7 @@ def get_health_monitor() -> HealthMonitor:
         RuntimeError: If health monitor not initialized
     """
     if _health_monitor is None:
-        raise RuntimeError(
-            "HealthMonitor not initialized - call init_health_monitor() first"
-        )
+        raise RuntimeError("HealthMonitor not initialized - call init_health_monitor() first")
     return _health_monitor
 
 

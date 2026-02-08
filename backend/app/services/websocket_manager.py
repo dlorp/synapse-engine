@@ -16,7 +16,7 @@ Phase: 3 - WebSocket Log Streaming
 import asyncio
 import logging
 from collections import defaultdict, deque
-from typing import Dict, List, Optional, Deque
+from typing import Deque, Dict, List, Optional
 
 from fastapi import WebSocket
 
@@ -43,15 +43,11 @@ class WebSocketManager:
             buffer_size: Maximum number of log lines to buffer per model
         """
         self.active_connections: List[WebSocket] = []
-        self.log_buffer: Dict[str, Deque[dict]] = defaultdict(
-            lambda: deque(maxlen=buffer_size)
-        )
+        self.log_buffer: Dict[str, Deque[dict]] = defaultdict(lambda: deque(maxlen=buffer_size))
         self.buffer_size = buffer_size
         self._lock = asyncio.Lock()
 
-        logger.info(
-            f"WebSocket manager initialized (buffer_size={buffer_size} lines/model)"
-        )
+        logger.info(f"WebSocket manager initialized (buffer_size={buffer_size} lines/model)")
 
     async def connect(self, websocket: WebSocket) -> None:
         """Accept new WebSocket connection.
@@ -67,9 +63,7 @@ class WebSocketManager:
         async with self._lock:
             self.active_connections.append(websocket)
 
-        logger.info(
-            f"WebSocket connected (total connections: {len(self.active_connections)})"
-        )
+        logger.info(f"WebSocket connected (total connections: {len(self.active_connections)})")
 
     async def disconnect(self, websocket: WebSocket) -> None:
         """Remove WebSocket connection.
@@ -124,9 +118,7 @@ class WebSocketManager:
                 try:
                     await connection.send_json(log_entry)
                 except Exception as e:
-                    logger.debug(
-                        f"Failed to send log to WebSocket (connection likely closed): {e}"
-                    )
+                    logger.debug(f"Failed to send log to WebSocket (connection likely closed): {e}")
                     dead_connections.append(connection)
 
             # Remove dead connections
@@ -135,9 +127,7 @@ class WebSocketManager:
                     self.active_connections.remove(dead_conn)
 
             if dead_connections:
-                logger.info(
-                    f"Removed {len(dead_connections)} dead WebSocket connections"
-                )
+                logger.info(f"Removed {len(dead_connections)} dead WebSocket connections")
 
     def get_logs(self, model_id: Optional[str] = None) -> List[dict]:
         """Get buffered logs for a model or all models.
@@ -207,9 +197,7 @@ class WebSocketManager:
                 - total_logs: Total number of buffered log entries
                 - models: Dict mapping model_id to log count
         """
-        models_stats = {
-            model_id: len(logs) for model_id, logs in self.log_buffer.items()
-        }
+        models_stats = {model_id: len(logs) for model_id, logs in self.log_buffer.items()}
 
         return {
             "total_models": len(self.log_buffer),

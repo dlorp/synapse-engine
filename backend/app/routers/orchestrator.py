@@ -11,7 +11,6 @@ from app.core.logging import get_logger
 from app.models.orchestrator import OrchestratorStatusResponse
 from app.services.orchestrator_status import get_orchestrator_status_service
 
-
 logger = get_logger(__name__)
 router = APIRouter(prefix="/api/orchestrator")
 

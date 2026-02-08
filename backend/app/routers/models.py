@@ -146,9 +146,7 @@ def _get_discovery_service() -> ModelDiscoveryService:
 
 
 @router.get("/status")
-async def get_models_status(
-    model_manager: ModelManagerDependency, logger_dep: LoggerDependency
-):
+async def get_models_status(model_manager: ModelManagerDependency, logger_dep: LoggerDependency):
     """Get status of all models with system metrics and time-series data.
 
     Retrieves real-time status from all configured model instances,
@@ -172,7 +170,7 @@ async def get_models_status(
 
     # Also include models from server_manager (dynamic/external Metal servers)
     if server_manager and server_manager.servers:
-        from app.models.model import ModelStatus, ModelState
+        from app.models.model import ModelState, ModelStatus
 
         existing_ids = {m.id for m in system_status.models}
 
@@ -184,9 +182,7 @@ async def get_models_status(
                     name=server_proc.model.get_display_name(),
                     tier=str(server_proc.model.get_effective_tier()),
                     port=server_proc.port,
-                    state=ModelState.ACTIVE
-                    if server_proc.is_ready
-                    else ModelState.OFFLINE,
+                    state=ModelState.ACTIVE if server_proc.is_ready else ModelState.OFFLINE,
                     memory_used=0,  # Not tracked for external servers
                     memory_total=16384,  # Assume 16GB total
                     request_count=0,
@@ -331,9 +327,7 @@ async def rescan_models() -> RescanResponse:
         )
 
 
-@router.put(
-    "/port-range", response_model=PortRangeUpdateResponse, response_model_by_alias=True
-)
+@router.put("/port-range", response_model=PortRangeUpdateResponse, response_model_by_alias=True)
 async def update_port_range(request: PortRangeUpdateRequest) -> PortRangeUpdateResponse:
     """Update the model server port range.
 
@@ -358,9 +352,7 @@ async def update_port_range(request: PortRangeUpdateRequest) -> PortRangeUpdateR
 
     # Validate port range
     if request.start >= request.end:
-        logger.warning(
-            f"Invalid port range: start ({request.start}) >= end ({request.end})"
-        )
+        logger.warning(f"Invalid port range: start ({request.start}) >= end ({request.end})")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={
@@ -416,12 +408,8 @@ async def update_port_range(request: PortRangeUpdateRequest) -> PortRangeUpdateR
         )
 
 
-@router.put(
-    "/{model_id}/tier", response_model=TierUpdateResponse, response_model_by_alias=True
-)
-async def update_model_tier(
-    model_id: str, request: TierUpdateRequest
-) -> TierUpdateResponse:
+@router.put("/{model_id}/tier", response_model=TierUpdateResponse, response_model_by_alias=True)
+async def update_model_tier(model_id: str, request: TierUpdateRequest) -> TierUpdateResponse:
     """Update tier assignment for a model (user override).
 
     Args:
@@ -772,12 +760,8 @@ async def disable_all_models() -> BulkEnabledUpdateResponse:
 # ============================================================================
 
 
-@router.put(
-    "/{model_id}/port", response_model=PortUpdateResponse, response_model_by_alias=True
-)
-async def update_model_port(
-    model_id: str, request: PortUpdateRequest
-) -> PortUpdateResponse:
+@router.put("/{model_id}/port", response_model=PortUpdateResponse, response_model_by_alias=True)
+async def update_model_port(model_id: str, request: PortUpdateRequest) -> PortUpdateResponse:
     """Assign a specific port to a model.
 
     Args:
@@ -949,9 +933,7 @@ async def update_model_runtime_settings(
     )
 
 
-@router.get(
-    "/servers", response_model=ServerStatusResponse, response_model_by_alias=True
-)
+@router.get("/servers", response_model=ServerStatusResponse, response_model_by_alias=True)
 async def get_server_status() -> ServerStatusResponse:
     """Get status of all running llama.cpp servers.
 
@@ -1032,9 +1014,7 @@ async def start_model_server(model_id: str):
         await server_manager.start_server(model)
 
         elapsed = time.time() - start_time
-        logger.info(
-            f"✓ Started server for {model_id} on port {model.port} ({elapsed:.1f}s)"
-        )
+        logger.info(f"✓ Started server for {model_id} on port {model.port} ({elapsed:.1f}s)")
 
         return {
             "message": f"Server started for {model_id}",
@@ -1119,9 +1099,7 @@ async def start_all_enabled_servers():
         raise HTTPException(status_code=503, detail="Server manager not initialized")
 
     # Get all enabled models
-    enabled_models = [
-        model for model in model_registry.models.values() if model.enabled
-    ]
+    enabled_models = [model for model in model_registry.models.values() if model.enabled]
 
     if not enabled_models:
         logger.info("No enabled models to start")
@@ -1161,9 +1139,7 @@ async def start_all_enabled_servers():
 
     except Exception as e:
         logger.error(f"✗ Failed to start servers: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500, detail=f"Failed to start servers: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to start servers: {str(e)}")
 
 
 @router.post("/servers/stop-all", response_model=dict)
@@ -1227,9 +1203,7 @@ async def stop_all_servers():
         raise HTTPException(status_code=500, detail=f"Failed to stop servers: {str(e)}")
 
 
-@router.get(
-    "/tiers/{tier}", response_model=List[DiscoveredModel], response_model_by_alias=True
-)
+@router.get("/tiers/{tier}", response_model=List[DiscoveredModel], response_model_by_alias=True)
 async def get_models_by_tier(tier: str) -> List[DiscoveredModel]:
     """Get all models in a specific tier.
 
@@ -1426,9 +1400,7 @@ async def delete_profile(profile_name: str) -> ProfileDeleteResponse:
 
         logger.info(f"Profile '{profile_name}' deleted")
 
-        return ProfileDeleteResponse(
-            message=f"Profile '{profile_name}' deleted successfully"
-        )
+        return ProfileDeleteResponse(message=f"Profile '{profile_name}' deleted successfully")
 
     except SynapseException as e:
         logger.warning(f"Failed to delete profile '{profile_name}': {e.message}")

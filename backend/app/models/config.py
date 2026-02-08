@@ -2,7 +2,8 @@
 
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
-from pydantic import BaseModel, Field, field_validator, ConfigDict
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class ModelConfig(BaseModel):
@@ -57,9 +58,7 @@ class RoutingConfig(BaseModel):
         default_factory=lambda: {"fast": 3.0, "balanced": 7.0, "powerful": 15.0},
         description="Complexity score thresholds for each tier",
     )
-    default_tier: str = Field(
-        default="balanced", description="Default tier for routing"
-    )
+    default_tier: str = Field(default="balanced", description="Default tier for routing")
     enable_load_balancing: bool = Field(
         default=True, description="Enable load balancing for FAST tier models"
     )
@@ -83,9 +82,7 @@ class RedisConfig(BaseModel):
     db: int = Field(default=0, ge=0, description="Redis database number")
     password: Optional[str] = Field(default=None, description="Redis password")
     default_ttl: int = Field(default=3600, gt=0, description="Default TTL in seconds")
-    max_connections: int = Field(
-        default=10, gt=0, description="Maximum connection pool size"
-    )
+    max_connections: int = Field(default=10, gt=0, description="Maximum connection pool size")
 
 
 class LoggingConfig(BaseModel):
@@ -102,9 +99,7 @@ class LoggingConfig(BaseModel):
     level: str = Field(default="INFO", description="Log level")
     format: str = Field(default="json", description="Log format (json or text)")
     log_file: Optional[str] = Field(default=None, description="Log file path")
-    enable_request_logging: bool = Field(
-        default=True, description="Enable request logging"
-    )
+    enable_request_logging: bool = Field(default=True, description="Enable request logging")
     enable_performance_logging: bool = Field(
         default=True, description="Enable performance metrics logging"
     )
@@ -142,9 +137,7 @@ class CGRAGIndexingConfig(BaseModel):
     embedding_model: str = Field(
         default="all-MiniLM-L6-v2", description="Sentence-transformers model name"
     )
-    embedding_dimension: int = Field(
-        default=384, gt=0, description="Embedding vector dimension"
-    )
+    embedding_dimension: int = Field(default=384, gt=0, description="Embedding vector dimension")
 
 
 class CGRAGRetrievalConfig(BaseModel):
@@ -157,15 +150,11 @@ class CGRAGRetrievalConfig(BaseModel):
         cache_ttl: Cache TTL in seconds
     """
 
-    token_budget: int = Field(
-        default=8000, gt=0, description="Token budget for retrieval"
-    )
+    token_budget: int = Field(default=8000, gt=0, description="Token budget for retrieval")
     min_relevance: float = Field(
         default=0.7, ge=0.0, le=1.0, description="Minimum relevance threshold"
     )
-    max_artifacts: int = Field(
-        default=10, gt=0, description="Maximum artifacts to retrieve"
-    )
+    max_artifacts: int = Field(default=10, gt=0, description="Maximum artifacts to retrieve")
     cache_ttl: int = Field(default=3600, gt=0, description="Cache TTL in seconds")
 
 
@@ -246,9 +235,7 @@ class ModelManagementConfig(BaseModel):
         default=120, description="Maximum seconds to wait for server startup"
     )
 
-    readiness_check_interval: int = Field(
-        default=2, description="Seconds between readiness checks"
-    )
+    readiness_check_interval: int = Field(default=2, description="Seconds between readiness checks")
 
     concurrent_starts: bool = Field(
         default=True,
@@ -275,9 +262,7 @@ class AppConfig(BaseModel):
         logging: Logging configuration
     """
 
-    app_name: str = Field(
-        default="S.Y.N.A.P.S.E. Core (PRAXIS)", description="Application name"
-    )
+    app_name: str = Field(default="S.Y.N.A.P.S.E. Core (PRAXIS)", description="Application name")
     version: str = Field(default="0.1.0", description="Application version")
     environment: str = Field(default="development", description="Environment")
     host: str = Field(default="0.0.0.0", description="Server host")
@@ -289,21 +274,15 @@ class AppConfig(BaseModel):
     )
 
     # Nested configurations
-    models: Dict[str, ModelConfig] = Field(
-        default_factory=dict, description="Model configurations"
-    )
+    models: Dict[str, ModelConfig] = Field(default_factory=dict, description="Model configurations")
     routing: RoutingConfig = Field(
         default_factory=RoutingConfig, description="Routing configuration"
     )
-    redis: RedisConfig = Field(
-        default_factory=RedisConfig, description="Redis configuration"
-    )
+    redis: RedisConfig = Field(default_factory=RedisConfig, description="Redis configuration")
     logging: LoggingConfig = Field(
         default_factory=LoggingConfig, description="Logging configuration"
     )
-    cgrag: CGRAGConfig = Field(
-        default_factory=CGRAGConfig, description="CGRAG configuration"
-    )
+    cgrag: CGRAGConfig = Field(default_factory=CGRAGConfig, description="CGRAG configuration")
     model_management: ModelManagementConfig = Field(
         default_factory=ModelManagementConfig,
         description="Model management configuration",

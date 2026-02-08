@@ -93,9 +93,7 @@ class APITester:
                 # Store first model ID for later tests
                 if data.get("models"):
                     self.test_model_id = list(data["models"].keys())[0]
-                    print(
-                        f"  └─ Using model ID '{self.test_model_id}' for subsequent tests"
-                    )
+                    print(f"  └─ Using model ID '{self.test_model_id}' for subsequent tests")
 
             elif response.status_code == 503:
                 self.print_test(
@@ -182,9 +180,7 @@ class APITester:
         self.print_header("Test 4: GET /api/models/profiles/development")
 
         try:
-            response = await client.get(
-                f"{self.base_url}/api/models/profiles/development"
-            )
+            response = await client.get(f"{self.base_url}/api/models/profiles/development")
 
             if response.status_code == 200:
                 profile = response.json()
@@ -214,9 +210,7 @@ class APITester:
                 )
 
         except Exception as e:
-            self.print_test(
-                "GET /api/models/profiles/development", "FAIL", f"Error: {e}"
-            )
+            self.print_test("GET /api/models/profiles/development", "FAIL", f"Error: {e}")
 
     async def test_get_tiers(self, client: httpx.AsyncClient) -> None:
         """Test GET /api/models/tiers/{tier}."""
@@ -287,9 +281,7 @@ class APITester:
                 )
 
         except Exception as e:
-            self.print_test(
-                f"PUT /api/models/{self.test_model_id}/tier", "FAIL", f"Error: {e}"
-            )
+            self.print_test(f"PUT /api/models/{self.test_model_id}/tier", "FAIL", f"Error: {e}")
 
     async def test_update_thinking(self, client: httpx.AsyncClient) -> None:
         """Test PUT /api/models/{model_id}/thinking."""
@@ -330,9 +322,7 @@ class APITester:
                 )
 
         except Exception as e:
-            self.print_test(
-                f"PUT /api/models/{self.test_model_id}/thinking", "FAIL", f"Error: {e}"
-            )
+            self.print_test(f"PUT /api/models/{self.test_model_id}/thinking", "FAIL", f"Error: {e}")
 
     async def test_update_enabled(self, client: httpx.AsyncClient) -> None:
         """Test PUT /api/models/{model_id}/enabled."""
@@ -373,9 +363,7 @@ class APITester:
                 )
 
         except Exception as e:
-            self.print_test(
-                f"PUT /api/models/{self.test_model_id}/enabled", "FAIL", f"Error: {e}"
-            )
+            self.print_test(f"PUT /api/models/{self.test_model_id}/enabled", "FAIL", f"Error: {e}")
 
     async def test_rescan(self, client: httpx.AsyncClient) -> None:
         """Test POST /api/models/rescan."""
@@ -452,9 +440,7 @@ class APITester:
         self.print_header("Test 11: DELETE /api/models/profiles/api-test-profile")
 
         try:
-            response = await client.delete(
-                f"{self.base_url}/api/models/profiles/api-test-profile"
-            )
+            response = await client.delete(f"{self.base_url}/api/models/profiles/api-test-profile")
 
             if response.status_code == 200:
                 self.print_test(
@@ -482,9 +468,7 @@ class APITester:
                 )
 
         except Exception as e:
-            self.print_test(
-                "DELETE /api/models/profiles/api-test-profile", "FAIL", f"Error: {e}"
-            )
+            self.print_test("DELETE /api/models/profiles/api-test-profile", "FAIL", f"Error: {e}")
 
     async def run_all_tests(self) -> None:
         """Run all API endpoint tests."""

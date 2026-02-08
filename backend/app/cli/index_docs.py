@@ -16,9 +16,9 @@ import asyncio
 import sys
 from pathlib import Path
 
-from app.services.cgrag import CGRAGIndexer, get_cgrag_index_paths
 from app.core.config import load_config
 from app.services import runtime_settings as settings_service
+from app.services.cgrag import CGRAGIndexer, get_cgrag_index_paths
 
 
 async def main() -> int:

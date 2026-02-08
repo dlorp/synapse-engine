@@ -4,17 +4,17 @@ This module tests the event emission convenience functions that broadcast
 system events to the EventBus for real-time monitoring.
 """
 
-from unittest.mock import patch, AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
+from app.models.events import EventSeverity, EventType
 from app.services.event_emitter import (
-    emit_query_route_event,
-    emit_model_state_event,
-    emit_cgrag_event,
     emit_cache_event,
+    emit_cgrag_event,
     emit_error_event,
+    emit_model_state_event,
     emit_performance_event,
+    emit_query_route_event,
 )
-from app.models.events import EventType, EventSeverity
 
 
 class TestEmitQueryRouteEvent:

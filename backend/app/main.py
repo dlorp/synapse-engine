@@ -23,54 +23,54 @@ from fastapi.responses import JSONResponse
 from app.core.config import load_config
 from app.core.exceptions import SynapseException
 from app.core.logging import (
-    setup_logging,
-    set_request_id,
+    ServiceTag,
     clear_request_id,
     get_logger,
-    ServiceTag,
+    set_request_id,
+    setup_logging,
 )
-from app.routers import (
-    health,
-    models,
-    query,
-    admin,
-    settings,
-    proxy,
-    events,
-    orchestrator,
-    metrics,
-    pipeline,
-    context,
-    timeseries,
-    topology,
-    logs,
-    instances,
-    cgrag,
-)
-from app.services.llama_server_manager import LlamaServerManager
-from app.services.model_discovery import ModelDiscoveryService
-from app.services.profile_manager import ProfileManager
-from app.services.websocket_manager import WebSocketManager
-from app.services.event_bus import init_event_bus, get_event_bus
-from app.services.pipeline_state import (
-    init_pipeline_state_manager,
-    get_pipeline_state_manager,
-)
-from app.services.context_state import (
-    init_context_state_manager,
-    get_context_state_manager,
-)
-from app.services.metrics_aggregator import (
-    init_metrics_aggregator,
-    get_metrics_aggregator,
-)
-from app.services.topology_manager import init_topology_manager, get_topology_manager
-from app.services.cache_metrics import init_cache_metrics
-from app.services.health_monitor import init_health_monitor, get_health_monitor
-from app.services.log_aggregator import init_log_aggregator
-from app.services.instance_manager import init_instance_manager, InstanceManager
 from app.core.logging_handler import AggregatorHandler
 from app.models.discovered_model import ModelRegistry
+from app.routers import (
+    admin,
+    cgrag,
+    context,
+    events,
+    health,
+    instances,
+    logs,
+    metrics,
+    models,
+    orchestrator,
+    pipeline,
+    proxy,
+    query,
+    settings,
+    timeseries,
+    topology,
+)
+from app.services.cache_metrics import init_cache_metrics
+from app.services.context_state import (
+    get_context_state_manager,
+    init_context_state_manager,
+)
+from app.services.event_bus import get_event_bus, init_event_bus
+from app.services.health_monitor import get_health_monitor, init_health_monitor
+from app.services.instance_manager import InstanceManager, init_instance_manager
+from app.services.llama_server_manager import LlamaServerManager
+from app.services.log_aggregator import init_log_aggregator
+from app.services.metrics_aggregator import (
+    get_metrics_aggregator,
+    init_metrics_aggregator,
+)
+from app.services.model_discovery import ModelDiscoveryService
+from app.services.pipeline_state import (
+    get_pipeline_state_manager,
+    init_pipeline_state_manager,
+)
+from app.services.profile_manager import ProfileManager
+from app.services.topology_manager import get_topology_manager, init_topology_manager
+from app.services.websocket_manager import WebSocketManager
 
 # Track application start time
 _app_start_time = time.time()
@@ -165,9 +165,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         # Check for external server mode (Metal acceleration on macOS)
         use_external_servers_env = os.getenv("USE_EXTERNAL_SERVERS", "false")
         use_external_servers = use_external_servers_env.lower() == "true"
-        logger.info(
-            f" DEBUG: USE_EXTERNAL_SERVERS env var = '{use_external_servers_env}'"
-        )
+        logger.info(f" DEBUG: USE_EXTERNAL_SERVERS env var = '{use_external_servers_env}'")
         logger.info(f" DEBUG: use_external_servers flag = {use_external_servers}")
 
         # Initialize WebSocket manager for log streaming
@@ -180,16 +178,12 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         logger.info("Event bus initialized and started")
 
         # Initialize pipeline state manager for query processing visualization
-        pipeline_manager = init_pipeline_state_manager(
-            cleanup_interval=300, ttl_seconds=3600
-        )
+        pipeline_manager = init_pipeline_state_manager(cleanup_interval=300, ttl_seconds=3600)
         await pipeline_manager.start()
         logger.info("Pipeline state manager initialized and started")
 
         # Initialize context state manager for context window allocation tracking
-        context_manager = init_context_state_manager(
-            cleanup_interval=300, ttl_seconds=3600
-        )
+        context_manager = init_context_state_manager(cleanup_interval=300, ttl_seconds=3600)
         await context_manager.start()
         logger.info("Context state manager initialized and started")
 
@@ -261,10 +255,10 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         )
 
         # Expose services globally for routers
-        from app.routers import models as models_router
-        from app.routers import query as query_router
-        from app.routers import proxy as proxy_router
         from app.routers import instances as instances_router
+        from app.routers import models as models_router
+        from app.routers import proxy as proxy_router
+        from app.routers import query as query_router
         from app.services.model_selector import ModelSelector
 
         models_router.model_registry = model_registry
@@ -279,9 +273,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         query_router.model_registry = model_registry
 
         # Initialize and expose model selector for query routing
-        model_selector = ModelSelector(
-            registry=model_registry, server_manager=server_manager
-        )
+        model_selector = ModelSelector(registry=model_registry, server_manager=server_manager)
         query_router.model_selector = model_selector
         app.state.model_selector = model_selector
         logger.info("ModelSelector initialized for query routing")
@@ -525,9 +517,7 @@ async def performance_middleware(request: Request, call_next) -> Response:  # ty
 
 # Exception handlers
 @app.exception_handler(SynapseException)
-async def synapse_exception_handler(
-    request: Request, exc: SynapseException
-) -> JSONResponse:
+async def synapse_exception_handler(request: Request, exc: SynapseException) -> JSONResponse:
     """Handle S.Y.N.A.P.S.E. CORE-specific exceptions.
 
     Args:

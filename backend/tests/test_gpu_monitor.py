@@ -1,15 +1,15 @@
 """Tests for GPU monitoring utilities."""
 
 import subprocess
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
 from app.services.gpu_monitor import (
     GPUInfo,
     _detect_gpu_type,
-    _get_nvidia_metrics,
     _get_apple_silicon_metrics,
+    _get_nvidia_metrics,
     get_gpu_metrics,
     is_gpu_available,
 )
@@ -27,9 +27,7 @@ class TestGPUDetection:
     def test_detect_nvidia_gpu(self):
         """Test NVIDIA GPU detection via nvidia-smi."""
         with patch("subprocess.run") as mock_run:
-            mock_run.return_value = MagicMock(
-                returncode=0, stdout="NVIDIA GeForce RTX 4090\n"
-            )
+            mock_run.return_value = MagicMock(returncode=0, stdout="NVIDIA GeForce RTX 4090\n")
 
             result = _detect_gpu_type()
 
@@ -85,9 +83,7 @@ class TestGPUDetection:
         """Test that GPU type detection is cached."""
 
         with patch("subprocess.run") as mock_run:
-            mock_run.return_value = MagicMock(
-                returncode=0, stdout="NVIDIA GeForce RTX 4090\n"
-            )
+            mock_run.return_value = MagicMock(returncode=0, stdout="NVIDIA GeForce RTX 4090\n")
 
             # First call
             result1 = _detect_gpu_type()
@@ -146,9 +142,7 @@ class TestNvidiaMetrics:
     def test_get_nvidia_metrics_timeout(self):
         """Test graceful handling of nvidia-smi timeout."""
         with patch("subprocess.run") as mock_run:
-            mock_run.side_effect = subprocess.TimeoutExpired(
-                cmd="nvidia-smi", timeout=5
-            )
+            mock_run.side_effect = subprocess.TimeoutExpired(cmd="nvidia-smi", timeout=5)
 
             result = _get_nvidia_metrics()
 

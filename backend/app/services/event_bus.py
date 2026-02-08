@@ -78,8 +78,7 @@ class EventBus:
         self._running = False
 
         logger.info(
-            f"EventBus initialized (history_size={history_size}, "
-            f"max_queue_size={max_queue_size})"
+            f"EventBus initialized (history_size={history_size}, max_queue_size={max_queue_size})"
         )
 
     async def start(self) -> None:
@@ -326,9 +325,7 @@ class EventBus:
                     try:
                         await asyncio.wait_for(subscriber_queue.put(event), timeout=1.0)
                     except asyncio.TimeoutError:
-                        logger.warning(
-                            "Timeout sending historical event to new subscriber"
-                        )
+                        logger.warning("Timeout sending historical event to new subscriber")
                         break
 
             # Stream new events

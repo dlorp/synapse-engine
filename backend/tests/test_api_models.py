@@ -8,22 +8,22 @@ import pytest
 from pydantic import ValidationError
 
 from app.models.api import (
-    TierUpdateRequest,
-    TierUpdateResponse,
-    ThinkingUpdateRequest,
-    ThinkingUpdateResponse,
+    BulkEnabledUpdateResponse,
     EnabledUpdateRequest,
     EnabledUpdateResponse,
-    BulkEnabledUpdateResponse,
-    RescanResponse,
-    ServerStatusItem,
-    ServerStatusResponse,
-    ProfileCreateRequest,
-    PortUpdateRequest,
-    RuntimeSettingsUpdateRequest,
-    PortRangeUpdateRequest,
     ExternalServerItem,
     ExternalServerStatusResponse,
+    PortRangeUpdateRequest,
+    PortUpdateRequest,
+    ProfileCreateRequest,
+    RescanResponse,
+    RuntimeSettingsUpdateRequest,
+    ServerStatusItem,
+    ServerStatusResponse,
+    ThinkingUpdateRequest,
+    ThinkingUpdateResponse,
+    TierUpdateRequest,
+    TierUpdateResponse,
 )
 
 

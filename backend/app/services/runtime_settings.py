@@ -9,6 +9,7 @@ import logging
 from datetime import datetime
 from pathlib import Path
 from typing import List, Optional, Tuple
+
 from pydantic import ValidationError
 
 from app.models.runtime_settings import RuntimeSettings
@@ -40,9 +41,7 @@ async def load_runtime_settings(file_path: Optional[Path] = None) -> RuntimeSett
 
     # If file doesn't exist, create default settings
     if not _settings_file_path.exists():
-        logger.info(
-            f"Runtime settings file not found at {_settings_file_path}, creating defaults"
-        )
+        logger.info(f"Runtime settings file not found at {_settings_file_path}, creating defaults")
         _runtime_settings = RuntimeSettings()
         await save_runtime_settings(_runtime_settings)
         return _runtime_settings
@@ -142,9 +141,7 @@ async def validate_settings(settings: RuntimeSettings) -> Tuple[bool, List[str]]
     # Validate context size (must be power of 2 or common values)
     valid_ctx_sizes = {512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072}
     if settings.ctx_size not in valid_ctx_sizes:
-        errors.append(
-            f"ctx_size must be one of {valid_ctx_sizes} (got {settings.ctx_size})"
-        )
+        errors.append(f"ctx_size must be one of {valid_ctx_sizes} (got {settings.ctx_size})")
 
     # Validate ubatch_size <= batch_size
     if settings.ubatch_size > settings.batch_size:
@@ -157,10 +154,7 @@ async def validate_settings(settings: RuntimeSettings) -> Tuple[bool, List[str]]
         errors.append("threads must be between 1 and 64")
 
     # Validate embedding model name (basic check)
-    if (
-        not settings.embedding_model_name
-        or len(settings.embedding_model_name.strip()) == 0
-    ):
+    if not settings.embedding_model_name or len(settings.embedding_model_name.strip()) == 0:
         errors.append("embedding_model_name cannot be empty")
 
     # Validate embedding cache path if provided
@@ -258,10 +252,7 @@ async def update_runtime_settings(
     # Save new settings
     try:
         await save_runtime_settings(new_settings)
-        logger.info(
-            f"Runtime settings updated successfully "
-            f"(restart_required={restart_required})"
-        )
+        logger.info(f"Runtime settings updated successfully (restart_required={restart_required})")
         return True, new_settings, restart_required, []
 
     except Exception as e:

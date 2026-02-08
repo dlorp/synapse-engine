@@ -43,9 +43,7 @@ class ContextComponent(BaseModel):
         ...,
         description="Component identifier (system_prompt, cgrag_context, user_query, response_budget)",
     )
-    tokens_used: int = Field(
-        ..., ge=0, description="Actual tokens used by this component"
-    )
+    tokens_used: int = Field(..., ge=0, description="Actual tokens used by this component")
     tokens_allocated: int = Field(
         ..., ge=0, description="Tokens allocated/reserved for this component"
     )
@@ -88,9 +86,7 @@ class CGRAGArtifact(BaseModel):
         le=1.0,
         description="Similarity score from FAISS retrieval (0.0-1.0)",
     )
-    token_count: int = Field(
-        ..., ge=0, description="Number of tokens this artifact contributes"
-    )
+    token_count: int = Field(..., ge=0, description="Number of tokens this artifact contributes")
     content_preview: str = Field(..., description="First 200 chars of artifact content")
 
 
@@ -131,12 +127,8 @@ class ContextAllocation(BaseModel):
     context_window_size: int = Field(
         ..., gt=0, description="Model's maximum context window (e.g., 8192)"
     )
-    total_tokens_used: int = Field(
-        ..., ge=0, description="Total tokens used across all components"
-    )
-    tokens_remaining: int = Field(
-        ..., ge=0, description="Tokens remaining for response generation"
-    )
+    total_tokens_used: int = Field(..., ge=0, description="Total tokens used across all components")
+    tokens_remaining: int = Field(..., ge=0, description="Tokens remaining for response generation")
     utilization_percentage: float = Field(
         ..., ge=0.0, le=100.0, description="Overall context window utilization (0-100)"
     )
@@ -172,9 +164,7 @@ class ContextAllocationRequest(BaseModel):
     system_prompt: str = Field(..., description="System prompt text")
     cgrag_context: str = Field(default="", description="Combined CGRAG context text")
     user_query: str = Field(..., description="User query text")
-    context_window_size: int = Field(
-        ..., gt=0, description="Model's maximum context window"
-    )
+    context_window_size: int = Field(..., gt=0, description="Model's maximum context window")
     cgrag_artifacts: Optional[List[CGRAGArtifact]] = Field(
         None, description="Optional list of CGRAG artifacts with metadata"
     )

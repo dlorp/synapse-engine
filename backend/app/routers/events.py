@@ -15,9 +15,10 @@ import asyncio
 import json
 from typing import Optional, Set
 
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query
+from fastapi import APIRouter, Query, WebSocket, WebSocketDisconnect
+
 from app.core.logging import get_logger
-from app.models.events import EventType, EventSeverity
+from app.models.events import EventSeverity, EventType
 from app.services.event_bus import get_event_bus
 
 router = APIRouter()
@@ -27,12 +28,8 @@ logger = get_logger(__name__)
 @router.websocket("/ws/events")
 async def websocket_events(
     websocket: WebSocket,
-    types: Optional[str] = Query(
-        None, description="Comma-separated event types to filter"
-    ),
-    severity: str = Query(
-        "info", description="Minimum severity level (info, warning, error)"
-    ),
+    types: Optional[str] = Query(None, description="Comma-separated event types to filter"),
+    severity: str = Query("info", description="Minimum severity level (info, warning, error)"),
 ) -> None:
     """WebSocket endpoint for real-time system event streaming.
 
@@ -185,9 +182,7 @@ async def websocket_events(
                                     await websocket.send_json({"type": "pong"})
                             except (json.JSONDecodeError, ValueError):
                                 # Ignore non-JSON messages
-                                logger.debug(
-                                    f"Received non-JSON WebSocket message: {text}"
-                                )
+                                logger.debug(f"Received non-JSON WebSocket message: {text}")
                         except WebSocketDisconnect:
                             logger.info("WebSocket disconnected")
                             return
@@ -207,9 +202,7 @@ async def websocket_events(
                             logger.info("WebSocket disconnected while sending event")
                             return
                         except Exception as e:
-                            logger.error(
-                                f"Error sending event to WebSocket client: {e}"
-                            )
+                            logger.error(f"Error sending event to WebSocket client: {e}")
                             return
 
         except asyncio.CancelledError:

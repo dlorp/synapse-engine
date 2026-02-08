@@ -17,8 +17,8 @@ from pathlib import Path
 # Add backend to path for imports
 sys.path.insert(0, str(Path(__file__).parent))
 
-from app.services.model_discovery import ModelDiscoveryService
 from app.services.llama_server_manager import LlamaServerManager
+from app.services.model_discovery import ModelDiscoveryService
 
 
 async def test_server_manager():

@@ -4,14 +4,16 @@ This module tests the moderator analysis feature for Council Debate Mode,
 which uses sequential thinking to provide deep analytical insights.
 """
 
+from datetime import datetime
+
 import pytest
+
+from app.services.dialogue_engine import DialogueTurn
 from app.services.moderator_analysis import (
     ModeratorAnalysis,
     _build_transcript,
     _parse_moderator_analysis,
 )
-from app.services.dialogue_engine import DialogueTurn
-from datetime import datetime
 
 
 @pytest.fixture

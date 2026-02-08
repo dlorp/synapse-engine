@@ -50,12 +50,8 @@ class ComponentNode(BaseModel):
     status: Literal["healthy", "degraded", "unhealthy", "offline"] = Field(
         ..., description="Health status"
     )
-    metadata: Dict[str, Any] = Field(
-        default_factory=dict, description="Additional component info"
-    )
-    position: Optional[Dict[str, float]] = Field(
-        None, description="React Flow position {x, y}"
-    )
+    metadata: Dict[str, Any] = Field(default_factory=dict, description="Additional component info")
+    position: Optional[Dict[str, float]] = Field(None, description="React Flow position {x, y}")
 
 
 class ComponentConnection(BaseModel):
@@ -92,9 +88,7 @@ class ComponentConnection(BaseModel):
     )
     label: Optional[str] = Field(None, description="Connection description")
     active: bool = Field(default=False, description="Currently active")
-    metadata: Dict[str, Any] = Field(
-        default_factory=dict, description="Connection stats"
-    )
+    metadata: Dict[str, Any] = Field(default_factory=dict, description="Connection stats")
 
 
 class SystemTopology(BaseModel):
@@ -121,9 +115,7 @@ class SystemTopology(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     nodes: List[ComponentNode] = Field(..., description="System components")
-    connections: List[ComponentConnection] = Field(
-        ..., description="Component connections"
-    )
+    connections: List[ComponentConnection] = Field(..., description="Component connections")
     last_updated: datetime = Field(..., description="Last update timestamp")
     overall_health: Literal["healthy", "degraded", "unhealthy"] = Field(
         ..., description="System-wide health status"
@@ -159,12 +151,8 @@ class DataFlowPath(BaseModel):
 
     query_id: str = Field(..., description="Unique query identifier")
     path: List[str] = Field(..., description="Ordered node IDs")
-    timestamps: Dict[str, str] = Field(
-        ..., description="Node entry timestamps (ISO format)"
-    )
-    status: Literal["active", "completed", "failed"] = Field(
-        ..., description="Flow status"
-    )
+    timestamps: Dict[str, str] = Field(..., description="Node entry timestamps (ISO format)")
+    status: Literal["active", "completed", "failed"] = Field(..., description="Flow status")
 
 
 class HealthMetrics(BaseModel):

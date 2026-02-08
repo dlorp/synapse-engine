@@ -68,9 +68,7 @@ class TestConfigLoaderEnvSubstitution:
         loader = ConfigLoader()
         env_dict = {"API_KEY": "secret123", "HOST": "localhost"}
 
-        result = loader._substitute_env_vars(
-            "https://${HOST}/api?key=${API_KEY}", env_dict
-        )
+        result = loader._substitute_env_vars("https://${HOST}/api?key=${API_KEY}", env_dict)
 
         assert result == "https://localhost/api?key=secret123"
 
@@ -248,10 +246,7 @@ app:
             with pytest.raises(ConfigurationError) as exc_info:
                 loader._load_yaml()
 
-            assert (
-                "parse" in str(exc_info.value).lower()
-                or "yaml" in str(exc_info.value).lower()
-            )
+            assert "parse" in str(exc_info.value).lower() or "yaml" in str(exc_info.value).lower()
         finally:
             temp_path.unlink()
 
@@ -291,10 +286,7 @@ class TestConfigLoaderBuildEnvDict:
         # REDIS_PASSWORD should not be in env_dict if it's None
         # Actually, let me check the implementation - it only adds if value is not None
         # Based on the code: if value is not None: env_dict[...] = str(value)
-        assert (
-            "REDIS_PASSWORD" not in env_dict
-            or env_dict.get("REDIS_PASSWORD") is not None
-        )
+        assert "REDIS_PASSWORD" not in env_dict or env_dict.get("REDIS_PASSWORD") is not None
 
 
 class TestGetConfigAndLoadConfig:

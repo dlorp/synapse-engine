@@ -9,7 +9,6 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-
 # Type aliases
 TierName = Literal["Q2", "Q3", "Q4"]
 ComplexityLevel = Literal["SIMPLE", "MODERATE", "COMPLEX"]
@@ -368,9 +367,7 @@ class MetricsUpdate(BaseModel):
         routing: Routing metrics
     """
 
-    type: Literal["metrics_update"] = Field(
-        default="metrics_update", description="Message type"
-    )
+    type: Literal["metrics_update"] = Field(default="metrics_update", description="Message type")
     timestamp: str = Field(..., description="ISO8601 timestamp")
     queries: QueryMetrics = Field(..., description="Query metrics")
     resources: ResourceMetrics = Field(..., description="Resource metrics")

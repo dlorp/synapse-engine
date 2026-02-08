@@ -6,9 +6,9 @@ including quantization levels, model tiers, discovered model metadata, and the
 centralized model registry.
 """
 
+from datetime import datetime
 from enum import Enum
 from typing import Dict, List, Optional, Tuple
-from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -59,16 +59,12 @@ class DiscoveredModel(BaseModel):
     """
 
     # File information
-    file_path: str = Field(
-        description="Absolute path to GGUF file", serialization_alias="filePath"
-    )
+    file_path: str = Field(description="Absolute path to GGUF file", serialization_alias="filePath")
     filename: str = Field(description="Base filename without path")
 
     # Model identity
     family: str = Field(description="Model family (qwen, deepseek, llama, etc.)")
-    version: Optional[str] = Field(
-        default=None, description="Model version (2.5, 3, etc.)"
-    )
+    version: Optional[str] = Field(default=None, description="Model version (2.5, 3, etc.)")
     size_params: float = Field(
         description="Model size in billions of parameters",
         serialization_alias="sizeParams",
@@ -108,9 +104,7 @@ class DiscoveredModel(BaseModel):
     )
 
     # Runtime configuration
-    port: Optional[int] = Field(
-        default=None, description="Assigned llama.cpp server port"
-    )
+    port: Optional[int] = Field(default=None, description="Assigned llama.cpp server port")
     enabled: bool = Field(default=False, description="Whether model is enabled for use")
 
     # Per-model runtime overrides (Phase 2)
@@ -145,9 +139,7 @@ class DiscoveredModel(BaseModel):
     )
 
     # Generated identifier
-    model_id: str = Field(
-        description="Generated unique identifier", serialization_alias="modelId"
-    )
+    model_id: str = Field(description="Generated unique identifier", serialization_alias="modelId")
 
     def get_display_name(self) -> str:
         """Generate human-readable display name.
@@ -172,9 +164,7 @@ class DiscoveredModel(BaseModel):
 
         # Handle both enum and string values (Pydantic may convert)
         quant_str = (
-            self.quantization
-            if isinstance(self.quantization, str)
-            else self.quantization.value
+            self.quantization if isinstance(self.quantization, str) else self.quantization.value
         )
         parts.append(quant_str.upper())
 
@@ -195,9 +185,7 @@ class DiscoveredModel(BaseModel):
             bool: Override if set, otherwise auto-detected status
         """
         return (
-            self.thinking_override
-            if self.thinking_override is not None
-            else self.is_thinking_model
+            self.thinking_override if self.thinking_override is not None else self.is_thinking_model
         )
 
     model_config = ConfigDict(
@@ -219,9 +207,7 @@ class ModelRegistry(BaseModel):
     scan_path: str = Field(
         description="Directory path that was scanned", serialization_alias="scanPath"
     )
-    last_scan: str = Field(
-        description="ISO timestamp of last scan", serialization_alias="lastScan"
-    )
+    last_scan: str = Field(description="ISO timestamp of last scan", serialization_alias="lastScan")
     port_range: Tuple[int, int] = Field(
         default=(8080, 8099),
         description="Available port range for llama.cpp servers",
@@ -245,11 +231,7 @@ class ModelRegistry(BaseModel):
         Returns:
             List of models with effective tier matching target
         """
-        return [
-            model
-            for model in self.models.values()
-            if model.get_effective_tier() == tier
-        ]
+        return [model for model in self.models.values() if model.get_effective_tier() == tier]
 
     def get_enabled_models(self) -> List[DiscoveredModel]:
         """Get all enabled models.
@@ -268,9 +250,7 @@ class ModelRegistry(BaseModel):
         Returns:
             Model assigned to port, or None if not found
         """
-        return next(
-            (model for model in self.models.values() if model.port == port), None
-        )
+        return next((model for model in self.models.values() if model.port == port), None)
 
     def get_available_ports(self) -> List[int]:
         """Get list of unassigned ports in range.
@@ -278,9 +258,7 @@ class ModelRegistry(BaseModel):
         Returns:
             List of port numbers not currently assigned
         """
-        assigned_ports = {
-            model.port for model in self.models.values() if model.port is not None
-        }
+        assigned_ports = {model.port for model in self.models.values() if model.port is not None}
         return [
             port
             for port in range(self.port_range[0], self.port_range[1] + 1)

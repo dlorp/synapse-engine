@@ -16,8 +16,8 @@ Phase: Production Metrics Implementation
 
 import asyncio
 import time
-from typing import Dict, Any, Optional
 from datetime import datetime, timezone
+from typing import Any, Dict, Optional
 
 from app.core.logging import get_logger
 
@@ -132,8 +132,9 @@ class CacheMetrics:
             Number of keys currently in Redis database
         """
         try:
-            from app.core.config import get_config
             import redis
+
+            from app.core.config import get_config
 
             config = get_config()
             redis_client = redis.Redis(
@@ -221,9 +222,7 @@ def get_cache_metrics() -> CacheMetrics:
         RuntimeError: If cache metrics not initialized
     """
     if _cache_metrics is None:
-        raise RuntimeError(
-            "CacheMetrics not initialized - call init_cache_metrics() first"
-        )
+        raise RuntimeError("CacheMetrics not initialized - call init_cache_metrics() first")
     return _cache_metrics
 
 

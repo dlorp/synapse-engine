@@ -5,13 +5,14 @@ serialization to dict, and correct HTTP status codes.
 """
 
 import pytest
+
 from app.core.exceptions import (
-    SynapseException,
     ConfigurationError,
     ModelNotFoundError,
     ModelUnavailableError,
     NoModelsAvailableError,
     QueryTimeoutError,
+    SynapseException,
     ValidationError,
 )
 

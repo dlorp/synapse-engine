@@ -130,9 +130,7 @@ async def get_component_health(component_id: str) -> HealthMetrics:
         metrics = await topology_manager.get_component_health(component_id)
 
         if metrics is None:
-            raise HTTPException(
-                status_code=404, detail=f"Component '{component_id}' not found"
-            )
+            raise HTTPException(status_code=404, detail=f"Component '{component_id}' not found")
 
         return metrics
     except HTTPException:
@@ -142,9 +140,7 @@ async def get_component_health(component_id: str) -> HealthMetrics:
         raise HTTPException(status_code=503, detail="Topology manager not available")
     except Exception as e:
         logger.error(f"Failed to get health for {component_id}: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get component health: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to get component health: {str(e)}")
 
 
 @router.get("/dataflow/{query_id}", response_model=DataFlowPath)
@@ -196,9 +192,7 @@ async def get_data_flow_path(query_id: str) -> DataFlowPath:
         raise HTTPException(status_code=503, detail="Topology manager not available")
     except Exception as e:
         logger.error(f"Failed to get data flow for {query_id}: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get data flow path: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to get data flow path: {str(e)}")
 
 
 @router.get("/nodes", response_model=List[ComponentNode])
@@ -242,9 +236,7 @@ async def get_topology_nodes() -> List[ComponentNode]:
         raise HTTPException(status_code=503, detail="Topology manager not available")
     except Exception as e:
         logger.error(f"Failed to get topology nodes: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get topology nodes: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to get topology nodes: {str(e)}")
 
 
 @router.get("/connections", response_model=List[ComponentConnection])
@@ -293,6 +285,4 @@ async def get_topology_connections() -> List[ComponentConnection]:
         raise HTTPException(status_code=503, detail="Topology manager not available")
     except Exception as e:
         logger.error(f"Failed to get topology connections: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get topology connections: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to get topology connections: {str(e)}")

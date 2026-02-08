@@ -18,11 +18,11 @@ from fastapi.responses import JSONResponse
 
 from app.core.exceptions import SynapseException
 from app.models.instance import (
+    CreateInstanceRequest,
     InstanceConfig,
     InstanceListResponse,
-    CreateInstanceRequest,
-    UpdateInstanceRequest,
     SystemPromptPresetsResponse,
+    UpdateInstanceRequest,
 )
 from app.services.instance_manager import InstanceManager
 
@@ -73,9 +73,7 @@ async def list_instances() -> InstanceListResponse:
     instances = mgr.get_all_instances()
     by_model = mgr.get_instance_counts_by_model()
 
-    return InstanceListResponse(
-        instances=instances, total=len(instances), by_model=by_model
-    )
+    return InstanceListResponse(instances=instances, total=len(instances), by_model=by_model)
 
 
 @router.get("/model/{model_id}", response_model=List[InstanceConfig])
@@ -181,9 +179,7 @@ async def create_instance(request: CreateInstanceRequest) -> InstanceConfig:
 
     try:
         config = mgr.create_instance(request)
-        logger.info(
-            f"Created instance {config.instance_id} for model {request.model_id}"
-        )
+        logger.info(f"Created instance {config.instance_id} for model {request.model_id}")
         return config
     except SynapseException as e:
         logger.error(f"Failed to create instance: {e}")
@@ -198,9 +194,7 @@ async def create_instance(request: CreateInstanceRequest) -> InstanceConfig:
 
 
 @router.put("/{instance_id}", response_model=InstanceConfig)
-async def update_instance(
-    instance_id: str, request: UpdateInstanceRequest
-) -> InstanceConfig:
+async def update_instance(instance_id: str, request: UpdateInstanceRequest) -> InstanceConfig:
     """Update an existing instance configuration.
 
     Args:

@@ -108,9 +108,7 @@ class SearXNGClient:
             f"timeout={timeout}s, max_results={max_results}"
         )
 
-    async def search(
-        self, query: str, categories: Optional[List[str]] = None
-    ) -> WebSearchResponse:
+    async def search(self, query: str, categories: Optional[List[str]] = None) -> WebSearchResponse:
         """Execute web search query through SearXNG.
 
         Args:
@@ -152,9 +150,7 @@ class SearXNGClient:
             raw_results = data.get("results", [])
             total_results = len(raw_results)
 
-            logger.debug(
-                f"  ✓ SearXNG returned {total_results} results in {search_time_ms}ms"
-            )
+            logger.debug(f"  ✓ SearXNG returned {total_results} results in {search_time_ms}ms")
 
             # Parse and limit results
             parsed_results = []
@@ -165,10 +161,7 @@ class SearXNGClient:
                         url=result.get("url", ""),
                         content=result.get("content", result.get("snippet", "")),
                         engine=", ".join(result.get("engines", [])),
-                        score=1.0
-                        - (
-                            idx * 0.1
-                        ),  # Simple ranking: first result = 1.0, decay by 0.1
+                        score=1.0 - (idx * 0.1),  # Simple ranking: first result = 1.0, decay by 0.1
                         published_date=result.get("publishedDate"),
                     )
                     parsed_results.append(parsed_result)
@@ -178,16 +171,11 @@ class SearXNGClient:
 
             # Extract engines used
             engines_used = list(
-                set(
-                    engine
-                    for result in raw_results
-                    for engine in result.get("engines", [])
-                )
+                set(engine for result in raw_results for engine in result.get("engines", []))
             )
 
             logger.info(
-                f"   Parsed {len(parsed_results)}/{total_results} results, "
-                f"engines: {engines_used}"
+                f"   Parsed {len(parsed_results)}/{total_results} results, engines: {engines_used}"
             )
 
             return WebSearchResponse(
@@ -225,9 +213,7 @@ class SearXNGClient:
             if is_healthy:
                 logger.debug("✓ SearXNG health check passed")
             else:
-                logger.warning(
-                    f" SearXNG health check returned {response.status_code}"
-                )
+                logger.warning(f" SearXNG health check returned {response.status_code}")
 
             return is_healthy
 

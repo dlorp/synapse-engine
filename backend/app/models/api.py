@@ -6,7 +6,7 @@ responses in the model management REST API.
 
 from typing import List, Optional
 
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class TierUpdateRequest(BaseModel):
@@ -41,9 +41,7 @@ class TierUpdateResponse(BaseModel):
     """Response from tier update operation."""
 
     message: str = Field(..., description="Human-readable success message")
-    model_id: str = Field(
-        ..., description="Model identifier", serialization_alias="modelId"
-    )
+    model_id: str = Field(..., description="Model identifier", serialization_alias="modelId")
     tier: str = Field(..., description="New tier value")
     override: bool = Field(..., description="Whether this is a user override")
 
@@ -64,9 +62,7 @@ class ThinkingUpdateResponse(BaseModel):
     """Response from thinking capability update operation."""
 
     message: str = Field(..., description="Human-readable success message")
-    model_id: str = Field(
-        ..., description="Model identifier", serialization_alias="modelId"
-    )
+    model_id: str = Field(..., description="Model identifier", serialization_alias="modelId")
     thinking: bool = Field(..., description="New thinking status")
     override: bool = Field(..., description="Whether this is a user override")
     tier_changed: bool = Field(
@@ -93,9 +89,7 @@ class EnabledUpdateResponse(BaseModel):
     """Response from enabled status update operation."""
 
     message: str = Field(..., description="Human-readable success message")
-    model_id: str = Field(
-        ..., description="Model identifier", serialization_alias="modelId"
-    )
+    model_id: str = Field(..., description="Model identifier", serialization_alias="modelId")
     enabled: bool = Field(..., description="New enabled status")
     restart_required: bool = Field(
         ...,
@@ -183,16 +177,12 @@ class RescanResponse(BaseModel):
 class ServerStatusItem(BaseModel):
     """Status information for a single running server."""
 
-    model_id: str = Field(
-        ..., description="Model identifier", serialization_alias="modelId"
-    )
+    model_id: str = Field(..., description="Model identifier", serialization_alias="modelId")
     display_name: str = Field(
         ..., description="Human-readable name", serialization_alias="displayName"
     )
     port: int = Field(..., description="HTTP port server is listening on")
-    pid: Optional[int] = Field(
-        None, description="Process ID (None for external servers)"
-    )
+    pid: Optional[int] = Field(None, description="Process ID (None for external servers)")
     is_ready: bool = Field(
         ..., description="Server readiness status", serialization_alias="isReady"
     )
@@ -314,9 +304,7 @@ class ProfileDeleteResponse(BaseModel):
     message: str = Field(..., description="Human-readable success message")
 
     model_config = ConfigDict(
-        json_schema_extra={
-            "example": {"message": "Profile 'test' deleted successfully"}
-        }
+        json_schema_extra={"example": {"message": "Profile 'test' deleted successfully"}}
     )
 
 
@@ -326,9 +314,7 @@ class ProfileDeleteResponse(BaseModel):
 class PortUpdateRequest(BaseModel):
     """Request to update model port assignment."""
 
-    port: int = Field(
-        ..., ge=1024, le=65535, description="Port number to assign to model"
-    )
+    port: int = Field(..., ge=1024, le=65535, description="Port number to assign to model")
 
     model_config = ConfigDict(json_schema_extra={"example": {"port": 8083}})
 
@@ -337,9 +323,7 @@ class PortUpdateResponse(BaseModel):
     """Response from port assignment update."""
 
     message: str = Field(..., description="Human-readable success message")
-    model_id: str = Field(
-        ..., description="Model identifier", serialization_alias="modelId"
-    )
+    model_id: str = Field(..., description="Model identifier", serialization_alias="modelId")
     port: int = Field(..., description="Assigned port number")
     restart_required: bool = Field(
         ...,
@@ -409,9 +393,7 @@ class RuntimeSettingsUpdateResponse(BaseModel):
     """Response from runtime settings update."""
 
     message: str = Field(..., description="Human-readable success message")
-    model_id: str = Field(
-        ..., description="Model identifier", serialization_alias="modelId"
-    )
+    model_id: str = Field(..., description="Model identifier", serialization_alias="modelId")
     n_gpu_layers: Optional[int] = Field(
         None, description="GPU layers override", serialization_alias="nGpuLayers"
     )
@@ -449,16 +431,10 @@ class RuntimeSettingsUpdateResponse(BaseModel):
 class PortRangeUpdateRequest(BaseModel):
     """Request to update model server port range."""
 
-    start: int = Field(
-        ..., ge=1024, le=65535, description="Start port of range (minimum 1024)"
-    )
-    end: int = Field(
-        ..., ge=1024, le=65535, description="End port of range (maximum 65535)"
-    )
+    start: int = Field(..., ge=1024, le=65535, description="Start port of range (minimum 1024)")
+    end: int = Field(..., ge=1024, le=65535, description="End port of range (maximum 65535)")
 
-    model_config = ConfigDict(
-        json_schema_extra={"example": {"start": 8080, "end": 8099}}
-    )
+    model_config = ConfigDict(json_schema_extra={"example": {"start": 8080, "end": 8099}})
 
 
 class PortRangeUpdateResponse(BaseModel):
@@ -490,9 +466,7 @@ class ExternalServerItem(BaseModel):
     """Details about a single external Metal server."""
 
     port: int = Field(..., description="Port number the server is running on")
-    status: str = Field(
-        ..., description="Server status: 'online', 'offline', or 'error'"
-    )
+    status: str = Field(..., description="Server status: 'online', 'offline', or 'error'")
     response_time_ms: Optional[int] = Field(
         None,
         description="Response time in milliseconds (null if unreachable)",

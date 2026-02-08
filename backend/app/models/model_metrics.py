@@ -25,9 +25,7 @@ class ModelMetrics(BaseModel):
         current_latency_ms: Most recent latency in ms
     """
 
-    model_id: str = Field(
-        ..., description="Unique model identifier", serialization_alias="modelId"
-    )
+    model_id: str = Field(..., description="Unique model identifier", serialization_alias="modelId")
 
     # Token generation metrics
     tokens_per_second: List[float] = Field(

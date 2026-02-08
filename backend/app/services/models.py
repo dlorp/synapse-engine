@@ -175,9 +175,7 @@ class ModelManager:
         self._logger.debug("Checking health of all models")
 
         # Run health checks in parallel
-        health_checks = [
-            self._check_model_health(model_id) for model_id in self.models.keys()
-        ]
+        health_checks = [self._check_model_health(model_id) for model_id in self.models.keys()]
 
         await asyncio.gather(*health_checks, return_exceptions=True)
 
@@ -305,9 +303,7 @@ class ModelManager:
             # Calculate average response time
             avg_response_time = 0.0
             if state["request_count"] > 0:
-                avg_response_time = (
-                    state["total_response_time_ms"] / state["request_count"]
-                )
+                avg_response_time = state["total_response_time_ms"] / state["request_count"]
 
             # Get memory statistics from llama.cpp if model is healthy
             memory_used_mb = 0
@@ -369,13 +365,9 @@ class ModelManager:
             # Cache metrics not initialized - use default 0.0
             pass
         except Exception as e:
-            self._logger.warning(
-                f"Failed to get cache hit rate: {e}", extra={"error": str(e)}
-            )
+            self._logger.warning(f"Failed to get cache hit rate: {e}", extra={"error": str(e)})
 
-        active_queries = sum(
-            1 for m in model_statuses if m.state == ModelState.PROCESSING
-        )
+        active_queries = sum(1 for m in model_statuses if m.state == ModelState.PROCESSING)
         total_requests = sum(m.request_count for m in model_statuses)
 
         return SystemStatus(
@@ -416,9 +408,7 @@ class ModelManager:
         ]
 
         if not available_models:
-            self._logger.error(
-                f"No healthy models available in tier {tier}", extra={"tier": tier}
-            )
+            self._logger.error(f"No healthy models available in tier {tier}", extra={"tier": tier})
             raise NoModelsAvailableError(
                 tier=tier,
                 details={
@@ -445,9 +435,7 @@ class ModelManager:
             extra={
                 "tier": tier,
                 "model_id": selected_model,
-                "request_counts": {
-                    m: self._request_counts[m] for m in available_models
-                },
+                "request_counts": {m: self._request_counts[m] for m in available_models},
             },
         )
 
@@ -543,9 +531,7 @@ class ModelManager:
         except asyncio.TimeoutError:
             state["error_count"] += 1
             config = self.models[model_id]
-            raise QueryTimeoutError(
-                model_id=model_id, timeout_seconds=config.timeout_seconds
-            )
+            raise QueryTimeoutError(model_id=model_id, timeout_seconds=config.timeout_seconds)
 
         except Exception as e:
             state["error_count"] += 1
@@ -560,7 +546,5 @@ class ModelManager:
             # Restore state (will be updated by next health check)
             if state["is_healthy"]:
                 state["state"] = (
-                    previous_state
-                    if previous_state != ModelState.PROCESSING
-                    else ModelState.ACTIVE
+                    previous_state if previous_state != ModelState.PROCESSING else ModelState.ACTIVE
                 )

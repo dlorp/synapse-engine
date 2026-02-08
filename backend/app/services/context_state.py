@@ -90,9 +90,7 @@ class ContextStateManager:
 
         logger.info("ContextStateManager stopped")
 
-    async def store_allocation(
-        self, request: ContextAllocationRequest
-    ) -> ContextAllocation:
+    async def store_allocation(self, request: ContextAllocationRequest) -> ContextAllocation:
         """Store context allocation for a query.
 
         Calculates token counts for each component, determines utilization
@@ -116,9 +114,7 @@ class ContextStateManager:
             # Calculate totals
             total_tokens_used = system_prompt_tokens + cgrag_tokens + query_tokens
             tokens_remaining = max(0, request.context_window_size - total_tokens_used)
-            utilization_percentage = (
-                total_tokens_used / request.context_window_size
-            ) * 100
+            utilization_percentage = (total_tokens_used / request.context_window_size) * 100
 
             # Generate warning if >80% utilized
             warning = None
@@ -131,29 +127,22 @@ class ContextStateManager:
                     component="system_prompt",
                     tokens_used=system_prompt_tokens,
                     tokens_allocated=system_prompt_tokens,
-                    percentage=(system_prompt_tokens / request.context_window_size)
-                    * 100,
-                    content_preview=request.system_prompt[:100]
-                    if request.system_prompt
-                    else None,
+                    percentage=(system_prompt_tokens / request.context_window_size) * 100,
+                    content_preview=request.system_prompt[:100] if request.system_prompt else None,
                 ),
                 ContextComponent(
                     component="cgrag_context",
                     tokens_used=cgrag_tokens,
                     tokens_allocated=cgrag_tokens,
                     percentage=(cgrag_tokens / request.context_window_size) * 100,
-                    content_preview=request.cgrag_context[:100]
-                    if request.cgrag_context
-                    else None,
+                    content_preview=request.cgrag_context[:100] if request.cgrag_context else None,
                 ),
                 ContextComponent(
                     component="user_query",
                     tokens_used=query_tokens,
                     tokens_allocated=query_tokens,
                     percentage=(query_tokens / request.context_window_size) * 100,
-                    content_preview=request.user_query[:100]
-                    if request.user_query
-                    else None,
+                    content_preview=request.user_query[:100] if request.user_query else None,
                 ),
                 ContextComponent(
                     component="response_budget",

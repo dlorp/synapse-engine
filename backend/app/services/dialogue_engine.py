@@ -1,8 +1,8 @@
 """Sequential multi-model dialogue engine for true multi-chat."""
 
 import logging
-from typing import List, Dict, Optional, TYPE_CHECKING, Callable, Awaitable
 from datetime import datetime
+from typing import TYPE_CHECKING, Awaitable, Callable, Dict, List, Optional
 
 if TYPE_CHECKING:
     pass
@@ -211,9 +211,7 @@ class DialogueEngine:
                 self.logger.info(f"🎓 Moderator check at turn {turn_num + 1}")
 
                 # Get recent turns for moderator review (last moderator_check_frequency * 2 turns)
-                recent_turn_count = min(
-                    moderator_check_frequency * 2, len(conversation_history)
-                )
+                recent_turn_count = min(moderator_check_frequency * 2, len(conversation_history))
                 recent_turns = conversation_history[-recent_turn_count:]
 
                 # Check if moderator wants to interject
@@ -370,9 +368,7 @@ Your Turn {turn_number} ({position} response):"""
             return guidance
 
         except Exception as e:
-            self.logger.error(
-                f"Error checking moderator interjection: {e}", exc_info=True
-            )
+            self.logger.error(f"Error checking moderator interjection: {e}", exc_info=True)
             return None
 
     def _check_termination(self, history: List[DialogueTurn]) -> Optional[str]:

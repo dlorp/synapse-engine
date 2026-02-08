@@ -8,12 +8,12 @@ running and available for queries.
 """
 
 import logging
-from typing import Optional, List
 from collections import defaultdict
+from typing import List, Optional
 
-from app.models.discovered_model import ModelRegistry, ModelTier, DiscoveredModel
-from app.services.llama_server_manager import LlamaServerManager
 from app.core.exceptions import NoModelsAvailableError
+from app.models.discovered_model import DiscoveredModel, ModelRegistry, ModelTier
+from app.services.llama_server_manager import LlamaServerManager
 
 logger = logging.getLogger(__name__)
 
@@ -46,9 +46,7 @@ class ModelSelector:
             "ModelSelector initialized",
             extra={
                 "total_models": len(registry.models),
-                "enabled_models": len(
-                    [m for m in registry.models.values() if m.enabled]
-                ),
+                "enabled_models": len([m for m in registry.models.values() if m.enabled]),
             },
         )
 
@@ -103,9 +101,7 @@ class ModelSelector:
         tier_models = self.registry.get_by_tier(tier_enum)
 
         # Filter to only available (enabled AND running) models
-        available_models = [
-            model for model in tier_models if self.is_model_available(model)
-        ]
+        available_models = [model for model in tier_models if self.is_model_available(model)]
 
         if not available_models:
             # Find which tiers DO have available models
@@ -156,8 +152,7 @@ class ModelSelector:
                 "tier": tier,
                 "model_id": selected.model_id,
                 "request_counts": {
-                    m.model_id: self._request_counts[m.model_id]
-                    for m in available_models
+                    m.model_id: self._request_counts[m.model_id] for m in available_models
                 },
             },
         )
@@ -170,11 +165,7 @@ class ModelSelector:
         Returns:
             List of DiscoveredModel instances that are available
         """
-        return [
-            model
-            for model in self.registry.models.values()
-            if self.is_model_available(model)
-        ]
+        return [model for model in self.registry.models.values() if self.is_model_available(model)]
 
     def get_available_count(self, tier: Optional[str] = None) -> int:
         """Get count of available models, optionally filtered by tier.

@@ -8,10 +8,10 @@ import pytest
 from pydantic import ValidationError
 
 from app.models.context import (
-    ContextComponent,
     CGRAGArtifact,
     ContextAllocation,
     ContextAllocationRequest,
+    ContextComponent,
 )
 
 

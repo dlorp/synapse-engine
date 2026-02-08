@@ -6,8 +6,9 @@ test queries to the backend and checking if moderator intervenes when
 models go off-topic.
 """
 
-import requests
 import time
+
+import requests
 
 
 def run_active_moderator_test(
@@ -74,9 +75,7 @@ def run_active_moderator_test(
         print("\n Results:")
         print(f"  Total turns: {len(council_turns)}")
         print(f"  Moderator interjections: {moderator_interjections}")
-        print(
-            f"  Termination reason: {metadata.get('councilTerminationReason', 'N/A')}"
-        )
+        print(f"  Termination reason: {metadata.get('councilTerminationReason', 'N/A')}")
 
         # Show turn-by-turn breakdown
         print("\n📝 Turn-by-turn breakdown:")
@@ -102,15 +101,11 @@ def run_active_moderator_test(
                 )
 
         # Check if moderator turns exist in conversation
-        moderator_turns = [
-            t for t in council_turns if t.get("speakerId") == "MODERATOR"
-        ]
+        moderator_turns = [t for t in council_turns if t.get("speakerId") == "MODERATOR"]
         if moderator_turns:
             print(f"  ✓ Found {len(moderator_turns)} moderator turns in conversation")
         else:
-            print(
-                "    No moderator turns found (may be expected if debate stayed on track)"
-            )
+            print("    No moderator turns found (may be expected if debate stayed on track)")
 
         return True
 

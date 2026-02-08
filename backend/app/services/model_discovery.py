@@ -9,9 +9,9 @@ assigns performance tiers, and maintains a persistent model registry.
 import json
 import logging
 import re
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
-from datetime import datetime
 
 from app.models.discovered_model import (
     DiscoveredModel,
@@ -133,8 +133,7 @@ class ModelDiscoveryService:
                         else model.assigned_tier.value
                     )
                     logger.info(
-                        f"Parsed: {model.filename} -> "
-                        f"{model.get_display_name()} [{tier_str}]"
+                        f"Parsed: {model.filename} -> {model.get_display_name()} [{tier_str}]"
                     )
                 else:
                     logger.warning(f"Failed to parse: {gguf_file.name}")
@@ -145,24 +144,14 @@ class ModelDiscoveryService:
         discovered_models.sort(
             key=lambda m: (
                 0
-                if (
-                    m.assigned_tier
-                    if isinstance(m.assigned_tier, str)
-                    else m.assigned_tier.value
-                )
+                if (m.assigned_tier if isinstance(m.assigned_tier, str) else m.assigned_tier.value)
                 == "powerful"
                 else 1
-                if (
-                    m.assigned_tier
-                    if isinstance(m.assigned_tier, str)
-                    else m.assigned_tier.value
-                )
+                if (m.assigned_tier if isinstance(m.assigned_tier, str) else m.assigned_tier.value)
                 == "balanced"
                 else 2,
                 -m.size_params,
-                m.quantization
-                if isinstance(m.quantization, str)
-                else m.quantization.value,
+                m.quantization if isinstance(m.quantization, str) else m.quantization.value,
             )
         )
 
@@ -214,9 +203,7 @@ class ModelDiscoveryService:
         logger.debug(f"Parsing: {filename}")
 
         # Try each pattern in order
-        for pattern_num, pattern in enumerate(
-            [self.PATTERN_1, self.PATTERN_2, self.PATTERN_3], 1
-        ):
+        for pattern_num, pattern in enumerate([self.PATTERN_1, self.PATTERN_2, self.PATTERN_3], 1):
             match = pattern.match(filename)
             if match:
                 groups = match.groupdict()
@@ -343,9 +330,7 @@ class ModelDiscoveryService:
 
         return model
 
-    def _is_thinking_model(
-        self, filename: str, groups: Dict[str, Optional[str]]
-    ) -> bool:
+    def _is_thinking_model(self, filename: str, groups: Dict[str, Optional[str]]) -> bool:
         """Detect if model is a thinking/reasoning model.
 
         Checks for keywords like 'r1', 'o1', 'reasoning', 'think' in the
@@ -362,17 +347,13 @@ class ModelDiscoveryService:
         filename_lower = filename.lower()
         for keyword in self.THINKING_KEYWORDS:
             if keyword in filename_lower:
-                logger.debug(
-                    f"Detected thinking model (keyword '{keyword}'): {filename}"
-                )
+                logger.debug(f"Detected thinking model (keyword '{keyword}'): {filename}")
                 return True
 
         # Check variant/submodel fields
         for field in ["variant", "submodel"]:
             value = groups.get(field)
-            if value and any(
-                keyword in value.lower() for keyword in self.THINKING_KEYWORDS
-            ):
+            if value and any(keyword in value.lower() for keyword in self.THINKING_KEYWORDS):
                 logger.debug(f"Detected thinking model (field '{field}'): {filename}")
                 return True
 
@@ -420,9 +401,7 @@ class ModelDiscoveryService:
         ]
         # Handle both enum and string values (Pydantic may convert)
         quant_value = (
-            model.quantization
-            if isinstance(model.quantization, str)
-            else model.quantization.value
+            model.quantization if isinstance(model.quantization, str) else model.quantization.value
         )
         if model.size_params < self.fast_threshold and quant_value in low_quants:
             logger.debug(
@@ -546,10 +525,7 @@ class ModelDiscoveryService:
                 registry_dict = json.load(f)
 
             registry = ModelRegistry(**registry_dict)
-            logger.info(
-                f"Registry loaded from: {path.absolute()} "
-                f"({len(registry.models)} models)"
-            )
+            logger.info(f"Registry loaded from: {path.absolute()} ({len(registry.models)} models)")
             return registry
         except json.JSONDecodeError as e:
             logger.error(f"Invalid JSON in registry file: {e}", exc_info=True)

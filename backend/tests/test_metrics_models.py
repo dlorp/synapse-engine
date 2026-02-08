@@ -8,16 +8,16 @@ import pytest
 from pydantic import ValidationError
 
 from app.models.metrics import (
+    CPUMetrics,
+    DiskIOMetrics,
+    MemoryMetrics,
+    NetworkThroughputMetrics,
     QueryMetrics,
+    ResourceMetrics,
+    ThreadPoolStatus,
     TierMetrics,
     TierMetricsResponse,
     VRAMMetrics,
-    CPUMetrics,
-    MemoryMetrics,
-    ThreadPoolStatus,
-    DiskIOMetrics,
-    NetworkThroughputMetrics,
-    ResourceMetrics,
 )
 
 

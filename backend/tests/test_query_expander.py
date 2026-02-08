@@ -5,10 +5,11 @@ when initial results are evaluated as PARTIAL relevance.
 """
 
 import json
-import pytest
+import tempfile
 from pathlib import Path
 from unittest.mock import patch
-import tempfile
+
+import pytest
 
 from app.services.query_expander import QueryExpander
 
@@ -45,9 +46,7 @@ class TestQueryExpanderInit:
         """Test loading synonyms from file on init."""
         custom_synonyms = {"llm": ["language model", "neural network"]}
 
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump(custom_synonyms, f)
             temp_path = f.name
 
@@ -104,9 +103,7 @@ class TestQueryExpanderExpand:
         terms = result.split()
 
         # Should have original + at most 1 synonym
-        synonym_count = sum(
-            1 for t in terms if t in expander.SYNONYMS.get("function", [])
-        )
+        synonym_count = sum(1 for t in terms if t in expander.SYNONYMS.get("function", []))
         assert synonym_count <= 1
 
     def test_expand_case_insensitive(self, expander):
@@ -183,9 +180,7 @@ class TestQueryExpanderFileLoading:
             "custom2": ["synonym3"],
         }
 
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump(synonyms, f)
             temp_path = f.name
 
@@ -207,9 +202,7 @@ class TestQueryExpanderFileLoading:
 
     def test_load_invalid_json_file(self):
         """Test loading invalid JSON raises error."""
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             f.write("not valid json {{{")
             temp_path = f.name
 
@@ -223,9 +216,7 @@ class TestQueryExpanderFileLoading:
 
     def test_load_non_dict_json(self):
         """Test loading JSON that's not a dict raises error."""
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump(["not", "a", "dict"], f)
             temp_path = f.name
 
@@ -241,9 +232,7 @@ class TestQueryExpanderFileLoading:
         """Test that loaded synonyms merge with defaults."""
         custom = {"newterm": ["newsyn"]}
 
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump(custom, f)
             temp_path = f.name
 

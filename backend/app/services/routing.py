@@ -10,7 +10,6 @@ from app.core.logging import get_logger
 from app.models.config import RoutingConfig
 from app.models.query import QueryComplexity
 
-
 logger = get_logger(__name__)
 
 
@@ -103,21 +102,17 @@ async def assess_complexity(query: str, config: RoutingConfig) -> QueryComplexit
 
     # 3. Structural complexity indicators
     has_multiple_parts = any(
-        sep in query_lower
-        for sep in [" and ", " then ", " also ", ";", " or ", " but "]
+        sep in query_lower for sep in [" and ", " then ", " also ", ";", " or ", " but "]
     )
     has_multiple_questions = query.count("?") > 1
     has_conditionals = any(
-        word in query_lower
-        for word in ["if ", "when ", "assuming", "suppose", "given that"]
+        word in query_lower for word in ["if ", "when ", "assuming", "suppose", "given that"]
     )
     has_reasoning_indicators = any(
-        word in query_lower
-        for word in ["because", "therefore", "thus", "hence", "consequently"]
+        word in query_lower for word in ["because", "therefore", "thus", "hence", "consequently"]
     )
     has_enumeration = any(
-        word in query_lower
-        for word in ["first", "second", "third", "step by step", "stages"]
+        word in query_lower for word in ["first", "second", "third", "step by step", "stages"]
     )
 
     # 4. Calculate complexity score
@@ -271,9 +266,7 @@ def _map_score_to_tier(score: float, config: RoutingConfig) -> str:
         return "powerful"
 
 
-def _build_reasoning(
-    tier: str, score: float, pattern_type: str, token_count: int
-) -> str:
+def _build_reasoning(tier: str, score: float, pattern_type: str, token_count: int) -> str:
     """Build human-readable reasoning for tier selection.
 
     Args:
@@ -292,9 +285,7 @@ def _build_reasoning(
         reasoning_parts.append("Simple query routed to FAST tier (2B-7B models).")
         reasoning_parts.append("Expected response time: <2s.")
     elif tier == "balanced":
-        reasoning_parts.append(
-            "Moderate complexity routed to BALANCED tier (8B-14B models)."
-        )
+        reasoning_parts.append("Moderate complexity routed to BALANCED tier (8B-14B models).")
         reasoning_parts.append("Expected response time: <5s.")
     else:  # powerful
         reasoning_parts.append("Complex query routed to POWERFUL tier (>14B models).")

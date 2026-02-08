@@ -10,24 +10,24 @@ Also includes WebSocket endpoint for real-time metrics streaming.
 """
 
 import asyncio
+
+# Application start time for uptime calculation (set during startup)
+import time
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 from app.core.logging import get_logger
 from app.models.metrics import (
+    ContextUtilization,
+    HistoricalMetrics,
+    MetricsUpdate,
     QueryMetrics,
-    TierMetricsResponse,
     ResourceMetrics,
     RoutingMetrics,
-    MetricsUpdate,
-    HistoricalMetrics,
-    ContextUtilization,
+    TierMetricsResponse,
 )
 from app.services.metrics_collector import get_metrics_collector
-
-# Application start time for uptime calculation (set during startup)
-import time
 
 _app_start_time: float = time.time()
 

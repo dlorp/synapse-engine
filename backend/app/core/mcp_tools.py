@@ -5,7 +5,7 @@ from the FastAPI backend. MCP tools are external capabilities provided by the MC
 """
 
 import logging
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
 
 logger = logging.getLogger(__name__)
 

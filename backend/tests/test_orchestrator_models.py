@@ -8,10 +8,10 @@ import pytest
 from pydantic import ValidationError
 
 from app.models.orchestrator import (
-    RoutingDecision,
-    TierUtilization,
     ComplexityDistribution,
     OrchestratorStatusResponse,
+    RoutingDecision,
+    TierUtilization,
 )
 
 

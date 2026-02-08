@@ -4,8 +4,9 @@ Provides common test fixtures for async testing, mocking, and test isolation.
 """
 
 import asyncio
-import pytest
 from unittest.mock import MagicMock, patch
+
+import pytest
 
 
 @pytest.fixture(scope="session")

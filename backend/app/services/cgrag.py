@@ -57,42 +57,41 @@ def get_cgrag_index_paths(index_name: str = "docs") -> Tuple[Path, Path, Path]:
 
 def migrate_pickle_to_json(index_name: str = "docs") -> bool:
     """Migrate existing pickle metadata files to JSON format.
-    
+
     This function handles migration from the old pickle-based format to the new
     JSON format for security (pickle deserialization can execute arbitrary code).
-    
+
     Args:
         index_name: Name of the index to migrate
-        
+
     Returns:
         True if migration was performed, False if no migration needed
-        
+
     Note:
         The original .pkl file is preserved as .pkl.bak for safety.
     """
     import pickle  # Only import for migration, not used elsewhere
-    
+
     index_dir, _, json_metadata_path = get_cgrag_index_paths(index_name)
     pkl_metadata_path = index_dir / f"{index_name}_metadata.pkl"
-    
+
     # Check if migration is needed
     if not pkl_metadata_path.exists():
         return False  # No pickle file to migrate
-        
+
     if json_metadata_path.exists():
         logger.info(f"JSON metadata already exists at {json_metadata_path}, skipping migration")
         return False
-    
+
     logger.warning(
-        f"Migrating pickle metadata to JSON format for security. "
-        f"Source: {pkl_metadata_path}"
+        f"Migrating pickle metadata to JSON format for security. Source: {pkl_metadata_path}"
     )
-    
+
     try:
         # Load from pickle (one last time)
         with open(pkl_metadata_path, "rb") as f:
             loaded_data = pickle.load(f)
-        
+
         # Handle both old format (list) and new format (dict)
         if isinstance(loaded_data, dict):
             metadata = loaded_data
@@ -110,7 +109,9 @@ def migrate_pickle_to_json(index_name: str = "docs") -> bool:
                     chunk_dict = chunk.model_dump(mode="json")
                 elif isinstance(chunk, dict):
                     chunk_dict = chunk
-                    if "modified_time" in chunk_dict and isinstance(chunk_dict["modified_time"], datetime):
+                    if "modified_time" in chunk_dict and isinstance(
+                        chunk_dict["modified_time"], datetime
+                    ):
                         chunk_dict["modified_time"] = chunk_dict["modified_time"].isoformat()
                 else:
                     chunk_dict = dict(chunk)
@@ -120,21 +121,21 @@ def migrate_pickle_to_json(index_name: str = "docs") -> bool:
                 "embedding_dim": 384,
                 "chunks": chunks,
             }
-        
+
         # Save as JSON
         with open(json_metadata_path, "w", encoding="utf-8") as f:
             json.dump(metadata, f, indent=2)
-        
+
         # Backup the original pickle file
         backup_path = pkl_metadata_path.with_suffix(".pkl.bak")
         pkl_metadata_path.rename(backup_path)
-        
+
         logger.info(
             f"Migration complete. JSON saved to {json_metadata_path}, "
             f"original backed up to {backup_path}"
         )
         return True
-        
+
     except Exception as e:
         logger.error(f"Migration failed: {e}", exc_info=True)
         raise
@@ -388,9 +389,7 @@ class CGRAGIndexer:
         Returns:
             NumPy array of embeddings (n_chunks x embedding_dim)
         """
-        logger.info(
-            f"Generating embeddings for {len(chunks)} chunks (batch_size={batch_size})"
-        )
+        logger.info(f"Generating embeddings for {len(chunks)} chunks (batch_size={batch_size})")
 
         # Extract texts
         texts = [chunk.content for chunk in chunks]
@@ -507,7 +506,7 @@ class CGRAGIndexer:
 
         if not index_path.exists():
             raise FileNotFoundError(f"Index file not found: {index_path}")
-        
+
         # Check for legacy pickle file and migrate if needed
         if not metadata_path.exists():
             pkl_path = metadata_path.with_suffix(".pkl")
@@ -525,9 +524,7 @@ class CGRAGIndexer:
 
         # Handle both old format (list of chunks) and new format (dict with metadata)
         if isinstance(loaded_data, dict):
-            embedding_model_name = loaded_data.get(
-                "embedding_model_name", "all-MiniLM-L6-v2"
-            )
+            embedding_model_name = loaded_data.get("embedding_model_name", "all-MiniLM-L6-v2")
             chunk_data = loaded_data.get("chunks", [])
             logger.info(f"Loaded index with embedding model: {embedding_model_name}")
         else:
@@ -684,9 +681,7 @@ class CGRAGRetriever:
             Tuple of (selected_chunks, total_tokens_used)
         """
         # Sort by relevance score (descending)
-        sorted_candidates = sorted(
-            candidates, key=lambda c: c.relevance_score, reverse=True
-        )
+        sorted_candidates = sorted(candidates, key=lambda c: c.relevance_score, reverse=True)
 
         selected = []
         total_tokens = 0

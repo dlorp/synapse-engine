@@ -19,7 +19,7 @@ import asyncio
 import logging
 from typing import Optional
 
-from app.core.logging import get_request_id, get_trace_id, get_session_id
+from app.core.logging import get_request_id, get_session_id, get_trace_id
 
 
 class AggregatorHandler(logging.Handler):

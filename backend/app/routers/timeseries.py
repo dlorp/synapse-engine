@@ -11,15 +11,14 @@ from fastapi import APIRouter, HTTPException, Query
 
 from app.core.logging import get_logger
 from app.models.timeseries import (
-    MetricType,
     MetricsSummary,
+    MetricType,
     ModelBreakdownResponse,
     MultiMetricResponse,
     TimeRange,
     TimeSeriesResponse,
 )
 from app.services.metrics_aggregator import get_metrics_aggregator
-
 
 logger = get_logger(__name__)
 router = APIRouter(prefix="/api/timeseries")
@@ -96,13 +95,9 @@ router = APIRouter(prefix="/api/timeseries")
 )
 async def get_timeseries(
     metric: MetricType = Query(..., description="Metric type to retrieve"),
-    range: TimeRange = Query(
-        TimeRange.TWENTY_FOUR_HOURS, description="Time range for data"
-    ),
+    range: TimeRange = Query(TimeRange.TWENTY_FOUR_HOURS, description="Time range for data"),
     model: Optional[str] = Query(None, description="Filter by model ID"),
-    tier: Optional[Literal["Q2", "Q3", "Q4"]] = Query(
-        None, description="Filter by tier"
-    ),
+    tier: Optional[Literal["Q2", "Q3", "Q4"]] = Query(None, description="Filter by tier"),
 ) -> TimeSeriesResponse:
     """Get time-series data for a metric.
 
@@ -144,14 +139,10 @@ async def get_timeseries(
 
     except RuntimeError as e:
         logger.error(f"MetricsAggregator not initialized: {e}")
-        raise HTTPException(
-            status_code=500, detail="Metrics aggregator not initialized"
-        )
+        raise HTTPException(status_code=500, detail="Metrics aggregator not initialized")
     except Exception as e:
         logger.error(f"Error fetching time-series: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500, detail=f"Failed to fetch time-series data: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to fetch time-series data: {str(e)}")
 
 
 @router.get(
@@ -217,14 +208,10 @@ async def get_summary(
 
     except RuntimeError as e:
         logger.error(f"MetricsAggregator not initialized: {e}")
-        raise HTTPException(
-            status_code=500, detail="Metrics aggregator not initialized"
-        )
+        raise HTTPException(status_code=500, detail="Metrics aggregator not initialized")
     except Exception as e:
         logger.error(f"Error fetching summary: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500, detail=f"Failed to fetch summary: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to fetch summary: {str(e)}")
 
 
 @router.get(
@@ -300,19 +287,13 @@ async def get_comparison(
         try:
             metric_types = [MetricType(name) for name in metric_names_str]
         except ValueError as e:
-            raise HTTPException(
-                status_code=400, detail=f"Invalid metric name: {str(e)}"
-            )
+            raise HTTPException(status_code=400, detail=f"Invalid metric name: {str(e)}")
 
         aggregator = get_metrics_aggregator()
 
-        logger.info(
-            f"Fetching comparison: metrics={metric_names_str}, range={range.value}"
-        )
+        logger.info(f"Fetching comparison: metrics={metric_names_str}, range={range.value}")
 
-        response = await aggregator.get_comparison(
-            metric_names=metric_types, time_range=range
-        )
+        response = await aggregator.get_comparison(metric_names=metric_types, time_range=range)
 
         logger.debug(
             f"Comparison retrieved: {len(metric_types)} metrics",
@@ -329,14 +310,10 @@ async def get_comparison(
         raise
     except RuntimeError as e:
         logger.error(f"MetricsAggregator not initialized: {e}")
-        raise HTTPException(
-            status_code=500, detail="Metrics aggregator not initialized"
-        )
+        raise HTTPException(status_code=500, detail="Metrics aggregator not initialized")
     except Exception as e:
         logger.error(f"Error fetching comparison: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500, detail=f"Failed to fetch comparison data: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to fetch comparison data: {str(e)}")
 
 
 @router.get(
@@ -410,13 +387,9 @@ async def get_model_breakdown(
     try:
         aggregator = get_metrics_aggregator()
 
-        logger.info(
-            f"Fetching model breakdown: metric={metric.value}, range={range.value}"
-        )
+        logger.info(f"Fetching model breakdown: metric={metric.value}, range={range.value}")
 
-        response = await aggregator.get_model_breakdown(
-            metric_name=metric, time_range=range
-        )
+        response = await aggregator.get_model_breakdown(metric_name=metric, time_range=range)
 
         logger.debug(
             f"Model breakdown retrieved: {len(response.models)} models",
@@ -431,11 +404,7 @@ async def get_model_breakdown(
 
     except RuntimeError as e:
         logger.error(f"MetricsAggregator not initialized: {e}")
-        raise HTTPException(
-            status_code=500, detail="Metrics aggregator not initialized"
-        )
+        raise HTTPException(status_code=500, detail="Metrics aggregator not initialized")
     except Exception as e:
         logger.error(f"Error fetching model breakdown: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500, detail=f"Failed to fetch model breakdown: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to fetch model breakdown: {str(e)}")

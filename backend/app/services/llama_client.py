@@ -5,7 +5,7 @@ model servers, including health checks and completion generation with retry logi
 """
 
 import asyncio
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
 
 import httpx
 
@@ -115,9 +115,7 @@ class LlamaCppClient:
 
         except httpx.TimeoutException:
             elapsed_ms = (asyncio.get_event_loop().time() - start_time) * 1000
-            self._logger.warning(
-                "Health check timeout", extra={"base_url": self.base_url}
-            )
+            self._logger.warning("Health check timeout", extra={"base_url": self.base_url})
             return {
                 "status": "unreachable",
                 "latency_ms": elapsed_ms,
@@ -182,9 +180,7 @@ class LlamaCppClient:
                 memory_used_gb = data.get("memory_used_gb", 0.0)
                 if memory_used_gb == 0.0:
                     # Try to get memory in bytes and convert
-                    memory_bytes = (
-                        data.get("kv_cache_used_cells", 0) * 1024
-                    )  # Approximate
+                    memory_bytes = data.get("kv_cache_used_cells", 0) * 1024  # Approximate
                     memory_used_gb = memory_bytes / (1024**3)
 
                 return {
@@ -207,9 +203,7 @@ class LlamaCppClient:
                 }
 
         except httpx.TimeoutException:
-            self._logger.debug(
-                "Stats request timeout", extra={"base_url": self.base_url}
-            )
+            self._logger.debug("Stats request timeout", extra={"base_url": self.base_url})
             return {"tokens_per_second": 0.0, "memory_used_gb": 0.0, "error": "Timeout"}
 
         except httpx.ConnectError as e:
