@@ -955,14 +955,16 @@ class TestTopologyRouterEdgeCases:
         mock_manager = MagicMock()
         mock_manager.get_topology = AsyncMock(return_value=sample_topology)
 
-        def make_request():
-            with patch("app.routers.topology.get_topology_manager", return_value=mock_manager):
+        # Fix: Apply patch once outside threading context to avoid race conditions
+        # when multiple threads patch/unpatch the same target simultaneously
+        with patch("app.routers.topology.get_topology_manager", return_value=mock_manager):
+            def make_request():
                 return client.get("/api/topology/")
 
-        # Make 10 concurrent requests
-        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-            futures = [executor.submit(make_request) for _ in range(10)]
-            results = [f.result() for f in futures]
+            # Make 10 concurrent requests
+            with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+                futures = [executor.submit(make_request) for _ in range(10)]
+                results = [f.result() for f in futures]
 
         # All should succeed
         assert all(r.status_code == 200 for r in results)
