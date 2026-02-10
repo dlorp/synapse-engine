@@ -9,18 +9,24 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: backend
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Check version consistency
+        run: |
+          bash scripts/check-version-sync.sh
+      
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      
       - name: Install ruff
+        working-directory: backend
         run: pip install ruff
+      
       - name: Run ruff linter
+        working-directory: backend
         run: ruff check app tests --output-format=github
 
   backend:
