@@ -1,6 +1,6 @@
 # Synapse Engine
 
-![Version](https://img.shields.io/badge/version-5.1.0-blue)
+![Version](https://img.shields.io/badge/version-5.1.1-blue)
 [![License](https://img.shields.io/badge/license-PolyForm%20NC%201.0.0-blue)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11+-blue)](https://www.python.org/)
 [![CI](https://img.shields.io/github/actions/workflow/status/dlorp/synapse-engine/ci.yml?label=CI)](https://github.com/dlorp/synapse-engine/actions)
